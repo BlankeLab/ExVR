@@ -1,32 +1,106 @@
-# Prerequisites
-*.d
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+## close-sources components
+unity-projects/exp-launcher/Assets/Scripts/Exp/Content/Components/Closed
+unity-projects/exp-launcher/Assets/Scripts/Exp/Content/Components/Closed.meta
+## only for LNCO
+unity-projects/exp-launcher/Assets/Scripts/Exp/Content/Components/LNCO
+unity-projects/exp-launcher/Assets/Scripts/Exp/Content/Components/LNCO.meta
 
-# Precompiled Headers
-*.gch
-*.pch
+*.pro.user
+*.pro.user*
+.qmake.stash
+Makefile
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+## bin
+cpp-projects/**/Makefile
+cpp-projects/**/Makefile*
+cpp-projects/**/*.pch
+cpp-projects/**/*.rc
+cpp-projects/_build/bin/**/*.exe
+cpp-projects/_build/bin/**/*.lib
+cpp-projects/_build/bin/**/*.pdb
+cpp-projects/_build/bin/**/exvr-export.dll
+cpp-projects/_build/bin/**/*.ilk
+cpp-projects/_build/bin/**/*.pdb
+cpp-projects/_build/bin/**/*.exp
+cpp-projects/_build/bin/**/*logs.html
+cpp-projects/_build/bin/exvr-designer/data/temp
+cpp-projects/_build/bin/exvr-designer/logs
+cpp-projects/_build/bin/exvr-designer/exp-launcher/ExVR-exp_Data
+cpp-projects/_build/bin/exvr-designer/exp-launcher/MonoBleedingEdge
+cpp-projects/_build/bin/exvr-designer/exp-launcher/UnityPlayer.dll
+cpp-projects/_build/bin/exvr-designer/exp-launcher/exvr-export.dll
+cpp-projects/_build/bin/exvr-designer/exp-launcher/lnco-exvr-export.dll
 
-# Fortran module files
-*.mod
-*.smod
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.pdb
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.py
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.exe.config
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.xsd
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.config
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.config
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.targets
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.psb
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.json
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.psb
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.xml
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.tasks
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.rsp
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.resS
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.resource
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.mdb
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.info
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.bat
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.browser
+cpp-projects/_build/bin/exvr-designer/exp-launcher/**/*.aspx
+cpp-projects/_build/bin/exvr-designer/exp-launcher/temp_generated/*.cs
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+## temp
+cpp-projects/_build/temp/**/*.obj
+cpp-projects/_build/temp/**/*.cpp
+cpp-projects/_build/temp/**/*.h
+cpp-projects/_build/temp/**/*.hpp
+cpp-projects/_build/temp/**/*.opt
+cpp-projects/_build/temp/**/*.res
+cpp-projects/_build/temp/**/*.pdb
 
-# Executables
-*.exe
-*.out
-*.app
+
+## unity-projects
+unity-projects/exp-launcher/exvr-export.dll
+unity-projects/exp-launcher/lnco-exvr-export.dll
+unity-projects/exp-launcher/Logs
+unity-projects/exp-launcher/ExVR-exp_Data
+unity-projects/exp-launcher/MonoBleedingEdge
+unity-projects/exp-launcher/SteamVR*
+unity-projects/exp-launcher/Unity.XRLineRenderer*
+unity-projects/exp-launcher/Assets/_TerrainAutoUpgrade
+unity-projects/exp-launcher/*.exe
+unity-projects/exp-launcher/.vs
+unity-projects/exp-launcher/Packages
+unity-projects/exp-launcher/AssetBundles
+unity-projects/exp-launcher/etc
+unity-projects/exp-launcher/Library
+unity-projects/exp-launcher/UnityPackageManager
+unity-projects/exp-launcher/obj
+unity-projects/exp-launcher/Temp
+unity-projects/exp-launcher/Assets/AssetBundles
+unity-projects/exp-launcher/Assets/Thirdparty/private
+
+
+
+## thirdparty
+cpp-projects/_thirdparty/**/*.sh
+cpp-projects/_thirdparty/**/*.re
+cpp-projects/_thirdparty/**/*.txt
+cpp-projects/_thirdparty/**/*.dtd
+cpp-projects/_thirdparty/**/*.pl
+cpp-projects/_thirdparty/**/*.m4
+cpp-projects/_thirdparty/**/*.ilk
+cpp-projects/_thirdparty/**/*.inc
+cpp-projects/_thirdparty/**/*.db
+cpp-projects/_thirdparty/**/*.shm
+cpp-projects/_thirdparty/**/*.erb
+cpp-projects/_thirdparty/**/*.wal
+cpp-projects/_thirdparty/**/*.bat
+cpp-projects/_thirdparty/**/*.patch
+cpp-projects/_thirdparty/**/*.exe
+cpp-projects/_thirdparty/**/.editorconfig

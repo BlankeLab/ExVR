@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Experiment name="nodes_bench" version="0.99z43" mode="designer" designer-used="D:/EPFL/exvr/build/bin/release/designer/ExVR.exe">
+    <Settings debug="1" csharp_debug_info="0" catch_components_exceptions="0" positional_tracking="1" catch_external_keyboard_events="0">
+        <Display mode="1" stereo_fov="60"/>
+        <Camera neutral_x="0" neutral_y="1" neutral_z="0"/>
+    </Settings>
+    <Resources reload="200"/>
+    <Components/>
+    <FlowElements>
+        <Routines>
+            <Routine key="1" name="Routine 1">
+                <Condition key="0" name="default" duration="100" ui_scale="10" ui_size="1" sets_keys="0">
+                    <Connector key="1" name="Real" node_position="460 35" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="2" name="Real" node_position="449 115" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="3" name="Real" node_position="455 192" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="4" name="Real" node_position="452 274" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="5" name="Real" node_position="464 348" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="6" name="Real" node_position="744 217" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="7" name="Real" node_position="462 434" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="8" name="Real" node_position="474 528" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="9" name="Real" node_position="793 38" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="10" name="Real" node_position="752 133" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="11" name="Real" node_position="729 289" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="12" name="Real" node_position="739 376" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="13" name="Real" node_position="763 464" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="14" name="Real" node_position="777 553" node_size="-1 -1">
+                        <Arg key="1" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="15" name="Real" node_position="127 271" node_size="-1 -1">
+                        <Arg key="15" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="16" name="Time" node_position="-85 207" node_size="-1 -1">
+                        <Arg key="17" name="value" ui="Combo box text" value="Time since exp|30" type="System.String" dim="1" sep="|" sizes="2"/>
+                    </Connector>
+                    <Connector key="17" name="DecimalTrigonometry" node_position="1103 279" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Cos" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="18" name="DecimalTrigonometry" node_position="1087 348" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Cos" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="19" name="DecimalTrigonometry" node_position="1071 438" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Cos" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="20" name="DecimalTrigonometry" node_position="1086 538" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Cos" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="21" name="DecimalTrigonometry" node_position="1103 216" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Cos" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="22" name="DecimalTrigonometry" node_position="1127 127" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Cos" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="23" name="DecimalTrigonometry" node_position="1115 35" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Cos" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="24" name="DecimalTrigonometry" node_position="1384.6 47.8" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Sin" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="25" name="DecimalTrigonometry" node_position="1383 139.8" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Sin" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="26" name="DecimalTrigonometry" node_position="1376.6 240.2" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Sin" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="27" name="DecimalTrigonometry" node_position="1379.8 339.4" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Sin" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="28" name="DecimalTrigonometry" node_position="1373.4 417" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Sin" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="29" name="DecimalTrigonometry" node_position="1401.8 486.2" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Sin" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="30" name="DecimalTrigonometry" node_position="1397.8 574.6" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Combo box text" value="Sin" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="32" name="String" node_position="1645.2 40.8" node_size="-1 -1">
+                        <Arg key="34" name="value" ui="Line text editor" value="default text" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="33" name="String" node_position="1632.8 130.4" node_size="-1 -1">
+                        <Arg key="34" name="value" ui="Line text editor" value="default text" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="34" name="String" node_position="1633.6 234.4" node_size="-1 -1">
+                        <Arg key="34" name="value" ui="Line text editor" value="default text" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="35" name="String" node_position="1642.8 336" node_size="-1 -1">
+                        <Arg key="34" name="value" ui="Line text editor" value="default text" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="36" name="String" node_position="1658 419.6" node_size="-1 -1">
+                        <Arg key="34" name="value" ui="Line text editor" value="default text" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="37" name="String" node_position="1648 498.4" node_size="-1 -1">
+                        <Arg key="34" name="value" ui="Line text editor" value="default text" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="38" name="String" node_position="1656 579.6" node_size="-1 -1">
+                        <Arg key="34" name="value" ui="Line text editor" value="default text" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="39" name="Integer" node_position="1900.8 131.04" node_size="-1 -1">
+                        <Arg key="41" name="value" ui="Integer spin box" value="10" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="40" name="Integer" node_position="1903.28 51.44" node_size="-1 -1">
+                        <Arg key="41" name="value" ui="Integer spin box" value="10" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="41" name="Integer" node_position="1886 225.68" node_size="-1 -1">
+                        <Arg key="41" name="value" ui="Integer spin box" value="10" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="42" name="Integer" node_position="1908.64 331.84" node_size="-1 -1">
+                        <Arg key="41" name="value" ui="Integer spin box" value="10" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="43" name="Integer" node_position="1915.44 433.68" node_size="-1 -1">
+                        <Arg key="41" name="value" ui="Integer spin box" value="10" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="44" name="Integer" node_position="1929.44 519.68" node_size="-1 -1">
+                        <Arg key="41" name="value" ui="Integer spin box" value="10" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="45" name="Integer" node_position="1954.96 610" node_size="-1 -1">
+                        <Arg key="41" name="value" ui="Integer spin box" value="10" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <!--Connection between Key8:Connector:Real:Port0 and Key14:Connector:Real:Port0-->
+                    <Connection key="7" out_type="connector" out_key="8" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="14" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key7:Connector:Real:Port0 and Key13:Connector:Real:Port0-->
+                    <Connection key="8" out_type="connector" out_key="7" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="13" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key5:Connector:Real:Port0 and Key12:Connector:Real:Port0-->
+                    <Connection key="9" out_type="connector" out_key="5" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="12" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key4:Connector:Real:Port0 and Key11:Connector:Real:Port0-->
+                    <Connection key="10" out_type="connector" out_key="4" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="11" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key3:Connector:Real:Port0 and Key6:Connector:Real:Port0-->
+                    <Connection key="11" out_type="connector" out_key="3" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="6" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key2:Connector:Real:Port0 and Key10:Connector:Real:Port0-->
+                    <Connection key="12" out_type="connector" out_key="2" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="10" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key1:Connector:Real:Port0 and Key9:Connector:Real:Port0-->
+                    <Connection key="13" out_type="connector" out_key="1" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="9" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key15:Connector:Real:Port0 and Key1:Connector:Real:Port0-->
+                    <Connection key="14" out_type="connector" out_key="15" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="1" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key15:Connector:Real:Port0 and Key2:Connector:Real:Port0-->
+                    <Connection key="15" out_type="connector" out_key="15" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="2" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key15:Connector:Real:Port0 and Key3:Connector:Real:Port0-->
+                    <Connection key="16" out_type="connector" out_key="15" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="3" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key15:Connector:Real:Port0 and Key4:Connector:Real:Port0-->
+                    <Connection key="17" out_type="connector" out_key="15" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="4" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key15:Connector:Real:Port0 and Key5:Connector:Real:Port0-->
+                    <Connection key="18" out_type="connector" out_key="15" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="5" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key15:Connector:Real:Port0 and Key7:Connector:Real:Port0-->
+                    <Connection key="19" out_type="connector" out_key="15" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="7" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key15:Connector:Real:Port0 and Key8:Connector:Real:Port0-->
+                    <Connection key="20" out_type="connector" out_key="15" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="8" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key16:Connector:Time:Port0 and Key15:Connector:Real:Port0-->
+                    <Connection key="21" out_type="connector" out_key="16" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="15" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key14:Connector:Real:Port0 and Key20:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="22" out_type="connector" out_key="14" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="20" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key13:Connector:Real:Port0 and Key19:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="23" out_type="connector" out_key="13" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="19" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key12:Connector:Real:Port0 and Key18:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="24" out_type="connector" out_key="12" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="18" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key11:Connector:Real:Port0 and Key17:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="25" out_type="connector" out_key="11" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="17" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key6:Connector:Real:Port0 and Key21:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="26" out_type="connector" out_key="6" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="21" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key10:Connector:Real:Port0 and Key22:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="27" out_type="connector" out_key="10" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="22" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key9:Connector:Real:Port0 and Key23:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="28" out_type="connector" out_key="9" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="23" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key23:Connector:DecimalTrigonometry:Port0 and Key24:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="51" out_type="connector" out_key="23" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="24" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key22:Connector:DecimalTrigonometry:Port0 and Key25:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="52" out_type="connector" out_key="22" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="25" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key21:Connector:DecimalTrigonometry:Port0 and Key26:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="53" out_type="connector" out_key="21" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="26" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key17:Connector:DecimalTrigonometry:Port0 and Key27:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="54" out_type="connector" out_key="17" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="27" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key18:Connector:DecimalTrigonometry:Port0 and Key28:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="55" out_type="connector" out_key="18" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="28" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key19:Connector:DecimalTrigonometry:Port0 and Key29:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="56" out_type="connector" out_key="19" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="29" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key20:Connector:DecimalTrigonometry:Port0 and Key30:Connector:DecimalTrigonometry:Port0-->
+                    <Connection key="57" out_type="connector" out_key="20" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="30" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key24:Connector:DecimalTrigonometry:Port0 and Key32:Connector:String:Port0-->
+                    <Connection key="87" out_type="connector" out_key="24" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="32" slot_id="0" in_data_type="string" slot="input value 0"/>
+                    <!--Connection between Key25:Connector:DecimalTrigonometry:Port0 and Key33:Connector:String:Port0-->
+                    <Connection key="88" out_type="connector" out_key="25" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="33" slot_id="0" in_data_type="string" slot="input value 0"/>
+                    <!--Connection between Key26:Connector:DecimalTrigonometry:Port0 and Key34:Connector:String:Port0-->
+                    <Connection key="89" out_type="connector" out_key="26" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="34" slot_id="0" in_data_type="string" slot="input value 0"/>
+                    <!--Connection between Key27:Connector:DecimalTrigonometry:Port0 and Key35:Connector:String:Port0-->
+                    <Connection key="90" out_type="connector" out_key="27" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="35" slot_id="0" in_data_type="string" slot="input value 0"/>
+                    <!--Connection between Key28:Connector:DecimalTrigonometry:Port0 and Key36:Connector:String:Port0-->
+                    <Connection key="91" out_type="connector" out_key="28" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="36" slot_id="0" in_data_type="string" slot="input value 0"/>
+                    <!--Connection between Key29:Connector:DecimalTrigonometry:Port0 and Key37:Connector:String:Port0-->
+                    <Connection key="92" out_type="connector" out_key="29" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="37" slot_id="0" in_data_type="string" slot="input value 0"/>
+                    <!--Connection between Key30:Connector:DecimalTrigonometry:Port0 and Key38:Connector:String:Port0-->
+                    <Connection key="93" out_type="connector" out_key="30" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="38" slot_id="0" in_data_type="string" slot="input value 0"/>
+                    <!--Connection between Key38:Connector:String:Port0 and Key45:Connector:Integer:Port0-->
+                    <Connection key="130" out_type="connector" out_key="38" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="45" slot_id="0" in_data_type="integer" slot="input value 0"/>
+                    <!--Connection between Key37:Connector:String:Port0 and Key44:Connector:Integer:Port0-->
+                    <Connection key="131" out_type="connector" out_key="37" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="44" slot_id="0" in_data_type="integer" slot="input value 0"/>
+                    <!--Connection between Key36:Connector:String:Port0 and Key43:Connector:Integer:Port0-->
+                    <Connection key="132" out_type="connector" out_key="36" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="43" slot_id="0" in_data_type="integer" slot="input value 0"/>
+                    <!--Connection between Key35:Connector:String:Port0 and Key42:Connector:Integer:Port0-->
+                    <Connection key="133" out_type="connector" out_key="35" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="42" slot_id="0" in_data_type="integer" slot="input value 0"/>
+                    <!--Connection between Key34:Connector:String:Port0 and Key41:Connector:Integer:Port0-->
+                    <Connection key="134" out_type="connector" out_key="34" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="41" slot_id="0" in_data_type="integer" slot="input value 0"/>
+                    <!--Connection between Key33:Connector:String:Port0 and Key39:Connector:Integer:Port0-->
+                    <Connection key="135" out_type="connector" out_key="33" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="39" slot_id="0" in_data_type="integer" slot="input value 0"/>
+                    <!--Connection between Key32:Connector:String:Port0 and Key40:Connector:Integer:Port0-->
+                    <Connection key="136" out_type="connector" out_key="32" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="40" slot_id="0" in_data_type="integer" slot="input value 0"/>
+                </Condition>
+            </Routine>
+        </Routines>
+        <ISIs/>
+        <Loops/>
+    </FlowElements>
+    <FlowSequence>
+        <Element key="1" type="Routine"/>
+    </FlowSequence>
+</Experiment>

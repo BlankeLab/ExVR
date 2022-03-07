@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Experiment name="test_camera_target" version="0.99z61" mode="designer" designer-used="D:/EPFL/lnco-exvr/exvr/cpp-projects/_build/bin/exvr-designer/ExVR.exe">
+    <Settings debug="1" csharp_debug_info="0" catch_components_exceptions="0" positional_tracking="1" catch_external_keyboard_events="1">
+        <Display mode="0" stereo_fov="60" fullscreen="0" monitor_id="1" resolution_id="2" custom_width="1920" custom_height="1080"/>
+        <Camera neutral_x="0" neutral_y="1" neutral_z="0"/>
+    </Settings>
+    <Resources reload="200">
+        <Resource key="0" type="UnityAssetBundle" alias="lab-room" path="../../../../../../../../unity-projects/assetsBundles/lab-room.unity3d"/>
+    </Resources>
+    <Components>
+        <Component key="0" name="c1" type="Cube">
+            <InitConfig key="0" name="standard">
+                <Arg name="init_transform" ui="Transformation" value="0 1.39 -1.18 0 0 0 0.1 0.1 0.1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                <Arg name="transparent" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg name="init_transform_do_not_apply" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg name="size" ui="Float spin box" value="0.8" type="System.Single" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="1" name="standard">
+                    <Arg name="metallic" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg name="transform" ui="Transformation" value="0 1.39 -1.18 0 0 0 0.1 0.1 0.1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg name="transform_do_not_apply" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="color" ui="Color pick" value="1 0.345098 0.643137 0.439216" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="smoothness" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="2" name="c2" type="Cube">
+            <InitConfig key="4" name="standard">
+                <Arg name="init_transform" ui="Transformation" value="0 1.39 0 0 0 0 0.1 0.1 0.1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                <Arg name="init_transform_do_not_apply" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg name="transparent" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg name="size" ui="Float spin box" value="0.8" type="System.Single" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="5" name="standard">
+                    <Arg name="transform" ui="Transformation" value="0 2.08 0.81 90 90 0 0.1 0.1 0.1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg name="metallic" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg name="transform_do_not_apply" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="color" ui="Color pick" value="1 0.509804 0.482353 0.639216" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="smoothness" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="1" name="Unity asset bundle" type="AssetBundle">
+            <InitConfig key="2" name="standard">
+                <Arg name="name_sub_object" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg name="init_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                <Arg name="init_transform_do_not_apply" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg name="asset_bundle" ui="Resource" value="lab-room%%%0" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                <Arg name="display_hierarchy" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="3" name="standard">
+                    <Arg name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg name="transform_do_not_apply" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="3" name="Camera target" type="CameraTarget">
+            <InitConfig key="6" name="standard"/>
+            <Configs>
+                <Config key="7" name="c1">
+                    <Arg name="yaw" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="duration" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg name="pitch" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="nb_inter_pos" ui="Integer spin box" value="200" type="System.Int32" dim="0"/>
+                    <Arg name="roll" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="spherical_linear_interpolation" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="speed_curve" ui="Curve" value="0 0 0.20297 0.373494 1 1" type="System.Single" dim="1" sep=" " sizes="6"/>
+                    <Arg name="move_to_target" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="move_back" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="do_nothing" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="relative_to_eye" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="absolute" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="use_neutral" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="use_eye" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="use_time" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="use_factor" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="target_component" ui="Line text editor" value="c1" type="System.String" dim="0"/>
+                    <Arg name="target_pos" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg name="target_rot" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg name="teleport" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                </Config>
+                <Config key="8" name="c2">
+                    <Arg name="nb_inter_pos" ui="Integer spin box" value="200" type="System.Int32" dim="0"/>
+                    <Arg name="duration" ui="Float spin box" value="5" type="System.Single" dim="0"/>
+                    <Arg name="pitch" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="yaw" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="spherical_linear_interpolation" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="roll" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="speed_curve" ui="Curve" value="0 0 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="move_to_target" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="move_back" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="do_nothing" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="relative_to_eye" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="absolute" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="use_neutral" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="use_eye" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="use_time" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="use_factor" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="target_component" ui="Line text editor" value="c2" type="System.String" dim="0"/>
+                    <Arg name="target_pos" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg name="target_rot" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg name="teleport" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+    </Components>
+    <FlowElements>
+        <Routines>
+            <Routine key="1" name="Routine 1" randomizer="0">
+                <Condition key="0" name="default" duration="100" ui_scale="10" ui_size="1" sets_keys="0">
+                    <Action key="2" key_component="2" key_config="5" node_used="0" node_position="0 0">
+                        <!--Component c2 with config standard -->
+                        <Timeline key="4" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="4" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="5" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="5" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="1" key_component="0" key_config="1" node_used="0" node_position="0 0">
+                        <!--Component c1 with config standard -->
+                        <Timeline key="2" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="2" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="3" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="3" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="0" key_component="1" key_config="3" node_used="0" node_position="0 0">
+                        <!--Component Unity asset bundle with config standard -->
+                        <Timeline key="0" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="0" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="1" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="1" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                </Condition>
+            </Routine>
+            <Routine key="10" name="Routine 4" randomizer="0">
+                <Condition key="3" name="default" duration="100" ui_scale="10" ui_size="1" sets_keys="0">
+                    <Action key="14" key_component="3" key_config="7" node_used="0" node_position="0 0">
+                        <!--Component Camera target with config c1 -->
+                        <Timeline key="28" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="28" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="29" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="29" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="13" key_component="1" key_config="3" node_used="0" node_position="0 0">
+                        <!--Component Unity asset bundle with config standard -->
+                        <Timeline key="26" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="26" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="27" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="27" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="12" key_component="2" key_config="5" node_used="0" node_position="0 0">
+                        <!--Component c2 with config standard -->
+                        <Timeline key="24" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="24" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="25" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="25" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="11" key_component="0" key_config="1" node_used="0" node_position="0 0">
+                        <!--Component c1 with config standard -->
+                        <Timeline key="22" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="22" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="23" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="23" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                </Condition>
+            </Routine>
+            <Routine key="12" name="Routine 5" randomizer="0">
+                <Condition key="4" name="default" duration="100" ui_scale="10" ui_size="1" sets_keys="0">
+                    <Action key="18" key_component="3" key_config="8" node_used="1" node_position="1150 173">
+                        <!--Component Camera target with config c2 -->
+                        <Timeline key="36" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="36" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="37" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="37" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="17" key_component="1" key_config="3" node_used="0" node_position="0 0">
+                        <!--Component Unity asset bundle with config standard -->
+                        <Timeline key="34" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="34" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="35" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="35" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="16" key_component="2" key_config="5" node_used="0" node_position="0 0">
+                        <!--Component c2 with config standard -->
+                        <Timeline key="32" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="32" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="33" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="33" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="15" key_component="0" key_config="1" node_used="0" node_position="0 0">
+                        <!--Component c1 with config standard -->
+                        <Timeline key="30" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="30" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="31" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="31" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Connector key="0" name="UpdateRoutine" node_position="389 244" node_size="-1 -1">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="1" name="Real" node_position="475 122" node_size="-1 -1">
+                        <Arg name="value" ui="Double spin box" value="0.001" type="System.Double" dim="0"/>
+                    </Connector>
+                    <!--Connection between Key1:Connector:Real:Port0 and Key3:Component:Camera target:Port0 -->
+                    <Connection key="3" out_type="connector" out_key="1" signal_id="0" out_data_type="real" signal="output value 0" in_type="component" in_key="3" slot_id="0" in_data_type="float" slot="set factor"/>
+                </Condition>
+            </Routine>
+        </Routines>
+        <ISIs/>
+        <Loops>
+            <Loop key="7" name="Loop 1" type="fixed" nbReps="10" N="1">
+                <Set key="0" name="default" occu="1"/>
+            </Loop>
+        </Loops>
+    </FlowElements>
+    <FlowSequence>
+        <Element key="1" type="Routine"/>
+        <Element key="7" type="LoopStart"/>
+        <Element key="10" type="Routine"/>
+        <Element key="12" type="Routine"/>
+        <Element key="7" type="LoopEnd"/>
+    </FlowSequence>
+</Experiment>

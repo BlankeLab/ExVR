@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Experiment name="write_data_to_csv_with_connections" version="0.99z45" mode="designer" designer-used="E:/DEV/EPFL/exvr/build/bin/release/designer/ExVR.exe">
+    <Settings debug="1" csharp_debug_info="0" catch_components_exceptions="0" positional_tracking="1" catch_external_keyboard_events="0">
+        <Display mode="0" stereo_fov="60" fullscreen="0" monitor_id="1" resolution_id="2" custom_width="1920" custom_height="1080"/>
+        <Camera neutral_x="0" neutral_y="1" neutral_z="0"/>
+    </Settings>
+    <Resources reload="200">
+        <Resource key="1" type="Directory" alias="write_data_to_csv_with_connections" path="resources/Directory/write_data_to_csv_with_connections"/>
+    </Resources>
+    <Components>
+        <Component key="0" name="Logger columns" type="LoggerColumns">
+            <InitConfig key="0" name="standard">
+                <Arg key="2" name="add_current_instance_to_file_name" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="3" name="add_date_to_file_name" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="10" name="add_header_line" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                <Arg key="5" name="add_to_end_if_file_exists" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="7" name="base_file_name" ui="Line text editor" value="data" type="System.String" dim="0"/>
+                <Arg key="8" name="date_time_format" ui="Line text editor" value="yyyy-MM-dd_H-mm-ss" type="System.String" dim="0"/>
+                <Arg key="0" name="directory" ui="Resource" value="write_data_to_csv_with_connections%%%1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                <Arg key="4" name="dont_write_if_file_exists" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="9" name="file_extension" ui="Line text editor" value="csv" type="System.String" dim="0"/>
+                <Arg key="11" name="header_line" ui="Line text editor" value="routine;undefined;condition;routine_tims_ms" type="System.String" dim="0"/>
+                <Arg key="6" name="replace_if_file_exists" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                <Arg key="12" name="separator" ui="Line text editor" value=";" type="System.String" dim="0"/>
+                <Arg key="1" name="stream_to_file" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                <Arg key="13" name="write_each_frame" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="1" name="standard"/>
+            </Configs>
+        </Component>
+    </Components>
+    <FlowElements>
+        <Routines>
+            <Routine key="1" name="Write data">
+                <Condition key="0" name="default" duration="100" ui_scale="10" ui_size="1" sets_keys="0">
+                    <Action key="0" key_component="0" key_config="1" node_used="1" node_position="1059 113" node_size="-1 -1">
+                        <!--Component Logger columns with config standard-->
+                        <Timeline key="0" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s)-->
+                            <Interval key="0" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="1" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s)-->
+                            <Interval key="1" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Connector key="0" name="IdAny" node_position="436.8 97.2" node_size="-1 -1">
+                        <Arg key="14" name="value" ui="Integer spin box" value="0" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="1" name="UpdateRoutine" node_position="143 237" node_size="-1 -1">
+                        <Arg key="15" name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="2" name="StartRoutine" node_position="158 84" node_size="-1 -1">
+                        <Arg key="16" name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="3" name="IdAny" node_position="434.68 170.6" node_size="-1 -1">
+                        <Arg key="14" name="value" ui="Integer spin box" value="2" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="4" name="IdAny" node_position="435.88 248.8" node_size="-1 -1">
+                        <Arg key="14" name="value" ui="Integer spin box" value="3" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="5" name="PassValues" node_position="715 94" node_size="-1 -1">
+                        <Arg key="19" name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="6" name="PostUpdateRoutine" node_position="717.96 335.64" node_size="-1 -1">
+                        <Arg key="20" name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <!--Connection between Key2:Connector:StartRoutine:Port0 and Key0:Connector:IdAny:Port0-->
+                    <Connection key="0" out_type="connector" out_key="2" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="0" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key2:Connector:StartRoutine:Port1 and Key3:Connector:IdAny:Port0-->
+                    <Connection key="1" out_type="connector" out_key="2" signal_id="1" out_data_type="string" signal="output value 1" in_type="connector" in_key="3" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key1:Connector:UpdateRoutine:Port0 and Key4:Connector:IdAny:Port0-->
+                    <Connection key="2" out_type="connector" out_key="1" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="4" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key0:Connector:IdAny:Port0 and Key5:Connector:PassValues:Port0-->
+                    <Connection key="3" out_type="connector" out_key="0" signal_id="0" out_data_type="id_any" signal="output value 0" in_type="connector" in_key="5" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key3:Connector:IdAny:Port0 and Key5:Connector:PassValues:Port1-->
+                    <Connection key="4" out_type="connector" out_key="3" signal_id="0" out_data_type="id_any" signal="output value 0" in_type="connector" in_key="5" slot_id="1" in_data_type="any" slot="input value 1"/>
+                    <!--Connection between Key4:Connector:IdAny:Port0 and Key5:Connector:PassValues:Port2-->
+                    <Connection key="5" out_type="connector" out_key="4" signal_id="0" out_data_type="id_any" signal="output value 0" in_type="connector" in_key="5" slot_id="2" in_data_type="any" slot="input value 2"/>
+                    <!--Connection between Key5:Connector:PassValues:Port0 and Key0:Component:Logger columns:Port0-->
+                    <Connection key="6" out_type="connector" out_key="5" signal_id="0" out_data_type="any" signal="output value 0" in_type="component" in_key="0" slot_id="0" in_data_type="id_any" slot="set column value"/>
+                    <!--Connection between Key6:Connector:PostUpdateRoutine:Port0 and Key0:Component:Logger columns:Port1-->
+                    <Connection key="8" out_type="connector" out_key="6" signal_id="0" out_data_type="real" signal="output value 0" in_type="component" in_key="0" slot_id="1" in_data_type="trigger" slot="write current line"/>
+                </Condition>
+            </Routine>
+        </Routines>
+        <ISIs/>
+        <Loops/>
+    </FlowElements>
+    <FlowSequence>
+        <Element key="1" type="Routine"/>
+    </FlowSequence>
+</Experiment>

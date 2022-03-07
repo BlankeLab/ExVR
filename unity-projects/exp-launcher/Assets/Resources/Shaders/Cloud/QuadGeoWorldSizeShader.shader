@@ -1,0 +1,153 @@
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+Shader "Custom/Cloud/QuadGeoWorldSizeShader"
+{
+	/*
+	This shader renders the given vertices as circles with the given color.
+	The point size is the radius of the circle given in WORLD COORDINATES
+	Implemented using geometry shader
+	*/
+	Properties{
+		_PointSize("Point Size", Float) = 0.0025
+		[Toggle] _Circles("Circles", Int) = 1
+		[Toggle] _OBBFiltering("OBBFiltering", Int) = 0
+		_Tint("Tint", Color) = (0.5, 0.5, 0.5, 1)
+	}
+
+	SubShader
+	{
+		Tags{ "RenderType" = "Opaque" }
+		LOD 200
+		Cull off
+
+		Pass
+		{
+			Tags{ "LightMode" = "ForwardBase" }
+
+			CGPROGRAM
+			#pragma vertex vert
+			#pragma geometry geom
+			#pragma fragment frag
+
+			#include "UnityCG.cginc"
+
+			struct VertexInput
+			{
+				float4 position : POSITION;
+				float4 color : COLOR;
+			};
+
+			struct VertexMiddle {
+				float4 position : SV_POSITION;
+				float4 color : COLOR;
+				float4 R : NORMAL0;
+				float4 U : NORMAL1;
+			};
+
+			struct VertexOutput
+			{
+				float4 position : SV_POSITION;
+				float4 color : COLOR;
+				float2 uv : TEXCOORD0;
+			};
+
+			float _PointSize;
+			int _Circles;
+			float4 _Tint;
+			int _OBBFiltering;
+
+			float3 _ObbPos;
+			float3 _ObbSize;
+			float4x4 _ObbOrientation;
+
+			float4 valid_vertex(float4 p) {
+
+				float3 dir = p.xyz - _ObbPos;
+				for (int ii = 0; ii < 3; ++ii) {
+
+					float d = dot(dir, _ObbOrientation[ii].xyz);
+					if (d > _ObbSize[ii]) {
+						return float4(p.x, p.y, p.z, 0.0);
+					}
+
+					if (d < -_ObbSize[ii]) {
+						return float4(p.x, p.y, p.z, 0.0);
+					}
+				}
+
+				return float4(p.x, p.y, p.z, 1.0);
+			}
+
+			VertexMiddle vert(VertexInput v) {
+
+				VertexMiddle o;
+				if (_OBBFiltering == 1) {
+					o.position = float4(v.position.xyz, valid_vertex(mul(unity_ObjectToWorld, v.position)).w);
+				}else {
+					o.position = float4(v.position.xyz, 1);
+				}				
+
+				float4 col = v.color;
+				float3 cc = LinearToGammaSpace(_Tint.rgb) * float3(col.r, col.g, col.b);
+				cc = GammaToLinearSpace(cc);
+				o.color = float4(cc, 1);
+
+				float3 view = normalize(UNITY_MATRIX_IT_MV[2].xyz);
+				float3 upvec = normalize(UNITY_MATRIX_IT_MV[1].xyz);
+				float3 R = normalize(cross(view, upvec));
+				o.U = float4(upvec * _PointSize, 0);
+				o.R = float4(R * _PointSize, 0);
+
+				return o;
+			}
+
+			[maxvertexcount(4)]
+			void geom(point VertexMiddle input[1], inout TriangleStream<VertexOutput> outputStream) {
+
+				if (input[0].position.w < 0.5) {
+					return;
+				}
+
+				VertexOutput out1;
+				out1.position = input[0].position;
+				out1.color = input[0].color;
+				out1.uv = float2(-1.0f, 1.0f);
+				out1.position += (-input[0].R + input[0].U);
+				out1.position = UnityObjectToClipPos(out1.position);
+				VertexOutput out2;
+				out2.position = input[0].position;
+				out2.color = input[0].color;
+				out2.uv = float2(1.0f, 1.0f);
+				out2.position += (input[0].R + input[0].U);
+				out2.position = UnityObjectToClipPos(out2.position);
+				VertexOutput out3;
+				out3.position = input[0].position;
+				out3.color = input[0].color;
+				out3.uv = float2(1.0f, -1.0f);
+				out3.position += (input[0].R - input[0].U);
+				out3.position = UnityObjectToClipPos(out3.position);
+				VertexOutput out4;
+				out4.position = input[0].position;
+				out4.color = input[0].color;
+				out4.uv = float2(-1.0f, -1.0f);
+				out4.position += (-input[0].R - input[0].U);
+				out4.position = UnityObjectToClipPos(out4.position);
+				outputStream.Append(out1);
+				outputStream.Append(out2);
+				outputStream.Append(out4);
+				outputStream.Append(out3);
+			}
+
+			float4 frag(VertexOutput o) : COLOR{
+				if (_Circles >= 0.5 && o.uv.x*o.uv.x + o.uv.y*o.uv.y > 1) {
+					discard;
+				}
+				return o.color;
+			}
+
+			ENDCG
+		}
+	}
+}

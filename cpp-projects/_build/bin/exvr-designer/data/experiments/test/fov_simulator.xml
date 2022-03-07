@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Experiment name="fov_simulator" version="0.99u">
+    <Settings debug="1" csharp_debug_info="0" catch_components_exceptions="0">
+        <Display mode="2"/>
+        <Camera neutral_x="0" neutral_y="1" neutral_z="0"/>
+    </Settings>
+    <Resources reload="200">
+        <Resource key="0" type="UnityAssetBundle" alias="lab-room" path="../../../../../unity/assetsbundles/lab-room.unity3d"/>
+        <Resource key="1" type="CSharpScript" alias="mir_fov" path="../scripts/csharp/mir_fov.cs"/>
+    </Resources>
+    <Components>
+        <Component key="3" name="MRI FOV" type="CSharpScript">
+            <InitConfig key="6" name="standard">
+                <Arg key="39" name="component_class_name" ui="Line text editor" value="MriFovComponent" type="System.String" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="7" name="standard">
+                    <Arg key="69" name="distance" ui="Float spin box" value="0.6" type="System.Single" dim="0" gen="generator" g_order="1" g_dec="2" g_min="0" g_max="50" g_step="0.1"/>
+                    <Arg key="71" name="horizontal FOV" ui="Float spin box" value="52" type="System.Single" dim="0" gen="generator" g_order="3" g_dec="2" g_min="0" g_max="150" g_step="0.01"/>
+                    <Arg key="70" name="vertical FOV" ui="Float spin box" value="34" type="System.Single" dim="0" gen="generator" g_order="2" g_dec="2" g_min="1" g_max="120" g_step="0.1"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="5" name="screen" type="Cube">
+            <InitConfig key="10" name="standard">
+                <Arg key="57" name="size" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="11" name="standard">
+                    <Arg key="68" name="color" ui="Color pick" value="1 1 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="58" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="6" name="MRI" type="MRI">
+            <InitConfig key="12" name="standard"/>
+            <Configs>
+                <Config key="13" name="standard">
+                    <Arg key="83" name="dissolve" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="85" name="duration" ui="Double spin box" value="5" type="System.Double" dim="0"/>
+                    <Arg key="84" name="nothing" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="87" name="process_magnet" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="86" name="process_room" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="82" name="solve" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="72" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="7" name="Eye camera" type="EyeCamera">
+            <InitConfig key="14" name="standard">
+                <Arg key="88" name="init_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                <Arg key="98" name="start_experiment" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="99" name="start_routine" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                <Arg key="103" name="stop_experiment" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="102" name="stop_routine" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="101" name="update_off" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="100" name="update_on" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="15" name="standard">
+                    <Arg key="124" name="current_eye_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="114" name="current_offset_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="134" name="debug_camera" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="104" name="transform" ui="Transformation" value="1.07 1.24 2.24 11.6 149.3 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+    </Components>
+    <FlowElements>
+        <Routines>
+            <Routine key="1" name="Routine 1">
+                <Condition key="0" name="default" duration="100" ui_scale="10" ui_size="1" sets_keys="">
+                    <Action key="3" key_component="3" key_config="7" node_used="0" node_position="0 0" node_size="-1 -1">
+                        <!--Component MRI FOV with config standard-->
+                        <Timeline key="6" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s)-->
+                            <Interval key="4" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="7" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s)-->
+                            <Interval key="5" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="4" key_component="5" key_config="11" node_used="0" node_position="0 0" node_size="-1 -1">
+                        <!--Component screen with config standard-->
+                        <Timeline key="8" type="Update"/>
+                        <Timeline key="9" type="Visibiliy"/>
+                    </Action>
+                    <Action key="5" key_component="6" key_config="13" node_used="0" node_position="0 0" node_size="-1 -1">
+                        <!--Component MRI with config standard-->
+                        <Timeline key="10" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s)-->
+                            <Interval key="8" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="11" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s)-->
+                            <Interval key="9" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="6" key_component="7" key_config="15" node_used="0" node_position="0 0" node_size="-1 -1">
+                        <!--Component Eye camera with config standard-->
+                        <Timeline key="12" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s)-->
+                            <Interval key="10" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="13" type="Visibiliy"/>
+                    </Action>
+                </Condition>
+            </Routine>
+        </Routines>
+        <ISIs/>
+        <Loops/>
+    </FlowElements>
+    <FlowSequence>
+        <Element key="1" type="Routine"/>
+    </FlowSequence>
+</Experiment>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Experiment name="test_eye_camera" version="0.99u">
+    <Settings debug="1" csharp_debug_info="0" catch_components_exceptions="0">
+        <Display mode="0"/>
+        <Camera neutral_x="0" neutral_y="1" neutral_z="0"/>
+    </Settings>
+    <Resources reload="200">
+        <Resource key="0" type="UnityAssetBundle" alias="alex orignal 1m73" path="../../../../../unity/assetsbundles/alex orignal 1m73.unity3d"/>
+    </Resources>
+    <Components>
+        <Component key="2" name="Humanoid controller" type="HumanoidController">
+            <InitConfig key="4" name="standard">
+                <Arg key="136" name="add_hmd_mesh" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="132" name="humanoid" ui="Resource" value="alex orignal 1m73%%%0" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                <Arg key="137" name="only_call_start_routine_once" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="135" name="pants_color" ui="Color pick" value="1 1 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                <Arg key="134" name="shirt_color" ui="Color pick" value="1 1 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                <Arg key="133" name="skin_color" ui="Combo box index" value="16" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="5" name="standard">
+                    <Arg key="193" name="body_pos_stiffness" ui="Float spin box" value="0.55" type="System.Single" dim="0"/>
+                    <Arg key="194" name="body_rot_stiffness" ui="Float spin box" value="0.1" type="System.Single" dim="0"/>
+                    <Arg key="169" name="chest" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="168" name="chest_goal_w" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="148" name="display_targets" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="154" name="do_not_move_head" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="155" name="global_ik_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="165" name="head_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="164" name="head_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="156" name="head_tracking_offset_pos" ui="Vector 3D" value="0 0.1 0.15" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="160" name="head_tracking_offset_rot" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="173" name="head_transform" ui="Transformation" value="0 0.21 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="204" name="left_arm_bend_goal" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="202" name="left_arm_bend_w" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="199" name="left_arm_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="198" name="left_arm_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="212" name="left_arm_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="238" name="left_leg_bend_goal" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="236" name="left_leg_bend_w" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="233" name="left_leg_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="232" name="left_leg_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="246" name="left_leg_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="196" name="maintain_pelvis_position" ui="Float spin box" value="0.2" type="System.Single" dim="0"/>
+                    <Arg key="197" name="max_root_angle" ui="Float spin box" value="25" type="System.Single" dim="0"/>
+                    <Arg key="149" name="move_eye_to_head" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="151" name="move_head_to_eye" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="152" name="move_head_to_relative_eye" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="150" name="move_transforms_to_targets" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="195" name="neck_stiffness" ui="Float spin box" value="0.2" type="System.Single" dim="0"/>
+                    <Arg key="167" name="pelvis_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="166" name="pelvis_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="183" name="pelvis_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="208" name="right_arm_bend_goal" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="203" name="right_arm_bend_w" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="201" name="right_arm_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="200" name="right_arm_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="222" name="right_arm_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="242" name="right_leg_bend_goal" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="237" name="right_leg_bend_w" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="235" name="right_leg_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="234" name="right_leg_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="256" name="right_leg_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="138" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="153" name="use_input_connection" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="3" name="Eye camera" type="EyeCamera">
+            <InitConfig key="6" name="standard">
+                <Arg key="300" name="init_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                <Arg key="310" name="start_experiment" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                <Arg key="311" name="start_routine" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="315" name="stop_experiment" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="314" name="stop_routine" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="313" name="update_off" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="312" name="update_on" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="7" name="standard">
+                    <Arg key="336" name="current_eye_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="326" name="current_offset_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="346" name="debug_camera" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="316" name="transform" ui="Transformation" value="-0.623 2.331 -4.618 29.262 325.247 331.841 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+    </Components>
+    <FlowElements>
+        <Routines>
+            <Routine key="1" name="Routine 1">
+                <Condition key="0" name="default" duration="100" ui_scale="10" ui_size="1" sets_keys="0">
+                    <Action key="3" key_component="2" key_config="5" node_used="1" node_position="1181 125" node_size="-1 -1">
+                        <!--Component Humanoid controller with config standard-->
+                        <Timeline key="6" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s)-->
+                            <Interval key="7" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="7" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s)-->
+                            <Interval key="8" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="4" key_component="3" key_config="7" node_used="1" node_position="454 88" node_size="-1 -1">
+                        <!--Component Eye camera with config standard-->
+                        <Timeline key="8" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s)-->
+                            <Interval key="9" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="9" type="Visibiliy"/>
+                    </Action>
+                    <Connector key="14" name="DelayFunction" node_position="882 131" node_size="-1 -1">
+                        <Arg key="347" name="value" ui="Integer spin box" value="500" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="15" name="DelayFunction" node_position="859 224" node_size="-1 -1">
+                        <Arg key="347" name="value" ui="Integer spin box" value="500" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <!--Connection between Key3:Component:Eye camera:Port2 and Key14:Connector:DelayFunction:Port0-->
+                    <Connection key="20" out_type="component" out_key="3" signal_id="2" out_data_type="vector3" signal="relative eye position" in_type="connector" in_key="14" slot_id="0" in_data_type="any" slot="input_value_0"/>
+                    <!--Connection between Key14:Connector:DelayFunction:Port0 and Key2:Component:Humanoid controller:Port2-->
+                    <Connection key="21" out_type="connector" out_key="14" signal_id="0" out_data_type="any" signal="output_value_0" in_type="component" in_key="2" slot_id="2" in_data_type="vector3" slot="update_relative_head_pos"/>
+                    <!--Connection between Key3:Component:Eye camera:Port3 and Key15:Connector:DelayFunction:Port0-->
+                    <Connection key="22" out_type="component" out_key="3" signal_id="3" out_data_type="vector3" signal="relative eye rotation" in_type="connector" in_key="15" slot_id="0" in_data_type="any" slot="input_value_0"/>
+                    <!--Connection between Key15:Connector:DelayFunction:Port0 and Key2:Component:Humanoid controller:Port3-->
+                    <Connection key="23" out_type="connector" out_key="15" signal_id="0" out_data_type="any" signal="output_value_0" in_type="component" in_key="2" slot_id="3" in_data_type="vector3" slot="update_relative_head_rot"/>
+                </Condition>
+            </Routine>
+        </Routines>
+        <ISIs/>
+        <Loops/>
+    </FlowElements>
+    <FlowSequence>
+        <Element key="1" type="Routine"/>
+    </FlowSequence>
+</Experiment>

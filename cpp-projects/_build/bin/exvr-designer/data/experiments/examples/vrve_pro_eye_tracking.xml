@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Experiment name="vrve_pro_eye_tracking" version="1.0a3" mode="designer" designer-used="C:/lnco-exvr/exvr/cpp-projects/_build/bin/exvr-designer/ExVR.exe">
+    <Settings debug="1" csharp_debug_info="0" catch_components_exceptions="0" positional_tracking="1" catch_external_keyboard_events="0">
+        <Display mode="0" stereo_fov="60" fullscreen="0" monitor_id="1" resolution_id="2" custom_width="1920" custom_height="1080"/>
+        <Camera neutral_x="0" neutral_y="1" neutral_z="0"/>
+    </Settings>
+    <Resources reload="200"/>
+    <Components>
+        <Component key="0" name="Vive pro eye tracking" type="ViveProEyeTracking">
+            <InitConfig key="0" name="standard"/>
+            <Configs>
+                <Config key="1" name="standard"/>
+            </Configs>
+        </Component>
+    </Components>
+    <FlowElements>
+        <Routines>
+            <Routine key="1" name="Eye tracking" randomizer="0">
+                <Condition key="0" name="default" duration="100" ui_scale="10" ui_size="1" sets_keys="0">
+                    <Action key="0" key_component="0" key_config="1" node_used="1" node_position="228 298">
+                        <!--Component Vive pro eye tracking with config standard -->
+                        <Timeline key="0" type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="0" t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline key="1" type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval key="1" t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Connector key="10" name="Vector2ToReals" node_position="899 506" node_size="-1 -1">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="9" name="Vector2ToReals" node_position="898 388" node_size="-1 -1">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="7" name="CurveX" node_position="1160 310" node_size="-1 -1">
+                        <Arg name="value" ui="Curve" value="right eye openess%%-10%%10%%true%%1000%%1 0 0 0" type="System.String" dim="1" sep="%%" sizes="6"/>
+                    </Connector>
+                    <Connector key="6" name="CurveX" node_position="1162 210" node_size="-1 -1">
+                        <Arg name="value" ui="Curve" value="left eye openess%%-10%%10%%true%%1000%%1 0 0 0" type="System.String" dim="1" sep="%%" sizes="6"/>
+                    </Connector>
+                    <Connector key="5" name="CheckId" node_position="577 476" node_size="-1 -1">
+                        <Arg name="value" ui="Integer spin box" value="1" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="4" name="CheckId" node_position="576 392" node_size="-1 -1">
+                        <Arg name="value" ui="Integer spin box" value="0" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="3" name="CheckId" node_position="576 303" node_size="-1 -1">
+                        <Arg name="value" ui="Integer spin box" value="1" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="2" name="CheckId" node_position="577 197" node_size="-1 -1">
+                        <Arg name="value" ui="Integer spin box" value="0" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="0" name="Vector3" node_position="515 91" node_size="-1 -1">
+                        <Arg name="value" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    </Connector>
+                    <Connector key="11" name="CheckId" node_position="557 664" node_size="-1 -1">
+                        <Arg name="value" ui="Integer spin box" value="1" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="12" name="CheckId" node_position="568 574" node_size="-1 -1">
+                        <Arg name="value" ui="Integer spin box" value="0" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="13" name="Real" node_position="901 620" node_size="-1 -1">
+                        <Arg name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="14" name="Real" node_position="898 702" node_size="-1 -1">
+                        <Arg name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="15" name="Real" node_position="895 202" node_size="-1 -1">
+                        <Arg name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="16" name="Real" node_position="899 297" node_size="-1 -1">
+                        <Arg name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <Connector key="17" name="CurveX" node_position="1177.6 700.8" node_size="-1 -1">
+                        <Arg name="value" ui="Curve" value="right pupil diameter%%-10%%10%%true%%1000%%1 0 0 0" type="System.String" dim="1" sep="%%" sizes="6"/>
+                    </Connector>
+                    <Connector key="18" name="CurveX" node_position="1172.8 627.6" node_size="-1 -1">
+                        <Arg name="value" ui="Curve" value="left pupil diameter%%-10%%10%%true%%1000%%1 0 0 0" type="System.String" dim="1" sep="%%" sizes="6"/>
+                    </Connector>
+                    <!--Connection between Key0:Component:Vive pro eye tracking:Port2 and Key4:Connector:CheckId:Port0 -->
+                    <Connection key="10" out_type="component" out_key="0" signal_id="2" out_data_type="id_any" signal="pupil position" in_type="connector" in_key="4" slot_id="0" in_data_type="id_any" slot="input value 0"/>
+                    <!--Connection between Key5:Connector:CheckId:Port0 and Key10:Connector:Vector2ToReals:Port0 -->
+                    <Connection key="9" out_type="connector" out_key="5" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="10" slot_id="0" in_data_type="vector2" slot="input value 0"/>
+                    <!--Connection between Key4:Connector:CheckId:Port0 and Key9:Connector:Vector2ToReals:Port0 -->
+                    <Connection key="8" out_type="connector" out_key="4" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="9" slot_id="0" in_data_type="vector2" slot="input value 0"/>
+                    <!--Connection between Key0:Component:Vive pro eye tracking:Port2 and Key5:Connector:CheckId:Port0 -->
+                    <Connection key="4" out_type="component" out_key="0" signal_id="2" out_data_type="id_any" signal="pupil position" in_type="connector" in_key="5" slot_id="0" in_data_type="id_any" slot="input value 0"/>
+                    <!--Connection between Key0:Component:Vive pro eye tracking:Port1 and Key3:Connector:CheckId:Port0 -->
+                    <Connection key="3" out_type="component" out_key="0" signal_id="1" out_data_type="id_any" signal="eye openess" in_type="connector" in_key="3" slot_id="0" in_data_type="id_any" slot="input value 0"/>
+                    <!--Connection between Key0:Component:Vive pro eye tracking:Port1 and Key2:Connector:CheckId:Port0 -->
+                    <Connection key="1" out_type="component" out_key="0" signal_id="1" out_data_type="id_any" signal="eye openess" in_type="connector" in_key="2" slot_id="0" in_data_type="id_any" slot="input value 0"/>
+                    <!--Connection between Key0:Component:Vive pro eye tracking:Port0 and Key0:Connector:Vector3:Port0 -->
+                    <Connection key="0" out_type="component" out_key="0" signal_id="0" out_data_type="vector3" signal="gaze direction" in_type="connector" in_key="0" slot_id="0" in_data_type="vector3" slot="input value 0"/>
+                    <!--Connection between Key0:Component:Vive pro eye tracking:Port3 and Key12:Connector:CheckId:Port0 -->
+                    <Connection key="20" out_type="component" out_key="0" signal_id="3" out_data_type="id_any" signal="pupil diameter" in_type="connector" in_key="12" slot_id="0" in_data_type="id_any" slot="input value 0"/>
+                    <!--Connection between Key0:Component:Vive pro eye tracking:Port3 and Key11:Connector:CheckId:Port0 -->
+                    <Connection key="21" out_type="component" out_key="0" signal_id="3" out_data_type="id_any" signal="pupil diameter" in_type="connector" in_key="11" slot_id="0" in_data_type="id_any" slot="input value 0"/>
+                    <!--Connection between Key11:Connector:CheckId:Port0 and Key14:Connector:Real:Port0 -->
+                    <Connection key="22" out_type="connector" out_key="11" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="14" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key12:Connector:CheckId:Port0 and Key13:Connector:Real:Port0 -->
+                    <Connection key="23" out_type="connector" out_key="12" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="13" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key3:Connector:CheckId:Port0 and Key16:Connector:Real:Port0 -->
+                    <Connection key="24" out_type="connector" out_key="3" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="16" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key16:Connector:Real:Port0 and Key7:Connector:CurveX:Port0 -->
+                    <Connection key="25" out_type="connector" out_key="16" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="7" slot_id="0" in_data_type="real_list" slot="input value 0"/>
+                    <!--Connection between Key2:Connector:CheckId:Port0 and Key15:Connector:Real:Port0 -->
+                    <Connection key="26" out_type="connector" out_key="2" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="15" slot_id="0" in_data_type="real" slot="input value 0"/>
+                    <!--Connection between Key15:Connector:Real:Port0 and Key6:Connector:CurveX:Port0 -->
+                    <Connection key="27" out_type="connector" out_key="15" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="6" slot_id="0" in_data_type="real_list" slot="input value 0"/>
+                    <!--Connection between Key13:Connector:Real:Port0 and Key18:Connector:CurveX:Port0 -->
+                    <Connection key="28" out_type="connector" out_key="13" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="18" slot_id="0" in_data_type="real_list" slot="input value 0"/>
+                    <!--Connection between Key14:Connector:Real:Port0 and Key17:Connector:CurveX:Port0 -->
+                    <Connection key="29" out_type="connector" out_key="14" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="17" slot_id="0" in_data_type="real_list" slot="input value 0"/>
+                </Condition>
+            </Routine>
+        </Routines>
+        <ISIs/>
+        <Loops/>
+    </FlowElements>
+    <FlowSequence>
+        <Element key="1" type="Routine"/>
+    </FlowSequence>
+</Experiment>

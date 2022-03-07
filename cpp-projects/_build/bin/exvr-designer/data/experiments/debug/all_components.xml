@@ -1,0 +1,1044 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Experiment name="all_components" version="0.99z15">
+    <Settings debug="1" csharp_debug_info="0" catch_components_exceptions="0" positional_tracking="1" catch_external_keyboard_events="0">
+        <Display mode="0"/>
+        <Camera neutral_x="0" neutral_y="1" neutral_z="0"/>
+    </Settings>
+    <Resources reload="200"/>
+    <Components>
+        <Component key="0" name="Humanoid controller" type="HumanoidController">
+            <InitConfig key="0" name="standard">
+                <Arg key="4" name="add_hmd_mesh" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="0" name="humanoid" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                <Arg key="5" name="only_call_start_routine_once" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="3" name="pants_color" ui="Color pick" value="1 1 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                <Arg key="2" name="shirt_color" ui="Color pick" value="1 1 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                <Arg key="1" name="skin_color" ui="Combo box index" value="16" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="1" name="standard">
+                    <Arg key="64" name="body_pos_stiffness" ui="Float spin box" value="0.55" type="System.Single" dim="0"/>
+                    <Arg key="65" name="body_rot_stiffness" ui="Float spin box" value="0.1" type="System.Single" dim="0"/>
+                    <Arg key="40" name="chest" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="39" name="chest_goal_w" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="16" name="display_targets" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="23" name="do_not_move" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="24" name="global_ik_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="36" name="head_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="35" name="head_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="25" name="head_tracking_offset_pos" ui="Vector 3D" value="0 0.1 0.1" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="29" name="head_tracking_offset_rot" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="44" name="head_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="75" name="left_arm_bend_goal" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="73" name="left_arm_bend_w" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="70" name="left_arm_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="69" name="left_arm_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="83" name="left_arm_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="137" name="left_fingers_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="138" name="left_hand_index_1" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="142" name="left_hand_index_2" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="146" name="left_hand_index_3" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="150" name="left_hand_middle_1" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="154" name="left_hand_middle_2" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="158" name="left_hand_middle_3" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="174" name="left_hand_pinky_1" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="178" name="left_hand_pinky_2" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="182" name="left_hand_pinky_3" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="162" name="left_hand_ring_1" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="166" name="left_hand_ring_2" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="170" name="left_hand_ring_3" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="186" name="left_hand_thumb_1" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="190" name="left_hand_thumb_2" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="194" name="left_hand_thumb_3" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="109" name="left_leg_bend_goal" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="107" name="left_leg_bend_w" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="104" name="left_leg_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="103" name="left_leg_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="117" name="left_leg_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="67" name="maintain_pelvis_position" ui="Float spin box" value="0.2" type="System.Single" dim="0"/>
+                    <Arg key="68" name="max_root_angle" ui="Float spin box" value="25" type="System.Single" dim="0"/>
+                    <Arg key="17" name="move_eye_camera_to_head" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="18" name="move_transforms_to_targets" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="66" name="neck_stiffness" ui="Float spin box" value="0.2" type="System.Single" dim="0"/>
+                    <Arg key="38" name="pelvis_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="37" name="pelvis_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="54" name="pelvis_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="33" name="pitch_yaw_roll" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="79" name="right_arm_bend_goal" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="74" name="right_arm_bend_w" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="72" name="right_arm_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="71" name="right_arm_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="93" name="right_arm_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="198" name="right_fingers_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="199" name="right_hand_index_1" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="203" name="right_hand_index_2" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="207" name="right_hand_index_3" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="211" name="right_hand_middle_1" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="215" name="right_hand_middle_2" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="219" name="right_hand_middle_3" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="235" name="right_hand_pinky_1" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="239" name="right_hand_pinky_2" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="243" name="right_hand_pinky_3" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="223" name="right_hand_ring_1" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="227" name="right_hand_ring_2" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="231" name="right_hand_ring_3" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="247" name="right_hand_thumb_1" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="251" name="right_hand_thumb_2" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="255" name="right_hand_thumb_3" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="113" name="right_leg_bend_goal" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="108" name="right_leg_bend_w" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="106" name="right_leg_pos_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="105" name="right_leg_rot_w" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="127" name="right_leg_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="6" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="21" name="update_eye_camera_with_head" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="19" name="update_head_with_eye_camera" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="20" name="update_head_with_relative_eye_camera" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="22" name="use_input_connection" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="34" name="yaw_roll_pitch" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="1" name="Microphone" type="Microphone">
+            <InitConfig key="2" name="standard"/>
+            <Configs>
+                <Config key="3" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="2" name="Camera" type="Camera">
+            <InitConfig key="4" name="standard">
+                <Arg key="262" name="position" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                <Arg key="266" name="rotation" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                <Arg key="270" name="start_experiment" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                <Arg key="271" name="start_routine" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="275" name="stop_experiment" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="274" name="stop_routine" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="273" name="update_off" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="272" name="update_on" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="260" name="use_eye" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="261" name="use_neutral" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="5" name="standard">
+                    <Arg key="276" name="debug_camera" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="279" name="position" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="283" name="rotation" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="277" name="use_eye" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="278" name="use_neutral" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="3" name="Camera trajectory" type="CameraTrajectory">
+            <InitConfig key="6" name="standard"/>
+            <Configs>
+                <Config key="7" name="standard">
+                    <Arg key="303" name="add_camera_position" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="306" name="camera_trajectory" ui="Tab" value="" type="None" dim="1" sep="[#1#]" sizes="0"/>
+                    <Arg key="304" name="compute_times" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="305" name="global_time" ui="Float spin box" value="3" type="System.Single" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="4" name="Camera trajectory file" type="CameraTrajectoryFile">
+            <InitConfig key="8" name="standard"/>
+            <Configs>
+                <Config key="9" name="standard">
+                    <Arg key="308" name="add_camera_position" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="313" name="end_color" ui="Color pick" value="1 0 0 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="311" name="file_path" ui="Line text editor" value="..." type="System.String" dim="0"/>
+                    <Arg key="307" name="global_time" ui="Float spin box" value="3" type="System.Single" dim="0"/>
+                    <Arg key="310" name="inverse" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="314" name="speed" ui="Curve" value="0 0 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="309" name="spherical_interpolation" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="312" name="start_color" ui="Color pick" value="1 1 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="5" name="VR camera trajectory" type="VrCameraTrajectory">
+            <InitConfig key="10" name="standard"/>
+            <Configs>
+                <Config key="11" name="standard">
+                    <Arg key="362" name="back_curve" ui="Curve" value="0 0 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="323" name="duration" ui="Float spin box" value="5" type="System.Single" dim="0"/>
+                    <Arg key="380" name="front_curve" ui="Curve" value="0 0 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="327" name="move_back" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="328" name="move_nose_down_out_of_body" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="329" name="move_nose_up_out_of_body" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="326" name="move_stand_out_of_body" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="325" name="move_to_target" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="333" name="nose_down_oob_back" ui="Float spin box" value="3" type="System.Single" dim="0"/>
+                    <Arg key="334" name="nose_up_oob_front" ui="Float spin box" value="3" type="System.Single" dim="0"/>
+                    <Arg key="353" name="pitch_curve" ui="Curve" value="0 0 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="344" name="speed_curve" ui="Curve" value="0 0 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="324" name="spherical_linear_interpolation" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="331" name="stand_oob_back" ui="Float spin box" value="3" type="System.Single" dim="0"/>
+                    <Arg key="332" name="stand_oob_pitch" ui="Float spin box" value="30" type="System.Single" dim="0"/>
+                    <Arg key="330" name="stand_oob_up" ui="Float spin box" value="5" type="System.Single" dim="0"/>
+                    <Arg key="335" name="target_component" ui="Line text editor" value="" type="System.String" dim="0"/>
+                    <Arg key="336" name="target_pos" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="340" name="target_rot" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="371" name="up_curve" ui="Curve" value="0 0 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="6" name="Cloud" type="Cloud">
+            <InitConfig key="12" name="standard">
+                <Arg key="389" name="cloud" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+            </InitConfig>
+            <Configs>
+                <Config key="13" name="standard">
+                    <Arg key="390" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="7" name="Scaner video" type="ScanerVideo">
+            <InitConfig key="14" name="standard">
+                <Arg key="400" name="scaner_video" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+            </InitConfig>
+            <Configs>
+                <Config key="15" name="standard">
+                    <Arg key="414" name="display_clouds" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="415" name="display_colliders" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="412" name="fps" ui="Integer spin box" value="30" type="System.Int32" dim="0"/>
+                    <Arg key="401" name="global_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="413" name="loop" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="416" name="max_diff_time_ms" ui="Integer spin box" value="100" type="System.Int32" dim="0"/>
+                    <Arg key="411" name="size_points" ui="Float spin box" value="0.003" type="System.Single" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="8" name="Sky" type="Sky">
+            <InitConfig key="16" name="standard"/>
+            <Configs>
+                <Config key="17" name="standard">
+                    <Arg key="454" name="6sided-exposure" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="455" name="6sided-rotation" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="453" name="6sided-tint" ui="Color pick" value="1 0.498039 0.498039 0.498039" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="446" name="X+" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="437" name="X+_invert" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="443" name="X-" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="438" name="X-_invert" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="447" name="Y+" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="439" name="Y+_invert" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="444" name="Y-" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="440" name="Y-_invert" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="448" name="Z+" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="435" name="Z+_invert" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="445" name="Z-" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="436" name="Z-_invert" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="431" name="ambient_color" ui="Color pick" value="1 0.211765 0.227451 0.258824" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="430" name="ambient_intensity" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="429" name="ambient_mode" ui="Combo box index" value="0" type="System.Int32" dim="0"/>
+                    <Arg key="469" name="atmosphere-thickness" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="452" name="background_color" ui="Color pick" value="1 0.207843 0.188235 0.188235" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="468" name="convergence" ui="Float spin box" value="5" type="System.Single" dim="0"/>
+                    <Arg key="450" name="cubemap" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="457" name="cubemap-exposure" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="458" name="cubemap-rotation" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="456" name="cubemap-tint" ui="Color pick" value="1 0.498039 0.498039 0.498039" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="442" name="cubemap_invert" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="433" name="equator_color" ui="Color pick" value="1 0.113725 0.12549 0.133333" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="432" name="ground_color" ui="Color pick" value="1 0.0431373 0.0470588 0.0352941" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="451" name="mode" ui="Combo box index" value="0" type="System.Int32" dim="0"/>
+                    <Arg key="449" name="panoramic" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="460" name="panoramic-exposure" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="465" name="panoramic-layout" ui="Combo box index" value="0" type="System.Int32" dim="0"/>
+                    <Arg key="462" name="panoramic-mapping" ui="Combo box index" value="0" type="System.Int32" dim="0"/>
+                    <Arg key="463" name="panoramic-mirror_back" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="461" name="panoramic-rotation" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="459" name="panoramic-tint" ui="Color pick" value="1 0.498039 0.498039 0.498039" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="464" name="panoramic-type" ui="Combo box index" value="0" type="System.Int32" dim="0"/>
+                    <Arg key="441" name="panoramic_invert" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="472" name="procedural-exposure" ui="Float spin box" value="1.3" type="System.Single" dim="0"/>
+                    <Arg key="471" name="procedural-ground-color" ui="Color pick" value="1 0.372549 0.372549 0.372549" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="470" name="procedural-sky-tint" ui="Color pick" value="1 0.498039 0.498039 0.498039" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="434" name="sky_color" ui="Color pick" value="1 0.211765 0.227451 0.258824" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="466" name="sun" ui="Combo box index" value="2" type="System.Int32" dim="0"/>
+                    <Arg key="467" name="sun-size" ui="Float spin box" value="0.04" type="System.Single" dim="0"/>
+                    <Arg key="422" name="sun_bounce_intensity" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="423" name="sun_color" ui="Color pick" value="1 1 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="421" name="sun_intensity" ui="Float spin box" value="0.5" type="System.Single" dim="0"/>
+                    <Arg key="417" name="sun_rotation" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="426" name="sun_shadow_bias" ui="Float spin box" value="0.05" type="System.Single" dim="0"/>
+                    <Arg key="424" name="sun_shadow_mode" ui="Combo box index" value="2" type="System.Int32" dim="0"/>
+                    <Arg key="428" name="sun_shadow_near_plane" ui="Float spin box" value="0.2" type="System.Single" dim="0"/>
+                    <Arg key="427" name="sun_shadow_normal_bias" ui="Float spin box" value="0.4" type="System.Single" dim="0"/>
+                    <Arg key="425" name="sun_shadow_strength" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="9" name="Mouse" type="Mouse">
+            <InitConfig key="18" name="standard"/>
+            <Configs>
+                <Config key="19" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="10" name="Joypad" type="Joypad">
+            <InitConfig key="20" name="standard"/>
+            <Configs>
+                <Config key="21" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="11" name="Keyboard" type="Keyboard">
+            <InitConfig key="22" name="standard"/>
+            <Configs>
+                <Config key="23" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="12" name="Target to grab" type="TargetToGrab">
+            <InitConfig key="24" name="standard">
+                <Arg key="569" name="max_distance_reachable" ui="Float spin box" value="0.5" type="System.Single" dim="0"/>
+                <Arg key="568" name="shape_component" ui="Line text editor" value="..." type="System.String" dim="0"/>
+                <Arg key="570" name="start_distance" ui="Float spin box" value="0.1" type="System.Single" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="25" name="standard">
+                    <Arg key="585" name="angle_target" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="571" name="debug" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="572" name="display_start_line" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="583" name="distance_percentage_target" ui="Float spin box" value="80" type="System.Single" dim="0"/>
+                    <Arg key="584" name="height_target" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="573" name="working_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="13" name="Mark to clean" type="MarkToClean">
+            <InitConfig key="26" name="standard">
+                <Arg key="587" name="height_collider_resolution" ui="Integer spin box" value="250" type="System.Int32" dim="0"/>
+                <Arg key="588" name="max_distance_reachable" ui="Float spin box" value="0.5" type="System.Single" dim="0"/>
+                <Arg key="586" name="width_collider_resolution" ui="Integer spin box" value="250" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="27" name="standard">
+                    <Arg key="602" name="alpha_decrease" ui="Float spin box" value="0.01" type="System.Single" dim="0"/>
+                    <Arg key="589" name="debug" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="601" name="distance_erase" ui="Float spin box" value="0.015" type="System.Single" dim="0"/>
+                    <Arg key="600" name="distance_percentage_mark" ui="Float spin box" value="80" type="System.Single" dim="0"/>
+                    <Arg key="590" name="working_transform" ui="Transformation" value="0 0 0 90 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="14" name="Cube" type="Cube">
+            <InitConfig key="28" name="standard">
+                <Arg key="603" name="size" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="29" name="standard">
+                    <Arg key="614" name="color" ui="Color pick" value="1 0.627451 0.627451 0.643137" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="604" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="15" name="Sphere" type="Sphere">
+            <InitConfig key="30" name="standard">
+                <Arg key="617" name="nb_lat" ui="Integer spin box" value="16" type="System.Int32" dim="0"/>
+                <Arg key="616" name="nb_log" ui="Integer spin box" value="24" type="System.Int32" dim="0"/>
+                <Arg key="615" name="radius" ui="Float spin box" value="0.05" type="System.Single" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="31" name="standard">
+                    <Arg key="628" name="color" ui="Color pick" value="1 0.627451 0.627451 0.643137" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="618" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="16" name="Torus" type="Torus">
+            <InitConfig key="32" name="standard">
+                <Arg key="630" name="inner_radius" ui="Float spin box" value="0.15" type="System.Single" dim="0"/>
+                <Arg key="629" name="outer_radius" ui="Float spin box" value="0.3" type="System.Single" dim="0"/>
+                <Arg key="632" name="rings_count" ui="Integer spin box" value="24" type="System.Int32" dim="0"/>
+                <Arg key="631" name="sides_count" ui="Integer spin box" value="24" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="33" name="standard">
+                    <Arg key="643" name="color" ui="Color pick" value="1 0.627451 0.627451 0.643137" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="633" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="17" name="Lines" type="Lines">
+            <InitConfig key="34" name="standard"/>
+            <Configs>
+                <Config key="35" name="standard">
+                    <Arg key="644" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="18" name="UDP reader" type="UdpReader">
+            <InitConfig key="36" name="standard">
+                <Arg key="655" name="reading_address" ui="Line text editor" value="127.0.0.1" type="System.String" dim="0"/>
+                <Arg key="654" name="reading_port" ui="Integer spin box" value="8060" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="37" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="19" name="UDP writer" type="UdpWriter">
+            <InitConfig key="38" name="standard">
+                <Arg key="657" name="writing_address" ui="Line text editor" value="127.0.0.1" type="System.String" dim="0"/>
+                <Arg key="656" name="writing_port" ui="Integer spin box" value="8060" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="39" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="20" name="Serial port writer" type="SerialPortWriter">
+            <InitConfig key="40" name="standard">
+                <Arg key="659" name="baud_rate" ui="Integer spin box" value="9600" type="System.Int32" dim="0"/>
+                <Arg key="658" name="port_to_write" ui="Line text editor" value="COM1" type="System.String" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="41" name="standard">
+                    <Arg key="660" name="bits_mode" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="661" name="int_mode" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="663" name="message" ui="Block text editor" value="..." type="System.String" dim="0"/>
+                    <Arg key="666" name="send_end_update_block" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="667" name="send_every_frame" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="664" name="send_new_routine" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="665" name="send_new_update_block" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="662" name="string_mode" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="21" name="Parallel port writer" type="ParallelPortWriter">
+            <InitConfig key="42" name="standard">
+                <Arg key="669" name="int16_mode" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="668" name="x32_mode" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="43" name="standard">
+                    <Arg key="670" name="port" ui="Integer spin box" value="50000" type="System.Int32" dim="0"/>
+                    <Arg key="671" name="pulse_time" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="22" name="Logger" type="Logger">
+            <InitConfig key="44" name="standard">
+                <Arg key="674" name="add_date_to_file_name" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                <Arg key="677" name="add_to_end_if_file_exists" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="679" name="base_file_name" ui="Line text editor" value="log" type="System.String" dim="0"/>
+                <Arg key="680" name="date_time_format" ui="Line text editor" value="yyyy-MM-dd_H-mm-ss" type="System.String" dim="0"/>
+                <Arg key="672" name="directory" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                <Arg key="675" name="dont_write_if_file_exists" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="681" name="file_extension" ui="Line text editor" value="txt" type="System.String" dim="0"/>
+                <Arg key="676" name="insert_new_routine_infos" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="678" name="replace_if_file_exists" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                <Arg key="673" name="stream_to_file" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="45" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="23" name="Plot resource" type="PlotResource">
+            <InitConfig key="46" name="standard"/>
+            <Configs>
+                <Config key="47" name="standard">
+                    <Arg key="682" name="plot" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="684" name="plots_list" ui="Resources list" value="" type="System.String" dim="1" sep=" " sizes="0"/>
+                    <Arg key="683" name="random" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="24" name="Image resource" type="ImageResource">
+            <InitConfig key="48" name="standard"/>
+            <Configs>
+                <Config key="49" name="standard">
+                    <Arg key="685" name="image" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="25" name="Text resource" type="TextResource">
+            <InitConfig key="50" name="standard"/>
+            <Configs>
+                <Config key="51" name="standard">
+                    <Arg key="686" name="text" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="26" name="Unity asset bundle" type="AssetBundle">
+            <InitConfig key="52" name="standard">
+                <Arg key="687" name="asset_bundle" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                <Arg key="688" name="name_sub_object" ui="Line text editor" value="" type="System.String" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="53" name="standard">
+                    <Arg key="689" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="27" name="Multi assets bundles" type="MultiAB">
+            <InitConfig key="54" name="standard">
+                <Arg key="699" name="ab_list" ui="Resources list" value="" type="System.String" dim="1" sep=" " sizes="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="55" name="standard">
+                    <Arg key="710" name="ab_alias" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="700" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="28" name="Falling spheres" type="FallingSpheres">
+            <InitConfig key="56" name="standard">
+                <Arg key="711" name="max_number_spheres" ui="Integer spin box" value="15" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="57" name="standard">
+                    <Arg key="723" name="collisions_enabled" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="725" name="display_spawner" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="718" name="duration_time_sphere" ui="Integer spin box" value="1000" type="System.Int32" dim="0"/>
+                    <Arg key="717" name="extern_circle_ray" ui="Float spin box" value="2" type="System.Single" dim="0"/>
+                    <Arg key="724" name="gravity_extra_force" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="716" name="inner_circle_ray" ui="Float spin box" value="0.5" type="System.Single" dim="0"/>
+                    <Arg key="712" name="position" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="722" name="size_spheres" ui="Float spin box" value="0.1" type="System.Single" dim="0"/>
+                    <Arg key="719" name="spawn_time" ui="Integer spin box" value="100" type="System.Int32" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="29" name="Mirror" type="Mirror">
+            <InitConfig key="58" name="standard"/>
+            <Configs>
+                <Config key="59" name="standard">
+                    <Arg key="736" name="show_frame" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="726" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="30" name="Flashing dot" type="FlashingDot">
+            <InitConfig key="60" name="standard"/>
+            <Configs>
+                <Config key="61" name="standard">
+                    <Arg key="748" name="off_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="749" name="on" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="747" name="on_color" ui="Color pick" value="1 1 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="737" name="transform" ui="Transformation" value="0 0 0 0 0 0 0.1 0.1 0.1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="31" name="MRI" type="MRI">
+            <InitConfig key="62" name="standard">
+                <Arg key="750" name="humanoid_controller" ui="Component" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+            </InitConfig>
+            <Configs>
+                <Config key="63" name="standard">
+                    <Arg key="762" name="dissolve" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="768" name="distance" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    <Arg key="767" name="duration" ui="Double spin box" value="5" type="System.Double" dim="0"/>
+                    <Arg key="771" name="init_qualisys" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="763" name="move_table_inside" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="764" name="move_table_outside" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="765" name="move_table_qualisys" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="766" name="nothing" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="770" name="process_magnet" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="769" name="process_room" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="772" name="qualisys_arms_tracking" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="761" name="solve" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="777" name="target_head_rot_offset" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="773" name="target_head_tr_offset" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="751" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="32" name="Python script" type="PythonScript">
+            <InitConfig key="64" name="standard">
+                <Arg key="783" name="class_name" ui="Line text editor" value="DefaultComponent" type="System.String" dim="0"/>
+                <Arg key="782" name="path_lib" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="781" name="path_module" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="-1" name="paths_python" ui="Non ui labels" value="E:/DEV/EPFL/exvr/build/bin/release/designer/data/scripts/python|E:/DEV/EPFL/exvr/build/bin/release/designer/data/scripts/python/lib" type="System.String" dim="1" sep="|" sizes="2"/>
+            </InitConfig>
+            <Configs>
+                <Config key="65" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="33" name="CSharp script" type="CSharpScript">
+            <InitConfig key="66" name="standard">
+                <Arg key="786" name="component_class_name" ui="Line text editor" value="TemplateComponent" type="System.String" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="67" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="34" name="Kinect manager" type="KinectManager">
+            <InitConfig key="68" name="standard">
+                <Arg key="790" name="calib" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                <Arg key="791" name="camera" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                <Arg key="793" name="cameras_to_use" ui="Line text editor" value="0 1 2 3 4 5 6 7" type="System.String" dim="0"/>
+                <Arg key="789" name="config" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                <Arg key="792" name="mode" ui="Combo box index" value="0" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="69" name="standard">
+                    <Arg key="794" name="fps" ui="Integer spin box" value="45" type="System.Int32" dim="0"/>
+                    <Arg key="795" name="update_cameras" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="35" name="Kinect body tracking" type="KinectBodyTracking">
+            <InitConfig key="70" name="standard">
+                <Arg key="796" name="kinect_manager" ui="Component" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+            </InitConfig>
+            <Configs>
+                <Config key="71" name="standard">
+                    <Arg key="797" name="global_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="36" name="Scene scaner" type="SceneScaner">
+            <InitConfig key="72" name="standard">
+                <Arg key="807" name="kinect_manager" ui="Component" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+            </InitConfig>
+            <Configs>
+                <Config key="73" name="standard">
+                    <Arg key="819" name="display_clouds" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="820" name="display_colliders" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="808" name="global_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="818" name="size_points" ui="Float spin box" value="0.003" type="System.Single" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="37" name="Attach object to hand" type="AttachObjectToHand">
+            <InitConfig key="74" name="standard"/>
+            <Configs>
+                <Config key="75" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="38" name="LeapMotion" type="LeapMotion">
+            <InitConfig key="76" name="standard"/>
+            <Configs>
+                <Config key="77" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="39" name="LeapMotion realistic arms" type="LeapMotionArmsDisplay">
+            <InitConfig key="78" name="standard">
+                <Arg key="822" name="model" ui="Combo box text" value="Man black hand" type="System.String" dim="0"/>
+                <Arg key="823" name="track_fingers" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="79" name="standard">
+                    <Arg key="835" name="display_colliders" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="824" name="model_transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="834" name="part_to_display" ui="Combo box index" value="0" type="System.Int32" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="40" name="LeapMotion debug hand tracking" type="LeapMotionTracking">
+            <InitConfig key="80" name="standard"/>
+            <Configs>
+                <Config key="81" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="41" name="Biopac MP36 device" type="BiopacMP36">
+            <InitConfig key="82" name="standard">
+                <Arg key="836" name="channel1" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="840" name="channel1_name" ui="Line text editor" value="channel1" type="System.String" dim="0"/>
+                <Arg key="844" name="channel1_preset_uid" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="837" name="channel2" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="841" name="channel2_name" ui="Line text editor" value="channel2" type="System.String" dim="0"/>
+                <Arg key="845" name="channel2_preset_uid" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="838" name="channel3" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="842" name="channel3_name" ui="Line text editor" value="channel3" type="System.String" dim="0"/>
+                <Arg key="846" name="channel3_preset_uid" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="839" name="channel4" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="843" name="channel4_name" ui="Line text editor" value="channel4" type="System.String" dim="0"/>
+                <Arg key="847" name="channel4_preset_uid" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="850" name="max_nb_seconds_to_save" ui="Integer spin box" value="1000" type="System.Int32" dim="0"/>
+                <Arg key="851" name="preset_xml_file" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                <Arg key="849" name="sampling_rate" ui="Integer spin box" value="100" type="System.Int32" dim="0"/>
+                <Arg key="848" name="target_fps" ui="Integer spin box" value="90" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="83" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="42" name="Thera trainer tracking" type="TheraTrainerTracking">
+            <InitConfig key="84" name="standard">
+                <Arg key="853" name="read_address" ui="Line text editor" value="127.0.0.1" type="System.String" dim="0"/>
+                <Arg key="852" name="read_port" ui="Integer spin box" value="8080" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="85" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="43" name="Thera trainer platform" type="TheraTrainerPlatform">
+            <InitConfig key="86" name="standard"/>
+            <Configs>
+                <Config key="87" name="standard">
+                    <Arg key="889" name="display_targets" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="864" name="height" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="881" name="offset_left_grip_pos" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="885" name="offset_left_grip_rot" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="865" name="offset_pelvis_pos" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="869" name="offset_pelvis_rot" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="873" name="offset_right_grip_pos" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="877" name="offset_right_grip_rot" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="854" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="44" name="Qualisys tracking" type="QualisysTracking">
+            <InitConfig key="88" name="standard">
+                <Arg key="890" name="connect_to_first" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                <Arg key="891" name="connect_to_specific" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="892" name="host_name" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="893" name="ip_address" ui="Line text editor" value="" type="System.String" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="89" name="standard">
+                    <Arg key="904" name="objects" ui="Block text editor" value="6DOF object name 1&#10;6DOF object name 2" type="System.String" dim="0"/>
+                    <Arg key="894" name="transform" ui="Transformation" value="0 0 0 0 0 0 1 1 1" type="System.Single" dim="1" sep=" " sizes="9"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="45" name="Sonceboz SG" type="SoncebozSG">
+            <InitConfig key="90" name="standard">
+                <Arg key="905" name="reading_address" ui="Line text editor" value="127.0.0.1" type="System.String" dim="0"/>
+                <Arg key="907" name="reading_port" ui="Integer spin box" value="6558" type="System.Int32" dim="0"/>
+                <Arg key="906" name="writing_address" ui="Line text editor" value="127.0.0.1" type="System.String" dim="0"/>
+                <Arg key="908" name="writing_port" ui="Integer spin box" value="6557" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="91" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="46" name="FOP robot" type="FOPRobot">
+            <InitConfig key="92" name="standard">
+                <Arg key="910" name="read_address" ui="Line text editor" value="127.0.0.1" type="System.String" dim="0"/>
+                <Arg key="909" name="read_port" ui="Integer spin box" value="5554" type="System.Int32" dim="0"/>
+                <Arg key="912" name="write_address" ui="Line text editor" value="127.0.0.1" type="System.String" dim="0"/>
+                <Arg key="911" name="write_port" ui="Integer spin box" value="5555" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="93" name="standard">
+                    <Arg key="918" name="delay" ui="Integer spin box" value="500" type="System.Int32" dim="0"/>
+                    <Arg key="913" name="delay_control" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="914" name="force_control" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="919" name="force_ratio" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="917" name="none" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="916" name="position_control" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="915" name="test_touch" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="47" name="Slider ui" type="SliderUI">
+            <InitConfig key="94" name="standard">
+                <Arg key="920" name="horizontal_slider" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="95" name="standard">
+                    <Arg key="1049" name="background_color" ui="Color pick" value="1 1 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="1042" name="display_min_max" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1043" name="display_min_max_value" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1045" name="display_nothing" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1044" name="display_slider_textes_text" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1046" name="display_steps" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="936" name="distance" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="1051" name="fill_area_color" ui="Color pick" value="1 0.627451 0.627451 0.643137" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="1050" name="handle_color" ui="Color pick" value="1 0.627451 0.627451 0.643137" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="922" name="height" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
+                    <Arg key="1057" name="max" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="1055" name="min" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="933" name="pivot" ui="Vector 2D" value="0.5 0.5" type="System.Single" dim="1" sep=" " sizes="2"/>
+                    <Arg key="924" name="position" ui="Vector 3D" value="0 0 10" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="1054" name="random_start" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1052" name="rest_area_color" ui="Color pick" value="1 0.627451 0.627451 0.643137" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="928" name="rotation" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="923" name="scale_factor" ui="Float spin box" value="0.25" type="System.Single" dim="0"/>
+                    <Arg key="1047" name="slider_text1" ui="Line text editor" value="Slider txt1" type="System.String" dim="0"/>
+                    <Arg key="1048" name="slider_text2" ui="Line text editor" value="Slider txt2" type="System.String" dim="0"/>
+                    <Arg key="1058" name="step" ui="Float spin box" value="0.1" type="System.Single" dim="0"/>
+                    <Arg key="950" name="t1_alignment" ui="Combo box text" value="Middle centered" type="System.String" dim="0"/>
+                    <Arg key="941" name="t1_auto_size" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="944" name="t1_bold" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="954" name="t1_character_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="955" name="t1_face_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="942" name="t1_font_size" ui="Float spin box" value="25" type="System.Single" dim="0"/>
+                    <Arg key="945" name="t1_highlight" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="943" name="t1_italic" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="952" name="t1_line_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="948" name="t1_lower_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="947" name="t1_normal" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="956" name="t1_outline_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="957" name="t1_outline_width" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="951" name="t1_paragraph_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="940" name="t1_rich_text" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="938" name="t1_text" ui="Block text editor" value="Description txt1" type="System.String" dim="0"/>
+                    <Arg key="937" name="t1_text_resource" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="946" name="t1_under_line" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="949" name="t1_upper_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="953" name="t1_word_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="939" name="t1_wrap" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="971" name="t2_alignment" ui="Combo box text" value="Middle centered" type="System.String" dim="0"/>
+                    <Arg key="962" name="t2_auto_size" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="965" name="t2_bold" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="975" name="t2_character_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="976" name="t2_face_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="963" name="t2_font_size" ui="Float spin box" value="25" type="System.Single" dim="0"/>
+                    <Arg key="966" name="t2_highlight" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="964" name="t2_italic" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="973" name="t2_line_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="969" name="t2_lower_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="968" name="t2_normal" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="977" name="t2_outline_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="978" name="t2_outline_width" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="972" name="t2_paragraph_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="961" name="t2_rich_text" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="959" name="t2_text" ui="Block text editor" value="Description txt2" type="System.String" dim="0"/>
+                    <Arg key="958" name="t2_text_resource" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="967" name="t2_under_line" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="970" name="t2_upper_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="974" name="t2_word_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="960" name="t2_wrap" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1013" name="tmax_alignment" ui="Combo box text" value="Middle centered" type="System.String" dim="0"/>
+                    <Arg key="1004" name="tmax_auto_size" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1007" name="tmax_bold" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1017" name="tmax_character_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1018" name="tmax_face_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="1005" name="tmax_font_size" ui="Float spin box" value="25" type="System.Single" dim="0"/>
+                    <Arg key="1008" name="tmax_highlight" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1006" name="tmax_italic" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1015" name="tmax_line_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1011" name="tmax_lower_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1010" name="tmax_normal" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1019" name="tmax_outline_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="1020" name="tmax_outline_width" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1014" name="tmax_paragraph_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1009" name="tmax_under_line" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1012" name="tmax_upper_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1016" name="tmax_word_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1002" name="tmax_wrap" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="992" name="tmin_alignment" ui="Combo box text" value="Middle centered" type="System.String" dim="0"/>
+                    <Arg key="983" name="tmin_auto_size" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="986" name="tmin_bold" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="996" name="tmin_character_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="997" name="tmin_face_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="984" name="tmin_font_size" ui="Float spin box" value="25" type="System.Single" dim="0"/>
+                    <Arg key="987" name="tmin_highlight" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="985" name="tmin_italic" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="994" name="tmin_line_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="990" name="tmin_lower_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="989" name="tmin_normal" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="998" name="tmin_outline_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="999" name="tmin_outline_width" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="993" name="tmin_paragraph_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="988" name="tmin_under_line" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="991" name="tmin_upper_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="995" name="tmin_word_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="981" name="tmin_wrap" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1034" name="tvalue_alignment" ui="Combo box text" value="Middle centered" type="System.String" dim="0"/>
+                    <Arg key="1025" name="tvalue_auto_size" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1028" name="tvalue_bold" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1038" name="tvalue_character_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1039" name="tvalue_face_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="1026" name="tvalue_font_size" ui="Float spin box" value="25" type="System.Single" dim="0"/>
+                    <Arg key="1029" name="tvalue_highlight" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1027" name="tvalue_italic" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1036" name="tvalue_line_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1032" name="tvalue_lower_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1031" name="tvalue_normal" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1040" name="tvalue_outline_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="1041" name="tvalue_outline_width" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1035" name="tvalue_paragraph_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1030" name="tvalue_under_line" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1033" name="tvalue_upper_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1037" name="tvalue_word_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1023" name="tvalue_wrap" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="932" name="use_eye_camera" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1056" name="value" ui="Float spin box" value="0.5" type="System.Single" dim="0"/>
+                    <Arg key="1053" name="whole" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="921" name="width" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="48" name="Video file" type="VideoFile">
+            <InitConfig key="96" name="standard">
+                <Arg key="1059" name="video" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+            </InitConfig>
+            <Configs>
+                <Config key="97" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="49" name="Video file camera viewer" type="VideoFileCameraViewer">
+            <InitConfig key="98" name="standard">
+                <Arg key="1060" name="eye_to_render" ui="Combo box text" value="Both eyes" type="System.String" dim="0"/>
+                <Arg key="1061" name="video" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+            </InitConfig>
+            <Configs>
+                <Config key="99" name="standard">
+                    <Arg key="1062" name="distance" ui="Float spin box" value="10" type="System.Single" dim="0"/>
+                    <Arg key="1065" name="height" ui="Integer spin box" value="500" type="System.Int32" dim="0"/>
+                    <Arg key="1066" name="pivot_x" ui="Float spin box" value="0.5" type="System.Single" dim="0"/>
+                    <Arg key="1067" name="pivot_y" ui="Float spin box" value="0.5" type="System.Single" dim="0"/>
+                    <Arg key="1068" name="rotation" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="1063" name="scale_factor" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="1072" name="use_original_size" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1064" name="width" ui="Integer spin box" value="500" type="System.Int32" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="50" name="Webcam" type="Webcam">
+            <InitConfig key="100" name="standard">
+                <Arg key="1073" name="device_id" ui="Integer spin box" value="0" type="System.Int32" dim="0"/>
+                <Arg key="1074" name="requested_fps" ui="Integer spin box" value="30" type="System.Int32" dim="0"/>
+                <Arg key="1076" name="requested_height" ui="Integer spin box" value="768" type="System.Int32" dim="0"/>
+                <Arg key="1075" name="requested_width" ui="Integer spin box" value="1024" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="101" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="51" name="Video saver" type="VideoSaver">
+            <InitConfig key="102" name="standard">
+                <Arg key="1078" name="fps" ui="Integer spin box" value="30" type="System.Int32" dim="0"/>
+                <Arg key="1080" name="height" ui="Integer spin box" value="768" type="System.Int32" dim="0"/>
+                <Arg key="1077" name="path_video" ui="Line text editor" value="..." type="System.String" dim="0"/>
+                <Arg key="1079" name="width" ui="Integer spin box" value="1024" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="103" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="52" name="Text viewer" type="TextViewer">
+            <InitConfig key="104" name="standard"/>
+            <Configs>
+                <Config key="105" name="standard">
+                    <Arg key="1098" name="background_color" ui="Color pick" value="1 1 1 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="1097" name="distance" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="1081" name="eye_to_render" ui="Combo box text" value="Both eyes" type="System.String" dim="0"/>
+                    <Arg key="1083" name="height" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
+                    <Arg key="1094" name="pivot" ui="Vector 2D" value="0.5 0.5" type="System.Single" dim="1" sep=" " sizes="2"/>
+                    <Arg key="1085" name="position" ui="Vector 3D" value="0 0 10" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="1089" name="rotation" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="1084" name="scale_factor" ui="Float spin box" value="0.25" type="System.Single" dim="0"/>
+                    <Arg key="1112" name="t_alignment" ui="Combo box text" value="Middle centered" type="System.String" dim="0"/>
+                    <Arg key="1103" name="t_auto_size" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1106" name="t_bold" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1116" name="t_character_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1117" name="t_face_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="1104" name="t_font_size" ui="Float spin box" value="25" type="System.Single" dim="0"/>
+                    <Arg key="1107" name="t_highlight" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1105" name="t_italic" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1114" name="t_line_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1110" name="t_lower_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1109" name="t_normal" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1118" name="t_outline_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg key="1119" name="t_outline_width" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1113" name="t_paragraph_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1102" name="t_rich_text" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1100" name="t_text" ui="Block text editor" value="Text..." type="System.String" dim="0"/>
+                    <Arg key="1099" name="t_text_resource" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="1108" name="t_under_line" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1111" name="t_upper_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1115" name="t_word_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1101" name="t_wrap" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1093" name="use_eye_camera" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1082" name="width" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="53" name="Image viewer" type="ImageViewer">
+            <InitConfig key="106" name="standard"/>
+            <Configs>
+                <Config key="107" name="standard">
+                    <Arg key="1138" name="distance" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="1120" name="eye_to_render" ui="Combo box text" value="Both eyes" type="System.String" dim="0"/>
+                    <Arg key="1123" name="height" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
+                    <Arg key="1121" name="image" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+                    <Arg key="1135" name="pivot" ui="Vector 2D" value="0.5 0.5" type="System.Single" dim="1" sep=" " sizes="2"/>
+                    <Arg key="1125" name="position" ui="Vector 3D" value="0 0 10" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="1129" name="rotation" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="1124" name="scale_factor" ui="Float spin box" value="0.25" type="System.Single" dim="0"/>
+                    <Arg key="1133" name="use_eye_camera" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1134" name="use_original_size" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1122" name="width" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="54" name="Fixation cross viewer" type="FixationCrossViewer">
+            <InitConfig key="108" name="standard"/>
+            <Configs>
+                <Config key="109" name="standard">
+                    <Arg key="1156" name="distance" ui="Float spin box" value="1" type="System.Single" dim="0"/>
+                    <Arg key="1139" name="eye_to_render" ui="Combo box text" value="Both eyes" type="System.String" dim="0"/>
+                    <Arg key="1141" name="height" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
+                    <Arg key="1153" name="pivot" ui="Vector 2D" value="0.5 0.5" type="System.Single" dim="1" sep=" " sizes="2"/>
+                    <Arg key="1143" name="position" ui="Vector 3D" value="0 0 10" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="1147" name="rotation" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="1142" name="scale_factor" ui="Float spin box" value="0.25" type="System.Single" dim="0"/>
+                    <Arg key="1151" name="use_eye_camera" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1152" name="use_original_size" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1140" name="width" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="55" name="Webcam viewer" type="WebcamViewer">
+            <InitConfig key="110" name="standard">
+                <Arg key="1157" name="device_id" ui="Integer spin box" value="0" type="System.Int32" dim="0"/>
+                <Arg key="1158" name="requested_fps" ui="Integer spin box" value="30" type="System.Int32" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="111" name="standard">
+                    <Arg key="1176" name="distance" ui="Float spin box" value="10" type="System.Single" dim="0"/>
+                    <Arg key="1159" name="eye_to_render" ui="Combo box text" value="Both eyes" type="System.String" dim="0"/>
+                    <Arg key="1161" name="height" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
+                    <Arg key="1173" name="pivot" ui="Vector 2D" value="0.5 0.5" type="System.Single" dim="1" sep=" " sizes="2"/>
+                    <Arg key="1163" name="position" ui="Vector 3D" value="0 0 10" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="1167" name="rotation" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
+                    <Arg key="1162" name="scale_factor" ui="Float spin box" value="0.25" type="System.Single" dim="0"/>
+                    <Arg key="1171" name="use_eye_camera" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1172" name="use_original_size" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1160" name="width" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="56" name="FOV simulator" type="FovSimulator">
+            <InitConfig key="112" name="standard">
+                <Arg key="1179" name="distance" ui="Float spin box" value="0.15" type="System.Single" dim="0"/>
+                <Arg key="1177" name="horizontal_fov" ui="Float spin box" value="52.1" type="System.Single" dim="0"/>
+                <Arg key="1178" name="vertical_fov" ui="Float spin box" value="34" type="System.Single" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="113" name="standard">
+                    <Arg key="1180" name="color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                </Config>
+            </Configs>
+        </Component>
+        <Component key="57" name="Audio source" type="AudioSource">
+            <InitConfig key="114" name="standard">
+                <Arg key="1212" name="channel_0_copy_destination" ui="Line text editor" value="1 2" type="System.String" dim="0"/>
+                <Arg key="1213" name="channel_1_copy_destination" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="1214" name="channel_2_copy_destination" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="1215" name="channel_3_copy_destination" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="1216" name="channel_4_copy_destination" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="1217" name="channel_5_copy_destination" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="1218" name="channel_6_copy_destination" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="1219" name="channel_7_copy_destination" ui="Line text editor" value="" type="System.String" dim="0"/>
+                <Arg key="1209" name="generate_new_sound" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg key="1210" name="new_sound_channel" ui="Combo box index" value="0" type="System.Int32" dim="0"/>
+                <Arg key="1208" name="sound" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
+            </InitConfig>
+            <Configs>
+                <Config key="115" name="standard">
+                    <Arg key="1246" name="loop" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1252" name="max_distance" ui="Float values slider" value="5" type="System.Single" dim="0"/>
+                    <Arg key="1253" name="min_distance" ui="Float values slider" value="0.01" type="System.Single" dim="0"/>
+                    <Arg key="1245" name="nothing_end_block" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1243" name="pause_end_block" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1251" name="pitch" ui="Float values slider" value="1" type="System.Single" dim="0"/>
+                    <Arg key="1242" name="play_new_block" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1250" name="spatial_blend" ui="Float values slider" value="0.5" type="System.Single" dim="0"/>
+                    <Arg key="1247" name="spatialized" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                    <Arg key="1249" name="stereo" ui="Float values slider" value="0" type="System.Single" dim="0"/>
+                    <Arg key="1244" name="stop_end_block" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
+                    <Arg key="1254" name="transform" ui="Transformation" value="0 0 0 0 0 0 0.3 0.3 0.3" type="System.Single" dim="1" sep=" " sizes="9"/>
+                    <Arg key="1248" name="volume" ui="Float values slider" value="1" type="System.Single" dim="0"/>
+                </Config>
+            </Configs>
+        </Component>
+    </Components>
+    <FlowElements>
+        <Routines/>
+        <ISIs/>
+        <Loops/>
+    </FlowElements>
+    <FlowSequence/>
+</Experiment>
