@@ -1,4 +1,4 @@
-﻿// Unity SDK for Qualisys Track Manager. Copyright 2015 Qualisys AB
+﻿// Unity SDK for Qualisys Track Manager. Copyright 2015-2018 Qualisys AB
 //
 using UnityEngine;
 using System.Collections.Generic;
@@ -41,7 +41,7 @@ namespace QualisysRealTime.Unity
             for (int i = 0; i < markerData.Count; i++)
             {
                 GameObject newMarker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                newMarker.name = markerData[i].Label;
+                newMarker.name = markerData[i].Name;
                 newMarker.transform.parent = markerRoot.transform;
                 newMarker.transform.localScale = Vector3.one * markerScale;
                 newMarker.SetActive(false);
@@ -66,7 +66,7 @@ namespace QualisysRealTime.Unity
 
             markerData = rtClient.Markers;
 
-            if (markerData == null && markerData.Count == 0)
+            if (markerData == null || markerData.Count == 0)
                 return;
 
             if (markers.Count != markerData.Count)
@@ -76,9 +76,9 @@ namespace QualisysRealTime.Unity
 
             for (int i = 0; i < markerData.Count; i++)
             {
-                if (markerData[i].Position.magnitude > 0)
+                if (!float.IsNaN(markerData[i].Position.sqrMagnitude))
                 {
-                    markers[i].name = markerData[i].Label;
+                    markers[i].name = markerData[i].Name;
                     markers[i].GetComponent<Renderer>().material.color = markerData[i].Color;
                     markers[i].transform.localPosition = markerData[i].Position;
                     markers[i].SetActive(true);
@@ -87,7 +87,7 @@ namespace QualisysRealTime.Unity
                 }
                 else
                 {
-                    //hide markers if we cant find them.
+                    // Hide markers if we cant find them
                     markers[i].SetActive(false);
                 }
             }

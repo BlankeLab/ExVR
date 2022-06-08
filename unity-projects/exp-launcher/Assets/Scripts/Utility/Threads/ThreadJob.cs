@@ -23,70 +23,65 @@
 ************************************************************************************/
 
 // system
-using System.Collections;
+using System.Threading;
+using System.Diagnostics;
 
 namespace Ex{
 
     public class ThreadedJob{
 
-        private bool m_IsDone = false;
-        private object m_Handle = new object();
-        private System.Threading.Thread m_Thread = null;
+        public volatile bool isDone = false;
+        private Thread m_Thread = null;
 
-        public bool is_done {
-            get {
-                bool tmp;
-                lock (m_Handle) {
-                    tmp = m_IsDone;
-                }
-                return tmp;
-            }
-            set {
-                lock (m_Handle) {
-                    m_IsDone = value;
-                }
-            }
-        }
-
-        public void set_priority(System.Threading.ThreadPriority p) {
-            if (m_Thread != null) {
-                m_Thread.Priority = p;
-            }
-        }
-
-        public void start() {
+        public void start(ThreadPriority priority = ThreadPriority.Normal) {
+            isDone   = false;
             m_Thread = new System.Threading.Thread(run);
+            m_Thread.Priority = priority;
             m_Thread.Start();
+        }
+
+        private void run() {
+            thread_function();
+            on_finished();
+            isDone = true;
         }
 
         public void stop() {
             if (m_Thread != null) {
                 m_Thread.Abort();
                 m_Thread.Join();
+                m_Thread = null;
             }
         }
 
-        protected virtual void ThreadFunction() { }
+        public bool join(int timeoutMs) {
 
-        protected virtual void OnFinished() { }
-
-        public virtual bool update() {
-            if (is_done) {
-                OnFinished();
+            if(m_Thread == null) {
                 return true;
             }
-            return false;
-        }
 
-        IEnumerator wait_for() {
-            while (!update()) {
-                yield return null;
+            bool timeout = false;
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            while (!isDone) {
+                if (sw.ElapsedMilliseconds > timeoutMs) {
+                    m_Thread.Abort();                    
+                    m_Thread.Join();                    
+                    isDone  = true;
+                    timeout = true;
+                    break;
+                }
+                Thread.Sleep(1);
             }
+            m_Thread.Join();
+            m_Thread = null;
+
+            return !timeout;
         }
 
-        private void run() {
-            ThreadFunction();
-            is_done = true;
-        }
+        // to be overrided
+        protected virtual void thread_function() { }
+        protected virtual void on_finished() { }
+
     }
 }

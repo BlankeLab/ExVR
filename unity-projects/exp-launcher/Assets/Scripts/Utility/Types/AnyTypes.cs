@@ -49,4 +49,16 @@ namespace Ex {
         public string str = "default";
         public object value = null;
     }
+
+    public class TimeAny {
+
+        public TimeAny() { }
+        public TimeAny(double time, object value) {
+            this.time  = time;
+            this.value = value;
+        }
+
+        public double time = 0;
+        public object value = null;
+    }
 }

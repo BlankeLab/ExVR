@@ -36,5 +36,8 @@ namespace Ex{
                 Destroy(texture);
             }
         }
+        public void destroy_go(GameObject go) {
+            Destroy(go);
+        }
     }
 }

@@ -38,22 +38,130 @@
 
 // local
 #include "data/config.hpp"
-#include "data/node_flow.hpp"
 #include "utility/path_utility.hpp"
 
 using namespace tool;
 using namespace tool::ex;
 
+
 Experiment::Experiment(QString nVersion) : states(nVersion), randomizer(Randomizer(states.randomizationSeed)) {
-
-    ResourcesManager::init();
-    m_resM = ResourcesManager::get();
-
-    ComponentsManager::init();
-    m_compM = ComponentsManager::get();
-
     new_experiment();
 }
+
+auto Experiment::nb_elements() const noexcept -> size_t{
+    return elements.size();
+}
+
+auto Experiment::nb_elements_no_nodes() const noexcept -> size_t{
+    return nb_elements() / 2;
+}
+
+auto Experiment::get_element_position(FlowElement *element) const -> RowId{
+
+    if(auto elementFound = get_element_iterator(element); elementFound != elements.end()){
+        return RowId{static_cast<int>(std::distance(elements.begin(), elementFound))};
+    }
+
+    QtLogger::error(QSL("[EXP] Element with key ") % QString::number(element->key()) % QSL(" not found."));
+    return RowId{-1};
+}
+
+auto Experiment::get_element_position_no_nodes(FlowElement *element) const -> RowId{
+
+    if(auto row = get_element_position(element); row.v != -1){
+        return {row.v / 2};
+    }
+    return {-1};
+}
+
+auto Experiment::get_element(RowId id) const -> FlowElement*{
+    if(id.v < static_cast<int>(nb_elements())){
+        return elements[id.v].get();
+    }
+    return nullptr;
+}
+
+auto Experiment::get_element_no_nodes(RowId id) const -> FlowElement*{
+    return get_element(RowId{id.v * 2 + 1});
+}
+
+auto Experiment::get_element(ElementKey elementKey, bool showError) const -> FlowElement* {
+
+    if(auto elementFound = get_element_iterator(elementKey); elementFound != elements.end()){
+        return elementFound->get();
+    }
+    if(showError){
+        QtLogger::error(QSL("[EXP] Element with key ") % QString::number(elementKey.v) % QSL(" not found."));
+    }
+    return nullptr;
+}
+
+auto Experiment::get_elements() const -> std::vector<FlowElement*>{
+
+    std::vector<FlowElement*> children;
+    children.reserve(elements.size());
+    for(const auto &elem : elements){
+        children.push_back(elem.get());
+    }
+    return children;
+}
+
+//auto Experiment::get_elements_from_type(FlowElement::Type type) const -> std::vector<FlowElement*>{
+
+
+////    auto elementsFromType = elements | std::ranges::views::filter([type](const auto &element) {
+////        return element->type() == type;
+////    });
+////    return elementsFromType;
+//    std::vector<FlowElement*> children;
+//    for(const auto &elem : elements){
+//        if(elem->type() == type){
+//            children.push_back(elem.get());
+//        }
+//    }
+//    return children;
+//}
+
+auto Experiment::get_routine(ElementKey routineKey) const -> Routine*{
+
+    if(auto elementFound = std::find_if(elements.begin(), elements.end(), [routineKey](const auto &element){
+            return element->key() == routineKey.v && element->is_routine();
+        }); elementFound != elements.end()){
+
+        return dynamic_cast<Routine*>(elementFound->get());
+    }
+
+//    QtLogger::error(QSL("[EXP] Routine with key ") % QString::number(routineKey.v) % QSL(" not found."));
+    return nullptr;
+}
+
+
+auto Experiment::get_condition(ElementKey routineKey, ConditionKey conditionKey) const -> Condition*{
+    if(auto routine = get_routine(routineKey); routine != nullptr){
+        return routine->get_condition(conditionKey);
+    }
+    return nullptr;
+}
+
+auto Experiment::get_condition(ConditionKey conditionKey) const -> Condition *{
+
+    for(const auto &routine : get_elements_from_type<Routine>()){
+
+        if(auto condFound = std::find_if(routine->conditions.begin(), routine->conditions.end(), [conditionKey](const auto &condition){
+                return condition->key() == conditionKey.v;
+            }); condFound != routine->conditions.end()){
+            return condFound->get();
+        }
+    }
+    QtLogger::error(QSL("[EXP] Condition with key ") % QString::number(conditionKey.v) % QSL(" not found."));
+    return nullptr;
+}
+
+
+
+
+
+
 
 void Experiment::update_randomization_seed(unsigned int seed){
     QtLogger::message(QSL("[EXP] Set randomizer with seed ") % QString::number(seed));
@@ -78,71 +186,80 @@ void Experiment::unselect_all_elements(bool updateSignal) noexcept{
     }
 }
 
+void Experiment::select_element_id(RowId elementId, bool updateSignal){
+    if(elementId.v < static_cast<int>(elements.size())){
+        select_element_from_ptr(elements[elementId.v].get(), updateSignal);
+    }else{
+        QtLogger::error(QSL("Cannot select element with id [") % QString::number(elementId.v) % QSL("], it doesn't exist."));
+    }
+}
+
+void Experiment::select_element_id_no_nodes(RowId elementId, bool updateSignal){
+    select_element_id(RowId{elementId.v * 2 + 1}, updateSignal);
+}
+
 void Experiment::select_element(ElementKey elementKey, bool updateSignal){
 
     if(auto elem = get_element(elementKey); elem != nullptr){
-        if(elem->is_selected()){
-            return;
-        }
+        select_element_from_ptr(elem, updateSignal);
+    }else{
+        QtLogger::error(QSL("Cannot select element with key [") % QString::number(elementKey.v) % QSL("], it doesn't exist."));
+    }
+}
 
-        bool select = !elem->is_selected();
-        unselect_all_elements(false); // unselect everything
+void Experiment::select_element_from_ptr(FlowElement *element, bool updateSignal){
 
-        if(elem->type == Element::Type::LoopStart || elem->type == Element::Type::LoopEnd){
-            LoopNode *loopNode = dynamic_cast<LoopNode*>(elem);
-            loopNode->loop->set_selected(select);
-            loopNode->loop->start->set_selected(select);
-            loopNode->loop->end->set_selected(select);
-            selectedElement = loopNode->loop;
-        }else if(elem->type == Element::Type::Loop){
-            Loop *loop = dynamic_cast<Loop*>(elem);
-            loop->set_selected(select);
-            loop->start->set_selected(select);
-            loop->end->set_selected(select);
-            selectedElement = loop;
-        }else{
 
-            if(elem->type == Element::Type::Routine){
-                lastRoutineSelected = dynamic_cast<Routine*>(elem);                
-                if(lastRoutineSelected->conditions.size() > 0){
-                    lastRoutineSelected->select_condition(ConditionKey{lastRoutineSelected->conditions[0]->key()});
-                }
-            }else if(elem->type == Element::Type::Isi){
-                lastIsiSelected = dynamic_cast<Isi*>(elem);
+    if(element->is_selected()){
+        return;
+    }
+
+    bool select = !element->is_selected();
+    unselect_all_elements(false); // unselect everything
+
+    if(element->type() == FlowElement::Type::LoopStart || element->type() == FlowElement::Type::LoopEnd){
+        LoopNode *loopNode = dynamic_cast<LoopNode*>(element);
+        loopNode->loop->set_selected(select);
+        loopNode->loop->start->set_selected(select);
+        loopNode->loop->end->set_selected(select);
+        selectedElement = loopNode->loop;
+    }else if(element->type() == FlowElement::Type::Loop){
+        Loop *loop = dynamic_cast<Loop*>(element);
+        loop->set_selected(select);
+        loop->start->set_selected(select);
+        loop->end->set_selected(select);
+        selectedElement = loop;
+    }else{
+
+        if(element->type() == FlowElement::Type::Routine){
+            lastRoutineSelected = dynamic_cast<Routine*>(element);
+            if(lastRoutineSelected->selected_condition() == nullptr){
+                lastRoutineSelected->select_condition(RowId{0});
             }
-
-            if(select){ // current element not selected
-                selectedElement = elem;
-                elem->set_selected(select);
-            }
+        }else if(element->type() == FlowElement::Type::Isi){
+            lastIsiSelected = dynamic_cast<Isi*>(element);
         }
 
-        if(updateSignal){
-            add_to_update_flag(UpdateFlow | UpdateSelection | UpdateRoutines);
+        if(select){ // current element not selected
+            selectedElement = element;
+            element->set_selected(select);
         }
+    }
+
+    if(updateSignal){
+        add_to_update_flag(UpdateFlow | UpdateSelection | UpdateRoutines);
     }
 }
 
 
-size_t Experiment::get_element_position(Element *element) const{
 
-    auto elementFound = std::find_if(elements.begin(), elements.end(), [element](const ElementUP & currElem){
-        return currElem.get() == element;
-    });
-    if(elementFound != elements.end()){
-        return static_cast<size_t>(std::distance(elements.begin(), elementFound));
-    }
 
-    QtLogger::error(QSL("[EXP] Element with key ") % QString::number(element->key()) % QSL(" not found."));
-    return 0;
-}
-
-void Experiment::add_element(Element::Type type, size_t index){
+void Experiment::add_element(FlowElement::Type type, size_t index){
 
 
     auto typeElements = get_elements_from_type(type);
     switch (type) {{
-    case Element::Type::Routine:
+    case FlowElement::Type::Routine:
 
             QString name;
             size_t offset = 1;
@@ -150,7 +267,7 @@ void Experiment::add_element(Element::Type type, size_t index){
             do{
                 name = QSL("Routine ") % QString::number(offset);
                 isInside = false;
-                for(auto element : typeElements){
+                for(const auto &element : typeElements){
                     if(element->name() == name){
                         isInside = true;
                         break;
@@ -162,11 +279,11 @@ void Experiment::add_element(Element::Type type, size_t index){
             auto routine = std::make_unique<Routine>(name, -1);
             auto routinePtr = routine.get();
 
-            elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(index + 1), std::move(routine));
-            elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(index + 2), std::make_unique<NodeFlow>());
+            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 1), std::move(routine));
+            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
             select_element(ElementKey{routinePtr->key()}, false);
     }break;{
-    case Element::Type::Isi:
+    case FlowElement::Type::Isi:
 
             QString name;
             size_t offset = 1;
@@ -174,7 +291,7 @@ void Experiment::add_element(Element::Type type, size_t index){
             do{
                 name = QSL("Isi ") % QString::number(offset);
                 isInside = false;
-                for(auto element : typeElements){
+                for(const auto &element : typeElements){
                     if(element->name() == name){
                         isInside = true;
                         break;
@@ -186,11 +303,11 @@ void Experiment::add_element(Element::Type type, size_t index){
 
             auto isi = std::make_unique<Isi>(name, ElementKey{-1});
             auto isiPtr = isi.get();
-            elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(index + 1), std::move(isi));
-            elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(index + 2), std::make_unique<NodeFlow>());
+            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 1), std::move(isi));
+            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
             select_element(ElementKey{isiPtr->key()}, false);
     }break;{
-    case Element::Type::Loop:
+    case FlowElement::Type::Loop:
 
             QString name;
             size_t offset = 1;
@@ -208,17 +325,18 @@ void Experiment::add_element(Element::Type type, size_t index){
             }while(isInside);
 
             auto loop = std::make_unique<Loop>(name, ElementKey{-1});
+
             auto loopPtr = loop.get();
-            loops.emplace_back(std::move(loop));
+            loops.push_back(std::move(loop));
 
             auto start = std::make_unique<LoopNode>(loopPtr, true);
             auto end   = std::make_unique<LoopNode>(loopPtr, false);
             loopPtr->set_nodes(start.get(),end.get());
 
-            elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(index + 1), std::move(start));
-            elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(index + 2), std::make_unique<NodeFlow>());
-            elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(index + 3), std::move(end));
-            elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(index + 4), std::make_unique<NodeFlow>());
+            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 1), std::move(start));
+            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
+            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 3), std::move(end));
+            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 4), std::make_unique<NodeFlow>());
             select_element(ElementKey{loopPtr->key()}, false);
     }break;
     default:
@@ -231,30 +349,30 @@ void Experiment::add_element(Element::Type type, size_t index){
     add_to_update_flag(UpdateFlow | UpdateSelection | UpdateRoutines);
 }
 
-void Experiment::remove_element(Element *elemToDelete){
+void Experiment::remove_element(FlowElement *elemToDelete){
 
-    if(elemToDelete->type == Element::Type::LoopStart || elemToDelete->type == Element::Type::LoopEnd){
+    if(elemToDelete->type() == FlowElement::Type::LoopStart || elemToDelete->type() == FlowElement::Type::LoopEnd){
         elemToDelete = dynamic_cast<LoopNode*>(elemToDelete)->loop;
     }
 
-    if(elemToDelete->type == Element::Type::Routine || elemToDelete->type == Element::Type::Isi){
+    if(elemToDelete->type() == FlowElement::Type::Routine || elemToDelete->type() == FlowElement::Type::Isi){
 
-        auto elementFound = std::find_if(elements.begin(), elements.end(), [elemToDelete](const ElementUP & currElem){
+        auto elementFound = std::find_if(elements.begin(), elements.end(), [elemToDelete](const std::unique_ptr<FlowElement> & currElem){
             return currElem.get() == elemToDelete;
         });
         elements.erase(elementFound-1, elementFound+1);
 
         remove_elements_not_in_flow();
 
-    }else if(elemToDelete->type == Element::Type::Loop){
+    }else if(elemToDelete->type() == FlowElement::Type::Loop){
 
         LoopNode *startL = dynamic_cast<Loop*>(elemToDelete)->start;
         LoopNode *endL   = dynamic_cast<Loop*>(elemToDelete)->end;
 
-        auto startP = std::find_if(elements.begin(), elements.end(), [startL](const ElementUP & currElem){
+        auto startP = std::find_if(elements.begin(), elements.end(), [startL](const std::unique_ptr<FlowElement> & currElem){
             return currElem.get() == startL;
         });
-        auto endP = std::find_if(elements.begin(), elements.end(), [endL](const ElementUP & currElem){
+        auto endP = std::find_if(elements.begin(), elements.end(), [endL](const std::unique_ptr<FlowElement> & currElem){
             return currElem.get() == endL;
         });
 
@@ -282,52 +400,45 @@ void Experiment::duplicate_element(ElementKey elementKey){
     for(size_t ii = 0; ii < elements.size(); ++ii){
         if(elements[ii]->key() == elementKey.v){
 
-            ElementUP newElement = nullptr;
-            if(elements[ii]->type == Element::Type::Routine){
+            std::unique_ptr<FlowElement> newElement = nullptr;
+            if(elements[ii]->type() == FlowElement::Type::Routine){
 
                 newElement = Routine::copy_with_new_element_id(*dynamic_cast<Routine*>(elements[ii].get()), elements[ii]->name() % QSL("(copy)"));
                 auto elementPtr = newElement.get();
-                elements.insert(std::begin(elements) + static_cast<std_v1<ElementUP>::difference_type>(ii + 1), std::make_unique<NodeFlow>());
-                elements.insert(std::begin(elements) + static_cast<std_v1<ElementUP>::difference_type>(ii + 2), std::move(newElement));
+                elements.insert(std::begin(elements) + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(ii + 1), std::make_unique<NodeFlow>());
+                elements.insert(std::begin(elements) + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(ii + 2), std::move(newElement));
                 select_element(ElementKey{elementPtr->key()}, false);
 
-            }else if(elements[ii]->type == Element::Type::Isi){
+            }else if(elements[ii]->type() == FlowElement::Type::Isi){
 
                 newElement = Isi::copy_with_new_element_id(*dynamic_cast<Isi*>(elements[ii].get()), elements[ii]->name() % QSL("(copy)"));
                 auto elementPtr = newElement.get();
-                elements.insert(std::begin(elements) + static_cast<std_v1<ElementUP>::difference_type>(ii + 1), std::make_unique<NodeFlow>());
-                elements.insert(std::begin(elements) + static_cast<std_v1<ElementUP>::difference_type>(ii + 2), std::move(newElement));
+                elements.insert(std::begin(elements) + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(ii + 1), std::make_unique<NodeFlow>());
+                elements.insert(std::begin(elements) + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(ii + 2), std::move(newElement));
                 select_element(ElementKey{elementPtr->key()}, false);
 
-
-            }else if(elements[ii]->type == Element::Type::LoopStart){
+            }else if(elements[ii]->type() == FlowElement::Type::LoopStart){
 
                 auto loopStart = dynamic_cast<LoopNode*>(elements[ii].get());
                 auto loopEnd = loopStart->loop->end;
 
-                auto endPosition = get_element_position(loopEnd);
+                auto endPosition = get_element_position(loopEnd).v;
 
                 auto loop = Loop::copy_with_new_element_id(*loopStart->loop, loopStart->loop->name() % QSL("(copy)"));
                 auto loopPtr = loop.get();
-                loops.emplace_back(std::move(loop));
+                loops.push_back(std::move(loop));
 
                 auto start = std::make_unique<LoopNode>(loopPtr, true);
                 auto end   = std::make_unique<LoopNode>(loopPtr, false);
                 loopPtr->set_nodes(start.get(),end.get());
 
-                elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(endPosition + 1), std::make_unique<NodeFlow>());
-                elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(endPosition + 2), std::move(start));
-                elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(endPosition + 3), std::make_unique<NodeFlow>());
-                elements.insert(elements.begin() + static_cast<std_v1<ElementUP>::difference_type>(endPosition + 4), std::move(end));
+                elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 1), std::make_unique<NodeFlow>());
+                elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 2), std::move(start));
+                elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 3), std::make_unique<NodeFlow>());
+                elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 4), std::move(end));
                 select_element(ElementKey{loopPtr->key()}, false);
 
-                return;
-            }else if(elements[ii]->type == Element::Type::LoopEnd){
-                return;
-            }else{
-                return;
             }
-
 
             break;
         }
@@ -401,18 +512,18 @@ void Experiment::move_left(size_t id){
     auto current  = elements[id].get();
     auto previous = elements[id-2].get();
 
-    if(current->type == Element::Type::LoopStart && previous->type == Element::Type::LoopEnd){
+    if(current->type() == FlowElement::Type::LoopStart && previous->type() == FlowElement::Type::LoopEnd){
         for(auto &elem : elements){
-            if(elem->type == Element::Type::LoopStart && elem->key() == previous->key()){
+            if(elem->type() == FlowElement::Type::LoopStart && elem->key() == previous->key()){
 
-                size_t idS = get_element_position(elem.get());
+                int idS = get_element_position(elem.get()).v;
                 auto e = std::move(elements[id]);
-                elements.erase(elements.begin() + static_cast<std::vector<ElementUP>::difference_type>(id));
-                elements.insert(elements.begin()+ static_cast<std::vector<ElementUP>::difference_type>(idS), std::move(e));
+                elements.erase(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(id));
+                elements.insert(elements.begin()+ static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(idS), std::move(e));
 
                 e = std::move(elements[id]);
-                elements.erase(elements.begin() + static_cast<std::vector<ElementUP>::difference_type>(id));
-                elements.insert(elements.begin()+ static_cast<std::vector<ElementUP>::difference_type>(idS+1), std::move(e));
+                elements.erase(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(id));
+                elements.insert(elements.begin()+ static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(idS+1), std::move(e));
 
                 compute_loops_levels();
                 update_conditions();                
@@ -420,20 +531,20 @@ void Experiment::move_left(size_t id){
                 return;
             }
         }
-    }else if(current->type == Element::Type::LoopEnd && previous->type == Element::Type::LoopEnd){
+    }else if(current->type() == FlowElement::Type::LoopEnd && previous->type() == FlowElement::Type::LoopEnd){
 
         for(auto &elem : elements){
-            if(elem->type == Element::Type::LoopStart && elem->key() == previous->key()){
+            if(elem->type() == FlowElement::Type::LoopStart && elem->key() == previous->key()){
 
-                size_t idS = get_element_position(elem.get());
+                int idS = get_element_position(elem.get()).v;
 
                 auto e = std::move(elements[id]);
                 erase_row(elements, id);
-                elements.insert(elements.begin()+ static_cast<std::vector<ElementUP>::difference_type>(idS), std::move(e));
+                elements.insert(elements.begin()+ static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(idS), std::move(e));
 
                 e = std::move(elements[id]);
                 erase_row(elements, id);
-                elements.insert(elements.begin()+ static_cast<std::vector<ElementUP>::difference_type>(idS+1), std::move(e));
+                elements.insert(elements.begin()+ static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(idS+1), std::move(e));
 
                 compute_loops_levels();
                 update_conditions();
@@ -456,18 +567,18 @@ void Experiment::move_right(size_t id){
     auto current  = elements[id].get();
     auto next = elements[id+2].get();
 
-    if(current->type == Element::Type::LoopStart && next->type == Element::Type::LoopStart){
+    if(current->type() == FlowElement::Type::LoopStart && next->type() == FlowElement::Type::LoopStart){
         for(auto &elem : elements){
-            if(elem->type == Element::Type::LoopEnd && elem->key() == next->key()){
+            if(elem->type() == FlowElement::Type::LoopEnd && elem->key() == next->key()){
 
-                size_t idS = get_element_position(elem.get());
+                int idS = get_element_position(elem.get()).v;
                 auto e = std::move(elements[id]);
-                elements.erase(elements.begin() + static_cast<std::vector<ElementUP>::difference_type>(id));
-                elements.insert(elements.begin()+ static_cast<std::vector<ElementUP>::difference_type>(idS+1), std::move(e));
+                elements.erase(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(id));
+                elements.insert(elements.begin()+ static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(idS+1), std::move(e));
 
                 e = std::move(elements[id]);
-                elements.erase(elements.begin() + static_cast<std::vector<ElementUP>::difference_type>(id));
-                elements.insert(elements.begin()+ static_cast<std::vector<ElementUP>::difference_type>(idS+1), std::move(e));
+                elements.erase(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(id));
+                elements.insert(elements.begin()+ static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(idS+1), std::move(e));
 
                 compute_loops_levels();
                 update_conditions();
@@ -475,20 +586,20 @@ void Experiment::move_right(size_t id){
                 return;
             }
         }
-    }else if(current->type == Element::Type::LoopEnd && next->type == Element::Type::LoopStart){
+    }else if(current->type() == FlowElement::Type::LoopEnd && next->type() == FlowElement::Type::LoopStart){
 
         for(auto &elem : elements){
-            if(elem->type == Element::Type::LoopEnd && elem->key() == next->key()){
+            if(elem->type() == FlowElement::Type::LoopEnd && elem->key() == next->key()){
 
-                size_t idS = get_element_position(elem.get());
+                int idS = get_element_position(elem.get()).v;
 
                 auto e = std::move(elements[id]);
-                elements.erase(elements.begin() + static_cast<std::vector<ElementUP>::difference_type>(id));
-                elements.insert(elements.begin()+ static_cast<std::vector<ElementUP>::difference_type>(idS+1), std::move(e));
+                elements.erase(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(id));
+                elements.insert(elements.begin()+ static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(idS+1), std::move(e));
 
                 e = std::move(elements[id]);
-                elements.erase(elements.begin() + static_cast<std::vector<ElementUP>::difference_type>(id));
-                elements.insert(elements.begin()+ static_cast<std::vector<ElementUP>::difference_type>(idS+1), std::move(e));
+                elements.erase(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(id));
+                elements.insert(elements.begin()+ static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(idS+1), std::move(e));
 
                 compute_loops_levels();
                 update_conditions();
@@ -505,6 +616,48 @@ void Experiment::move_right(size_t id){
     add_to_update_flag(UpdateFlow | UpdateRoutines | UpdateSelection);
 }
 
+void Experiment::move_element(ElementKey elementKey){
+
+    if(auto element = get_element(elementKey); element != nullptr){
+
+        auto currentNoNodePosition =  get_element_position_no_nodes(element);
+        bool ok;
+        auto newNoNodePosition = RowId{QInputDialog::getInt(nullptr,
+            QSL("Move element from position [") % QString::number(currentNoNodePosition.v) % QSL("] to"), "Enter new id position", currentNoNodePosition.v, 0,
+            static_cast<int>(nb_elements_no_nodes()-1),1, &ok)};
+
+        if(ok){
+
+            auto currentPos = get_element_position(get_element_no_nodes(currentNoNodePosition));
+            auto newPos     = get_element_position(get_element_no_nodes(newNoNodePosition));
+            if(currentPos.v == newPos.v){
+                return;
+            }
+
+            auto node    = std::move(elements[currentPos.v-1]);
+            auto element = std::move(elements[currentPos.v]);
+
+            // remove element
+            elements.erase(elements.begin() + currentPos.v);
+
+            // remove node
+            elements.erase(elements.begin() + currentPos.v-1);
+
+            if(newPos.v > currentPos.v){
+                elements.insert(elements.begin() + newPos.v - 1, std::move(element));
+                elements.insert(elements.begin() + newPos.v - 1, std::move(node));
+            }else{
+                elements.insert(elements.begin() + newPos.v, std::move(node));
+                elements.insert(elements.begin() + newPos.v, std::move(element));
+            }
+
+            compute_loops_levels();
+            update_conditions();
+            add_to_update_flag(UpdateRoutines | UpdateFlow | UpdateSelection);
+        }
+    }
+}
+
 void Experiment::update_element_name(ElementKey elementKey, QString elemName){
 
     if(auto element = get_element(elementKey); element != nullptr){
@@ -513,18 +666,6 @@ void Experiment::update_element_name(ElementKey elementKey, QString elemName){
     }    
 }
 
-Element *Experiment::get_element(ElementKey elementKey) const{
-
-    auto elementFound = std::find_if(elements.begin(), elements.end(), [elementKey](const ElementUP &element){
-        return element->key() == elementKey.v;
-    });
-    if(elementFound != elements.end()){
-        return elementFound->get();
-    }
-
-    QtLogger::error(QSL("[EXP] Element with key ") % QString::number(elementKey.v) % QSL(" not found."));
-    return nullptr;
-}
 
 void Experiment::select_routine_condition(ElementKey routineKey, RowId conditionTabId){
 
@@ -579,7 +720,7 @@ void Experiment::update_condition_timeline(ElementKey routineKey, ConditionKey c
 Isi *Experiment::get_isi(ElementKey isiKey) const{
 
 
-    auto elementFound = std::find_if(elements.begin(), elements.end(), [isiKey](const ElementUP &element){
+    auto elementFound = std::find_if(elements.begin(), elements.end(), [isiKey](const std::unique_ptr<FlowElement> &element){
         return element->key() == isiKey.v && element->is_isi();
     });
     if(elementFound != elements.end()){
@@ -592,7 +733,7 @@ Isi *Experiment::get_isi(ElementKey isiKey) const{
 
 Loop *Experiment::get_loop(ElementKey loopKey) const{
 
-    auto loopFound = std::find_if(loops.begin(), loops.end(), [loopKey](const LoopUP &loop){
+    auto loopFound = std::find_if(loops.begin(), loops.end(), [loopKey](const std::unique_ptr<Loop> &loop){
         return loop->key() == loopKey.v;
     });
 
@@ -618,14 +759,22 @@ void Experiment::check_integrity(){
 
     // check validity
     // # components
-    auto cm = ComponentsManager::get();
     std::unordered_map<int, Component*> checkComponents;
-    for(auto &component : cm->components){
+    std::unordered_map<int, Config*> checkConfigs;
+    for(auto component : compM.get_components()){
         if(checkComponents.count(component->key()) != 0){
             QtLogger::error(QSL("[EXP] ") % component->to_string() % QSL(" already exists."));
         }else{
-            checkComponents[component->key()] = component.get();
+            checkComponents[component->key()] = component;
         }
+
+//        for(const auto &config : component->configs){
+//            if(checkConfigs.count(config->key()) != 0){
+//                QtLogger::error(QSL("[EXP] ") % config->to_string() % QSL(" already exists."));
+//            }else{
+//                checkConfigs[config->key()] = config.get();
+//            }
+//        }
     }
 
     // # elements
@@ -638,7 +787,7 @@ void Experiment::check_integrity(){
     std::unordered_map<int, Action*> checkActions;
 
     for(auto &elem : elements){
-        if(elem->type == Element::Type::Routine){
+        if(elem->type() == FlowElement::Type::Routine){
 
             if(checkRoutines.count(elem->key()) != 0){
                 QtLogger::error(QSL("[EXP] ") % dynamic_cast<Routine*>(elem.get())->to_string() % QSL(" already exists."));
@@ -675,13 +824,13 @@ void Experiment::check_integrity(){
                     }
                 }
             }
-        }else if(elem->type == Element::Type::Loop){
+        }else if(elem->type() == FlowElement::Type::Loop){
             if(checkLoops.count(elem->key()) != 0){
                 QtLogger::error(QSL("[EXP] ") % dynamic_cast<Loop*>(elem.get())->to_string() % QSL(" already exists."));
             }else{
                 checkLoops[elem->key()] = dynamic_cast<Loop*>(elem.get());
             }
-        }else if(elem->type == Element::Type::Isi){
+        }else if(elem->type() == FlowElement::Type::Isi){
             if(checkIsi.count(elem->key()) != 0){
                 QtLogger::error(QSL("[EXP] ") % dynamic_cast<Isi*>(elem.get())->to_string() % QSL(" already exists."));
             }else{
@@ -693,37 +842,8 @@ void Experiment::check_integrity(){
 
 }
 
-Condition *Experiment::get_condition(ConditionKey conditionKey) const{
 
-    for(const auto &routine : get_elements_from_type<Routine>()){
-        for(const auto &condition : routine->conditions){
-            if(condition->key() == conditionKey.v){
-                return condition.get();
-            }
-        }
-    }
-    return nullptr;
-}
 
-Condition *Experiment::get_condition(ElementKey routineKey, ConditionKey conditionKey) const{
-    if(auto routine = get_routine(routineKey); routine != nullptr){
-        return routine->get_condition(conditionKey);
-    }
-    return nullptr;
-}
-
-Routine *Experiment::get_routine(ElementKey routineKey) const{
-
-    auto elementFound = std::find_if(elements.begin(), elements.end(), [routineKey](const ElementUP &element){
-        return element->key() == routineKey.v && element->is_routine();
-    });
-    if(elementFound != elements.end()){
-        return dynamic_cast<Routine*>(elementFound->get());
-    }
-
-    // QtLogger::error(QSL("[EXP] Routine with key ") % QString::number(routineKey.v) % QSL(" not found."));
-    return nullptr;
-}
 
 void Experiment::copy_to_conditions(ElementKey routineKey, ConditionKey conditionKey, std_v1<std::pair<ElementKey,ConditionKey>> conditionsToBeEcrased, bool copyActions, bool copyConnections){
 
@@ -948,7 +1068,7 @@ void Experiment::select_nodes_and_connections(ElementKey routineKey, ConditionKe
         }
 
         for(const auto &connectionKey : connectionsKey){
-            if(auto connection = condition->get_connection_from_key(connectionKey); connection != nullptr){
+            if(auto connection = condition->get_connection_from_key(connectionKey, false); connection != nullptr){
                 connection->selected = true;
             }
         }
@@ -959,12 +1079,22 @@ void Experiment::select_nodes_and_connections(ElementKey routineKey, ConditionKe
     }
 }
 
+void Experiment::display_exp_infos(){
+
+    QtLogger::message("### ELEMENTS ###");
+    for(const auto &element : elements){
+        QtLogger::message(QSL("->") % QString::number(element->key()) % QSL(" ") %element->name() %  QSL(" ") % from_view(FlowElement::get_type_name(element->type())));
+    }
+}
+
 
 void Experiment::add_action(ElementKey routineKey, ConditionKey conditionKey, ComponentKey componentKey,
     std::optional<ConfigKey> configKey, bool fillUpdateTimeline, bool fillVisibilityTimeline){
 
-    auto component = m_compM->get_component(componentKey);
+    auto component = compM.get_component(componentKey);
     if(component == nullptr){
+        QtLogger::error(QSL("Cannot add action to condition with key [") % QString::number(conditionKey.v) % QSL("] from routine with key [")
+            % QString::number(routineKey.v) % QSL("]"));
         return;
     }
 
@@ -977,7 +1107,7 @@ void Experiment::add_action(ElementKey routineKey, ConditionKey conditionKey, Co
         if(auto condition = routine->get_condition(conditionKey); condition != nullptr){
 
             if(auto action = condition->get_action_from_component_key(componentKey, false); action == nullptr){
-                condition->actions.emplace_back(Action::generate_component_action(
+                condition->actions.push_back(Action::generate_component_action(
                     component, condition->duration, configKey, fillUpdateTimeline, fillVisibilityTimeline));
 
                 add_to_update_flag(UpdateRoutines);
@@ -993,8 +1123,9 @@ void Experiment::add_action(ElementKey routineKey, ConditionKey conditionKey, Co
 void Experiment::add_action_to_all_conditions(ElementKey routineKey, ComponentKey componentKey,
     std::optional<ConfigKey> configKey, bool fillUpdateTimeline, bool fillVisibilityTimeline){
 
-    auto component = m_compM->get_component(componentKey);
+    auto component = compM.get_component(componentKey);
     if(component == nullptr){
+        QtLogger::error(QSL("Cannot add action to all conditions.)"));
         return;
     }
 
@@ -1008,7 +1139,7 @@ void Experiment::add_action_to_all_conditions(ElementKey routineKey, ComponentKe
 
             if(auto action = condition->get_action_from_component_key(componentKey, false); action == nullptr){
 
-                condition->actions.emplace_back(Action::generate_component_action(
+                condition->actions.push_back(Action::generate_component_action(
                     component, condition->duration, configKey, fillUpdateTimeline, fillVisibilityTimeline));
             }
         }
@@ -1020,8 +1151,9 @@ void Experiment::add_action_to_all_conditions(ElementKey routineKey, ComponentKe
 void Experiment::add_action_to_all_routines_conditions(ComponentKey componentKey,
     std::optional<ConfigKey> configKey, bool fillUpdateTimeline, bool fillVisibilityTimeline){
 
-    auto component = m_compM->get_component(componentKey);
+    auto component = compM.get_component(componentKey);
     if(component == nullptr){
+        QtLogger::error(QSL("Cannot add action to all routines conditions.)"));
         return;
     }
 
@@ -1035,8 +1167,37 @@ void Experiment::add_action_to_all_routines_conditions(ComponentKey componentKey
 
             if(auto action = condition->get_action_from_component_key(componentKey, false); action == nullptr){
 
-                condition->actions.emplace_back(Action::generate_component_action(
+                condition->actions.push_back(Action::generate_component_action(
                     component, condition->duration, configKey, fillUpdateTimeline, fillVisibilityTimeline));
+            }
+        }
+    }
+
+    add_to_update_flag(UpdateRoutines);
+}
+
+void Experiment::insert_action_to(ComponentKey componentKey, std::vector<std::tuple<ElementKey,ConditionKey,ConfigKey,bool, bool>> details){
+
+    auto component = compM.get_component(componentKey);
+    if(component == nullptr){
+        QtLogger::error(QSL("Cannot insert action.)"));
+        return;
+    }
+
+    for(auto &detail : details){
+        if(auto routine = get_element_from_type_and_id<Routine>(std::get<0>(detail)); routine != nullptr){
+            if(auto condition = routine->get_condition(std::get<1>(detail)); condition != nullptr) {
+                if(auto config = component->get_config(std::get<2>(detail)); config != nullptr){
+                    if(auto action = condition->get_action_from_component_key(componentKey, false); action == nullptr){
+                        condition->actions.push_back(Action::generate_component_action(
+                            component,
+                            condition->duration,
+                            ConfigKey{config->key()},
+                            std::get<3>(detail),
+                            std::get<4>(detail))
+                        );
+                    }
+                }
             }
         }
     }
@@ -1047,8 +1208,9 @@ void Experiment::add_action_to_all_routines_conditions(ComponentKey componentKey
 void Experiment::modify_action(ElementKey routineKey, ConditionKey conditionKey, ComponentKey componentKey,
     bool changeConfig, bool changeUpdateTimeline, bool changeVisibilityTimeline, ConfigKey configKey, bool fillUpdateTimeline, bool fillVisibilityTimeline){
 
-    auto component = m_compM->get_component(componentKey);
+    auto component = compM.get_component(componentKey);
     if(component == nullptr){
+        QtLogger::error(QSL("Cannot modify action.)"));
         return;
     }
 
@@ -1094,8 +1256,9 @@ void Experiment::modify_action_to_all_conditions(ElementKey routineKey, Componen
     bool changeConfig, bool changeUpdateTimeline, bool changeVisibilityTimeline, ConfigKey configKey, bool fillUpdateTimeline, bool fillVisibilityTimeline){
 
 
-    auto component = m_compM->get_component(componentKey);
+    auto component = compM.get_component(componentKey);
     if(component == nullptr){
+        QtLogger::error(QSL("Cannot modify action.)"));
         return;
     }
 
@@ -1140,8 +1303,9 @@ void Experiment::modify_action_to_all_conditions(ElementKey routineKey, Componen
 void Experiment::modify_action_to_all_routines_conditions(ComponentKey componentKey,
     bool changeConfig, bool changeUpdateTimeline, bool changeVisibilityTimeline, ConfigKey configKey, bool fillUpdateTimeline, bool fillVisibilityTimeline){
 
-    auto component = m_compM->get_component(componentKey);
+    auto component = compM.get_component(componentKey);
     if(component == nullptr){
+        QtLogger::error(QSL("Cannot modify action.)"));
         return;
     }
 
@@ -1303,18 +1467,6 @@ void Experiment::add_loop_sets(ElementKey loopKey, QString sets, RowId id){
                 loop->set_sets(sets.split("\n"));
             }else{
                 loop->add_sets(sets.split("\n"), id);
-//                int startId = id.v;
-//                int ii = 0;
-//                for(const auto &setName : sets.split("\n")){
-
-//                    if(setName.length() == 0){
-//                        continue;
-//                    }
-
-//                    if(loop->add_set(setName, RowId{startId+ii})){
-//                        ++ii;
-//                    }
-//                }
             }
 
             update_conditions();
@@ -1339,9 +1491,11 @@ void Experiment::modify_loop_set_occurrencies_nb(ElementKey loopKey, int setOccu
         if(loop->is_file_mode()){
             QtLogger::error(QSL("[EXP] Cannot modify loop set when file mode is used."));
         }else{
-            loop->modify_set_occurencies_nb(setOccuranciesNb, id);
-            add_to_update_flag(UpdateSelection);
+            loop->modify_set_occurencies_nb(setOccuranciesNb, id);            
         }
+        add_to_update_flag(UpdateSelection);
+    }else{
+        QtLogger::error(QSL("[Experiment::modify_loop_set_occurrencies_nb] Cannot get loop from key [") % QString::number(loopKey.v) % QSL("]"));
     }
 }
 
@@ -1358,17 +1512,19 @@ void Experiment::modify_loop_nb_reps(ElementKey loopKey, int nbReps){
 
     if(auto loop = get_loop(loopKey); loop != nullptr){
         loop->set_nb_reps(to_unsigned(nbReps));
-        update_conditions();
-        //add_to_update_flag(UpdateSelection);
     }
 }
 
 void Experiment::modify_loop_N(ElementKey loopKey, int N){
 
     if(auto loop = get_loop(loopKey); loop != nullptr){
-        loop->set_N(to_unsigned(N));
-        update_conditions();
-        //add_to_update_flag(UpdateSelection);
+        loop->set_N(N);
+    }
+}
+
+void Experiment::modify_loop_no_following_value(ElementKey loopKey, bool state){
+    if(auto loop = get_loop(loopKey); loop != nullptr){
+        loop->noFollowingValues = state;
     }
 }
 
@@ -1464,33 +1620,31 @@ void Experiment::reload_loop_sets_file(ElementKey loopKey){
     }
 }
 
-void Experiment::add_timeline_interval(ElementKey routineKey, ConditionKey conditionKey, ActionKey actionKey, bool updateTimeline, TimelineKey timelineKey, Interval interval){
+void Experiment::add_timeline_interval(ElementKey routineKey, ConditionKey conditionKey, ActionKey actionKey, bool updateTimeline, Interval interval){
 
-    Q_UNUSED(timelineKey)
     if(auto action = get_action(routineKey, conditionKey, actionKey); action != nullptr){
 
-        if(updateTimeline){            
-            if(action->timelineUpdate->add_interval(interval)){
+        if(updateTimeline){
+            if(action->timelineUpdate->add_interval(std::move(interval))){
                 add_to_update_flag(UpdateRoutines);
             }
         }else{
-            if(action->timelineVisibility->add_interval(interval)){
+            if(action->timelineVisibility->add_interval(std::move(interval))){
                 add_to_update_flag(UpdateRoutines);
             }
         }        
     }
 }
 
-void Experiment::remove_timeline_interval(ElementKey routineKey, ConditionKey conditionKey, ActionKey actionKey, bool updateTimeline, TimelineKey timelineKey, Interval interval){
+void Experiment::remove_timeline_interval(ElementKey routineKey, ConditionKey conditionKey, ActionKey actionKey, bool updateTimeline, Interval interval){
 
-    Q_UNUSED(timelineKey)
     if(auto action = get_action(routineKey, conditionKey, actionKey); action != nullptr){
         if(updateTimeline){
-            if(action->timelineUpdate->remove_interval(interval)){
+            if(action->timelineUpdate->remove_interval(std::move(interval))){
                 add_to_update_flag(UpdateRoutines);
             }
         }else{
-            if(action->timelineVisibility->remove_interval(interval)){
+            if(action->timelineVisibility->remove_interval(std::move(interval))){
                 add_to_update_flag(UpdateRoutines);
             }
         }        
@@ -1542,17 +1696,17 @@ void Experiment::move_isi_interval_down(ElementKey isiKey, RowId id){
 void Experiment::compute_loops_levels(){
 
     // retrieve id of loops inside each element
-    std_v1<int> idLoops;
+    std::vector<ElementKey> idLoops;
     states.maximumDeepLevel = -1;
     for(auto& elem : elements){
-        if(elem->type == Element::Type::LoopStart){
+        if(elem->type() == FlowElement::Type::LoopStart){
             auto node = dynamic_cast<LoopNode*>(elem.get());
             node->insideLoopsID       = idLoops;
             node->loop->insideLoopsID = idLoops;
-            idLoops.emplace_back(node->key());
-         }else if(elem->type ==Element::Type::LoopEnd){
-            auto node = dynamic_cast<LoopNode*>(elem.get());            
-            idLoops.erase(std::find(idLoops.begin(),idLoops.end(), node->key()));
+            idLoops.push_back(ElementKey{node->key()});
+         }else if(elem->type() ==FlowElement::Type::LoopEnd){
+            auto node = dynamic_cast<LoopNode*>(elem.get());
+            idLoops.erase(std::find(idLoops.begin(),idLoops.end(), ElementKey{node->key()}));
             node->insideLoopsID = idLoops;
         }else{
             elem->insideLoopsID = idLoops;
@@ -1569,8 +1723,8 @@ void Experiment::compute_loops_levels(){
         elem->insideLoops.clear();
         for(auto id : elem->insideLoopsID){
             for(auto &loop : loops){
-                if(loop->key() == id){
-                    elem->insideLoops.emplace_back(loop.get());
+                if(loop->key() == id.v){
+                    elem->insideLoops.push_back(loop.get());
                     break;
                 }
             }
@@ -1587,8 +1741,8 @@ void Experiment::compute_loops_levels(){
         loop->insideLoops.clear();
         for(auto id : loop->insideLoopsID){
             for(auto &iLoop : loops){
-                if(iLoop->key() == id){
-                    loop->insideLoops.emplace_back(iLoop.get());
+                if(iLoop->key() == id.v){
+                    loop->insideLoops.push_back(iLoop.get());
                     break;
                 }
             }
@@ -1606,7 +1760,7 @@ std_v1<QString> mix(const std_v1<QString> &l1, const std_v1<QString> &l2){
     m.reserve(l1.size()*l2.size());
     for(size_t ii = 0; ii < l1.size(); ++ii){
         for(size_t jj = 0; jj < l2.size(); ++jj){
-            m.emplace_back(l1[ii] % QSL("-") % l2[jj]);
+            m.push_back(l1[ii] % QSL("-") % l2[jj]);
         }
     }
     return m;
@@ -1621,7 +1775,7 @@ void Experiment::update_conditions(){
         if(routine->insideLoops.size() == 0){
 
             if(routine->conditions.size() == 0){
-                routine->conditions.emplace_back(Condition::generate_new_default());
+                routine->conditions.push_back(Condition::generate_new_default());
             }else{
 
                 // log deleted conditions
@@ -1643,31 +1797,31 @@ void Experiment::update_conditions(){
         }
 
         // merge every set key from every loop containing the routine
-        std_v1<std_v1<QString>> setsId;
+        std::vector<std::vector<QString>> setsId;
         for(const auto& insideLoop : routine->insideLoops){
 
             auto loop = dynamic_cast<Loop*>(insideLoop);
             if(loop->is_file_mode()){
 
-                std_v1<QString> loopFileSetsId;
+                std::vector<QString> loopFileSetsId;
                 loopFileSetsId.reserve(loop->fileSets.size());
                 for(const auto &s : loop->fileSets){
-                    loopFileSetsId.emplace_back(QString::number(s.key()));
+                    loopFileSetsId.push_back(QString::number(s->key()));
                 }
-                setsId.emplace_back(std::move(loopFileSetsId));
+                setsId.push_back(std::move(loopFileSetsId));
             }else{
 
-                std_v1<QString> loopSetsId;
+                std::vector<QString> loopSetsId;
                 loopSetsId.reserve(loop->sets.size());
                 for(const auto &s : loop->sets){
-                    loopSetsId.emplace_back(QString::number(s.key()));
+                    loopSetsId.push_back(QString::number(s->key()));
                 }
-                setsId.emplace_back(std::move(loopSetsId));
+                setsId.push_back(std::move(loopSetsId));
             }
         }
 
         // mix new conditions keys
-        std_v1<QString> newConditionsKeysStr;
+        std::vector<QString> newConditionsKeysStr;
         while(setsId.size() > 1){
             setsId[setsId.size()-2] = mix(setsId[setsId.size()-2],setsId[setsId.size()-1]);
             setsId.erase(std::end(setsId)-1);
@@ -1677,11 +1831,11 @@ void Experiment::update_conditions(){
         }
 
         //  create all current conditions names
-        std_v1<std_v1<int>> newConditionsKeys;
-        std_v1<QString> newConditionsNames;
+        std::vector<std::vector<SetKey>> newConditionsKeys;
+        std::vector<QString> newConditionsNames;
         for(const auto &conditionKeysStr : newConditionsKeysStr){
 
-            std_v1<int> conditionKeys;
+            std::vector<SetKey> conditionKeys;
             QStringList conditionName;
 
             for(const auto &key : conditionKeysStr.split("-")){
@@ -1692,7 +1846,7 @@ void Experiment::update_conditions(){
                     auto loop = dynamic_cast<Loop*>(insideLoop);
                     if(auto set = loop->get_set(SetKey{key.toInt()}); set != nullptr){
                         conditionName << set->name;
-                        conditionKeys.emplace_back(set->key());
+                        conditionKeys.push_back(set->s_key());
                         found = true;
                         break;
                     }
@@ -1702,8 +1856,8 @@ void Experiment::update_conditions(){
                     QtLogger::error(QSL("[EXP] Cannot retrieve set with key ") % key % QSL(" from any loop."));
                 }
             }
-            newConditionsKeys.emplace_back(std::move(conditionKeys));
-            newConditionsNames.emplace_back(conditionName.join("-"));
+            newConditionsKeys.push_back(std::move(conditionKeys));
+            newConditionsNames.push_back(conditionName.join("-"));
         }
 
 
@@ -1729,11 +1883,8 @@ void Experiment::update_conditions(){
             continue;
         }
 
-
-
-
         // rebuild routine conditions
-        std_v1<ConditionUP> newConditions;
+        std_v1<std::unique_ptr<Condition>> newConditions;
         for(size_t ii = 0; ii < newConditionsKeys.size(); ++ii){
 
             bool found = false;
@@ -1742,7 +1893,7 @@ void Experiment::update_conditions(){
                 if(routine->conditions[jj]->contains_same_set_keys(newConditionsKeys[ii])){
                     // all keys found
                     routine->conditions[jj]->name = newConditionsNames[ii];
-                    newConditions.emplace_back(std::move(routine->conditions[jj]));
+                    newConditions.push_back(std::move(routine->conditions[jj]));
                     routine->conditions.erase(std::begin(routine->conditions) + static_cast<int>(jj));
                     found = true;
                     break;
@@ -1752,7 +1903,7 @@ void Experiment::update_conditions(){
             if(!found){ // not found, create new condition
                 auto condition = Condition::generate_new(newConditionsNames[ii]);
                 condition->setsKeys = std::move(newConditionsKeys[ii]);
-                newConditions.emplace_back(std::move(condition));
+                newConditions.push_back(std::move(condition));
             }
         }
 
@@ -1778,131 +1929,165 @@ void Experiment::update_conditions(){
     }
 }
 
-void Experiment::update_component_position(ComponentKey componentKey, RowId id){
-
-    if(const auto compoInfo = m_compM->get_component_and_position(componentKey); compoInfo.second != nullptr){
-        auto compoToMove = std::move(m_compM->components[compoInfo.first]);
-        m_compM->components.erase(m_compM->components.begin() + static_cast<std_v1<ComponentUP>::difference_type>(compoInfo.first));
-        m_compM->components.insert(m_compM->components.begin() + id.v, std::move(compoToMove));
-        add_to_update_flag(UpdateComponents);
-    }
+void Experiment::update_component_position(ComponentKey componentKey, RowId id){    
+    compM.update_component_position(componentKey, id);
+    add_to_update_flag(UpdateComponents);
 }
 
 void Experiment::remove_component(ComponentKey componentKey){
 
-    if(auto componentToRemove = get_component(componentKey); componentToRemove != nullptr){
+    // remove action which use this component
+    for(auto routine : get_elements_from_type<Routine>()){
 
-        // remove action which use this component
-        for(auto routine : get_elements_from_type<Routine>()){
-
-            // remove action containing component from conditions
-            for(auto &condition : routine->conditions){
-                if(auto action = condition->get_action_from_component_key(componentKey, false); action != nullptr){
-                    QtLogger::message(QSL("[EXP] Remove ") % action->to_string() % QSL(" using component ") % action->component->name() % QSL(" from ") %  condition->to_string() % QSL(" from ") % routine->to_string());
-                    condition->remove_action(ActionKey{action->key()});
-                }
-            }
-
-//            // remove action containing component from ghost conditions
-//            for(auto &condition : routine->ghostsConditions){
-//                if(auto action = condition->get_action_from_component_key(componentKey, false); action != nullptr){
-//                    condition->remove_action(ActionKey{action->key()});
-//                }
-//            }
-        }
-
-        for(size_t id = 0; id < m_compM->components.size(); ++id){
-            if(m_compM->components[id]->key() == componentToRemove->key()){
-                QtLogger::message(QSL("[EXP] Remove ") % m_compM->components[id]->to_string());
-                m_compM->components.erase(m_compM->components.begin() + static_cast<int>(id));
-                break;
+        // remove action containing component from conditions
+        for(auto &condition : routine->conditions){
+            if(auto action = condition->get_action_from_component_key(componentKey, false); action != nullptr){
+                QtLogger::message(QSL("[EXP] Remove ") % action->to_string() % QSL(" using component ") % action->component->name() % QSL(" from ") %  condition->to_string() % QSL(" from ") % routine->to_string());
+                condition->remove_action(ActionKey{action->key()});
             }
         }
-
-        add_to_update_flag(UpdateComponents | UpdateRoutines);
     }
+
+    compM.remove_component(componentKey);
+    add_to_update_flag(UpdateComponents | UpdateRoutines);
 }
 
 void Experiment::duplicate_component(ComponentKey componentKey){
+    compM.duplicate_component(componentKey);
+    add_to_update_flag(UpdateComponents);
+}
 
-    if(const auto compoInfo = m_compM->get_component_and_position(componentKey); compoInfo.second != nullptr){
-        if(Component::get_unicity(compoInfo.second->type)){
-            QtLogger::error(QSL("[EXP] You can only have one component of type [") % from_view(Component::get_type_name(compoInfo.second->type)) % QSL("] in the experiment."));
-        }else{
-            m_compM->components.insert(
-                m_compM->components.begin() + static_cast<std_v1<ComponentUP>::difference_type>(compoInfo.first + 1),
-                Component::copy_with_new_element_id(*compoInfo.second, compoInfo.second->name() % QSL("(copy)"))
-            );
-            add_to_update_flag(UpdateComponents | UpdateRoutines);
-        }
+void Experiment::add_new_component(Component::Type type, RowId id){
+    if(compM.insert_new_component(type, id)){
+        add_to_update_flag(UpdateComponents);
     }
 }
 
-void Experiment::add_component(Component::Type type, RowId id){
-    m_compM->insert_new_component(type, id);
+void Experiment::copy_component(Component *component, std::vector<ConfigKey> configKeys, RowId id){
+    compM.insert_copy_of_component(component, std::move(configKeys), id);
     add_to_update_flag(UpdateComponents | UpdateRoutines);
 }
 
 void Experiment::update_component_name(ComponentKey componentKey, QString name){
 
-    if(m_compM->update_component_name(componentKey, name)){
+    if(compM.update_component_name(componentKey, name)){
         add_to_update_flag(UpdateComponents | UpdateRoutines);
     }
 }
 
 void Experiment::sort_components_by_category(){
-    m_compM->sort_by_category();
+    compM.sort_by_category();
     add_to_update_flag(UpdateComponents);
 }
 
 void Experiment::sort_components_by_type(){
-    m_compM->sort_by_type();
+    compM.sort_by_type();
     add_to_update_flag(UpdateComponents);
 }
 
 void Experiment::sort_components_by_name(){
-    m_compM->sort_by_name();
+    compM.sort_by_name();
     add_to_update_flag(UpdateComponents);
+}
+
+void Experiment::delete_unused_components(){
+
+//    QtLogger::message("### CHECK DUPLICATE NAMES###");
+//    std::set<QString> cNames;
+//    for(auto &component : compM.components){
+
+//        auto n = component->name();
+//        if(cNames.contains(n)){
+//            size_t iter = 1;
+//            while(cNames.contains(n)){
+//                n = component->name() % QSL(" (") % QString::number(iter++) % QSL(")");
+//            }
+//            QtLogger::message(QSL("Rename component [") % component->name() % QSL("] into [") % n % QSL("]"));
+//            component->set_name(n);
+//        }
+//    }
+
+
+//    QtLogger::message("### REMOVE ACTIONS###");
+//    std::vector<std::tuple<ElementKey, ConditionKey, ActionKey>> actionsToRemove;
+//    for(const auto &routine : get_elements_from_type<Routine>()){
+//        for(const auto &condition : routine->conditions){
+//            for(const auto &action : condition->actions){
+//                auto timeOpt = Component::get_timeline_opt(action->component->type);
+//                bool removeAction = false;
+//                if(timeOpt == Component::TimelineO::Both){
+//                    if(action->timelineUpdate->intervals.size() == 0 && action->timelineVisibility->intervals.size() == 0){
+//                        removeAction = true;
+//                    }
+//                }else if(timeOpt == Component::TimelineO::Update){
+//                    if(action->timelineUpdate->intervals.size() == 0){
+//                        removeAction = true;
+//                    }
+//                }else if(timeOpt == Component::TimelineO::Visibility){
+//                    if(action->timelineVisibility->intervals.size() == 0){
+//                        removeAction = true;
+//                    }
+//                }
+
+//                if(removeAction){
+//                    QtLogger::message(QSL(" - remove component [") % action->component->name() % QSL("] from [") % condition->name % QSL("] from routine [") % routine->name() % QSL("]"));
+//                    actionsToRemove.push_back(std::make_tuple(ElementKey{routine->key()}, ConditionKey{condition->key()}, ActionKey{action->key()}));
+//                }
+//            }
+//        }
+//    }
+
+//    for(const auto &action : actionsToRemove){
+//        remove_action_from_condition(std::get<0>(action), std::get<1>(action), std::get<2>(action), false);
+//    }
+
+    QtLogger::message("### REMOVE COMPONENTS###");
+    std::unordered_set<int> keys;
+    for(const auto &routine : get_elements_from_type<Routine>()){
+        for(const auto &condition : routine->conditions){
+            for(const auto &action : condition->actions){
+                keys.emplace(action->component->key());
+            }
+        }
+    }
+
+    std::vector<Component*> componentsToRemove;
+    for(auto component : compM.get_components()){
+        if(!keys.contains(component->key())){
+            componentsToRemove.push_back(component);
+        }
+    }
+
+    for(const auto &c : componentsToRemove){
+        remove_component(c->c_key());
+    }
+
+    add_to_update_flag(UpdateComponents | UpdateRoutines);
 }
 
 void Experiment::select_config_in_component(ComponentKey componentKey, RowId id){
     if(auto component = get_component(componentKey); component != nullptr){
-        component->selectedConfigId = id;
-        add_to_update_flag(UpdateComponents | UpdateRoutines);
+        if(component->select_config(id)){
+            add_to_update_flag(UpdateComponents | UpdateRoutines);
+        }
     }
 }
 
 void Experiment::insert_config_in_component(ComponentKey componentKey, RowId id, QString configName){
 
     if(auto component = get_component(componentKey); component != nullptr){
-        for(const auto &config : component->configs){
-            if(config->name == configName){
-                QtLogger::error(QSL("[EXP] ") % config->to_string() % QSL(" already exist"));
-                return;
-            }
+        if(component->insert_config(id, configName)){
+            add_to_update_flag(UpdateComponents | UpdateRoutines);
         }
-
-        component->configs.insert(component->configs.begin() + id.v + 1, std::make_unique<Config>(configName, ConfigKey{-1}));
-        component->selectedConfigId = {id.v + 1};
-        add_to_update_flag(UpdateComponents | UpdateRoutines);
     }
 }
 
 void Experiment::copy_config_from_component(ComponentKey componentKey, RowId id, QString configName){
 
     if(auto component = get_component(componentKey); component != nullptr){
-        for(const auto &config : component->configs){
-            if(config->name == configName){
-                QtLogger::error(QSL("[EXP] ") % config->to_string() % QSL(" already exist"));
-                return;
-            }
+        if(component->copy_config(id, configName)){
+            add_to_update_flag(UpdateComponents | UpdateRoutines);
         }
-
-        component->configs.insert(component->configs.begin() + id.v + 1,
-            Config::copy_with_new_element_id(*component->configs[id.v].get(), configName));
-        component->selectedConfigId = {id.v + 1};
-
-        add_to_update_flag(UpdateComponents | UpdateRoutines);
     }
 }
 
@@ -1910,60 +2095,49 @@ void Experiment::remove_config_from_component(ComponentKey componentKey, RowId i
 
     if(auto component = get_component(componentKey); component != nullptr){
 
-        if(id.v < to_signed(component->configs.size())){
+        auto config = component->get_config(id);
+        if(config == nullptr){
+            return;
+        }
 
-            auto config = component->configs[id.v].get();
-            ConfigKey configKey = ConfigKey{config->key()};
+        auto configKey = ConfigKey{config->key()};
+        for(auto routine : get_elements_from_type<Routine>()){
 
-            for(auto routine : get_elements_from_type<Routine>()){
+            for(auto &condition : routine->conditions){
 
-                for(auto &condition : routine->conditions){
-                    std_v1<ActionKey> actionsToRemoved;
-                    for(auto &action : condition->actions){
-                        if(action->config->key() == configKey.v){
-                            QtLogger::message(QSL("[EXP] Remove ") % action->to_string() % QSL(" from ") % condition->to_string() %
-                                            QSL(" from ") % routine->to_string());
-                            actionsToRemoved.emplace_back(ActionKey{action->key()});
-                        }
-                    }
-
-                    for(auto actionToRemove : actionsToRemoved){
-                        condition->remove_action(actionToRemove);
+                std_v1<ActionKey> actionsToRemoved;
+                for(auto &action : condition->actions){
+                    if(action->config->key() == configKey.v){
+                        QtLogger::message(QSL("[EXP] Remove ") % action->to_string() % QSL(" from ") % condition->to_string() %
+                                          QSL(" from ") % routine->to_string());
+                        actionsToRemoved.push_back(ActionKey{action->key()});
                     }
                 }
-            }
 
-            QtLogger::message(QSL("[EXP] Remove ") % config->to_string() % QSL(" from ") % component->to_string());
-            component->configs.erase(component->configs.begin() + id.v);
-            component->selectedConfigId = {id.v-1};
-            if(component->selectedConfigId.v < 0){
-                component->selectedConfigId.v = 0;
+                for(auto actionToRemove : actionsToRemoved){
+                    condition->remove_action(actionToRemove);
+                }
             }
         }
 
+        component->remove_config(id);
         add_to_update_flag(UpdateComponents | UpdateRoutines);
     }
 }
 
 void Experiment::move_config_in_component(ComponentKey componentKey, RowId from, RowId to){
-    if(auto component = get_component(componentKey); component != nullptr){
-        auto config = std::move(component->configs[from.v]);
-        component->configs.erase(component->configs.begin() + from.v);
-        component->configs.insert(component->configs.begin() + to.v, std::move(config));
-        component->selectedConfigId = to;
-        add_to_update_flag(UpdateComponents |UpdateRoutines);                
+    if(auto component = get_component(componentKey); component != nullptr){        
+        if(component->move_config(from, to)){
+            add_to_update_flag(UpdateComponents | UpdateRoutines);
+        }
     }
 }
 
 void Experiment::rename_config_in_component(ComponentKey componentKey, RowId id, QString configName){
 
     if(auto component = get_component(componentKey); component != nullptr){
-        if(id.v < to_signed(component->configs.size())){
-            component->configs[id.v]->name = configName;
+        if(component->rename_config(id, configName)){
             add_to_update_flag(UpdateComponents | UpdateRoutines);
-        }else{
-            QtLogger::error(QSL("[EXP] Cannot rename config in component ") % QString::number(componentKey.v) % QSL(" -> wrong id for configs ") %
-                          QString::number(id.v) % QSL(" (size=") % QString::number(component->configs.size()) % QSL(")"));
         }
     }
 }
@@ -2013,44 +2187,47 @@ void Experiment::swap_arg(ComponentKey componentKey, ConfigKey configKey, QStrin
     }
 }
 
-
-
 void Experiment::add_resources(Resource::Type type, QStringList filesPath){
-    m_resM->add_resources(type, filesPath);
+    resM.add_resources(type, filesPath);
     add_to_update_flag(UpdateResources | UpdateComponents | UpdateRoutines);
 }
 
 void Experiment::update_resource_path(QString currentPath, QString newPath){
-    m_resM->update_resource_path(currentPath, newPath);
+    resM.update_resource_path(currentPath, newPath);
     add_to_update_flag(UpdateResources);
 }
 
 void Experiment::update_resource_alias(QString currentAlias, QString newAlias){
-    m_resM->update_resource_alias(currentAlias, newAlias);
+    resM.update_resource_alias(currentAlias, newAlias);
     add_to_update_flag(UpdateResources | UpdateComponents | UpdateRoutines);
 }
 
 void Experiment::select_resource(Resource::Type type, size_t index){
-    m_resM->select_resource(type, index);
+    resM.select_resource(type, index);
     add_to_update_flag(UpdateResources);
 }
 
 void Experiment::remove_resource(Resource::Type type, size_t index){
-    m_resM->remove_resource(type, index);
+    resM.remove_resource(type, index);
     add_to_update_flag(UpdateResources | UpdateComponents | UpdateRoutines);
 }
 
 void Experiment::clean_resources(Resource::Type type){
-    m_resM->clean_resources(type);
+    resM.clean_resources(type);
     add_to_update_flag(UpdateResources | UpdateComponents | UpdateRoutines);
 }
 
 void Experiment::update_reload_resource_code(int reloadCode){
-    m_resM->set_reload_code(reloadCode);
+    resM.set_reload_code(reloadCode);
+}
+
+void Experiment::copy_resource(Resource *resource){
+    resM.copy_resource(resource);
+    add_to_update_flag(UpdateResources | UpdateComponents | UpdateRoutines);
 }
 
 Component *Experiment::get_component(ComponentKey componentKey) const{
-    return m_compM->get_component(componentKey);
+    return compM.get_component(componentKey);
 }
 
 Config *Experiment::get_config(ComponentKey componentKey, ConfigKey configKey) const{
@@ -2074,7 +2251,6 @@ void Experiment::check_elements(){
 //    }
 
     for(auto &element : elements){
-        qDebug() << "check " << element->name();
         element->check_integrity();
     }
 }
@@ -2103,11 +2279,10 @@ void Experiment::check_legacy_conditions(){
 
                         bool found = false;
                         for(const auto &loopSet : dynamic_cast<Loop*>(loop)->sets){
-                            if(loopSet.name == set){
+                            if(loopSet->name == set){
                                 found = true;
                                 ++countMatched;
-                                condition->setsKeys.emplace_back(loopSet.key());
-
+                                condition->setsKeys.push_back(loopSet->s_key());
                                 break;
                             }
                         }
@@ -2123,15 +2298,13 @@ void Experiment::check_legacy_conditions(){
     }
 }
 
-
-
 void Experiment::new_experiment(){
 
     clean_experiment();
 
     QtLogger::message(QSL("[EXP] New experiment"));
     states.currentName = QSL("new_experiment");
-    elements.emplace_back(std::make_unique<NodeFlow>()); // init with one node
+    elements.push_back(std::make_unique<NodeFlow>()); // init with one node
     compute_loops_levels();
     update_conditions();
     add_to_update_flag(UpdateAll | ResetUI);
@@ -2142,14 +2315,14 @@ void Experiment::clean_experiment(){
     QtLogger::message(QSL("[EXP] Clean experiment"));
 
     // remove resources
-    m_resM->clean_resources();
+    resM.clean_resources();
 
     // remove elements
     elements.clear();
     loops.clear();
 
     // remove components
-    m_compM->clean_components();
+    compM.clean_components();
 
     // reset settings
     m_settings.reset();
@@ -2218,7 +2391,7 @@ void Experiment::update_exp_state(ExpState state, QStringView infos){
             auto conditionKey = ConditionKey{infos.left(idSep).toInt()};
             infos = infos.mid(idSep+1);
 
-            states.currentElementType = Element::Type::Routine;
+            states.currentElementType = FlowElement::Type::Routine;
             if(auto routine = get_routine(elementKey); routine != nullptr){
 
                 states.currentElementName = routine->name();
@@ -2242,7 +2415,7 @@ void Experiment::update_exp_state(ExpState state, QStringView infos){
             auto specificInfo = infos.left(idSep);
             infos = infos.mid(idSep+1);
 
-            states.currentElementType = Element::Type::Isi;
+            states.currentElementType = FlowElement::Type::Isi;
 
             if(auto isi = get_isi(elementKey); isi != nullptr){
 
@@ -2325,7 +2498,7 @@ void Experiment::remove_elements_not_in_flow(){
 
     QVector<int> idsLoopsRemaining;
     for(const auto &startLoop : get_elements_from_type<LoopNode>()){
-        if(startLoop->type == Element::Type::LoopStart){
+        if(startLoop->type() == FlowElement::Type::LoopStart){
             idsLoopsRemaining << startLoop->key();
         }
     }
@@ -2337,32 +2510,31 @@ void Experiment::remove_elements_not_in_flow(){
     }
 }
 
+
+
+
 std_v1<Loop *> Experiment::get_loops() const{
     std_v1<Loop*> l;
     l.reserve(loops.size());
     for(const auto &loop : loops){
-        l.emplace_back(loop.get());
+        l.push_back(loop.get());
     }
     return l;
 }
 
-std_v1<Element *> Experiment::get_elements() const{
-    std_v1<Element*> children;
-    children.reserve(elements.size());
-    for(const auto &elem : elements){
-        children.emplace_back(elem.get());
-    }
-    return children;
+
+auto Experiment::get_element_iterator(ElementKey elementKey) const -> std::vector<std::unique_ptr<FlowElement>>::const_iterator{
+    return std::find_if(elements.begin(), elements.end(), [elementKey](const std::unique_ptr<FlowElement> &element){
+        return element->key() == elementKey.v;
+    });
 }
 
-std_v1<Element *> Experiment::get_elements_from_type(Element::Type type) const{
-    std_v1<Element*> children;
-    for(const auto &elem : elements){
-        if(elem->type == type){
-            children.emplace_back(elem.get());
-        }
-    }
-    return children;
+
+auto Experiment::get_element_iterator(FlowElement *element) const -> std::vector<std::unique_ptr<FlowElement>>::const_iterator{
+    return std::find_if(elements.begin(), elements.end(), [element](const std::unique_ptr<FlowElement> & currElem){
+        return currElem.get() == element;
+    });
 }
+
 
 #include "moc_experiment.cpp"

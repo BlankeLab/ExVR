@@ -35,7 +35,6 @@
 #include "data/id_key.hpp"
 
 // local
-#include "forward.hpp"
 #include "config.hpp"
 #include "connection_node.hpp"
 
@@ -43,10 +42,6 @@
 namespace tool::ex {
 
 using namespace std::literals::string_view_literals;
-
-struct Component;
-using ComponentUP = std::unique_ptr<Component>;
-
 
 struct Component {
 
@@ -81,18 +76,18 @@ struct Component {
         {Category::Viewer,      "Viewer"sv        },
     }};
 
-    [[maybe_unused]] static Name to_string(Category c) {
+    [[maybe_unused]] static constexpr Name to_string(Category c) {
         return categories.at<0,1>(c);
     }
-    [[maybe_unused]] static std::optional<Category> get_category(const Name name) {
+    [[maybe_unused]] static constexpr std::optional<Category> get_category(const Name name) {
         return categories.optional_at<1,0>(name);
     }
 
-    static auto all_categories() {
+    static constexpr auto all_categories() {
         return categories.tuple_column<0>();
     }
 
-    static auto all_categories_name(){
+    static constexpr auto all_categories_name(){
         return categories.tuple_column<1>();
     }
 
@@ -105,9 +100,9 @@ struct Component {
         /** I */ Image_resource, Image_viewer,
         /** J */ Joypad,
         /** K */ Keyboard, Kinect_manager, Kinect_body_tracking,
-        /** L */ Landmark, Leap_motion, Leap_motion_arms_display, Leap_motion_tracking, Lines, Logger, LoggerColumns, LoggerCondition,
+        /** L */ Landmark, Leap_motion, Leap_motion_arms_display, Leap_motion_tracking, Lines, Logger, LoggerColumns, LoggerCondition, LoggerExperiment,
         /** M */ Mark_to_clean, Microphone, Mirror, Mouse, MRI, Multi_AB,
-        /** P */ Parallel_port_writer, Plot_resource, Python_script,
+        /** P */ Parallel_port_writer, Plot_resource, Post_process, Python_script,
         /** Q */ Qualisys,
         /** S */ Scaner_video, Scene_scaner, Serial_port_reader, Serial_port_writer, Sky, Slider_ui, Sonceboz_SG, Sphere,
         /** T */ Target_to_grab, Text_resource, Text_viewer, Thera_trainer_tracking, Thera_trainer_platform, Torus, TPP_avatar_camera,
@@ -186,9 +181,10 @@ struct Component {
         {T::Cloud,                    C::Cloud,       TO::V,     CO::B,   false,   R::OpenSource,   S::Sta, "Cloud"sv, "Cloud"sv, "Cloud"sv, ":/icons/Cloud"sv},
         {T::Scaner_video,             C::Cloud,       TO::B,     CO::B,   false,   R::LNCO,         S::Exp, "Scaner_video"sv, "Scaner video"sv, "ScanerVideo"sv, ":/icons/Video_cloud"sv},
         // Environment
+        {T::Post_process,             C::Environment, TO::N,     CO::C,   true,    R::OpenSource,   S::Exp, "Post_porcess"sv, "Post process"sv, "PostProcess"sv, ":/icons/Sky"sv},
         {T::Sky,                      C::Environment, TO::N,     CO::C,   true,    R::OpenSource,   S::Sta, "Sky"sv, "Sky"sv, "Sky"sv, ":/icons/Sky"sv},
         // Flow
-        {T::Config,                   C::Flow,        TO::N,     CO::C,   false,   R::OpenSource,   S::Sta, "Config"sv, "Config"sv, "Config"sv, ":/icons/Sky"sv},
+        {T::Config,                   C::Flow,        TO::N,     CO::C,   false,   R::OpenSource,   S::Sta, "Config"sv, "Config"sv, "Config"sv, ":/icons/Config"sv},
         // Input
         {T::Joypad,                   C::Input,       TO::U,     CO::I,   true,    R::OpenSource,   S::Sta, "Joypad"sv, "Joypad"sv, "Joypad"sv,":/icons/Joypad"sv},
         {T::Keyboard,                 C::Input,       TO::U,     CO::I,   true,    R::OpenSource,   S::Sta, "Keyboard"sv, "Keyboard"sv, "Keyboard"sv, ":/icons/Keyboard"sv},
@@ -205,7 +201,7 @@ struct Component {
         {T::Sphere,                   C::Model,       TO::V,     CO::B,   false,   R::OpenSource,   S::Sta, "Sphere"sv, "Sphere"sv, "Sphere"sv,":/icons/Sphere"sv},
         {T::Torus,                    C::Model,       TO::V,     CO::B,   false,   R::OpenSource,   S::Sta, "Torus"sv, "Torus"sv, "Torus"sv,":/icons/Torus"sv},
         // Network
-        {T::Parallel_port_writer,     C::Network,     TO::N,     CO::B,   false,   R::OpenSource,   S::Sta, "Parallel_port_writer"sv, "Parallel port writer"sv, "ParallelPortWriter"sv, ":/icons/USB"sv},
+        {T::Parallel_port_writer,     C::Network,     TO::N,     CO::B,   false,   R::OpenSource,   S::Sta, "Parallel_port_writer"sv, "Parallel port writer"sv, "ParallelPortWriter"sv, ":/icons/Parallel_port"sv},
         {T::Serial_port_reader,       C::Network,     TO::U,     CO::B,   false,   R::OpenSource,   S::Sta, "Serial_port_reader"sv, "Serial port reader"sv, "SerialPortReader"sv, ":/icons/USB"sv},
         {T::Serial_port_writer,       C::Network,     TO::U,     CO::B,   false,   R::OpenSource,   S::Sta, "Serial_port_writer"sv, "Serial port writer"sv, "SerialPortWriter"sv, ":/icons/USB"sv},
         {T::Udp_reader,               C::Network,     TO::U,     CO::I,   false,   R::OpenSource,   S::Sta, "Udp_reader"sv, "UDP reader"sv, "UdpReader"sv, ":/icons/UDP"sv},
@@ -214,6 +210,7 @@ struct Component {
         {T::Logger,                   C::Output,      TO::N,     CO::I,   false,   R::OpenSource,   S::Sta, "Logger"sv, "Logger"sv, "Logger"sv, ":/icons/Logger"sv},
         {T::LoggerColumns,            C::Output,      TO::N,     CO::I,   false,   R::OpenSource,   S::Sta, "Logger_columns"sv, "Logger columns"sv, "LoggerColumns"sv, ":/icons/Logger"sv},
         {T::LoggerCondition,          C::Output,      TO::N,     CO::I,   false,   R::OpenSource,   S::Sta, "Logger_condition"sv, "Logger condition"sv, "LoggerCondition"sv, ":/icons/Logger"sv},
+        {T::LoggerExperiment,         C::Output,      TO::N,     CO::I,   false,   R::OpenSource,   S::Sta, "Logger_experiment"sv, "Logger experiment"sv, "LoggerExperiment"sv, ":/icons/Logger"sv},
         // Resource
         {T::Image_resource,           C::Resource,    TO::N,     CO::B,   false,   R::OpenSource,   S::Sta, "Image_resource"sv, "Image resource"sv, "ImageResource"sv, ":/icons/Image"sv},
         {T::Plot_resource,            C::Resource,    TO::N,     CO::C,   false,   R::OpenSource,   S::Sta, "Plot_resource"sv,  "Plot resource"sv, "PlotResource"sv, ":/icons/Plot"sv},
@@ -235,7 +232,7 @@ struct Component {
         {T::Fop_robot,                C::Tracking,    TO::U,     CO::B,   true,    R::LNCO,         S::Sta, "Fop_robot"sv, "FOP robot"sv, "FOPRobot"sv,":/icons/Fop_robot"sv},
         {T::Kinect_manager,           C::Tracking,    TO::U,     CO::B,   true,    R::LNCO,         S::Sta, "Kinect_manager"sv, "Kinect manager"sv, "KinectManager"sv,":/icons/Kinect"sv},
         {T::Kinect_body_tracking,     C::Tracking,    TO::B,     CO::B,   true,    R::LNCO,         S::Exp, "Kinect_body_tracking"sv, "Kinect body tracking"sv, "KinectBodyTracking"sv,":/icons/Kinect"sv},
-        {T::Leap_motion,              C::Tracking,    TO::U,     CO::N,   true,    R::OpenSource,   S::Leg, "Leap_motion"sv, "LeapMotion"sv, "LeapMotion"sv, ":/icons/Hand"sv},
+        {T::Leap_motion,              C::Tracking,    TO::U,     CO::C,   true,    R::OpenSource,   S::Leg, "Leap_motion"sv, "LeapMotion"sv, "LeapMotion"sv, ":/icons/Hand"sv},
         {T::Leap_motion_arms_display, C::Tracking,    TO::V,     CO::B,   true,    R::ClosedSource, S::Leg, "Leap_motion_arms_display"sv, "LeapMotion realistic arms"sv, "LeapMotionArmsDisplay"sv, ":/icons/Hand"sv},
         {T::Leap_motion_tracking,     C::Tracking,    TO::V,     CO::N,   true,    R::OpenSource,   S::Leg, "Leap_motion_tracking"sv, "LeapMotion tracking"sv, "LeapMotionTracking"sv, ":/icons/Hand"sv},
         {T::Qualisys,                 C::Tracking,    TO::B,     CO::B,   true,    R::OpenSource,   S::Sta, "Qualisys_tracking"sv, "Qualisys tracking"sv, "QualisysTracking"sv, ":/icons/Qualisys"sv},
@@ -246,7 +243,7 @@ struct Component {
         {T::Vive_pro_eye_tracking,    C::Tracking,    TO::B,     CO::C,   false,   R::OpenSource,   S::Exp, "Vive_pro_eye_tracking"sv, "Vive pro eye tracking"sv, "ViveProEyeTracking"sv, ":/icons/Thera_trainer"sv},
         // UI
         {T::Slider_ui,                C::UI,          TO::B,     CO::B,   false,   R::OpenSource,   S::Sta, "Slider_ui"sv, "Slider ui"sv, "SliderUI"sv, ":/icons/Slider_overlay"sv},
-        {T::Buttons_ui,               C::UI,          TO::B,     CO::B,   false,   R::OpenSource,   S::Sta, "Buttons_ui"sv, "Buttons ui"sv, "ButtonsUI"sv, ":/icons/Slider_overlay"sv},
+        {T::Buttons_ui,               C::UI,          TO::B,     CO::B,   false,   R::OpenSource,   S::Sta, "Buttons_ui"sv, "Buttons ui"sv, "ButtonsUI"sv, ":/icons/Buttons"sv},
         // Video
         {T::Video_file,               C::Video,       TO::U,     CO::I,   false,   R::OpenSource,   S::Sta, "Video_file"sv, "Video file"sv, "VideoFile"sv,":/icons/Video_file"sv},
         {T::Video_file_camera_viewer, C::Video,       TO::B,     CO::B,   false,   R::OpenSource,   S::Exp, "Video_file_camera_viewer"sv, "Video file camera viewer"sv, "VideoFileCameraViewer"sv,":/icons/Video_file"sv},
@@ -262,59 +259,59 @@ struct Component {
         {T::Webcam_viewer,            C::Viewer,      TO::B,     CO::B,   false,   R::OpenSource,   S::Sta, "Webcam_viewer"sv, "Webcam viewer"sv, "WebcamViewer"sv, ":/icons/Webcam"sv},
     }};
 
-    static Category get_category(Type type) {
+    static constexpr Category get_category(Type type) {
         return components.at<0,1>(type);
     }
 
-    static TO get_timeline_opt(Type type) {
+    static constexpr TO get_timeline_opt(Type type) {
         return components.at<0,2>(type);
     }
 
-    static CO get_config_opt(Type type) {
+    static constexpr CO get_config_opt(Type type) {
         return components.at<0,3>(type);
     }
 
-    static bool get_unicity(Type type) {
+    static constexpr bool get_unicity(Type type) {
         return components.at<0,4>(type);
     }
 
-    static Restricted get_restricted(Type type) {
+    static constexpr Restricted get_restricted(Type type) {
         return components.at<0,5>(type);
     }
 
-    static State get_state(Type type) {
+    static constexpr State get_state(Type type) {
         return components.at<0,6>(type);
     }
 
-    static TypeStr get_type_name(Type type) {
+    static constexpr TypeStr get_type_name(Type type) {
         return components.at<0,7>(type);
     }
 
-    static FullStr get_full_name(Type type) {
+    static constexpr FullStr get_full_name(Type type) {
         return components.at<0,8>(type);
     }
 
-    static UnityStr get_unity_name(Type type) {
+    static constexpr UnityStr get_unity_name(Type type) {
         return components.at<0,9>(type);
     }
 
-    static SV get_icon_path(Type type) {
+    static constexpr SV get_icon_path(Type type) {
         return components.at<0,10>(type);
     }
 
-    static size_t components_nb_per_category(Category category) {
+    static constexpr size_t components_nb_per_category(Category category) {
         return components.count_equal<1>(category);
     }
 
-    static std::optional<Type> get_type_from_name(FullStr fullName) {
+    static constexpr std::optional<Type> get_type_from_name(FullStr fullName) {
         return components.optional_at<8,0>(fullName);
     }
 
-    static std::optional<Type> get_type_from_unity_name(UnityStr unityName) {
+    static constexpr std::optional<Type> get_type_from_unity_name(UnityStr unityName) {
         return components.optional_at<9,0>(unityName);
     }
 
-    static auto all_components_types(){
+    static constexpr auto all_components_types(){
         return components.tuple_column<0>();
     }
 
@@ -420,10 +417,10 @@ struct Component {
         {T::Python_script,             "slot4"sv,                      CNT::any_t,             "..."sv},
         // Tracking
         {T::Leap_motion_arms_display,  "trigger"sv,                    CNT::void_t,            "..."sv},
-        {T::Leap_motion_arms_display,  "update frame"sv,              CNT::lm_frame_t,        "..."sv},
+        {T::Leap_motion_arms_display,  "update frame"sv,               CNT::lm_frame_t,        "..."sv},
         {T::Leap_motion_tracking,      "update tracking"sv,            CNT::lm_hands_frame_t,  "..."sv},
         {T::Thera_trainer_platform,    "update rotation"sv,            CNT::vector2_t,         "Set thera trainer platform current rotation angles"sv},
-        {T::Biopac,                    "trigger channels"sv,           CNT::void_t,            "..."sv},
+        {T::Biopac,                    "inused"sv,                     CNT::void_t,            "TODO: Remove it"sv},
         {T::Fop_robot,                 "set delay"sv,                  CNT::integer_t,         "..."sv},
         {T::Fop_robot,                 "set force ratio"sv,            CNT::float_t,           "..."sv},
         // UI
@@ -447,7 +444,7 @@ struct Component {
 
     using TComponentSignals = std::tuple<
         CT,                             FunctionN,                     CNT,                            Doc>;
-    static constexpr TupleArray<65, TComponentSignals> componentsSignals = {{
+    static constexpr TupleArray<66, TComponentSignals> componentsSignals = {{
         TComponentSignals
         // Audio
         {T::AudioSource,               "sample value channel"sv,       CNT::id_any_t,                  "..."sv},
@@ -471,10 +468,11 @@ struct Component {
         {T::Torus,                     "visibility changed"sv,         CNT::boolean_t,                 "Is triggered if the visibility of the component changed"sv},
         {T::Sphere,                    "visibility changed"sv,         CNT::boolean_t,                 "Is triggered if the visibility of the component changed"sv},        
         // Network
-        {T::Serial_port_reader,        "integer message"sv,            CNT::integer_t,                 "..."sv},
-        {T::Serial_port_reader,        "string message"sv,             CNT::string_t,                  "..."sv},
-        {T::Udp_reader,                "last message received"sv,      CNT::string_t,                  "..."sv},
-        {T::Udp_writer,                "nb bytes sent"sv,              CNT::integer_t,                 "..."sv},                                                                                
+        {T::Parallel_port_writer,      "trigger exp time"sv,           CNT::real_t,                    "..."sv},
+        {T::Serial_port_writer,        "trigger exp time"sv,           CNT::real_t,                    "..."sv},
+        {T::Serial_port_reader,        "message"sv,                    CNT::time_any_t,                "..."sv},
+        {T::Udp_reader,                "message"sv,                    CNT::time_any_t,                "..."sv},
+        {T::Udp_writer,                "trigger exp time"sv,           CNT::real_t,                    "..."sv},
         // Resource
         {T::Plot_resource,             "plot loaded"sv,                CNT::plot_t,                    "Loaded plot (called at routine start)"sv},
         {T::Plot_resource,             "plot loaded alias"sv,          CNT::string_t,                  "Alias of the loaded plot (called at routine start)"sv},
@@ -505,10 +503,9 @@ struct Component {
         {T::Leap_motion_arms_display,  "current colliders"sv,          CNT::gameobject_list_t,         "Is triggered when trigger slot is called, will send the current enabled colliders"sv},
         {T::Thera_trainer_tracking,    "new pos"sv,                    CNT::vector2_t,                 "..."sv},
         {T::Thera_trainer_tracking,    "battery"sv,                    CNT::integer_t,                 "..."sv},
-        {T::Biopac,                    "channelX last value"sv,        CNT::id_any_t,                  "Send real associated to id channel"sv},
-        {T::Biopac,                    "channelX last range values"sv, CNT::id_any_t,                  "Send reals list associated to id channel"sv},
-        {T::Biopac,                    "end routine data log"sv,       CNT::string_list_t,             "..."sv},
-        {T::Biopac,                    "channels latency"sv,           CNT::real_t,                    "..."sv},
+        {T::Biopac,                    "channelX last value"sv,        CNT::id_any_t,                  "Send last data value corresponding to id channel"sv},
+        {T::Biopac,                    "channelX last range values"sv, CNT::id_any_t,                  "Send last range data value corresponding to id channel"sv},
+        {T::Biopac,                    "call duration API"sv,          CNT::real_t,                   "..."sv},
         {T::Qualisys,                  "tracked object"sv,             CNT::string_any_t,              "..."sv},
         {T::Fop_robot,                 "slave position"sv,             CNT::vector3_t,                 "..."sv},
         {T::Fop_robot,                 "master position"sv,            CNT::vector3_t,                 "..."sv},
@@ -522,7 +519,8 @@ struct Component {
         {T::Vive_pro_eye_tracking,     "pupil position"sv,             CNT::id_any_t,                  "..."sv},
         {T::Vive_pro_eye_tracking,     "pupil diameter"sv,             CNT::id_any_t,                  "..."sv},
         // UI
-        {T::Buttons_ui,                "validated"sv,                  CNT::integer_t,                 "Current selected button has been validated"sv},
+        {T::Buttons_ui,                "validated id"sv,               CNT::integer_t,                 "Button with id has been validated"sv},
+        {T::Buttons_ui,                "validated text"sv,             CNT::string_t,                  "Button with text has been validated"sv},
         {T::Slider_ui,                 "value updated"sv,              CNT::float_t,                   "Is triggered when slider value changes"sv},
         // Video
         {T::Video_file,                "new frame"sv,                  CNT::image_t,                   "..."sv},
@@ -563,45 +561,45 @@ struct Component {
     }
 
     Component() = delete;
-    Component(Type t, ComponentKey id, QString name);
-    ~Component();
+    Component(Type t, ComponentKey id, QString name, std::unique_ptr<Config> initConfig);
+    Component(const Component &) = delete;
+    Component& operator=(const Component&) = delete;
 
-    inline void set_init_config(ConfigUP config){
-        initConfig = std::move(config);
-    }
+    static std::unique_ptr<Component> copy_with_new_element_id(Component *componentToCopy, const QString &newName, std::vector<ConfigKey> configKeys = {});
 
-    inline void add_config(ConfigUP config){
-        configs.emplace_back(std::move(config));
-    }
+    inline QString name() const noexcept{return m_name;}
+    inline void set_name(QString name) noexcept{m_name = name;}
 
-    static ComponentUP copy_with_new_element_id(const Component &componentToCopy, const QString &newName);
+    void add_config(std::unique_ptr<Config> config);
+    bool insert_config(RowId id, QString configName);
+    bool select_config(RowId id);
+    bool remove_config(RowId id);
+    bool move_config(RowId from, RowId to);
+    bool rename_config(RowId id, QString configName);
+    bool copy_config(RowId id, QString configName);
 
+    tool::ex::Config *get_config(RowId id) const;
+    tool::ex::Config *get_config(ConfigKey configKey) const ;
     QStringList get_configs_name() const;
-    inline QString name() const{return m_name;}
-    void set_name(QString name);
+    inline size_t get_configs_count() const noexcept {return configs.size();}
 
-    tool::ex::Config *get_config(ConfigKey configKey);
+    inline QString to_string() const noexcept{return QSL("Component(") % m_name % QSL("|") % from_view(get_full_name(type)) % QSL("|") % QString::number(key()) % QSL(")");}
 
-    IdKey key;
-
-
-    inline QString to_string() const{return QSL("Component(") % m_name % QSL("|") %
-               from_view(get_full_name(type)) % QSL("|") % QString::number(key()) % QSL(")");}
-
-    static inline size_t count(Type t) {return m_counter[t];}
-
-private:
-
-    QString m_name = "default";
-    static inline std::map<Type, size_t> m_counter = {};
+    constexpr int key() const noexcept{ return m_key();}
+    constexpr ComponentKey c_key() const noexcept {return ComponentKey{key()};}
 
 public:
 
     Type type = Type::SizeEnum;
     Category category   = Category::SizeEnum;
-    ConfigUP initConfig = nullptr;
+    std::unique_ptr<Config> initConfig = nullptr;
 
     RowId selectedConfigId = {0};
-    std_v1<ConfigUP> configs;    
+    std::vector<std::unique_ptr<Config>> configs = {};
+
+private:
+
+    IdKey m_key = IdKey(IdKey::Type::Component, -1);
+    QString m_name = "default";    
 };
 }

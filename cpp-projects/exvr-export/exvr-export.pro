@@ -76,6 +76,8 @@ INCLUDEPATH += \
     $$BOOST_INCLUDES \
     # signals
     $$SIGNALS_INCLUDES \
+    # sigslot
+    $$SIGSLOT_INCLUDES \
     # PYTHON
     $$PYTHON_INCLUDES \
 
@@ -105,17 +107,21 @@ LIBS +=  \
 HEADERS += \
     # ex_components
     ex_components/ex_component_export.hpp \
-    ex_components/python_component_script_export.hpp \
+    ex_components/python_script_component_export.hpp \
     ex_components/video_saver_component_export.hpp \
     # ex_resources
+    ex_element_export.hpp \
+    ex_experiment_export.hpp \
     ex_resources/ex_resource_export.hpp \
 
 SOURCES += \
     # ex_components
     ex_components/ex_component_export.cpp \
-    ex_components/python_component_script_export.cpp \
+    ex_components/python_script_component_export.cpp \
     ex_components/video_saver_component_export.cpp \
     # ex_resources
+    ex_element_export.cpp \
+    ex_experiment_export.cpp \
     ex_resources/ex_resource_export.cpp \
     # main    
     main.cpp \

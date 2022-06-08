@@ -1,323 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Experiment name="nodes_bench2" version="0.99z43" mode="designer" designer-used="E:/DEV/EPFL/exvr/build/bin/release/designer/ExVR.exe">
+<Experiment name="nodes_bench2" version="1.0a28" mode="designer" designer-used="E:/DEV/EPFL/lnco-exvr/exvr/cpp-projects/_build/bin/exvr-designer/ExVR.exe">
     <Settings debug="1" csharp_debug_info="0" catch_components_exceptions="0" positional_tracking="1" catch_external_keyboard_events="0">
-        <Display mode="0" stereo_fov="60"/>
+        <Display mode="0" stereo_fov="60" fullscreen="0" monitor_id="1" resolution_id="2" custom_width="1920" custom_height="1080"/>
         <Camera neutral_x="0" neutral_y="1" neutral_z="0"/>
     </Settings>
     <Resources reload="200"/>
     <Components/>
     <FlowElements>
         <Routines>
-            <Routine key="1" name="Routine 1">
-                <Condition key="0" name="default" duration="100" ui_scale="10" ui_size="1" sets_keys="0">
-                    <Connector key="0" name="Real" node_position="942 382" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+            <Routine key="1" name="Routine 1" randomizer="0" informations="">
+                <Condition key="0" name="default" duration="100" ui_scale="10" ui_size="1" sets_keys="">
+                    <Connector key="0" name="PreUpdateRoutine" node_position="219 72">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
                     </Connector>
-                    <Connector key="1" name="Real" node_position="878 131" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    <Connector key="1" name="UpdateRoutine" node_position="215 166">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
                     </Connector>
-                    <Connector key="2" name="Real" node_position="567 64" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    <Connector key="2" name="PostUpdateRoutine" node_position="233 263">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
                     </Connector>
-                    <Connector key="3" name="Real" node_position="1162 131" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    <Connector key="3" name="String" node_position="483 84">
+                        <Arg name="value" ui="Line text editor" value="pre-update" type="System.String" dim="0"/>
                     </Connector>
-                    <Connector key="4" name="Real" node_position="1108 60" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    <Connector key="4" name="String" node_position="496 172">
+                        <Arg name="value" ui="Line text editor" value="update" type="System.String" dim="0"/>
                     </Connector>
-                    <Connector key="5" name="Real" node_position="958 469" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    <Connector key="5" name="String" node_position="484 270">
+                        <Arg name="value" ui="Line text editor" value="post_update" type="System.String" dim="0"/>
                     </Connector>
-                    <Connector key="6" name="Real" node_position="921 305" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    <Connector key="6" name="Logger" node_position="965 157">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
                     </Connector>
-                    <Connector key="7" name="Real" node_position="895 220" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    <Connector key="7" name="PassValues" node_position="756 145">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
                     </Connector>
-                    <Connector key="8" name="Real" node_position="850 58" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="9" name="Real" node_position="632 464" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="10" name="Real" node_position="607 379" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="11" name="Real" node_position="606 292" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="12" name="Real" node_position="572 216" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="13" name="Real" node_position="563 140" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="14" name="Real" node_position="1208 320" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="15" name="Real" node_position="1192 222" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="16" name="Real" node_position="1230 473" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="17" name="Real" node_position="1222 393" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="18" name="Real" node_position="1387 59" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="19" name="Real" node_position="1426 162" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="20" name="Real" node_position="1481 255" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="21" name="Real" node_position="1501 330" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="22" name="Real" node_position="1541 405" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="23" name="Real" node_position="1574 484" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="24" name="Time" node_position="-93 299" node_size="-1 -1">
-                        <Arg key="25" name="value" ui="Combo box text" value="Time since exp|30" type="System.String" dim="1" sep="|" sizes="2"/>
-                    </Connector>
-                    <Connector key="25" name="Real" node_position="648 554" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="26" name="Real" node_position="971 553" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="27" name="Real" node_position="1270 566" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="28" name="Real" node_position="1574 572" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="29" name="Real" node_position="1709.2 42.2" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="30" name="Real" node_position="1053 652" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="31" name="Real" node_position="1349 669" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="32" name="Real" node_position="1708 790" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="33" name="Real" node_position="675 663" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="34" name="Real" node_position="1107 758" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="35" name="Real" node_position="1400 774" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="36" name="Real" node_position="1637 674" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="37" name="Real" node_position="1723.2 146.2" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="38" name="Real" node_position="1756.4 234.6" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="39" name="Real" node_position="1813.6 331.4" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="40" name="Real" node_position="1867.2 423.4" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="41" name="Real" node_position="1898 510.6" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="42" name="Real" node_position="1914.4 594.2" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="43" name="Real" node_position="1951.2 677.8" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="44" name="Real" node_position="2013.2 789" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="45" name="Real" node_position="2046 75.4" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="46" name="Real" node_position="2072 147" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="47" name="Real" node_position="2104 239" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="48" name="Real" node_position="2118 333.4" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="49" name="Real" node_position="2153.6 435" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="50" name="Real" node_position="2198.8 527" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="51" name="Real" node_position="2227.2 623.8" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="52" name="Real" node_position="2272.4 801" node_size="-1 -1">
-                        <Arg key="0" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="53" name="Real" node_position="2058 -7.2" node_size="-1 -1">
-                        <Arg key="55" name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="55" name="DecimalOperation" node_position="85 495" node_size="-1 -1">
-                        <Arg key="57" name="value" ui="Combo box text" value="Multiply" type="System.String" dim="0"/>
-                    </Connector>
-                    <Connector key="56" name="Real" node_position="-261 562" node_size="-1 -1">
-                        <Arg key="58" name="value" ui="Double spin box" value="0.001" type="System.Double" dim="0"/>
-                    </Connector>
-                    <Connector key="57" name="DecimalTrigonometry" node_position="374 651" node_size="-1 -1">
-                        <Arg key="59" name="value" ui="Combo box text" value="Cos" type="System.String" dim="0"/>
-                    </Connector>
-                    <Connector key="58" name="DecimalTrigonometry" node_position="358 735" node_size="-1 -1">
-                        <Arg key="59" name="value" ui="Combo box text" value="Sin" type="System.String" dim="0"/>
-                    </Connector>
-                    <Connector key="59" name="DecimalTrigonometry" node_position="359 818" node_size="-1 -1">
-                        <Arg key="59" name="value" ui="Combo box text" value="Tan" type="System.String" dim="0"/>
-                    </Connector>
-                    <Connector key="60" name="CurveX" node_position="585 922" node_size="-1 -1">
-                        <Arg key="62" name="value" ui="Curve" value="Default curve%%-10%%10%%true%%100%%1 0 0 0" type="System.String" dim="1" sep="%%" sizes="6"/>
-                    </Connector>
-                    <Connector key="61" name="CurveX" node_position="616 832" node_size="-1 -1">
-                        <Arg key="62" name="value" ui="Curve" value="Default curve%%-10%%10%%true%%100%%1 0 0 0" type="System.String" dim="1" sep="%%" sizes="6"/>
-                    </Connector>
-                    <Connector key="62" name="CurveX" node_position="662 759" node_size="-1 -1">
-                        <Arg key="62" name="value" ui="Curve" value="Default curve%%-10%%10%%true%%100%%1 0 0 0" type="System.String" dim="1" sep="%%" sizes="6"/>
-                    </Connector>
-                    <!--Connection between Key2:Connector:Real:Port0 and Key8:Connector:Real:Port0-->
-                    <Connection key="0" out_type="connector" out_key="2" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="8" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key13:Connector:Real:Port0 and Key1:Connector:Real:Port0-->
-                    <Connection key="1" out_type="connector" out_key="13" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="1" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key12:Connector:Real:Port0 and Key7:Connector:Real:Port0-->
-                    <Connection key="2" out_type="connector" out_key="12" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="7" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key11:Connector:Real:Port0 and Key6:Connector:Real:Port0-->
-                    <Connection key="3" out_type="connector" out_key="11" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="6" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key10:Connector:Real:Port0 and Key0:Connector:Real:Port0-->
-                    <Connection key="4" out_type="connector" out_key="10" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="0" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key9:Connector:Real:Port0 and Key5:Connector:Real:Port0-->
-                    <Connection key="5" out_type="connector" out_key="9" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="5" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key5:Connector:Real:Port0 and Key16:Connector:Real:Port0-->
-                    <Connection key="6" out_type="connector" out_key="5" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="16" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key0:Connector:Real:Port0 and Key17:Connector:Real:Port0-->
-                    <Connection key="7" out_type="connector" out_key="0" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="17" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key6:Connector:Real:Port0 and Key14:Connector:Real:Port0-->
-                    <Connection key="8" out_type="connector" out_key="6" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="14" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key7:Connector:Real:Port0 and Key15:Connector:Real:Port0-->
-                    <Connection key="9" out_type="connector" out_key="7" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="15" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key1:Connector:Real:Port0 and Key3:Connector:Real:Port0-->
-                    <Connection key="10" out_type="connector" out_key="1" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="3" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key8:Connector:Real:Port0 and Key4:Connector:Real:Port0-->
-                    <Connection key="11" out_type="connector" out_key="8" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="4" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key4:Connector:Real:Port0 and Key18:Connector:Real:Port0-->
-                    <Connection key="12" out_type="connector" out_key="4" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="18" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key3:Connector:Real:Port0 and Key19:Connector:Real:Port0-->
-                    <Connection key="13" out_type="connector" out_key="3" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="19" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key15:Connector:Real:Port0 and Key20:Connector:Real:Port0-->
-                    <Connection key="14" out_type="connector" out_key="15" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="20" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key14:Connector:Real:Port0 and Key21:Connector:Real:Port0-->
-                    <Connection key="15" out_type="connector" out_key="14" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="21" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key17:Connector:Real:Port0 and Key22:Connector:Real:Port0-->
-                    <Connection key="16" out_type="connector" out_key="17" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="22" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key16:Connector:Real:Port0 and Key23:Connector:Real:Port0-->
-                    <Connection key="17" out_type="connector" out_key="16" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="23" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key24:Connector:Time:Port0 and Key2:Connector:Real:Port0-->
-                    <Connection key="18" out_type="connector" out_key="24" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="2" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key24:Connector:Time:Port0 and Key13:Connector:Real:Port0-->
-                    <Connection key="19" out_type="connector" out_key="24" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="13" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key24:Connector:Time:Port0 and Key12:Connector:Real:Port0-->
-                    <Connection key="20" out_type="connector" out_key="24" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="12" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key24:Connector:Time:Port0 and Key11:Connector:Real:Port0-->
-                    <Connection key="21" out_type="connector" out_key="24" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="11" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key24:Connector:Time:Port0 and Key10:Connector:Real:Port0-->
-                    <Connection key="22" out_type="connector" out_key="24" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="10" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key24:Connector:Time:Port0 and Key9:Connector:Real:Port0-->
-                    <Connection key="23" out_type="connector" out_key="24" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="9" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key24:Connector:Time:Port0 and Key25:Connector:Real:Port0-->
-                    <Connection key="48" out_type="connector" out_key="24" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="25" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key25:Connector:Real:Port0 and Key26:Connector:Real:Port0-->
-                    <Connection key="49" out_type="connector" out_key="25" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="26" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key26:Connector:Real:Port0 and Key27:Connector:Real:Port0-->
-                    <Connection key="50" out_type="connector" out_key="26" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="27" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key27:Connector:Real:Port0 and Key28:Connector:Real:Port0-->
-                    <Connection key="51" out_type="connector" out_key="27" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="28" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key24:Connector:Time:Port0 and Key33:Connector:Real:Port0-->
-                    <Connection key="52" out_type="connector" out_key="24" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="33" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key33:Connector:Real:Port0 and Key30:Connector:Real:Port0-->
-                    <Connection key="53" out_type="connector" out_key="33" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="30" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key30:Connector:Real:Port0 and Key31:Connector:Real:Port0-->
-                    <Connection key="54" out_type="connector" out_key="30" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="31" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key31:Connector:Real:Port0 and Key36:Connector:Real:Port0-->
-                    <Connection key="55" out_type="connector" out_key="31" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="36" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key33:Connector:Real:Port0 and Key34:Connector:Real:Port0-->
-                    <Connection key="56" out_type="connector" out_key="33" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="34" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key34:Connector:Real:Port0 and Key35:Connector:Real:Port0-->
-                    <Connection key="57" out_type="connector" out_key="34" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="35" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key35:Connector:Real:Port0 and Key32:Connector:Real:Port0-->
-                    <Connection key="58" out_type="connector" out_key="35" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="32" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key18:Connector:Real:Port0 and Key29:Connector:Real:Port0-->
-                    <Connection key="59" out_type="connector" out_key="18" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="29" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key19:Connector:Real:Port0 and Key37:Connector:Real:Port0-->
-                    <Connection key="60" out_type="connector" out_key="19" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="37" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key20:Connector:Real:Port0 and Key38:Connector:Real:Port0-->
-                    <Connection key="61" out_type="connector" out_key="20" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="38" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key21:Connector:Real:Port0 and Key39:Connector:Real:Port0-->
-                    <Connection key="62" out_type="connector" out_key="21" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="39" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key22:Connector:Real:Port0 and Key40:Connector:Real:Port0-->
-                    <Connection key="63" out_type="connector" out_key="22" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="40" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key23:Connector:Real:Port0 and Key41:Connector:Real:Port0-->
-                    <Connection key="64" out_type="connector" out_key="23" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="41" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key28:Connector:Real:Port0 and Key42:Connector:Real:Port0-->
-                    <Connection key="65" out_type="connector" out_key="28" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="42" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key36:Connector:Real:Port0 and Key43:Connector:Real:Port0-->
-                    <Connection key="66" out_type="connector" out_key="36" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="43" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key32:Connector:Real:Port0 and Key44:Connector:Real:Port0-->
-                    <Connection key="67" out_type="connector" out_key="32" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="44" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key44:Connector:Real:Port0 and Key52:Connector:Real:Port0-->
-                    <Connection key="68" out_type="connector" out_key="44" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="52" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key43:Connector:Real:Port0 and Key51:Connector:Real:Port0-->
-                    <Connection key="69" out_type="connector" out_key="43" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="51" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key42:Connector:Real:Port0 and Key50:Connector:Real:Port0-->
-                    <Connection key="70" out_type="connector" out_key="42" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="50" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key41:Connector:Real:Port0 and Key49:Connector:Real:Port0-->
-                    <Connection key="71" out_type="connector" out_key="41" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="49" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key40:Connector:Real:Port0 and Key48:Connector:Real:Port0-->
-                    <Connection key="72" out_type="connector" out_key="40" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="48" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key39:Connector:Real:Port0 and Key47:Connector:Real:Port0-->
-                    <Connection key="73" out_type="connector" out_key="39" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="47" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key38:Connector:Real:Port0 and Key46:Connector:Real:Port0-->
-                    <Connection key="74" out_type="connector" out_key="38" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="46" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key37:Connector:Real:Port0 and Key45:Connector:Real:Port0-->
-                    <Connection key="75" out_type="connector" out_key="37" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="45" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key29:Connector:Real:Port0 and Key53:Connector:Real:Port0-->
-                    <Connection key="76" out_type="connector" out_key="29" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="53" slot_id="0" in_data_type="real" slot="input value 0"/>
-                    <!--Connection between Key56:Connector:Real:Port0 and Key55:Connector:DecimalOperation:Port1-->
-                    <Connection key="131" out_type="connector" out_key="56" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="55" slot_id="1" in_data_type="decimal" slot="input value 1"/>
-                    <!--Connection between Key24:Connector:Time:Port0 and Key55:Connector:DecimalOperation:Port0-->
-                    <Connection key="132" out_type="connector" out_key="24" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="55" slot_id="0" in_data_type="decimal" slot="input value 0"/>
-                    <!--Connection between Key55:Connector:DecimalOperation:Port0 and Key57:Connector:DecimalTrigonometry:Port0-->
-                    <Connection key="133" out_type="connector" out_key="55" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="57" slot_id="0" in_data_type="decimal" slot="input value 0"/>
-                    <!--Connection between Key55:Connector:DecimalOperation:Port0 and Key58:Connector:DecimalTrigonometry:Port0-->
-                    <Connection key="134" out_type="connector" out_key="55" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="58" slot_id="0" in_data_type="decimal" slot="input value 0"/>
-                    <!--Connection between Key55:Connector:DecimalOperation:Port0 and Key59:Connector:DecimalTrigonometry:Port0-->
-                    <Connection key="135" out_type="connector" out_key="55" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="59" slot_id="0" in_data_type="decimal" slot="input value 0"/>
-                    <!--Connection between Key59:Connector:DecimalTrigonometry:Port0 and Key60:Connector:CurveX:Port0-->
-                    <Connection key="136" out_type="connector" out_key="59" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="60" slot_id="0" in_data_type="real_list" slot="input value 0"/>
-                    <!--Connection between Key58:Connector:DecimalTrigonometry:Port0 and Key61:Connector:CurveX:Port0-->
-                    <Connection key="137" out_type="connector" out_key="58" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="61" slot_id="0" in_data_type="real_list" slot="input value 0"/>
-                    <!--Connection between Key57:Connector:DecimalTrigonometry:Port0 and Key62:Connector:CurveX:Port0-->
-                    <Connection key="138" out_type="connector" out_key="57" signal_id="0" out_data_type="decimal" signal="output value 0" in_type="connector" in_key="62" slot_id="0" in_data_type="real_list" slot="input value 0"/>
+                    <!--Connection between Key2:Connector:PostUpdateRoutine:Port0 and Key5:Connector:String:Port0 -->
+                    <Connection key="0" out_type="connector" out_key="2" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="5" slot_id="0" in_data_type="string" slot="input value 0"/>
+                    <!--Connection between Key1:Connector:UpdateRoutine:Port0 and Key4:Connector:String:Port0 -->
+                    <Connection key="1" out_type="connector" out_key="1" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="4" slot_id="0" in_data_type="string" slot="input value 0"/>
+                    <!--Connection between Key0:Connector:PreUpdateRoutine:Port0 and Key3:Connector:String:Port0 -->
+                    <Connection key="2" out_type="connector" out_key="0" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="3" slot_id="0" in_data_type="string" slot="input value 0"/>
+                    <!--Connection between Key3:Connector:String:Port0 and Key7:Connector:PassValues:Port0 -->
+                    <Connection key="3" out_type="connector" out_key="3" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="7" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key4:Connector:String:Port0 and Key7:Connector:PassValues:Port1 -->
+                    <Connection key="4" out_type="connector" out_key="4" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="7" slot_id="1" in_data_type="any" slot="input value 1"/>
+                    <!--Connection between Key5:Connector:String:Port0 and Key7:Connector:PassValues:Port2 -->
+                    <Connection key="5" out_type="connector" out_key="5" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="7" slot_id="2" in_data_type="any" slot="input value 2"/>
+                    <!--Connection between Key7:Connector:PassValues:Port0 and Key6:Connector:Logger:Port0 -->
+                    <Connection key="6" out_type="connector" out_key="7" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="6" slot_id="0" in_data_type="any" slot="input value 0"/>
                 </Condition>
             </Routine>
         </Routines>

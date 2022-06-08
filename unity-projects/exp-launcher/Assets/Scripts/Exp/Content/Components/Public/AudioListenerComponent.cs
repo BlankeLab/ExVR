@@ -88,7 +88,7 @@ namespace Ex {
     public class AudioListenerComponent : ExComponent {
 
 
-        private double sampling_frequency = 48000;
+        //private double sampling_frequency = 48000;
         public AudioClip clip = null;
 
         // https://answers.unity.com/questions/1427912/converting-audiolistenergetoutputdata-to-a-wav-fil.html

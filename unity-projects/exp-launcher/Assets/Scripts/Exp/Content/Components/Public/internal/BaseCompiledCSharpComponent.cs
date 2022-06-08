@@ -71,6 +71,9 @@ namespace Ex {
         public ComponentConfig current_config() { return p.current_config(); }
         public ComponentInitConfig init_config() { return p.init_config(); }
 
+        // connections
+        public Events.Connections connections() {return p.connections();}       
+
         // states
         public bool is_visible() { return p.is_visible(); }
         public bool is_updating() { return p.is_updating(); }
@@ -78,6 +81,7 @@ namespace Ex {
 
         // commands
         public void next() { p.command().next(); }
+        public void next_with_name(string componentName) { p.command().next_element_with_name(componentName); }
         public void schedule_next(int milliseconds) { p.command().schedule_next(milliseconds); }
         public void previous() { p.command().previous(); }
         public void close() { p.components().close(p); }

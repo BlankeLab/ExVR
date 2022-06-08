@@ -27,6 +27,7 @@ using System.Collections;
 
 // unity
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 // valve
 using Valve.VR;
@@ -42,9 +43,6 @@ namespace Ex{
         // cameras
         public CamerasManager camerasManager = null;
 
-        public CamerasManager cameras() {
-            return camerasManager;
-        }
 
         // steam vr
         public SteamVR_PlayArea playArea = null;
@@ -55,12 +53,21 @@ namespace Ex{
         public SteamVR_Behaviour behaviour = null;
         public SteamVR_Render render = null;
 
+        // post process
+        public PostProcessVolume postProcessingVolume = null;
+
         // debug
         public GameObject debugVrHmd = null;
+
+        public CamerasManager cameras() {
+            return camerasManager;
+        }
 
         public void initialize() {
 
             camerasManager = GetComponent<CamerasManager>();
+
+            postProcessingVolume = transform.Find("PostProcessVolume").GetComponent<PostProcessVolume>();
 
             switch (ExVR.GuiSettings().displayMode) {
                 case DisplayMode.OpenVR:

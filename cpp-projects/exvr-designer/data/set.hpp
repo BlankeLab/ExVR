@@ -34,18 +34,23 @@ namespace tool::ex {
 
 struct Set{
 
-    Set(QString name, SetKey id) : key(IdKey::Type::Set, id.v), name(name){
+    Set() = delete;
+    Set(QString name, size_t occurencies = 1, SetKey id = {-1}) : name(name), occurencies(occurencies), m_key(IdKey::Type::Set, id.v) {}
+    Set(const Set&) = delete;
+    Set& operator=(const Set&) = delete;
+
+    static std::unique_ptr<Set> copy_with_new_element_id(Set *setToCopy){
+        return std::make_unique<Set>(setToCopy->name, setToCopy->occurencies, SetKey{-1});
     }
 
-    static Set copy_with_new_element_id(const Set &setToCopy){
-        Set set(setToCopy.name, SetKey{-1});
-        set.occurencies = setToCopy.occurencies;
-        return set;
-    }
-
-    IdKey key;
     QString name;
     size_t occurencies = 1;
+
+    constexpr int key() const noexcept{ return m_key();}
+    constexpr SetKey s_key() const noexcept {return SetKey{key()};}
+
+private :
+    IdKey m_key;
 };
 
 [[maybe_unused]] static bool operator==(const Set &l, const Set &r){

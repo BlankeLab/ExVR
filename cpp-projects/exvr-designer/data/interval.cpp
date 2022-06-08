@@ -27,6 +27,14 @@
 using namespace tool;
 using namespace tool::ex;
 
+bool Interval::inside(SecondsTS start, SecondsTS end, SecondsTS time){
+
+    if(almost_equal(time.v,start.v) || almost_equal(time.v,end.v)){
+        return true;
+    }
+    return time.v > start.v && time.v < end.v;
+}
+
 bool Interval::inside(SecondsTS time) const{
 
     if(almost_equal(time.v,start.v) || almost_equal(time.v,end.v)){
@@ -35,12 +43,17 @@ bool Interval::inside(SecondsTS time) const{
     return time.v > start.v && time.v < end.v;
 }
 
-bool Interval::collide(Interval interval){
+bool Interval::collide(const Interval &interval){
     return (inside(interval.start) || inside(interval.end) || interval.inside(start) || interval.inside(end));
 }
 
 Seconds Interval::length() const {
     return Seconds{end.v-start.v};
+}
+
+void Interval::merge_with(const Interval &i){
+    start = SecondsTS{std::min(start.v, i.start.v)};
+    end   = SecondsTS{std::max(end.v,   i.end.v)};
 }
 
 

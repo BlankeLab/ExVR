@@ -180,6 +180,7 @@ namespace Ex
         public bool doUpdate = true;
         public bool doDisplay = true;
         public int idFrame = -1;
+        public int diffTime = 0;
         public int prevIdFrame = -1;
         public int sameFrameCounter = 0;
         public int sizePts = 0;
@@ -321,6 +322,17 @@ namespace Ex
 
         public void update_mesh_with_cloud(GameObject cloudGO) {
 
+
+            //var v2 = new Vector3[100];
+            //var c2 = new Color[100];
+            //int id = 0;
+            //for(int ii = 0; ii < 10; ++ii) {
+            //    for (int jj = 0; jj < 10; ++jj) {
+            //        v2[id] = new Vector3(ii * 0.01f, jj * 0.01f, 0);
+            //        c2[id++] = new Color(1, 0, 0, 1);
+            //    }
+            //}
+
             MeshFilter mf = cloudGO.GetComponent<MeshFilter>();
             if (sizePts > 0 && doUpdate) {
 
@@ -330,10 +342,13 @@ namespace Ex
                 Profiler.BeginSample("[ExVR][KinectData] update_mesh_with_cloud 0");
                 mf.mesh.SetVertices(vertices, 0, sizePts);
                 mf.mesh.SetColors(colors, 0, sizePts);
+                //mf.mesh.SetVertices(v2, 0, 100);
+                //mf.mesh.SetColors(c2, 0, 100);
                 Profiler.EndSample();
 
                 Profiler.BeginSample("[ExVR][KinectData] update_mesh_with_cloud 1");
-                mf.mesh.SetIndices(commonIndices, 0, sizePts, MeshTopology.Points, 0, false);                
+                mf.mesh.SetIndices(commonIndices, 0, sizePts, MeshTopology.Points, 0, false);
+                //mf.mesh.SetIndices(commonIndices, 0, 100, MeshTopology.Points, 0, false);
                 Profiler.EndSample();
             }
         }

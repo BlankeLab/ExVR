@@ -24,14 +24,12 @@
 
 namespace Ex {
     public class DecimalValue{
-
         enum Type{
-            boolT,intT,floatT,doubleT
+            boolT,longT,doubleT
         }
 
-        private object boolValue = null;
-        private object intValue     = null;
-        private object floatValue   = null;
+        private object boolValue    = null;
+        private object longValue    = null;
         private object doubleValue  = null;
         
         public DecimalValue() {
@@ -39,131 +37,140 @@ namespace Ex {
         public DecimalValue(bool value) {
             boolValue = value;
         }
+        public DecimalValue(byte value) {
+            longValue = Converter.to_long(value);
+        }
+        public DecimalValue(char value) {
+            longValue = Converter.to_long(value);
+        }
+        public DecimalValue(short value) {
+            longValue = Converter.to_long(value);
+        }
         public DecimalValue(int value) {
-            intValue = value;
+            longValue = Converter.to_long(value);
         }
         public DecimalValue(float value) {
-            floatValue = value;
+            doubleValue = Converter.to_double(value);
         }
         public DecimalValue(double value) {
             doubleValue = value;
         }
 
         // has
-        public bool has_bool() {
+        public bool has_bool_value() {
             return boolValue != null;
         }
-        public bool has_int() {
-            return intValue != null;
+        public bool has_whole_value() {
+            return longValue != null;
         }
-        public bool has_float() {
-            return floatValue != null;
-        }
-        public bool has_double() {
+        public bool has_real_value() {
             return doubleValue != null;
         }
 
         public bool to_bool() {
-            if (has_bool()) {
+            if (has_bool_value()) {
                 return (bool)boolValue;
             }
-            if (has_int()) {
-                return Converter.to_bool((int)intValue);
+            if (has_whole_value()) {
+                return Converter.to_bool((long)longValue);
             }
-            if (has_float()) {
-                return Converter.to_bool((float)floatValue);
-            }
-            if (has_double()) {
+            if (has_real_value()) {
                 return Converter.to_bool((double)doubleValue);
             }
             return false;
         }
 
         public int to_int() {
-            if (has_int()) {
-                return (int)intValue;
+            if (has_whole_value()) {
+                return Converter.to_int((long)longValue);
             }
-            if (has_float()) {
-                return Converter.to_int((float)floatValue);
-            }
-            if (has_double()) {
+            if (has_real_value()) {
                 return Converter.to_int((double)doubleValue);
             }
-            if (has_bool()) {
+            if (has_bool_value()) {
                 return Converter.to_int((bool)boolValue);
             }
             return 0;
         }
 
-        public float to_float() {
-            if (has_float()) {
-                return (float)floatValue;
+        public long to_long() {            
+            if (has_whole_value()) {
+                return (long)longValue;
             }
-            if (has_double()) {
+            if (has_real_value()) {
+                return Converter.to_long((double)doubleValue);
+            }
+            if (has_bool_value()) {
+                return Converter.to_long((bool)boolValue);
+            }
+            return 0;
+        }
+
+        public float to_float() {
+            if (has_real_value()) {
                 return Converter.to_float((double)doubleValue);
             }
-            if (has_int()) {
-                return Converter.to_float((int)intValue);
+            if (has_whole_value()) {
+                return Converter.to_float((long)longValue);
             }
-            if (has_bool()) {
+            if (has_bool_value()) {
                 return Converter.to_float((bool)boolValue);
             }
             return 0f;
         }
 
         public double to_double() {
-            if (has_double()) {
+            if (has_real_value()) {
                 return (double)doubleValue;
             }
-            if (has_float()) {
-                return Converter.to_double((float)floatValue);
+            if (has_whole_value()) {
+                return Converter.to_double((long)longValue);
             }
-            if (has_int()) {
-                return Converter.to_double((int)intValue);
-            }
-            if (has_bool()) {
+            if (has_bool_value()) {
                 return Converter.to_double((bool)boolValue);
             }
             return 0f;
         }
 
+        public string to_string(string format = Converter.g7) {
+            if (has_bool_value()) {
+                return Converter.to_string((bool)boolValue);
+            }
+            if (has_whole_value()) {
+                return Converter.to_string((long)longValue);
+            }
+            if (has_real_value()) {
+                return Converter.to_string((double)doubleValue, format);
+            }
+            return "";
+        }
+
         static Type get_type(DecimalValue v1, DecimalValue v2) {
-            if(v1.has_double() || v2.has_double()) {
+
+            if(v1.has_real_value() || v2.has_real_value()) {
                 return Type.doubleT;
             }
-            if (v1.has_float() || v2.has_float()) {
-                return Type.floatT;
-            }
-            if (v1.has_int() || v2.has_int()) {
-                return Type.intT;
+            if (v1.has_whole_value() || v2.has_whole_value()) {
+                return Type.longT;
             }
             return Type.boolT;
         }
 
         public void add(DecimalValue value) {
             switch (get_type(this, value)) {
-                case Type.doubleT:
+                case Type.doubleT:                    
+                    boolValue   = null;                    
+                    longValue   = null;
                     doubleValue = to_double() + value.to_double();
-                    boolValue = null;
-                    intValue = null;
-                    floatValue = null;
                     break;
-                case Type.floatT:
-                    floatValue = to_float() + value.to_float();
-                    boolValue = null;
-                    intValue = null;
-                    doubleValue = null;
-                    break;
-                case Type.intT:
-                    intValue = to_int() + value.to_int();
-                    boolValue = null;
-                    floatValue = null;
+                case Type.longT:                    
+                    boolValue   = null;
+                    longValue   = to_long() + value.to_long();
                     doubleValue = null;
                     break;
                 case Type.boolT:
-                    boolValue = null;
-                    intValue    = to_int() + value.to_int();
-                    floatValue  = null;
+                    boolValue   = null;
+                    longValue   = to_long() + value.to_long();
                     doubleValue = null;
                     break;
             }
@@ -172,24 +179,18 @@ namespace Ex {
         public void sub(DecimalValue value) {
             switch (get_type(this, value)) {
                 case Type.doubleT:
-                    doubleValue = to_double() - value.to_double();
-                    intValue    = null;
-                    floatValue  = null;
+                    boolValue   = null;
+                    longValue   = null;
+                    doubleValue = to_double() - value.to_double();                    
                     break;
-                case Type.floatT:
-                    floatValue  = to_float() - value.to_float();
-                    intValue    = null;
-                    doubleValue = null;
-                    break;
-                case Type.intT:
-                    intValue    = to_int() - value.to_int();
-                    floatValue  = null;
+                case Type.longT:
+                    boolValue   = null;                        
+                    longValue   = to_long() - value.to_long();
                     doubleValue = null;
                     break;
                 case Type.boolT:
-                    boolValue   = null;
-                    intValue    = to_int() - value.to_int();
-                    floatValue  = null;
+                    boolValue   = null;                    
+                    longValue   = to_long() - value.to_long(); ;
                     doubleValue = null;
                     break;
             }
@@ -198,24 +199,18 @@ namespace Ex {
         public void multiply(DecimalValue value) {
             switch (get_type(this, value)) {
                 case Type.doubleT:
+                    boolValue   = null;
+                    longValue   = null;
                     doubleValue = to_double() * value.to_double();
-                    intValue    = null;
-                    floatValue  = null;
                     break;
-                case Type.floatT:
-                    floatValue  = to_float() * value.to_float();
-                    intValue    = null;
-                    doubleValue = null;
-                    break;
-                case Type.intT:
-                    intValue    = to_int() * value.to_int();
-                    floatValue  = null;
-                    doubleValue = null;
+                case Type.longT:
+                    boolValue   = null;
+                    longValue   = to_long() * value.to_long();
+                    doubleValue = null;                    
                     break;
                 case Type.boolT:
                     boolValue   = null;
-                    intValue    = to_int() * value.to_int();
-                    floatValue  = null;
+                    longValue   = to_long() * value.to_long();
                     doubleValue = null;
                     break;
             }
@@ -230,13 +225,9 @@ namespace Ex {
 
             if(output.GetType() == typeof(double)) { // double
                 outV.doubleValue    = output;
-                outV.boolValue      = null;
-                outV.intValue       = null;
-                outV.floatValue     = null;                
+                outV.boolValue      = null;           
             } else { // bool
                 outV.boolValue      = output;
-                outV.intValue       = null;
-                outV.floatValue     = null;
                 outV.doubleValue    = null;
             }
         }
@@ -246,8 +237,6 @@ namespace Ex {
             var output = ConnectorsFunctions.get(t).Invoke(d.to_double());
             outV.doubleValue    = output;
             outV.boolValue      = null;
-            outV.intValue       = null;
-            outV.floatValue     = null;
         }
     }
 }

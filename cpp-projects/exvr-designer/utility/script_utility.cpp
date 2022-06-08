@@ -26,6 +26,7 @@
 
 // qt-utility
 #include "qt_highlighting.hpp"
+#include "qt_str.hpp"
 
 // local
 #include "data/component.hpp"

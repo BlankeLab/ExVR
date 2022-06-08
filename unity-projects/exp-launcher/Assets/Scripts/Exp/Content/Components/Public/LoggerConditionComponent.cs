@@ -24,14 +24,13 @@
 
 // system
 using System.Collections.Generic;
-//using System.IO;
+
 
 namespace Ex {
 
     public class LoggerConditionComponent : BaseLoggerComponent {
 
-        // parameters
-        private Dictionary<string, List<string>> m_filesLines = null;
+        // parameters       
         private HashSet<string> m_filesNames = null;
 
         private string get_file_path(string routineName, string conditionName) {
@@ -83,18 +82,16 @@ namespace Ex {
         protected override void start_experiment() {
 
             m_filesNames = new HashSet<string>();
-            m_filesLines = new Dictionary<string, List<string>>();
 
             foreach (var elementInfo in ExVR.Instance().get_elements_info_order(false)) {
-                if (elementInfo.type() == FlowElement.FlowElementType.Routine) {
+                if (elementInfo.type() == FlowElement.Type.Routine) {
                     var routineInfo = (RoutineInfo)elementInfo;
                     foreach (var action in routineInfo.condition().actions) {
                         if (action.component().key == key) {
                             string filePath = get_file_path(routineInfo.name(), routineInfo.condition().name);
                             if (!m_filesNames.Contains(filePath)) {
                                 m_filesNames.Add(filePath);
-                                m_filesLines[filePath] = new List<string>();
-                            }                            
+                            }
                             break;
                         }
                     }
@@ -103,31 +100,24 @@ namespace Ex {
 
             foreach (var fileName in m_filesNames) {
 
-                if (!create_file(fileName)) {
+                if (!create_file(fileName, initC.get<bool>("add_header_line") ? initC.get<string>("header_line") : string.Empty)) {
                     return;
                 }
-
-                m_lines = m_filesLines[fileName];
-
-                if (initC.get<bool>("add_header_line")) {
-                    write(initC.get<string>("header_line"), true);
-                }
             }
+
+            writingJob = new WritingFileThread();
+            writingJob.doLoop = true;
+            writingJob.start();
         }
 
         protected override void pre_start_routine() {
+
             m_fileFullPath = get_file_path(currentRoutine.name, currentCondition.name);
-            m_lines = m_filesLines[m_fileFullPath];
-        }
-
-
-        protected override void stop_experiment() {
-
-            foreach (var fileName in m_filesNames) {
-
-                m_fileFullPath = fileName;
-                m_lines = m_filesLines[m_fileFullPath];
-                write_to_file();
+            if (!writingJob.open_file(m_fileFullPath)) {
+                log_error(string.Format("Cannot open stream writer with path [{0}].", m_fileFullPath));
+                m_canWrite = false;
+            } else {
+                m_canWrite = true;
             }
         }
     }

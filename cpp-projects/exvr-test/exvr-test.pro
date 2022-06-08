@@ -86,6 +86,7 @@ LIBS +=  \
     $$EXVR_DESIGNER_OBJ"/xml_io_manager.obj" \
 #    $$EXVR_DESIGNER_OBJ"/moc_xml_io_manager.obj" \
     $$EXVR_DESIGNER_OBJ"/experiment.obj" \
+    $$EXVR_DESIGNER_OBJ"/randomizer.obj" \
     $$EXVR_DESIGNER_OBJ"/component.obj" \
     $$EXVR_DESIGNER_OBJ"/timeline.obj" \
     $$EXVR_DESIGNER_OBJ"/config.obj" \

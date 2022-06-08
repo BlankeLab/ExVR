@@ -1,25 +1,27 @@
-﻿// Unity SDK for Qualisys Track Manager. Copyright 2015 Qualisys AB
+﻿// Unity SDK for Qualisys Track Manager. Copyright 2015-2018 Qualisys AB
 //
 #if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
-using QTMRealTimeSDK.Data;
+using QTMRealTimeSDK;
 
 namespace QualisysRealTime.Unity
 {
     public class RTGUI : EditorWindow
     {
-        short portUDP = 4545;
+        short portUDP = -1;
         DiscoveryResponse? selectedDiscoveryResponse = null;
 
-        string connectionStatus = "Not Connected";
 
-        bool connected = false;
         bool stream6d = true;
         bool stream3d = true;
+        bool stream3dNoLabels = false;
+        bool streamGaze = true;
+        bool streamAnalog = false;
+        bool streamSkeleton = true;
 
-        private List<SixDOFBody> availableBodies;
+        //private List<SixDOFBody> availableBodies;
         private List<DiscoveryResponse> discoveryResponses;
 
         [MenuItem("Window/Qualisys/RTClient")]
@@ -37,11 +39,6 @@ namespace QualisysRealTime.Unity
         void OnInspectorUpdate()
         {
             Repaint();
-            if (!Application.isPlaying)
-            {
-                OnDisconnect();
-                connected = false;
-            }
         }
 
         private int serverNumber = 0;
@@ -61,10 +58,19 @@ namespace QualisysRealTime.Unity
                     {
                         serverSelection.Add(new GUIContent(discoveryResponse.HostName + " (" + discoveryResponse.IpAddress + ":" + discoveryResponse.Port + ") " + discoveryResponse.InfoText));
                     }
-                    serverNumber = EditorGUILayout.Popup(serverNumber, serverSelection.ToArray());
+                    
+                    var selectedServer = EditorPrefs.GetString("rt_server_ip");
+                    int index = discoveryResponses.FindIndex(x => x.IpAddress == selectedServer);
+
+                    serverNumber = EditorGUILayout.Popup(index, serverSelection.ToArray());
+                    
+                   
                     if (serverNumber >= 0 && serverNumber < discoveryResponses.Count)
                     {
                         selectedDiscoveryResponse = discoveryResponses[serverNumber];
+                        EditorPrefs.SetString("rt_server_ip", discoveryResponses[serverNumber].IpAddress);
+
+
                     }
                 }
                 else
@@ -77,32 +83,60 @@ namespace QualisysRealTime.Unity
             {
                 GUILayout.Label("(Unity needs to be in play mode to set server)");
             }
-            if (connected)
+            if (RTClient.GetInstance().ConnectionState != RTConnectionState.Disconnected)
             {
                 GUI.enabled = false;
             }
             GUILayout.Label("Stream Settings", EditorStyles.boldLabel);
-            portUDP = (short)EditorGUILayout.IntField("UDP Port:", portUDP);
-            stream3d = EditorGUILayout.Toggle("3D Labeled Markers", stream3d);
+            
+            stream3d = EditorGUILayout.Toggle("Labeled 3D Markers", stream3d);
+            stream3dNoLabels = EditorGUILayout.Toggle("Unlabeled 3D Markers", stream3dNoLabels);
             stream6d = EditorGUILayout.Toggle("6DOF Objects", stream6d);
+            streamGaze = EditorGUILayout.Toggle("Gaze Vectors", streamGaze);
+            streamAnalog = EditorGUILayout.Toggle("Analog", streamAnalog);
+            streamSkeleton = EditorGUILayout.Toggle("Skeletons", streamSkeleton);
             GUI.enabled = true;
 
             if (Application.isPlaying)
             {
-                GUILayout.Label("Status: " + connectionStatus);
+                GUILayout.Label("Status: " + RTClient.GetInstance().ConnectionState.ToString());
 
-                if (connected)
+                if (RTClient.GetInstance().ConnectionState != RTConnectionState.Disconnected)
                 {
                     if (GUILayout.Button("Disconnect"))
                     {
-                        OnDisconnect();
+                        Disconnect();
+                        Repaint();
                     }
-                    GUILayout.Label("Available Bodies:");
-                    if (availableBodies != null)
+                    var version = RTClient.GetInstance().RtProtocolVersion;
+                    GUILayout.Label("RT protocol: " + version);
+                    
+
+                    var bodies = RTClient.GetInstance().Bodies;
+                    if (bodies != null)
                     {
-                        foreach (SixDOFBody body in availableBodies)
+                        GUILayout.Label("Available Bodies:");
+                        foreach (var body in bodies)
                         {
                             GUILayout.Label(body.Name);
+                        }
+                    }
+                    var skeletons = RTClient.GetInstance().Skeletons;
+                    if (skeletons != null)
+                    {
+                        GUILayout.Label("Available Skeletons:");
+                        foreach (var skeleton in skeletons)
+                        {
+                            GUILayout.Label(skeleton.Name);
+                        }
+                    }
+                    var analogChannels = RTClient.GetInstance().AnalogChannels;
+                    if (analogChannels != null)
+                    {
+                        GUILayout.Label("Available Channels:");
+                        foreach (var channel in analogChannels)
+                        {
+                            GUILayout.Label(channel.Name);
                         }
                     }
                 }
@@ -110,7 +144,8 @@ namespace QualisysRealTime.Unity
                 {
                     if (GUILayout.Button("Connect"))
                     {
-                        OnConnect();
+                        Connect();
+                        Repaint();
                     }
                 }
             }
@@ -120,36 +155,18 @@ namespace QualisysRealTime.Unity
             }
         }
 
-        void OnDestroy()
+        void Disconnect()
         {
             RTClient.GetInstance().Disconnect();
-            connected = false;
         }
 
-        void OnDisconnect()
-        {
-            RTClient.GetInstance().Disconnect();
-            connected = false;
-
-            connectionStatus = "Disconnected";
-        }
-
-        void OnConnect()
+        void Connect()
         {
             if (selectedDiscoveryResponse.HasValue)
             {
-                connected = RTClient.GetInstance().Connect(selectedDiscoveryResponse.Value, portUDP, stream6d, stream3d);
+                RTClient.GetInstance().StartConnecting(selectedDiscoveryResponse.Value.IpAddress, portUDP, stream6d, stream3d, stream3dNoLabels, streamGaze, streamAnalog, streamSkeleton);
             }
 
-            if (connected)
-            {
-                connectionStatus = "Connected";
-                availableBodies = RTClient.GetInstance().Bodies;
-            }
-            else
-            {
-                connectionStatus = "Connection error - " + RTClient.GetInstance().GetErrorString() + " (also check console)";
-            }
         }
     }
 }

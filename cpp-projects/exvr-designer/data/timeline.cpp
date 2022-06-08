@@ -24,27 +24,26 @@
 
 #include "timeline.hpp"
 
-#include <QDebug>
-
 using namespace tool;
 using namespace tool::ex;
 
-bool Timeline::add_interval(const Interval &interval){
+bool Timeline::add_interval(Interval interval){
 
     const double totalBefore = sum_intervals();
-    intervals.emplace_back(interval);
-    merge();
-    const double totalAfter = sum_intervals();
+    intervals.push_back(std::move(interval));
 
+    merge();
+
+    const double totalAfter = sum_intervals();
     return !almost_equal(totalBefore,totalAfter);
 }
 
-bool Timeline::remove_interval(const Interval &intervalToRemove){
+bool Timeline::remove_interval(Interval intervalToRemove){
 
     const double totalBefore = sum_intervals();
 
-    std_v1<size_t> idToRemove;
-    std_v1<Interval> intervalsToAdd;
+    std::vector<size_t> idToRemove;
+    std::vector<Interval> intervalsToAdd;
 
     for(size_t ii = 0; ii < intervals.size(); ++ii){
         Interval &interval = intervals[ii];
@@ -53,14 +52,15 @@ bool Timeline::remove_interval(const Interval &intervalToRemove){
         bool endInside   = interval.inside(intervalToRemove.end);
 
         if(startInside && endInside){
-            intervalsToAdd.emplace_back(Interval{intervalToRemove.end, interval.end, IntervalKey{-1}});
+            intervalsToAdd.emplace_back(intervalToRemove.end, interval.end);
             interval.end = intervalToRemove.start;
         }else if(startInside){
             interval.end = intervalToRemove.start;
         }else if(endInside){
             interval.start = intervalToRemove.end;
-        }else if(intervalToRemove.inside(interval.start) && intervalToRemove.inside(interval.end)){
-            idToRemove.emplace_back(ii);
+        }else if(Interval::inside(intervalToRemove.start, intervalToRemove.end, interval.start)
+              && Interval::inside(intervalToRemove.start, intervalToRemove.end, interval.end)){
+            idToRemove.push_back(ii);
         }
     }
 
@@ -69,13 +69,13 @@ bool Timeline::remove_interval(const Interval &intervalToRemove){
     }
 
     for(auto &i : intervalsToAdd){
-        intervals.emplace_back(std::move(i));
+        intervals.push_back(std::move(i));
     }
 
     std::sort(intervals.begin(), intervals.end(), compare_intervals);
 
     intervals.erase(std::remove_if(intervals.begin(), intervals.end(),[](Interval& i) {
-        return (almost_equal<double>(i.length().v,0.)); // put your condition here
+        return (almost_equal<double>(i.length().v,0.));
     }), intervals.end());
 
     const double totalAfter = sum_intervals();
@@ -85,7 +85,7 @@ bool Timeline::remove_interval(const Interval &intervalToRemove){
 
 void Timeline::cut(SecondsTS max){
 
-    std_v1<size_t> idToRemove;
+    std::vector<size_t> idToRemove;
     for(size_t ii = 0; ii < intervals.size(); ++ii){
         Interval &interval = intervals[ii];
         if(interval.inside(max)){
@@ -100,6 +100,10 @@ void Timeline::cut(SecondsTS max){
     }
 }
 
+size_t Timeline::nb_intervals() const{
+    return intervals.size();
+}
+
 double Timeline::sum_intervals() const{
 
     double total = 0.;
@@ -111,8 +115,16 @@ double Timeline::sum_intervals() const{
 
 
 void Timeline::fill(SecondsTS length){
-    clean();
-    intervals.emplace_back(Interval{SecondsTS{0.},length, IntervalKey{-1}});
+
+    if(intervals.size() == 0){
+        intervals.emplace_back(SecondsTS{0.},length);
+    }else{
+        intervals[0].start = {0.};
+        intervals[0].end   = length;
+        if(intervals.size() > 1){
+            intervals.erase(intervals.begin()+1, intervals.end());
+        }
+    }
 }
 
 void Timeline::clean(){
@@ -123,7 +135,7 @@ void Timeline::merge(){
 
     while(true){
 
-        std_v1<std::pair<size_t,size_t>> collides;
+        std::vector<std::pair<size_t,size_t>> collides;
 
         for(size_t ii = 0; ii < intervals.size(); ++ii){
             for(size_t jj = 0; jj < intervals.size(); ++jj){
@@ -131,7 +143,7 @@ void Timeline::merge(){
                     continue;
                 }
                 if(intervals[ii].collide(intervals[jj])){ // merge if collide
-                    collides.emplace_back(std::make_pair(ii,jj));
+                    collides.push_back(std::make_pair(ii,jj));
                     break;
                 }
             }
@@ -144,15 +156,8 @@ void Timeline::merge(){
             break;
         }
 
-        Interval merged = merge_intervals(intervals[collides[0].first], intervals[collides[0].second]);
-        if(collides[0].first < collides[0].second){
-            intervals.erase(intervals.begin()+static_cast<int>(collides[0].second));
-            intervals.erase(intervals.begin()+static_cast<int>(collides[0].first));
-        }else{
-            intervals.erase(intervals.begin()+static_cast<int>(collides[0].first));
-            intervals.erase(intervals.begin()+static_cast<int>(collides[0].second));
-        }
-        intervals.emplace_back(merged);
+        intervals[collides[0].first].merge_with(intervals[collides[0].second]);
+        intervals.erase(intervals.begin()+static_cast<int>(collides[0].second));
     }
 
     std::sort(intervals.begin(), intervals.end(), compare_intervals);

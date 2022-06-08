@@ -26,7 +26,7 @@
 
 namespace Ex {
 
-    public class VideoSaverComponent : CppComponent {
+    public class VideoSaverComponent : CppExComponent {
 
         protected override bool initialize() {
 

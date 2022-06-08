@@ -34,18 +34,18 @@
 using namespace tool;
 using namespace tool::ex;
 
-void ResourcesManager::init(){
-    if(m_resourcesManager == nullptr){
-        m_resourcesManager = std::make_unique<ResourcesManager>();
-    }
-}
+//void ResourcesManager::init(){
+//    if(m_resourcesManager == nullptr){
+//        m_resourcesManager = std::make_unique<ResourcesManager>();
+//    }
+//}
 
-ResourcesManager *ResourcesManager::get(){
-    if(m_resourcesManager != nullptr){
-        return m_resourcesManager.get();
-    }
-    return nullptr;
-}
+//ResourcesManager *ResourcesManager::get(){
+//    if(m_resourcesManager != nullptr){
+//        return m_resourcesManager.get();
+//    }
+//    return nullptr;
+//}
 
 std_v1<Resource *> ResourcesManager::get_resources(Resource::Type type) const{
 
@@ -63,20 +63,27 @@ size_t ResourcesManager::get_type_selected_id(Resource::Type type) const{
     return m_idSelectedPerType.at(type);
 }
 
-Resource *ResourcesManager::get_resource(Resource::Type type, int key, bool errorIfNotFound) const{
-
-    if(m_resourcesPerType.count(type) == 0 || key == -1){
+Resource *ResourcesManager::get_resource(ResourceKey key) const{
+    if(m_resources.count(key.v) == 0){
         return {};
     }
+    return m_resources.at(key.v).get();
+}
+
+Resource *ResourcesManager::get_resource(Resource::Type type, ResourceKey key, bool errorIfNotFound) const{
+
+    if(m_resourcesPerType.count(type) == 0 || key.v == -1){
+        return {};
+    }    
 
     for(const auto &resource : m_resourcesPerType.at(type)){
-        if(resource->key() == key){
+        if(resource->key() == key.v){
             return resource;
         }
     }
 
     if(errorIfNotFound){
-        QtLogger::error(QSL("Resource of type : ") % from_view(Resource::get_name(type)) % QSL(" with key ") % QString::number(key) % QSL(" not found."));
+        QtLogger::error(QSL("Resource of type : ") % from_view(Resource::get_name(type)) % QSL(" with key ") % QString::number(key.v) % QSL(" not found."));
     }
 
     return nullptr;
@@ -101,6 +108,21 @@ Resource *ResourcesManager::get_resource(Resource::Type type, const QString &ali
     return nullptr;
 }
 
+
+void ResourcesManager::insert_resource(std::unique_ptr<Resource> resource){
+
+    const auto type  = resource->type;
+    const auto key   = resource->key();
+    auto ptr         = resource.get();
+
+    m_resourcesPerType[type].push_back(ptr);
+    m_idSelectedPerType[type]                   = m_resourcesPerType[type].size()-1;
+    m_paths[resource->path.toStdString()]       = ptr;
+    m_aliases[resource->alias.toStdString()]    = ptr;
+
+    m_resources[key] = std::move(resource);
+}
+
 void ResourcesManager::add_resource(std::unique_ptr<Resource> resourceToAdd){
 
     const auto path = resourceToAdd->path.toStdString();
@@ -109,16 +131,11 @@ void ResourcesManager::add_resource(std::unique_ptr<Resource> resourceToAdd){
         return;
     }
 
-    const auto type  = resourceToAdd->type;
-    const auto key   = resourceToAdd->key();
-    auto ptr         = resourceToAdd.get();
-
-    m_resourcesPerType[type].emplace_back(ptr);
+    auto type = resourceToAdd->type;
+    insert_resource(std::move(resourceToAdd));
     m_idSelectedPerType[type] = m_resourcesPerType[type].size()-1;
-    m_paths[path] = ptr;
-    m_aliases[resourceToAdd->alias.toStdString()] = ptr;
-    m_resources[key] = std::move(resourceToAdd);
 }
+
 
 void ResourcesManager::add_resource(Resource::Type type, const QString &path){
 
@@ -127,38 +144,26 @@ void ResourcesManager::add_resource(Resource::Type type, const QString &path){
         return;
     }
 
-
-    std::unique_ptr<Resource> resourceToAdd = std::make_unique<Resource>(type,-1, path);
-    auto ptrR = resourceToAdd.get();
-    m_resourcesPerType[type].emplace_back(ptrR);
-    m_paths[path.toStdString()]      = ptrR;
-    m_aliases[ptrR->alias.toStdString()]    = ptrR;
-    m_resources[ptrR->key()]             = std::move(resourceToAdd);
-
-    // current selection for the type
-    m_idSelectedPerType[type]                      = m_resourcesPerType[type].size()-1;
+    insert_resource(std::make_unique<Resource>(type,ResourceKey{-1}, path));
+    m_idSelectedPerType[type] = m_resourcesPerType[type].size()-1;
 }
 
 void ResourcesManager::add_resources(Resource::Type type, const QStringList &filesPaths){
 
     for(const auto &filePath : filesPaths){
-
         if(m_paths.count(filePath.toStdString()) != 0){
             QtLogger::error(QSL("Resource with path: ") % filePath % QSL(" already added."));
             continue;
-        }
-
-        std::unique_ptr<Resource> resourceToAdd = std::make_unique<Resource>(type,-1, filePath);
-
-        auto ptrR = resourceToAdd.get();
-        m_resourcesPerType[type].emplace_back(ptrR);
-        m_paths[ptrR->path.toStdString()]    = ptrR;
-        m_aliases[ptrR->alias.toStdString()]        = ptrR;
-        m_resources[ptrR->key()]                 = std::move(resourceToAdd);
+        }        
+        insert_resource(std::make_unique<Resource>(type,ResourceKey{-1}, filePath));
     }
 
     // current selection for the type
     m_idSelectedPerType[type] = m_resourcesPerType[type].size()-1;
+}
+
+void ResourcesManager::copy_resource(Resource *resource){
+    add_resource(Resource::copy_with_new_element_id(resource));
 }
 
 void ResourcesManager::update_resource_path(QString currentPath, QString newPath){

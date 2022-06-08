@@ -246,9 +246,6 @@ namespace Ex{
             }
         }
 
-        #endregion
-
-        #region private_functions
         private string components_info(Transform tr) {
 
             StringBuilder sb = new StringBuilder();

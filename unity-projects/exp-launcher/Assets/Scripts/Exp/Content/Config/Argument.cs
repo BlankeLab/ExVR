@@ -32,71 +32,140 @@ namespace Ex{
 
     public class Argument{
 
+        public object value = null;
+        public Type type = null;
+        public XML.Arg xml = null;
+
         // add static converters        
+
+        private object convert(TypeConverter converter, string strValue) {            
+            try {
+                return converter.ConvertFrom(strValue);
+            } catch (NotSupportedException ex) {
+                ExVR.Log().error(string.Format("Cannot perform convertion of argument with name [{0}] of type [{1}] with value [{2}], error with message: [{3}]",
+                    xml.Type, xml.Name, strValue, ex.Message));
+                return null;
+            }
+        }
+
+        private bool convert_to_value(TypeConverter converter) {
+            value = convert(converter, xml.Value);
+            return value != null;
+        }
+
+        private bool convert_to_1d_array(TypeConverter converter) {
+
+            if (xml.Value.Length != 0) {
+
+                string[] splitArg = Ex.Text.split(xml.Value, xml.Separator, false);
+
+                List<object> argList1D = new List<object>(splitArg.Length);
+                foreach (string split in splitArg) {
+
+                    var arrayValue = convert(converter, split);
+                    if(arrayValue != null) {
+                        argList1D.Add(arrayValue);
+                    } else {
+                        ExVR.Log().error(string.Format("Invalid 1D array value for from arg with name [{0}] and type [{1}]",
+                            xml.Name, xml.Type));
+                        return false;
+                    }
+                }
+
+                string[] sizes = Ex.Text.split(xml.Sizes, ' ');
+                if (argList1D.Count == Converter.to_int(sizes[0])) {
+                    value = argList1D;
+                } else {
+                    value = new List<object>();
+                    ExVR.Log().error(string.Format("List size inconsistency for arg with name [{0}] -> [{1} {2}]",
+                        xml.Name, argList1D.Count, sizes[0]));
+                    return false;                    
+                }
+
+            } else {
+                value = new List<object>();
+            }
+            return true;
+        }
+
+        private bool convert_to_2d_array(TypeConverter converter) {
+
+            string[] sizes = Ex.Text.split(xml.Sizes, ' ');
+            if (sizes.Length < 2) {
+                ExVR.Log().error(string.Format("List 2D sizes invalid for argument with name [{0}] and value [{1}]",
+                    xml.Name, xml.Value));
+                return false;
+            }
+
+            if (xml.Value.Length != 0) {
+
+                int rows = Converter.to_int(sizes[0]);
+                int cols = Converter.to_int(sizes[1]);
+
+                string[] splitArg = Ex.Text.split(xml.Value, xml.Separator, false);
+                List<List<object>> argList2D = new List<List<object>>(rows);
+                if (splitArg.Length != rows * cols) {
+                    ExVR.Log().error(string.Format("List 2D sizes invalid for argument with name {0} and value {1}", xml.Name, xml.Value));
+                    return false;
+                }
+
+                int id = 0;
+                for (int ii = 0; ii < rows; ++ii) {
+                    argList2D.Add(new List<object>(cols));
+                    for (int jj = 0; jj < cols; ++jj) {     
+
+                        var arrayValue = converter.ConvertFrom(splitArg[id++]);
+                        if (arrayValue != null) {
+                            argList2D[ii].Add(arrayValue);
+                        } else {
+                            ExVR.Log().error(string.Format("Invalid 2D array value for from arg with name [{0}] and type [{1}]",
+                                xml.Name, xml.Type));
+                            return false;
+                        }
+                    }
+                }
+
+                value = argList2D;
+
+            } else {
+                value = new List<List<object>>();
+            }
+
+            return true;
+        }
+
         public bool update_from_xml(XML.Arg xmlArg) {
 
             // get type
             xml  = xmlArg;
             type = Type.GetType(xmlArg.Type);
             if(type == null) {
-                ExVR.Log().error(string.Format("Can't read type [{0}] from argument.", xmlArg.Type));
+                ExVR.Log().error(string.Format("Can't read type [{0}] from argument with name [{1}].", xmlArg.Type, xmlArg.Name));
                 return false;
             }
 
+            // get converter
             TypeConverter converter = TypeDescriptor.GetConverter(type);
             if (!converter.CanConvertFrom(typeof(string))) {
                 return false;
             }
 
-            switch (xmlArg.Dim) {
-                case 0: {// one value
-                        value = converter.ConvertFrom(xmlArg.Value);
-                        return true;
-                    }
-                case 1: { // 1D array
-                        if (xmlArg.Value.Length == 0) { 
-                            value = new List<object>();
-                            return true;
-                        }
-                        value = Converter.to_list(xmlArg.Value, xmlArg.Separator, converter);
-                        var l = (List<object>)value;
-                        if(l.Count != Converter.to_int(xmlArg.Sizes.Split(' ')[0])) {
-                            value = new List<object>();
-                            ExVR.Log().error(string.Format("List size invalid for arg: {0} -> {1} {2}", xmlArg.Name, l.Count, xmlArg.Sizes[0]));
-                        }
-                        return true;
-                    }
-                case 2: { // 2D array
-                        if (xmlArg.Value.Length == 0) {
-                            return false;
-                        }
+            if(xmlArg.Dim == 0) { // one value
 
-                        string[] sizes = xmlArg.Sizes.Split(' ');
-                        if(sizes.Length < 2) {
-                            ExVR.Log().error(string.Format("List 2D sizes invalid for argument with name {0} and value {1}", xml.Name, xml.Value));
-                            return false;
-                        }
+                return convert_to_value(converter);
 
-                        int rows = Converter.to_int(sizes[0]);
-                        int cols = Converter.to_int(sizes[1]);
-                        value = Converter.to_2D_list(xmlArg.Value, xmlArg.Separator, rows, cols, converter);
-                        if(value == null) {
-                            value = new List<List<object>>();
-                            ExVR.Log().error(string.Format("List 2D sizes invalid for argument with name {0} and value {1}", xml.Name, xml.Value));
-                            return false;
-                        }
-                                               
-                        return true;
-                    }
-                default:
-                    break;
+            } else if(xmlArg.Dim == 1) { // 1D array
+
+                return convert_to_1d_array(converter);
+
+            } else if(xmlArg.Dim == 2) { // 2D array
+
+                return convert_to_2d_array(converter);
+
+            } else {
+                ExVR.Log().error(string.Format("Cannot convert arg with name [{0}] and value [{1}], nb of dimensions [{2}] not managed. ", xmlArg.Name, xmlArg.Value, xmlArg.Dim));
+                return false;
             }
-
-            return false;
         }
-
-        public object value = null;
-        public Type type    = null;
-        public XML.Arg xml  = null;
     }
 }

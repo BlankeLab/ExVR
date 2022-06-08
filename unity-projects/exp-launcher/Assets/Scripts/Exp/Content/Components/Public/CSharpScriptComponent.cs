@@ -42,9 +42,6 @@ namespace Ex{
         // once per loading
         protected override bool initialize() {
 
-            // force catch exception for csharp scripts components
-            catchExceptions = true;
-
             // args
             string className = initC.get<string>("component_class_name");
 
@@ -99,13 +96,10 @@ namespace Ex{
             functionsDefined[Function.slot4] = (runtimeType.GetMethod("slot4", flagPublic).DeclaringType == runtimeType);
             functionsDefined[Function.slot5] = (runtimeType.GetMethod("slot5", flagPublic).DeclaringType == runtimeType);
 
-            //if (functionsDefined[Function.initialize]) {
-            // catchExceptions
             if (!compiledComponent.initialize()) {
-                log_error("Error during CSharp script initialization, component will be disactivated.");
+                log_error("Error during CSharp script initialization, component will be disactivated.", true, false);
                 return false;
             }
-            //}
 
             // slots
             add_slot("slot1", (value) => {
@@ -113,16 +107,11 @@ namespace Ex{
                 if (functionsDefined[Function.slot1]) {
 
                     currentFunction = Function.slot1;
-
-                    if (catchExceptions) {
-                        try {
-                            compiledComponent.slot1(value);
-                        } catch (Exception e) {
-                            display_exception(e);
-                        }
-                    } else {
+                    try {
                         compiledComponent.slot1(value);
-                    }
+                    } catch (Exception e) {
+                        display_exception(e);
+                    }    
                 }
             });
             add_slot("slot2", (value) => {
@@ -130,15 +119,10 @@ namespace Ex{
                 if (functionsDefined[Function.slot2]) {
 
                     currentFunction = Function.slot2;
-
-                    if (catchExceptions) {
-                        try {
-                            compiledComponent.slot2(value);
-                        } catch (Exception e) {
-                            display_exception(e);
-                        }
-                    } else {
+                    try {
                         compiledComponent.slot2(value);
+                    } catch (Exception e) {
+                        display_exception(e);
                     }
                 }
             });
@@ -147,16 +131,11 @@ namespace Ex{
                 if (functionsDefined[Function.slot3]) {
 
                     currentFunction = Function.slot3;
-
-                    if (catchExceptions) {
-                        try {
-                            compiledComponent.slot3(value);
-                        } catch (Exception e) {
-                            display_exception(e);
-                        }
-                    } else {
+                    try {
                         compiledComponent.slot3(value);
-                    }
+                    } catch (Exception e) {
+                        display_exception(e);
+                    }    
                 }
             });
             add_slot("slot4", (value) => {
@@ -164,15 +143,10 @@ namespace Ex{
                 if (functionsDefined[Function.slot4]) {
 
                     currentFunction = Function.slot4;
-
-                    if (catchExceptions) {
-                        try {
-                            compiledComponent.slot4(value);
-                        } catch (Exception e) {
-                            display_exception(e);
-                        }
-                    } else {
+                    try {
                         compiledComponent.slot4(value);
+                    } catch (Exception e) {
+                        display_exception(e);
                     }
                 }
             });
@@ -181,16 +155,11 @@ namespace Ex{
                 if (functionsDefined[Function.slot5]) {
 
                     currentFunction = Function.slot5;
-
-                    if (catchExceptions) {
-                        try {
-                            compiledComponent.slot5((IdAny)value);
-                        } catch (Exception e) {
-                            display_exception(e);
-                        }
-                    } else {
+                    try {
                         compiledComponent.slot5((IdAny)value);
-                    }
+                    } catch (Exception e) {
+                        display_exception(e);
+                    }       
                 }
             });
 
@@ -202,9 +171,8 @@ namespace Ex{
 
             return true;
         }
-        protected override void clean() {
-            compiledComponent.clean();
-        }
+
+        protected override void clean() {compiledComponent.clean();}
 
         // once per experiment
         protected override void start_experiment() {compiledComponent.start_experiment();}

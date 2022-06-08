@@ -124,8 +124,9 @@ namespace Ex {
         public bool is_function_defined(Function function) {return functionsDefined[function];}
 
         // connections
-        protected void add_signal(string name){m_connections.add_signal(name);}
-        protected void add_slot(string name, System.Action<object> action) {m_connections.add_slot(name, action);}
+        protected Events.Signal add_signal(string name){return m_connections.add_signal(name);}
+        protected Events.Slot add_slot(string name, System.Action<object> action) {return m_connections.add_slot(name, action);}
+        public bool is_signal_connected(string name) {return m_connections.is_signal_connected(name);}
         public void invoke_signal(string name, object arg = null) {m_connections.invoke_signal(name, arg);}
 
         // configs
@@ -156,42 +157,12 @@ namespace Ex {
             return builder.ToString();
         }
 
-        protected void display_exception(Exception e) {
-
-            //var stack = new System.Diagnostics.StackTrace(e, true);
-            //System.Diagnostics.StackFrame frame = stack.GetFrame(0);
-
-            //string className = "Unknow";
-            //string functionName = "Unknow";
-
-            //int lineNb = 0;
-            //int columnNb = 0;
-            //string fileName = null;
-            //if (frame != null) {
-
-            //    var method = frame.GetMethod();
-            //    if (method != null) {
-            //        className = method.ReflectedType.Name;
-            //        functionName = method.ToString();
-            //    }
-
-            //    lineNb   = frame.GetFileLineNumber();
-            //    columnNb = frame.GetFileColumnNumber();
-            //    fileName = frame.GetFileName();
-            //}
-
-            //var builder = new StringBuilder();
-            //builder.Append("[EX_COMPONENT ERROR]");
-            //if(fileName != null) {
-            //    builder.AppendFormat("  [LOCATION] from class [{0}] in function [{1}] in file [{2}] at line ({3}) and column ({4})\n",
-            //        className, functionName, fileName, lineNb.ToString(), columnNb.ToString());
-            //} else {
-            //    builder.AppendFormat("  [LOCATION] from class [{0}] in function [{1}]\n",
-            //        className, functionName);
-            //}
-            //builder.AppendFormat("[EX_COMPONENT EXCEPTION] {0} ", e.Message);
-            //log_error(builder.ToString(), true);
-            log_error(string.Format("[EX_COMPONENT EXCEPTION] {0} ", e.Message), true);
+        protected void display_exception(Exception e) { 
+            log_error(string.Format("[ERROR-EXCEPTION] "), true, false);
+            log_error(string.Format("[MESSAGE] {0}", e.Message), false, false);
+            log_warning(string.Format("\t[SOURCE] {0}", e.Source), false, false);
+            log_warning(string.Format("\t[TARGET] {0}", e.TargetSite.ToString()), false, false);
+            log_warning(string.Format("\t[STACK]: {0}", e.StackTrace), false, false);
         }
 
         protected void send_infos_to_gui_init_config(string id, string infos) {
@@ -210,34 +181,49 @@ namespace Ex {
         public void log_message(object message, bool verbose = false, bool extra = false,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string sourceFilePath = "",
-            [CallerLineNumber] int sourceLineNumber = 0) {
-            if (verbose) {
-                log().message(string.Concat(Converter.to_string(message), verbose_name()), extra, memberName, sourceFilePath, sourceLineNumber);
-            } else {
-                log().message(message, extra, memberName, sourceFilePath, sourceLineNumber);
-            }            
+            [CallerLineNumber] int sourceLineNumber = 0, bool logger = true, bool append = true) {
+
+            log().message(
+                message         : verbose ? string.Concat(Converter.to_string(message), verbose_name()) : message,
+                addExtraInfo    : extra,
+                memberName      : memberName,
+                sourceFilePath  : sourceFilePath,
+                sourceLineNumber: sourceLineNumber,
+                logger          : logger,
+                append          : append
+            );
         }
 
         public void log_warning(object warning, bool verbose = true, bool extra = false,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string sourceFilePath = "",
-            [CallerLineNumber] int sourceLineNumber = 0) {
-            if (verbose) {
-                log().warning(string.Concat(Converter.to_string(warning), verbose_name()), extra, memberName, sourceFilePath, sourceLineNumber);
-            } else {
-                log().warning(warning, extra, memberName, sourceFilePath, sourceLineNumber);
-            }
+            [CallerLineNumber] int sourceLineNumber = 0, bool logger = true, bool append = false) {
+
+            log().warning(
+                warning          : verbose ? string.Concat(Converter.to_string(warning), verbose_name()) : warning,
+                addExtraInfo     : extra,
+                memberName       : memberName,
+                sourceFilePath   : sourceFilePath,
+                sourceLineNumber : sourceLineNumber,
+                logger           : logger,
+                append           : append
+            );
         }
 
         public void log_error(object error, bool verbose = true, bool extra = true,
             [CallerMemberName] string memberName = "",
             [CallerFilePath] string sourceFilePath = "",
-            [CallerLineNumber] int sourceLineNumber = 0) {
-            if (verbose) {
-                log().error(string.Concat(Converter.to_string(error), verbose_name()), extra, memberName, sourceFilePath, sourceLineNumber);
-            } else {
-                log().error(error, extra, memberName, sourceFilePath, sourceLineNumber);
-            }
+            [CallerLineNumber] int sourceLineNumber = 0, bool logger = true, bool append = false) {
+
+            log().error(
+                error            : verbose ? string.Concat(Converter.to_string(error), verbose_name()) : error,
+                addExtraInfo     : extra, 
+                memberName       : memberName,
+                sourceFilePath   : sourceFilePath,
+                sourceLineNumber : sourceLineNumber,
+                logger           : logger,
+                append           : append
+            );
         }
 
         // configs
@@ -297,12 +283,13 @@ namespace Ex {
             // set members
             gameObject.name = xmlComponent.Name;
             key             = xmlComponent.Key;
-            keyStr = Converter.to_string(xmlComponent.Key);
-            catchExceptions = ExVR.GuiSettings().catchComponentsExceptions;
+            keyStr = Converter.to_string(xmlComponent.Key);            
 
             typeStr = string.Format("Ex.{0}Component", xmlComponent.Type);
             if (Components.Names2Info.ContainsKey(typeStr)) {
+
                 var infos = Components.Names2Info[typeStr];
+                catchExceptions = ExVR.GuiSettings().catchComponentsExceptions || infos.catchExceptions;
 
                 bool valid = false;
                 if (infos.reserved == Reserved.Public) {
@@ -324,8 +311,8 @@ namespace Ex {
                 category = infos.category;
                 priority = infos.priority;
             } else {
-                category = Category.Scene;
                 log_error("Component doesn't belong to a category.");
+                return false;
             }
             tag = string.Format("{0}Component", category.ToString());
 
@@ -417,17 +404,21 @@ namespace Ex {
 
             currentFunction = Function.initialize;
             m_initialized = false;
-            //try {
-                if (!initialize()) {
-                    log_error("Initialization failed.");
-                    return m_initialized;
+            if (catchExceptions) {
+                try {
+                    m_initialized = initialize();
+                } catch (Exception e) {
+                    display_exception(e);
                 }
-            //} catch (Exception e) {
-            //    display_exception(e);
-            //    return m_initialized;
-            //}
+            } else {
+                m_initialized = initialize();  
+            }
 
-            return m_initialized = true;
+            if (!m_initialized) {
+                log_error("Initialization failed.");
+            }
+
+            return m_initialized;
         }
 
         public void base_clean() {
@@ -453,7 +444,6 @@ namespace Ex {
         public void base_start_experiment() {
             
             currentFunction = Function.start_experiment;
-
             if (catchExceptions) {
                 try {
                     start_experiment();
@@ -762,8 +752,7 @@ namespace Ex {
             }
         }
 
-   
-        
+
         // once per loading
         protected virtual bool initialize() {return true; }
         protected virtual void clean() { }

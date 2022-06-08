@@ -35,6 +35,8 @@ namespace Ex{
         private bool m_isPaused = false;
         private bool m_isExperimentStarted = false;
 
+        public bool onGuiWait = false;
+
         // timers        
         private Stopwatch m_programTimer = new Stopwatch();
         private Stopwatch m_experimentTimer = new Stopwatch();
@@ -218,7 +220,7 @@ namespace Ex{
             endFrameTimeMs = ellapsed_exp_ms();
 
             // increment id frame
-            ++idFrame;
+            ++idFrame;            
         }
 
         public long to_ticks(Stopwatch timer) {
@@ -235,7 +237,6 @@ namespace Ex{
         public double ns_start_routine_since_start_experiment() {
             return ns_since_start_experiment(startElementTimestamp);
         }
-
 
         public long remove_pause_intervals_from_tick(List<TimestampInterval> intervals, long ticks) {
 
@@ -277,6 +278,7 @@ namespace Ex{
             }
 
             return ticks_to_ms(remove_pause_intervals_from_tick(pauseEventsExperimentTimestamp, ticks) - startExperimentTimestamp);
+            //return ticks_to_ms(ticks - startExperimentTimestamp);
         }
 
         public double ns_since_start_experiment(long ticks) {

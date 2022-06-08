@@ -62,30 +62,40 @@ namespace Ex.Events{
             return signals.Count;
         }
 
+        public bool signal_exists(string name) {
+            return signals.ContainsKey(name);
+        }
+        public bool is_signal_connected(string name) {
+            var signal = get_signal(name);
+            if (signal != null) {
+                return signal.is_connected();
+            }
+            return false;
+        }
+
         public Signal get_signal(string name) {
 
-            if (signals.ContainsKey(name)) {
+            if (signal_exists(name)) {
                 return signals[name];
             }
-            log_error(String.Format("Signal [{0}] doesn't exist.", name));
+            log_error(string.Format("Signal [{0}] doesn't exist.", name));
             return null;
         }
 
         public void add_connectors_signals(int nb) {
             for(int ii = 0; ii < nb; ++ii) {
-                var signalName = String.Format("output_value_{0}", ii.ToString());
+                var signalName = string.Format("output_value_{0}", ii.ToString());
                 signals[signalName] = new Signal(String.Format("{0} | {1}", nameParent, signalName));
             }
         }
 
-        public void add_signal(string name){
+        public Signal add_signal(string name){
 
             if (signals.ContainsKey(name)) {
-                log_error(String.Format("Signal [{0}] already exists.", name));
-                return;
-            } else {
-                signals[name] = new Signal(String.Format("{0} | {1}", nameParent, name));//, nbArgs);
+                log_error(string.Format("Signal [{0}] already exists.", name));
+                return null;
             } 
+            return (signals[name] = new Signal(string.Format("{0} | {1}", nameParent, name)));                
         }
 
         public void invoke_signal(string name, object arg = null) {
@@ -96,16 +106,16 @@ namespace Ex.Events{
             if (slots.ContainsKey(name)) {
                 return slots[name];
             }
-            log_error(String.Format("Slot [{0}] doesn't exist.", name));
+            log_error(string.Format("Slot [{0}] doesn't exist.", name));
             return null;
         }
 
-        public void add_slot(string name, System.Action<object> action) {
+        public Slot add_slot(string name, System.Action<object> action) {
             if (slots.ContainsKey(name)) {
-                log_error(String.Format("Slot [{0}] already exists.", name));
-                return;
+                log_error(string.Format("Slot [{0}] already exists.", name));
+                return null;
             }
-            slots[name] = new Slot(nameParent + " | " + name, action);
+            return (slots[name] = new Slot(nameParent + " | " + name, action));
         }
 
         public static bool connect(Signal signal, Slot slot) {
@@ -120,6 +130,7 @@ namespace Ex.Events{
             }
 
             slot.connect(signal);
+
             return true;
         }
 
@@ -135,6 +146,7 @@ namespace Ex.Events{
             }
 
             slot.connect(signal, convertor);
+
             return true;
         }
 

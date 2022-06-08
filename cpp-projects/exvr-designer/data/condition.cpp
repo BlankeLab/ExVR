@@ -32,7 +32,7 @@ using namespace tool;
 using namespace tool::ex;
 
 Condition::Condition(QString n, ConditionKey id, SecondsTS duration, double uiScale, double uiSize)
-    : key(IdKey::Type::Condition, id.v), name(n), duration(duration), scale(uiScale), uiFactorSize(uiSize){
+    : name(n), duration(duration), scale(uiScale), uiFactorSize(uiSize), m_key(IdKey::Type::Condition, id.v){
 }
 
 void Condition::apply_condition(const Condition *conditionToCopy, bool copyActions, bool copyConnections){
@@ -49,6 +49,7 @@ void Condition::apply_condition(const Condition *conditionToCopy, bool copyActio
             auto action = Action::copy_with_new_element_id(*actionToCopy);
             if(!copyConnections){
                 action->nodeUsed = false;
+                action->nodePosition = QPoint(0,0);
             }
             actions.emplace_back(std::move(action));
         }
@@ -67,7 +68,8 @@ void Condition::apply_condition(const Condition *conditionToCopy, bool copyActio
         // apply action component node used state
         for(auto &actionToCopy : conditionToCopy->actions){
             if(auto action = get_action_from_component_key(ComponentKey{actionToCopy->component->key()}, false); action != nullptr){
-                action->nodeUsed = actionToCopy->nodeUsed;
+                action->nodeUsed     = actionToCopy->nodeUsed;
+                action->nodePosition = actionToCopy->nodePosition;
             }
         }
 
@@ -96,7 +98,7 @@ void Condition::apply_condition(const Condition *conditionToCopy, bool copyActio
 
 int Condition::get_action_id_from_key(ActionKey actionKey, bool displayError) const{
 
-    auto actionFound = std::find_if(actions.begin(), actions.end(), [actionKey](const ActionUP & action){
+    auto actionFound = std::find_if(actions.begin(), actions.end(), [actionKey](const std::unique_ptr<Action> & action){
         return action->key() == actionKey.v;
     });
     if(actionFound != actions.end()){
@@ -112,7 +114,7 @@ int Condition::get_action_id_from_key(ActionKey actionKey, bool displayError) co
 
 Action *Condition::get_action_from_key(ActionKey actionKey, bool displayError) const{
 
-    auto actionFound = std::find_if(actions.begin(), actions.end(), [actionKey](const ActionUP &action){
+    auto actionFound = std::find_if(actions.begin(), actions.end(), [actionKey](const std::unique_ptr<Action> &action){
         return action->key() == actionKey.v;
     });
     if(actionFound != actions.end()){
@@ -120,7 +122,8 @@ Action *Condition::get_action_from_key(ActionKey actionKey, bool displayError) c
     }
 
     if(displayError){
-        QtLogger::error(QSL("Action with key ") % QString::number(actionKey.v) % QSL(" not found"));
+        QtLogger::error(QSL("Cannot find Action with key [") % QString::number(actionKey.v) %
+                        QSL("] from condition [") % name % QSL("] wtih key [") % QString::number(key()) % QSL("]"));
     }
 
     return nullptr;
@@ -128,15 +131,17 @@ Action *Condition::get_action_from_key(ActionKey actionKey, bool displayError) c
 
 Action *Condition::get_action_from_component_key(ComponentKey componentKey, bool displayError) const{
 
-    auto actionFound = std::find_if(actions.begin(), actions.end(), [componentKey](const ActionUP &action){
+    auto actionFound = std::find_if(actions.begin(), actions.end(), [componentKey](const std::unique_ptr<Action> &action){
         return action->component->key() == componentKey.v;
     });
     if(actionFound != actions.end()){
         return actionFound->get();
     }
 
+
     if(displayError){
-        QtLogger::error(QSL("Component with key ") % QString::number(componentKey.v) % QSL(" not found"));
+        QtLogger::error(QSL("Cannot find Action with component key [") % QString::number(componentKey.v) %
+                        QSL("] from condition [") % name % QSL("] wtih key [") % QString::number(key()) % QSL("]"));
     }
 
     return nullptr;
@@ -144,7 +149,7 @@ Action *Condition::get_action_from_component_key(ComponentKey componentKey, bool
 
 Connection *Condition::get_connection_from_key(ConnectionKey connectionKey, bool displayError) const{
 
-    auto connectionFound = std::find_if(connections.begin(), connections.end(), [connectionKey](const ConnectionUP &connection){
+    auto connectionFound = std::find_if(connections.begin(), connections.end(), [connectionKey](const std::unique_ptr<Connection> &connection){
         return connection->key() == connectionKey.v;
     });
     if(connectionFound != connections.end()){
@@ -152,7 +157,7 @@ Connection *Condition::get_connection_from_key(ConnectionKey connectionKey, bool
     }
 
     if(displayError){
-        QtLogger::error(QSL("Connector with key ") % QString::number(connectionKey.v) % QSL(" not found"));
+        QtLogger::error(QSL("Connection with key ") % QString::number(connectionKey.v) % QSL(" not found"));
     }
 
     return nullptr;
@@ -160,7 +165,7 @@ Connection *Condition::get_connection_from_key(ConnectionKey connectionKey, bool
 
 Connector *Condition::get_connector_from_key(ConnectorKey connectorKey, bool displayError) const{
 
-    auto connectorFound = std::find_if(connectors.begin(), connectors.end(), [connectorKey](const ConnectorUP &connector){
+    auto connectorFound = std::find_if(connectors.begin(), connectors.end(), [connectorKey](const std::unique_ptr<Connector> &connector){
         return connector->key() == connectorKey.v;
     });
     if(connectorFound != connectors.end()){
@@ -232,10 +237,19 @@ void Condition::check_integrity(){
 
     // connections
     size_t countBefore = connections.size();
-    std::sort(connections.begin(), connections.end());
-    connections.erase(std::unique(connections.begin(), connections.end()), connections.end());
-
+    {
+        std::unordered_set<int> seen;
+        auto newEnd = std::remove_if(connections.begin(), connections.end(), [&seen](const std::unique_ptr<Connection> &connection){
+            if (seen.find(connection->key()) != std::end(seen)){
+                return true;
+            }
+            seen.insert(connection->key());
+            return false;
+        });
+        connections.erase(newEnd, connections.end());
+    }
     size_t countAfter = connections.size();
+
     if(countBefore > countAfter){
         QtLogger::warning(
             QSL("Remove ") % QString::number(countBefore - countAfter) % QSL(" duplicated connections from condition ") %
@@ -245,8 +259,17 @@ void Condition::check_integrity(){
 
     // connectors
     countBefore = connectors.size();
-    std::sort( connectors.begin(), connectors.end() );
-    connectors.erase( std::unique( connectors.begin(), connectors.end() ), connectors.end() );
+    {
+        std::unordered_set<int> seen;
+        auto newEnd = std::remove_if(connectors.begin(), connectors.end(), [&seen](const std::unique_ptr<Connector> &connector){
+            if (seen.find(connector->key()) != std::end(seen)){
+                return true;
+            }
+            seen.insert(connector->key());
+            return false;
+        });
+        connectors.erase(newEnd, connectors.end());
+    }
     countAfter = connectors.size();
     if(countBefore > countAfter){
         QtLogger::warning(
@@ -257,8 +280,17 @@ void Condition::check_integrity(){
 
     // actions
     countBefore = actions.size();
-    std::sort( actions.begin(), actions.end() );
-    actions.erase( std::unique( actions.begin(), actions.end() ), actions.end() );
+    {
+        std::unordered_set<int> seen;
+        auto newEnd = std::remove_if(actions.begin(), actions.end(), [&seen](const std::unique_ptr<Action> &action){
+            if (seen.find(action->key()) != std::end(seen)){
+                return true;
+            }
+            seen.insert(action->key());
+            return false;
+        });
+        actions.erase(newEnd, actions.end());
+    }
     countAfter = actions.size();
     if(countBefore > countAfter){
         QtLogger::warning(
@@ -272,15 +304,15 @@ void Condition::check_integrity(){
     }
 }
 
-bool Condition::contains_set_key(int setKeyToCheck) const{
+bool Condition::contains_set_key(SetKey setKeyToCheck) const{
 
-    auto keyFound = std::find_if(std::begin(setsKeys), std::end(setsKeys), [setKeyToCheck](int setKey){
-        return setKey == setKeyToCheck;
+    auto keyFound = std::find_if(std::begin(setsKeys), std::end(setsKeys), [setKeyToCheck](SetKey setKey){
+        return setKey.v == setKeyToCheck.v;
     });
     return keyFound != std::end(setsKeys);
 }
 
-bool Condition::contains_same_set_keys(const std_v1<int> setKeysToCheck) const{
+bool Condition::contains_same_set_keys(const std::vector<SetKey> setKeysToCheck) const{
 
     if(setKeysToCheck.size() != setsKeys.size()){
         return false;
@@ -331,7 +363,7 @@ void Condition::remove_action(ActionKey actionKey){
     if(auto action = get_action_from_key(actionKey); action != nullptr){
 
         while(auto searchConnections = true){
-            auto connectionToDelete = std::find_if(connections.begin(), connections.end(), [action](ConnectionUP &connection){
+            auto connectionToDelete = std::find_if(connections.begin(), connections.end(), [action](std::unique_ptr<Connection> &connection){
 
                 if((connection->startType == Connection::Type::Component) && (connection->startKey == action->component->key())){
                     return true;
@@ -351,7 +383,7 @@ void Condition::remove_action(ActionKey actionKey){
             break;
         }
 
-        auto actionToDelete = std::find_if(actions.begin(), actions.end(), [actionKey](ActionUP &action){
+        auto actionToDelete = std::find_if(actions.begin(), actions.end(), [actionKey](std::unique_ptr<Action> &action){
             return action->key() == actionKey.v;
         });
         if(actionToDelete != actions.end()){
@@ -366,7 +398,7 @@ void Condition::remove_action(ActionKey actionKey){
 void Condition::remove_all_actions(){
 
     while(auto searchConnections = true){
-        auto connectionToDelete = std::find_if(connections.begin(), connections.end(), [](ConnectionUP &connection){
+        auto connectionToDelete = std::find_if(connections.begin(), connections.end(), [](std::unique_ptr<Connection> &connection){
             return ((connection->startType == Connection::Type::Component) ||
                     (connection->endType == Connection::Type::Component));
         });
@@ -382,7 +414,7 @@ void Condition::remove_all_actions(){
 
 void Condition::remove_connection(ConnectionKey connectionKey){
 
-    auto connectionToDelete = std::find_if(connections.begin(), connections.end(), [connectionKey](ConnectionUP &connection){
+    auto connectionToDelete = std::find_if(connections.begin(), connections.end(), [connectionKey](std::unique_ptr<Connection> &connection){
         return connection->key() == connectionKey.v;
     });
     if(connectionToDelete != connections.end()){
@@ -395,7 +427,7 @@ void Condition::remove_connector(ConnectorKey connectorKey){
 
     // remove connections associated to connector
     while(auto searchConnections = true){
-        auto connectionToDelete = std::find_if(connections.begin(), connections.end(), [connectorKey](ConnectionUP &connection){
+        auto connectionToDelete = std::find_if(connections.begin(), connections.end(), [connectorKey](std::unique_ptr<Connection> &connection){
 
             if((connection->endType == Connection::Type::Connector) && (connection->endKey == connectorKey.v)){
                 return true;
@@ -414,7 +446,7 @@ void Condition::remove_connector(ConnectorKey connectorKey){
     }
 
     // remove connectors
-    auto connectorToDelete = std::find_if(connectors.begin(), connectors.end(), [connectorKey](ConnectorUP &connector){
+    auto connectorToDelete = std::find_if(connectors.begin(), connectors.end(), [connectorKey](std::unique_ptr<Connector> &connector){
         return connector->key() == connectorKey.v;
     });
     if(connectorToDelete != connectors.end()){
@@ -428,7 +460,7 @@ void Condition::remove_component_node(ComponentKey componentKey){
 
     // remove connections associated to component
     while(auto searchConnections = true){
-        auto connectionToDelete = std::find_if(connections.begin(), connections.end(), [componentKey](ConnectionUP &connection){
+        auto connectionToDelete = std::find_if(connections.begin(), connections.end(), [componentKey](std::unique_ptr<Connection> &connection){
 
             if((connection->endType == Connection::Type::Component) && (connection->endKey == componentKey.v)){
                 return true;
@@ -469,7 +501,7 @@ std_v1<Action *> Condition::actions_with_nodes() const{
 
     auto count = std::count_if(
                 actions.begin(),
-                actions.end(), [](const ActionUP &action){
+                actions.end(), [](const std::unique_ptr<Action> &action){
         return action->nodeUsed;
     });
 
@@ -484,9 +516,9 @@ std_v1<Action *> Condition::actions_with_nodes() const{
 }
 
 
-ConditionUP Condition::duplicate(const Condition &conditionToCopy){
+std::unique_ptr<Condition> Condition::duplicate(const Condition &conditionToCopy){
 
-    ConditionUP condition = std::make_unique<Condition>(
+    std::unique_ptr<Condition> condition = std::make_unique<Condition>(
         conditionToCopy.name,
         ConditionKey{-1},
         conditionToCopy.duration,

@@ -34,11 +34,10 @@ namespace Ex{
 
     public class DisplayExpInfo : MonoBehaviour {
 
-
-        public Text tState = null;
-        public Text tTime = null;
-        public Text tCurrElement = null;
-        public Text tComponents = null;
+        public UnityEngine.UI.Text tState = null;
+        public UnityEngine.UI.Text tTime = null;
+        public UnityEngine.UI.Text tCurrElement = null;
+        public UnityEngine.UI.Text tComponents = null;
         GuiSettingsManager guiSettings = null;
 
         // Use this for initialization
@@ -76,7 +75,7 @@ namespace Ex{
 
                 var currentElemenStrBuilder = new StringBuilder();
 
-                if (info.type() == FlowElement.FlowElementType.Routine) {
+                if (info.type() == FlowElement.Type.Routine) {
                     var routineInfo = (RoutineInfo)info;
                     currentElemenStrBuilder.Append("Routine: ");
                     currentElemenStrBuilder.AppendFormat("<color=#00ff00ff>{0}</color> Id: <color=#00ff00ff>{1}</color> Cond: <color=#00ff00ff>{2}</color>",

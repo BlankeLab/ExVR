@@ -24,16 +24,16 @@
 
 #include "exvr_controller.hpp"
 
-// Qt
-#include <QTime>
-#include <QStringBuilder>
+// qt-utility
+#include "qt_str.hpp"
+#include "gui/widgets/list_widget.hpp"
 
 // local
-#include "qt_str.hpp"
 #include "utility/script_utility.hpp"
 
 // ui
 #include "ui_about_dialog.h"
+#include "ui_conditions_selecter.h"
 
 using namespace tool::ex;
 
@@ -53,13 +53,10 @@ ExVrController::ExVrController(const QString &nVersion, bool lncoComponents){
     // signal/slots/types
     qRegisterMetaType<tool::ex::Arg>("tool::ex::Arg");
     qRegisterMetaType<tool::ex::RowId>("tool::ex::RowId");
-    qRegisterMetaType<tool::ex::UiElementKey>("tool::ex::UiElementKey");
     qRegisterMetaType<tool::ex::SetKey>("tool::ex::SetKey");
     qRegisterMetaType<tool::ex::ActionKey>("tool::ex::ActionKey");
     qRegisterMetaType<tool::ex::ConfigKey>("tool::ex::ConfigKey");
     qRegisterMetaType<std::optional<tool::ex::ConfigKey>>("std::optional<tool::ex::ConfigKey>");
-    qRegisterMetaType<tool::ex::IntervalKey>("tool::ex::IntervalKey");
-    qRegisterMetaType<tool::ex::TimelineKey>("tool::ex::TimelineKey");
     qRegisterMetaType<tool::ex::ConditionKey>("tool::ex::ConditionKey");
     qRegisterMetaType<tool::ex::ElementKey>("tool::ex::ElementKey");
     qRegisterMetaType<tool::ex::ComponentKey>("tool::ex::ComponentKey");
@@ -68,6 +65,10 @@ ExVrController::ExVrController(const QString &nVersion, bool lncoComponents){
     qRegisterMetaType<tool::ex::ExpLauncherState>("tool::ex::ExpLauncherState");
     qRegisterMetaType<tool::ex::ExpState>("tool::ex::ExpState");
     qRegisterMetaType<tool::ex::Settings>("tool::ex::Settings");
+    qRegisterMetaType<std::pair<SecondsTS,SecondsTS>>("std::pair<SecondsTS,SecondsTS>>");
+
+    qRegisterMetaType<std::vector<std::tuple<tool::ex::ElementKey, tool::ex::ConditionKey, tool::ex::ConfigKey, bool, bool>>>
+        ("std::vector<std::tuple<tool::ex::ElementKey, tool::ex::ConditionKey, tool::ex::ConfigKey, bool, bool>>");
 
     qRegisterMetaType<QStringView>("QStringView");
 
@@ -76,7 +77,7 @@ ExVrController::ExVrController(const QString &nVersion, bool lncoComponents){
     qRegisterMetaType<QProcess::ExitStatus>("QProcess::ExitStatus");
 
     // init logging system
-    QtLogger::init(QApplication::applicationDirPath() % QSL("/logs"), QSL("designer_log.html"));
+    QtLogger::init(QApplication::applicationDirPath() % QSL("/logs"), QSL("designer_log.html"), true);
     QtLogger::set_html_ui_type_message_color(QtLogger::MessageType::normal,  QColor(189,189,189));
     QtLogger::set_html_ui_type_message_color(QtLogger::MessageType::warning, QColor(243, 158, 3));
     QtLogger::set_html_ui_type_message_color(QtLogger::MessageType::error,   QColor(244,4,4));
@@ -85,14 +86,14 @@ ExVrController::ExVrController(const QString &nVersion, bool lncoComponents){
     // init scripting
     CSharpScript::initialize();
 
-
     Bench::disable_display();
 
     QtLogger::message("[CONTROLLER] Generate signals");
     GSignals::init();
 
     QtLogger::message("[CONTROLLER] Initialize experiment");
-    m_experiment = std::make_unique<Experiment>(nVersion);
+    ExperimentManager::init();
+    ExperimentManager::get()->init_current(nVersion);
 
     QtLogger::message("[CONTROLLER] Read XML manager");
     m_xmlManager = std::make_unique<XmlIoManager>(exp());
@@ -112,14 +113,12 @@ ExVrController::ExVrController(const QString &nVersion, bool lncoComponents){
 
     // dialogs
     m_documentationD.enable_lnco_components(lncoComponents);
-//    m_settingsD.setParent(ui());
     m_benchmarkD     = std::make_unique<BenchmarkDialog>();
 
     // connections
-    QtLogger::message("[CONTROLLER] Generate connections", false, true);
+    QtLogger::message("[CONTROLLER] Generate connections");
     generate_global_signals_connections();
     generate_main_window_connections();
-    generate_flow_diagram_connections();
     generate_controller_connections();
     generate_resources_manager_connections();
     generate_logger_connections();
@@ -127,7 +126,6 @@ ExVrController::ExVrController(const QString &nVersion, bool lncoComponents){
 
     // update ui
     QtLogger::message("[CONTROLLER] Update UI from default experiment", false, true);
-    m_designerWindow->update_from_experiment(m_experiment.get(), UpdateAll);
     m_designerWindow->show();
 
     connect(&experimentUpdateTimer, &QTimer::timeout, this, &ExVrController::update_gui_from_experiment);
@@ -192,6 +190,14 @@ void ExVrController::close_exvr(){
         m_goToD->close();
         m_goToD = nullptr;
     }
+    if(m_importD != nullptr){
+        m_importD->close();
+        m_importD = nullptr;
+    }
+    if(addComponentToCondsD != nullptr){
+        addComponentToCondsD->close();
+        addComponentToCondsD = nullptr;
+    }
 
 
     m_benchmarkD->close();
@@ -204,7 +210,7 @@ void ExVrController::close_exvr(){
 
     // clean
     QtLogger::message("[CONTROLLER] Destroy.");
-    m_experiment        = nullptr;
+    ExperimentManager::get()->clean();
     m_currentInstance   = nullptr;
     m_xmlManager        = nullptr;   
     m_expLauncher       = nullptr;
@@ -213,51 +219,6 @@ void ExVrController::close_exvr(){
     QtLogger::clean();
 }
 
-void ExVrController::show_generate_instances_dialog(){
-
-    m_instancesD.show_dialog();
-
-    if(m_instancesD.directoryPath.size() > 0){
-
-        exp()->update_randomization_seed(m_instancesD.randomSeed);
-
-        if(m_instancesD.useBaseName){
-            for(int ii = 0; ii < m_instancesD.nbInstances; ++ii){
-                auto instance = Instance::generate_from_full_experiment(&exp()->randomizer, *exp(), ii);
-                if(!instance){
-                    return;
-                }
-
-                const QString instanceFileName =
-                        m_instancesD.directoryPath % QSL("/") %
-                        m_instancesD.baseName %
-                        QString::number(ii+m_instancesD.startId) % QSL(".xml");
-
-                if(!xml()->save_instance_file(*instance, instanceFileName)){
-                    return;
-                }
-                QtLogger::message(QSL("[CONTROLLER] Instance [") %  instanceFileName % QSL("] generated."));
-            }
-        }else if(m_instancesD.useManual){
-
-            for(int ii = 0; ii < m_instancesD.manualNames.size(); ++ii){
-
-                auto instance = Instance::generate_from_full_experiment(&exp()->randomizer, *exp(), ii);
-                if(!instance){
-                    return;
-                }
-
-                const QString instanceFileName =
-                        m_instancesD.directoryPath % QSL("/") %
-                        m_instancesD.manualNames[ii] % QSL(".xml");
-                if(!xml()->save_instance_file(*instance, instanceFileName)){
-                    return;
-                }
-                QtLogger::message(QSL("[CONTROLLER] Instance [") %  instanceFileName % QSL("] generated."));
-            }
-        }
-    }
-}
 
 void ExVrController::save_full_exp_with_default_instance(){
 
@@ -294,7 +255,7 @@ void ExVrController::go_to_current_specific_instance_element(){
         return;
     }
 
-    if(element->type == Element::Type::Routine){
+    if(element->type() == FlowElement::Type::Routine){
         auto routine = dynamic_cast<Routine*>(element);
         QString selectedCondition = "";
         for(const auto &condition : routine->conditions){
@@ -336,6 +297,51 @@ void ExVrController::go_to_current_specific_instance_element(){
     }
 }
 
+void ExVrController::generate_instances(QString directoryPath, unsigned int seed, bool manual, int nbInstances, int startId, QString baseName, QStringList manualNames){
+
+    if(directoryPath.size() > 0){
+
+        exp()->update_randomization_seed(seed);
+
+        if(!manual){
+            for(int ii = 0; ii < nbInstances; ++ii){
+
+                auto instance = Instance::generate_from_full_experiment(&exp()->randomizer, *exp(), ii);
+                if(!instance){
+                    return;
+                }
+
+                const QString instanceFileName =
+                    directoryPath % QSL("/") %
+                    baseName %
+                    QString::number(ii+startId) % QSL(".xml");
+
+                if(!xml()->save_instance_file(*instance, instanceFileName)){
+                    return;
+                }
+                QtLogger::message(QSL("[CONTROLLER] Instance [") %  instanceFileName % QSL("] generated."));
+            }
+        }else if(manual){
+
+            for(int ii = 0; ii < manualNames.size(); ++ii){
+
+                auto instance = Instance::generate_from_full_experiment(&exp()->randomizer, *exp(), ii);
+                if(!instance){
+                    return;
+                }
+
+                const QString instanceFileName =
+                    directoryPath % QSL("/") %
+                    manualNames[ii] % QSL(".xml");
+                if(!xml()->save_instance_file(*instance, instanceFileName)){
+                    return;
+                }
+                QtLogger::message(QSL("[CONTROLLER] Instance [") %  instanceFileName % QSL("] generated."));
+            }
+        }
+    }
+}
+
 void ExVrController::show_got_to_specific_instance_element_dialog(){
 
     if(m_currentInstance == nullptr){
@@ -347,7 +353,7 @@ void ExVrController::show_got_to_specific_instance_element_dialog(){
 
     size_t totalRows = 0;
     for(const auto &element : m_currentInstance->flow){
-        if(element.elem->type == Element::Type::Routine){
+        if(element.elem->type() == FlowElement::Type::Routine){
             if(dynamic_cast<Routine*>(element.elem)->isARandomizer){
                 continue;
             }
@@ -365,7 +371,7 @@ void ExVrController::show_got_to_specific_instance_element_dialog(){
     twInstanceElements->setHorizontalHeaderLabels({"Element type", "Element name", "Condition/interval", "Condition iteration"});
     for(const auto &element : m_currentInstance->flow){
 
-        if(element.elem->type == Element::Type::Routine){
+        if(element.elem->type() == FlowElement::Type::Routine){
             if(dynamic_cast<Routine*>(element.elem)->isARandomizer){
                 continue;
             }
@@ -378,7 +384,7 @@ void ExVrController::show_got_to_specific_instance_element_dialog(){
         twInstanceElements->setItem(orderId, 1, new QTableWidgetItem(element.elem->name()));
         twInstanceElements->setItem(orderId, 2, new QTableWidgetItem(element.condition));
 
-        if(element.elem->type == Element::Type::Routine){
+        if(element.elem->type() == FlowElement::Type::Routine){
 
             if(countIterations.count(element.elem->key()) == 0){
                 countIterations[element.elem->key()] = {};
@@ -436,7 +442,7 @@ void ExVrController::load_selected_routine_with_default_instance_to_unity(){
         return;
     }
 
-    if(exp()->selectedElement->type != Element::Type::Routine){
+    if(exp()->selectedElement->type() != FlowElement::Type::Routine){
         QtLogger::message("[CONTROLLER] Selected element must be a routine.");
         return;
     }
@@ -580,7 +586,61 @@ void ExVrController::show_component_informations_dialog(ComponentKey componentKe
                     for(const auto &conditionAction : conditionsActions){
                         auto condition = std::get<0>(conditionAction);
                         auto action    = std::get<1>(conditionAction);
-                        insideTxt += QSL(" * Condition **[") % condition->name % QSL("]** with config **[") % action->config->name % QSL("]**<br />");
+
+                        double lengthUpdate = 0.;
+                        size_t nbUpdateIntervals = 0;
+                        if(action->timelineUpdate){
+                            nbUpdateIntervals = action->timelineUpdate->nb_intervals();
+                            lengthUpdate = action->timelineUpdate->sum_intervals();
+                        }
+                        double lengthVisibility = 0.;
+                        size_t nbVisibilityIntervals = 0;
+                        if(action->timelineVisibility){
+                            nbVisibilityIntervals += action->timelineVisibility->nb_intervals();
+                            lengthVisibility = action->timelineVisibility->sum_intervals() ;
+                        }
+
+                        QString timelineTxt;
+                        auto tOpt = Component::get_timeline_opt(action->component->type);
+                        if(tOpt == Component::TimelineO::Both){
+
+                            if(nbUpdateIntervals > 0){
+                                timelineTxt += QSL(" with **[") % QString::number(nbUpdateIntervals) % QSL("]** intervals of total length  **[")
+                                               % QString::number(lengthUpdate) % QSL("]** for update timeline");
+                            }else{
+                                timelineTxt += QSL(" with no interval for update timeline");
+                            }
+
+                            if(nbVisibilityIntervals > 0){
+                                timelineTxt += QSL(" with  **[") % QString::number(nbVisibilityIntervals) % QSL("]** intervals of total length  **[") %
+                                               QString::number(lengthVisibility) % QSL("]** for visibility timeline");
+                            }else{
+                                timelineTxt += QSL(" with no interval for visibility timeline");
+                            }
+
+                        }else if(tOpt == Component::TimelineO::Update){
+
+                            if(nbUpdateIntervals > 0){
+                                timelineTxt += QSL(" with  **[") % QString::number(nbUpdateIntervals) % QSL("]** intervals of total length  **[") %
+                                               QString::number(lengthUpdate) % QSL("]** for update timeline");
+                            }else{
+                                timelineTxt += QSL(" with no interval for update timeline");
+                            }
+
+                        }else if(tOpt == Component::TimelineO::Visibility){
+
+                            if(nbVisibilityIntervals > 0){
+                                timelineTxt += QSL(" with **[") % QString::number(nbVisibilityIntervals) % QSL("]** intervals of total length **[") %
+                                               QString::number(lengthVisibility) % QSL("]** for visibility timeline");
+                            }else{
+                                timelineTxt += QSL(" with no interval for visibility timeline");
+                            }
+                        }else{
+                            timelineTxt += QSL(" (Timeline-less)");
+                        }
+
+                        insideTxt += QSL(" * Condition **[") % condition->name % QSL("]** with config **[") % action->config->name % QSL("]** ") % timelineTxt %
+                                      (action->nodeUsed ? QSL(" **(Node used)**") : QSL(""))  % QSL("<br />");
                     }
                 }
                 insideTxt += "<br />";
@@ -593,7 +653,7 @@ void ExVrController::show_component_informations_dialog(ComponentKey componentKe
         if(notContainingComponent.size() > 0){
             for(const auto& [routine, conditions] : notContainingComponent){
                 if(conditions.size() == routine->conditions.size()){
-                    notInsideTxt += QSL("Routine: **[") % routine->name() % QSL("]** with no condition referencing it.<br />");
+                    notInsideTxt += QSL("Routine: **[") % routine->name() % QSL("]** with all conditions **[") % QString::number(conditions.size()) % QSL("]** not referencing it.<br />");
                 }else{
                     notInsideTxt += QSL("Routine: **[") % routine->name() % QSL("]** with **") % QString::number(conditions.size()) % QSL("** conditions not referencing it.<br />");
                 }
@@ -652,24 +712,50 @@ void ExVrController::show_component_informations_dialog(ComponentKey componentKe
     }
 }
 
+void ExVrController::show_import_dialog(){
+
+    QFileInfo fileInfo(exp()->states.currentExpfilePath);
+    QString parentDirPath = "";
+    if(fileInfo.exists()){
+        parentDirPath = fileInfo.absoluteDir().path();
+    }else{
+        parentDirPath = Paths::expDir;
+    }
+
+    QString path = QFileDialog::getOpenFileName(nullptr, "Experiment file to import", parentDirPath, "XML (*.xml)");
+    if(path.length() == 0){
+        return;
+    }
+
+
+    // dialog
+    m_importD = std::make_unique<ImportSubExpDialog>(path);
+
+    m_importD->show();
+
+}
+
 void ExVrController::update_gui_from_experiment(){
 
+    auto flag = exp()->update_flag();
+    exp()->reset_update_flag();
+
     Bench::start("[Update full UI]"sv, false);
-    if(exp()->update_flag() & UpdateSettings){
+    if(flag & UpdateSettings){
         Bench::start("[Update dialogs]"sv, false);
         m_settingsD.update_from_settings(exp()->settings());
         Bench::stop();
     }
 
-    if(exp()->update_flag() & UpdateResources){ // update experiment components
+    if(flag & UpdateResources){ // update experiment components
         Bench::start("[Update resources]"sv, false);
-        m_resourcesD.update_from_resources_manager(ResourcesManager::get());
+        m_resourcesD.update_from_resources_manager(&ExperimentManager::get()->current()->resM);
         Bench::stop();
     }
 
     Bench::start("[Update designer window]"sv);
-    if(exp()->update_flag() != 0){
-        ui()->update_from_experiment(exp(), exp()->update_flag());
+    if(flag != 0){
+        ui()->update_from_experiment(exp(), flag);
     }
     Bench::stop();
 
@@ -701,7 +787,7 @@ void ExVrController::update_gui_from_experiment(){
                         ConnectorKey{connectorI.first},
                         idI.first,
                         idI.second
-                        );
+                    );
                 }
             }
         }
@@ -710,13 +796,10 @@ void ExVrController::update_gui_from_experiment(){
 
     exp()->componentsInfo.clear();
     exp()->connectorsInfo.clear();
-    exp()->reset_update_flag();
 
     Bench::stop();
 
-
     m_benchmarkD->update();
-
 
     Bench::display(BenchUnit::milliseconds, 0, true);
     Bench::reset();
@@ -726,86 +809,8 @@ void ExVrController::update_gui_from_experiment(){
 
 void ExVrController::show_add_action_detailed_dialog(ComponentKey componentKey){
 
-    modalDialog = std::make_unique<QDialog>();
-    modalDialog->setParent(ui());
-    modalDialog->setModal(true);
-    modalDialog->setWindowTitle("Specify details for adding component:");
-    modalDialog->setLayout(new QVBoxLayout());
-    modalDialog->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
-    modalDialog->layout()->setSizeConstraint( QLayout::SetFixedSize );
-
-    auto rbCurrentCondition      = new QRadioButton("... current condition of selected routine");
-    auto rbAllRoutineConditions  = new QRadioButton("... all conditions of selected routine");
-    auto rbAllRoutinesConditions = new QRadioButton("... all conditions of every routine");
-    rbCurrentCondition->setChecked(true);
-    modalDialog->layout()->addWidget(ui::F::gen(ui::L::VB(),
-        {ui::W::txt("Add to ..."), rbCurrentCondition, rbAllRoutineConditions, rbAllRoutinesConditions}, LStretch{true}, LMargins{true}, QFrame::NoFrame));
-
-    modalDialog->layout()->addWidget(ui::W::horizontal_line());
-
-    auto component = exp()->get_component(componentKey);
-
-    auto cbConfigs = new QComboBox();
-    cbConfigs->addItems(component->get_configs_name());
-    modalDialog->layout()->addWidget(ui::F::gen(ui::L::HB(),
-        {ui::W::txt("Select config to use:"), cbConfigs}, LStretch{true}, LMargins{true}, QFrame::NoFrame));
-
-    modalDialog->layout()->addWidget(ui::W::horizontal_line());
-
-    QRadioButton *rbFillU = nullptr;
-    QRadioButton *rbEmptyU = nullptr;
-    QRadioButton *rbFillV = nullptr;
-    QRadioButton *rbEmptyV = nullptr;
-
-    auto to = Component::get_timeline_opt(component->type);
-    if (to == Component::TimelineO::Both || to == Component::TimelineO::Update){
-        modalDialog->layout()->addWidget(ui::F::gen(ui::L::HB(),
-                                                            {ui::W::txt("Update timeline: "), rbFillU = new QRadioButton("Fill"), rbEmptyU = new QRadioButton("Empty")}, LStretch{true}, LMargins{true}, QFrame::NoFrame));
-        rbFillU->setChecked(true);
-    }
-    if (to == Component::TimelineO::Both || to == Component::TimelineO::Visibility){
-        modalDialog->layout()->addWidget(ui::F::gen(ui::L::HB(),
-                                                            {ui::W::txt("Visibility timeline: "), rbFillV = new QRadioButton("Fill"), rbEmptyV = new QRadioButton("Empty")}, LStretch{true}, LMargins{true}, QFrame::NoFrame));
-            rbFillV->setChecked(true);
-    }
-
-    modalDialog->layout()->addWidget(ui::W::horizontal_line());
-
-    auto pbOk  = new QPushButton("Ok");
-    auto pbCancel = new QPushButton("Cancel");
-    modalDialog->layout()->addWidget(ui::F::gen(ui::L::HB(), {pbOk, pbCancel}, LStretch{true}, LMargins{true}, QFrame::NoFrame));
-    ui::L::stretch(modalDialog->layout());
-
-    connect(pbOk,   &QPushButton::clicked, this, [=]{
-        bool fillU = rbFillU == nullptr ? false : rbFillU->isChecked();
-        bool fillV = rbFillV == nullptr ? false : rbFillV->isChecked();
-
-        const auto idConfig = cbConfigs->currentIndex();
-        if(rbCurrentCondition->isChecked()){
-            if(auto cRoutineW = ui()->routines_manager()->current_routine_widget(); cRoutineW != nullptr){
-                if(auto cCondW = cRoutineW->current_condition_widget(); cCondW != nullptr){
-                    exp()->add_action(cRoutineW->routine_key(), cCondW->condition_key(), componentKey,
-                        ConfigKey{component->configs[idConfig]->key()}, fillU, fillV);
-                }
-            }
-        }else if(rbAllRoutineConditions->isChecked()){
-            if(auto cRoutineW = ui()->routines_manager()->current_routine_widget(); cRoutineW != nullptr){
-                exp()->add_action_to_all_conditions(cRoutineW->routine_key(), componentKey,
-                    ConfigKey{component->configs[idConfig]->key()}, fillU, fillV);
-            }
-        }else{
-            exp()->add_action_to_all_routines_conditions(componentKey,
-            ConfigKey{component->configs[idConfig]->key()}, fillU, fillV);
-        }
-    });
-    connect(pbOk,     &QPushButton::clicked, modalDialog.get(), &QDialog::accept);
-    connect(pbCancel, &QPushButton::clicked, modalDialog.get(), &QDialog::reject);
-    connect(modalDialog.get(), &QDialog::finished, this, [&]{
-        modalDialog = nullptr;
-    });
-
-    ui::L::stretch(modalDialog->layout());
-    modalDialog->open();
+    addComponentToCondsD = std::make_unique<AddComponentToConditionsDialog>(componentKey);
+    addComponentToCondsD->show();
 }
 
 void ExVrController::show_modify_action_detailed_dialog(ComponentKey componentKey){
@@ -920,7 +925,8 @@ void ExVrController::show_copy_to_conditions_dialog(ElementKey routineKey, Condi
         conditionKey,
         exp()->get_elements_from_type<Routine>()
     );
-    m_copyToCondD.open();
+//    m_copyToCondD.open();
+    m_copyToCondD.show();
 }
 
 void ExVrController::show_play_with_delay_dialog(){
@@ -956,6 +962,7 @@ void ExVrController::show_play_with_delay_dialog(){
     modalDialog->open();
 }
 
+
 void ExVrController::show_about_dialog(){
 
     Ui_AboutD about;
@@ -982,14 +989,14 @@ void ExVrController::start_specific_instance(){
     // save experiment file to temp
     xml()->save_experiment_file(Paths::tempExp);
 
-    QtLogger::message(QSL("Start specific instance from file: ") % pathFile);
+    QtLogger::message(QSL("[CONTROLLER] Start specific instance from file: ") % pathFile);
     m_currentInstance = xml()->load_instance_file(pathFile);
     if(!m_currentInstance){
         QtLogger::error(QSL("Cannot start instance from file dues to errors. "));
         QtLogger::error(QSL("Are you sure this instance has been generated with the current experiment?"));
         return;
     }
-    m_experiment->set_instance_name(m_currentInstance->fileName);
+    exp()->set_instance_name(m_currentInstance->fileName);
 
     // also save to temp for allowing launcher to reload the last one
     xml()->save_instance_file(*m_currentInstance, Paths::tempInstance);
@@ -998,11 +1005,11 @@ void ExVrController::start_specific_instance(){
     emit load_experiment_unity_signal(Paths::tempExp, pathFile);
 }
 
-
 void ExVrController::generate_global_signals_connections(){
 
     auto s = GSignals::get();
 
+    connect(s, &GSignals::generate_instances_signal, this, &CON::generate_instances);
     // -> component infos
     connect(s, &GSignals::show_component_informations_signal,  this, &CON::show_component_informations_dialog);
     // -> about
@@ -1013,9 +1020,8 @@ void ExVrController::generate_global_signals_connections(){
     connect(s, &GSignals::show_resources_manager_dialog_signal, res(), &ResourcesManagerDialog::show_section);
     // -> settings
     connect(s, &GSignals::show_settings_dialog_signal, set(), &SettingsDialog::show);
-    // -> settings
+    // -> benchmark
     connect(s, &GSignals::show_benchmark_dialog_signal, benchmark(), &BenchmarkDialog::show_dialog);
-
     // -> documentation
     connect(s, &GSignals::display_component_help_window_signal, doc(), &DocumentationDialog::show_components_section);
     connect(s, &GSignals::show_documentation_signal,            doc(), &DocumentationDialog::show_window);
@@ -1032,20 +1038,77 @@ void ExVrController::generate_global_signals_connections(){
         }
     });
 
+    // -> components manager
+    auto componentsM = ui()->components_manager();
+    connect(s, &GSignals::show_component_custom_menu_signal,          componentsM, &COM::show_howering_component_custom_menu);
+    connect(s, &GSignals::toggle_component_parameters_signal,         componentsM, &COM::toggle_component_parameters_dialog);
+    connect(s, &GSignals::toggle_selection_component_signal,          componentsM, &COM::toggle_component_selection);
+    connect(s, &GSignals::enter_component_signal,                     componentsM, &COM::update_style);
+    connect(s, &GSignals::leave_component_signal,                     componentsM, &COM::update_style);
+
+    // -> experiment
+    // # ui
+    connect(s, &GSignals::toggle_mode_signal,                         exp(), &EXP::toggle_design_mode);
+    connect(s, &GSignals::toggle_follow_condition_mode_signal,        exp(), &EXP::toggle_follow_condition_mode);
+    // # state
+    connect(s, &GSignals::exp_state_updated_signal,                   exp(), &EXP::update_exp_state);
+    connect(s, &GSignals::exp_launcher_state_updated_signal,          exp(), &EXP::update_exp_launcher_state);
+    // # infos
+    connect(s, &GSignals::connector_info_update_signal,               exp(), &EXP::update_connector_dialog_with_info);
+    connect(s, &GSignals::component_info_update_signal,               exp(), &EXP::update_component_dialog_with_info);
+
+    // # components
     connect(s, &GSignals::sort_components_by_category_signal,         exp(), &EXP::sort_components_by_category);
     connect(s, &GSignals::sort_components_by_type_signal,             exp(), &EXP::sort_components_by_type);
     connect(s, &GSignals::sort_components_by_name_signal,             exp(), &EXP::sort_components_by_name);
     connect(s, &GSignals::update_component_position_signal,           exp(), &EXP::update_component_position);
-    connect(s, &GSignals::add_component_signal,                       exp(), &EXP::add_component);
+    connect(s, &GSignals::add_component_signal,                       exp(), &EXP::add_new_component);
     connect(s, &GSignals::remove_component_signal,                    exp(), &EXP::remove_component);
     connect(s, &GSignals::duplicate_component_signal,                 exp(), &EXP::duplicate_component);
-    connect(s, &GSignals::select_routine_condition_signal,            exp(), &EXP::select_routine_condition);
-    connect(s, &GSignals::move_routine_condition_down_signal,         exp(), &EXP::move_routine_condition_down);
-    connect(s, &GSignals::move_routine_condition_up_signal,           exp(), &EXP::move_routine_condition_up);
-    connect(s, &GSignals::update_element_name_signal,                 exp(), &EXP::update_element_name);
+    connect(s, &GSignals::component_name_changed_signal,              exp(), &EXP::update_component_name);
+    connect(s, &GSignals::copy_component_signal,                      exp(), &EXP::copy_component);
+
+    // ## config
+    connect(s, &GSignals::select_config_signal,                       exp(), &EXP::select_config_in_component);
+    connect(s, &GSignals::insert_config_signal,                       exp(), &EXP::insert_config_in_component);
+    connect(s, &GSignals::copy_config_signal,                         exp(), &EXP::copy_config_from_component);
+    connect(s, &GSignals::remove_config_signal,                       exp(), &EXP::remove_config_from_component);
+    connect(s, &GSignals::move_config_signal,                         exp(), &EXP::move_config_in_component);
+    connect(s, &GSignals::rename_config_signal,                       exp(), &EXP::rename_config_in_component);
+    // ### args
+    connect(s, &GSignals::arg_removed_signal,                         exp(), &EXP::arg_removed);
+    connect(s, &GSignals::swap_arg_signal,                            exp(), &EXP::swap_arg);
+    connect(s, &GSignals::new_arg_signal,                             exp(), &EXP::new_arg);
+    connect(s, &GSignals::arg_updated_signal,                         exp(), &EXP::arg_updated);
+
+    // # elements
+    connect(s, &GSignals::select_element_signal,                            exp(), &EXP::select_element);
+    connect(s, &GSignals::select_element_id_signal,                         exp(), &EXP::select_element_id);
+    connect(s, &GSignals::select_element_id_no_nodes_signal,                exp(), &EXP::select_element_id_no_nodes);
+    connect(s, &GSignals::unselect_element_signal,                          exp(), &EXP::unselect_all_elements);        
+    connect(s, &GSignals::add_element_signal,                               exp(), &EXP::add_element);
+    connect(s, &GSignals::remove_selected_element_signal,                   exp(), &EXP::remove_selected_element);
+    connect(s, &GSignals::move_element_left_signal,                         exp(), &EXP::move_left);
+    connect(s, &GSignals::move_element_right_signal,                        exp(), &EXP::move_right);
+    connect(s, &GSignals::duplicate_element_signal,                         exp(), &EXP::duplicate_element);
+    connect(s, &GSignals::remove_element_signal,                            exp(), &EXP::remove_element_of_key);
+    connect(s, &GSignals::clean_current_routine_condition_signal,           exp(), &EXP::clean_current_routine_condition);
+    connect(s, &GSignals::clean_all_routine_conditions_signal,              exp(), &EXP::clean_all_routine_conditions);
+    connect(s, &GSignals::set_duration_for_all_routine_conditions_signal,   exp(), &EXP::set_duration_for_all_routine_conditions);
+    connect(s, &GSignals::update_element_name_signal,                       exp(), &EXP::update_element_name);
+    connect(s, &GSignals::move_element_signal,                              exp(), &EXP::move_element);
+    // ## isi
+    connect(s, &GSignals::add_isi_interval_signal,                    exp(), &EXP::add_isi_interval);
+    connect(s, &GSignals::modify_isi_interval_signal,                 exp(), &EXP::modify_isi_interval);
+    connect(s, &GSignals::set_isi_randomize_signal,                   exp(), &EXP::set_isi_randomize);
+    connect(s, &GSignals::remove_isi_interval_signal,                 exp(), &EXP::remove_isi_interval);
+    connect(s, &GSignals::move_isi_interval_up_signal,                exp(), &EXP::move_isi_interval_up);
+    connect(s, &GSignals::move_isi_interval_down_signal,              exp(), &EXP::move_isi_interval_down);
+    // ## loop
     connect(s, &GSignals::select_loop_set_signal,                     exp(), &EXP::select_loop_set);
     connect(s, &GSignals::modify_loop_nb_reps_signal,                 exp(), &EXP::modify_loop_nb_reps);
     connect(s, &GSignals::modify_loop_n_signal,                       exp(), &EXP::modify_loop_N);
+    connect(s, &GSignals::modify_loop_no_following_value_signal,      exp(), &EXP::modify_loop_no_following_value);
     connect(s, &GSignals::modify_loop_type_signal,                    exp(), &EXP::modify_loop_type);
     connect(s, &GSignals::modify_loop_set_name_signal,                exp(), &EXP::modify_loop_set_name);
     connect(s, &GSignals::modify_loop_set_occurrencies_nb_signal,     exp(), &EXP::modify_loop_set_occurrencies_nb);
@@ -1055,68 +1118,27 @@ void ExVrController::generate_global_signals_connections(){
     connect(s, &GSignals::load_loop_sets_file_signal,                 exp(), &EXP::load_loop_sets_file);
     connect(s, &GSignals::reload_loop_sets_file_signal,               exp(), &EXP::reload_loop_sets_file);
     connect(s, &GSignals::add_loop_sets_signal,                       exp(), &EXP::add_loop_sets);
-    connect(s, &GSignals::add_isi_interval_signal,                    exp(), &EXP::add_isi_interval);
-    connect(s, &GSignals::modify_isi_interval_signal,                 exp(), &EXP::modify_isi_interval);
-    connect(s, &GSignals::set_isi_randomize_signal,                   exp(), &EXP::set_isi_randomize);
-    connect(s, &GSignals::remove_isi_interval_signal,                 exp(), &EXP::remove_isi_interval);
-    connect(s, &GSignals::move_isi_interval_up_signal,                exp(), &EXP::move_isi_interval_up);
-    connect(s, &GSignals::move_isi_interval_down_signal,              exp(), &EXP::move_isi_interval_down);
+    // ## routine
     connect(s, &GSignals::set_routine_as_randomizer_signal,           exp(), &EXP::set_routine_as_randomizer);
     connect(s, &GSignals::update_element_informations_signal,         exp(), &EXP::update_element_informations);
-    connect(s, &GSignals::toggle_mode_signal,                         exp(), &EXP::toggle_design_mode);
-    connect(s, &GSignals::routine_selected_signal,                    [&]{});
+    connect(s, &GSignals::routine_selected_signal,                    exp(), &EXP::select_element);
+    // ### conditions
+    connect(s, &GSignals::select_routine_condition_signal,            exp(), &EXP::select_routine_condition);
+    connect(s, &GSignals::move_routine_condition_down_signal,         exp(), &EXP::move_routine_condition_down);
+    connect(s, &GSignals::move_routine_condition_up_signal,           exp(), &EXP::move_routine_condition_up);
+    connect(s, &GSignals::routine_condition_selected_signal,          exp(), &EXP::select_routine_condition);
+    // #### actions
     connect(s, &GSignals::delete_actions_signal,                      exp(), &EXP::delete_actions_from_condition);
     connect(s, &GSignals::fill_actions_signal,                        exp(), &EXP::fill_actions_from_condition);
     connect(s, &GSignals::clean_actions_signal,                       exp(), &EXP::clean_actions_from_condition);
-    connect(s, &GSignals::routine_condition_selected_signal,          exp(), &EXP::select_routine_condition);
     connect(s, &GSignals::add_action_signal,                          exp(), &EXP::add_action);
     connect(s, &GSignals::fill_action_signal,                         exp(), &EXP::fill_action);
     connect(s, &GSignals::clean_action_signal,                        exp(), &EXP::clean_action);
     connect(s, &GSignals::move_action_up_signal,                      exp(), &EXP::move_action_up);
     connect(s, &GSignals::move_action_down_signal,                    exp(), &EXP::move_action_down);
     connect(s, &GSignals::select_action_config_signal,                exp(), &EXP::select_action_config);
-    connect(s, &GSignals::select_config_signal,                       exp(), &EXP::select_config_in_component);
-    connect(s, &GSignals::update_timeline_signal,                     exp(), &EXP::update_condition_timeline);
-    connect(s, &GSignals::add_interval_signal,                        exp(), &EXP::add_timeline_interval);
-    connect(s, &GSignals::remove_interval_signal,                     exp(), &EXP::remove_timeline_interval);
-    connect(s, &GSignals::nodes_connection_created_signal,            exp(), &EXP::create_connection);
-    connect(s, &GSignals::connector_node_created_signal,              exp(), &EXP::create_connector_node);
-    connect(s, &GSignals::connector_node_modified_signal,             exp(), &EXP::modify_connector_node);
-    connect(s, &GSignals::duplicate_connector_node_signal,            exp(), &EXP::duplicate_connector_node);
-    connect(s, &GSignals::connector_node_moved_signal,                exp(), &EXP::move_connector_node);
-    connect(s, &GSignals::connector_input_connection_validity_signal, exp(), &EXP::set_connector_input_connection_validity);
-    connect(s, &GSignals::component_node_created_signal,              exp(), &EXP::create_component_node);
-    connect(s, &GSignals::component_node_moved_signal,                exp(), &EXP::move_component_node);
-    connect(s, &GSignals::delete_nodes_and_connections_signal,        exp(), &EXP::delete_nodes_and_connections);
-    connect(s, &GSignals::delete_selected_nodes_signal,               exp(), &EXP::delete_selected_nodes);
-    connect(s, &GSignals::delete_connections_signal,                  exp(), &EXP::delete_connections);    
-    connect(s, &GSignals::unselect_nodes_and_connections_signal,      exp(), &EXP::unselect_nodes_and_connections);
-    connect(s, &GSignals::select_nodes_and_connections_signal,        exp(), &EXP::select_nodes_and_connections);
-    connect(s, &GSignals::toggle_follow_condition_mode_signal,        exp(), &EXP::toggle_follow_condition_mode);
-    connect(s, &GSignals::arg_removed_signal,                         exp(), &EXP::arg_removed);
-    connect(s, &GSignals::swap_arg_signal,                            exp(), &EXP::swap_arg);
-    connect(s, &GSignals::new_arg_signal,                             exp(), &EXP::new_arg);
-    connect(s, &GSignals::arg_updated_signal,                         exp(), &EXP::arg_updated);
-    connect(s, &GSignals::component_name_changed_signal,              exp(), &EXP::update_component_name);
-    connect(s, &GSignals::insert_config_signal,                       exp(), &EXP::insert_config_in_component);
-    connect(s, &GSignals::copy_config_signal,                         exp(), &EXP::copy_config_from_component);
-    connect(s, &GSignals::remove_config_signal,                       exp(), &EXP::remove_config_from_component);
-    connect(s, &GSignals::move_config_signal,                         exp(), &EXP::move_config_in_component);
-    connect(s, &GSignals::rename_config_signal,                       exp(), &EXP::rename_config_in_component);
-    connect(s, &GSignals::exp_state_updated_signal,                   exp(), &EXP::update_exp_state);
-    connect(s, &GSignals::exp_launcher_state_updated_signal,          exp(), &EXP::update_exp_launcher_state);
-    connect(s, &GSignals::connector_info_update_signal,               exp(), &EXP::update_connector_dialog_with_info);
-    connect(s, &GSignals::component_info_update_signal,               exp(), &EXP::update_component_dialog_with_info);
-    connect(s, &GSignals::remove_action_from_all_routines_conditions_signal, exp(), &EXP::remove_action_from_all_routines_conditions);
+    connect(s, &GSignals::insert_action_to_signal,                    exp(), &EXP::insert_action_to);
     connect(s, &GSignals::insert_action_to_all_routines_conditions_signal,   exp(), &EXP::add_action_to_all_routines_conditions);
-    connect(s, &GSignals::delete_action_signal, this, [&](ElementKey routineKey, ConditionKey conditionKey, ActionKey actionKey){
-        exp()->remove_action_from_condition(routineKey, conditionKey, actionKey, true);
-    });
-
-
-    connect(s, &GSignals::routine_selected_signal,                    this, [&](ElementKey elementKey){
-        exp()->select_element(elementKey);
-    });
     connect(s, &GSignals::insert_action_to_selected_routine_signal, this, [&](ComponentKey componentKey){
         if(auto cRoutineW = ui()->routines_manager()->current_routine_widget(); cRoutineW != nullptr){
             if(auto cCondW = cRoutineW->current_condition_widget(); cCondW != nullptr){
@@ -1129,15 +1151,39 @@ void ExVrController::generate_global_signals_connections(){
             exp()->add_action_to_all_conditions(cRoutineW->routine_key(), componentKey, {}, true, true);
         }
     });
-
     connect(s, &GSignals::insert_action_with_details_signal, this, &ExVrController::show_add_action_detailed_dialog);
     connect(s, &GSignals::modify_action_with_details_signal, this, &ExVrController::show_modify_action_detailed_dialog);
-
+    connect(s, &GSignals::remove_action_from_all_routines_conditions_signal, exp(), &EXP::remove_action_from_all_routines_conditions);
+    connect(s, &GSignals::remove_action_signal, this, [&](ElementKey routineKey, ConditionKey conditionKey, ActionKey actionKey){
+        exp()->remove_action_from_condition(routineKey, conditionKey, actionKey, true);
+    });
     connect(s, &GSignals::remove_action_from_all_selected_routine_conditions_signal, this, [&](ComponentKey componentKey){
         if(auto cRoutineW = ui()->routines_manager()->current_routine_widget(); cRoutineW != nullptr){
             exp()->remove_action_from_all_selected_routine_conditions(cRoutineW->routine_key(), componentKey);
         }
     });
+    // ### resources
+    connect(s, &GSignals::copy_resource_signal,                       exp(), &EXP::copy_resource);
+
+    // ##### timelines
+    connect(s, &GSignals::update_timeline_signal,                     exp(), &EXP::update_condition_timeline);
+    connect(s, &GSignals::add_interval_signal,                        exp(), &EXP::add_timeline_interval);
+    connect(s, &GSignals::remove_interval_signal,                     exp(), &EXP::remove_timeline_interval);
+    // #### nodes
+    connect(s, &GSignals::nodes_connection_created_signal,            exp(), &EXP::create_connection);
+    connect(s, &GSignals::connector_node_created_signal,              exp(), &EXP::create_connector_node);
+    connect(s, &GSignals::connector_node_modified_signal,             exp(), &EXP::modify_connector_node);
+    connect(s, &GSignals::duplicate_connector_node_signal,            exp(), &EXP::duplicate_connector_node);
+    connect(s, &GSignals::connector_node_moved_signal,                exp(), &EXP::move_connector_node);
+    connect(s, &GSignals::connector_input_connection_validity_signal, exp(), &EXP::set_connector_input_connection_validity);
+    connect(s, &GSignals::component_node_created_signal,              exp(), &EXP::create_component_node);
+    connect(s, &GSignals::component_node_moved_signal,                exp(), &EXP::move_component_node);
+    connect(s, &GSignals::delete_nodes_and_connections_signal,        exp(), &EXP::delete_nodes_and_connections);
+    connect(s, &GSignals::delete_selected_nodes_signal,               exp(), &EXP::delete_selected_nodes);
+    connect(s, &GSignals::delete_connections_signal,                  exp(), &EXP::delete_connections);
+    connect(s, &GSignals::unselect_nodes_and_connections_signal,      exp(), &EXP::unselect_nodes_and_connections);
+    connect(s, &GSignals::select_nodes_and_connections_signal,        exp(), &EXP::select_nodes_and_connections);
+
     // -> exp launcher
     connect(s, &GSignals::connector_node_modified_signal, [&](ElementKey routineKey, ConditionKey conditionKey, ConnectorKey connectorKey, QString name, Arg arg){
         if(!exp()->states.neverLoaded){
@@ -1155,13 +1201,10 @@ void ExVrController::generate_global_signals_connections(){
         }
     });
 
-    // -> components manager
-    auto componentsM = ui()->components_manager();
-    connect(s, &GSignals::show_component_custom_menu_signal,          componentsM, &COM::show_howering_component_custom_menu);
-    connect(s, &GSignals::toggle_component_parameters_signal,         componentsM, &COM::toggle_component_parameters_dialog);
-    connect(s, &GSignals::toggle_selection_component_signal,          componentsM, &COM::toggle_component_selection);
-    connect(s, &GSignals::enter_component_signal,                     componentsM, &COM::update_style);
-    connect(s, &GSignals::leave_component_signal,                     componentsM, &COM::update_style);
+
+    // debug & test
+    connect(s, &GSignals::delete_unused_components_debug_signal, exp(), &EXP::delete_unused_components);
+
 }
 
 void ExVrController::generate_main_window_connections(){
@@ -1176,13 +1219,19 @@ void ExVrController::generate_main_window_connections(){
         exp()->new_experiment();
     });
     connect(ui(), &DMW::play_delay_experiment_signal,   this, &ExVrController::show_play_with_delay_dialog);
+    connect(ui(), &DMW::import_experiment_subparts_signal,          this, &ExVrController::show_import_dialog);
+
+    // -> instances dialog
+    connect(ui(), &DMW::generate_instances_signals,  &m_instancesD, &GenerateInstancesDialog::show_dialog);
+
+
     // -> xml manager
     connect(ui(), &DMW::save_experiment_signal,                     xml(), &XMLM::save_experiment);
     connect(ui(), &DMW::save_experiment_as_signal,                  xml(), &XMLM::save_experiment_as);
-    connect(ui(), &DMW::export_experiment_as_signal,                xml(), &XMLM::export_experiment_to);
+    connect(ui(), &DMW::export_experiment_as_signal,                xml(), &XMLM::export_experiment_to);    
     connect(ui(), &DMW::open_temp_experiment_file_signal,           xml(), &XMLM::open_temp_experiment_file);
     connect(ui(), &DMW::open_experiment_directory_signal,           xml(), &XMLM::open_experiment_directory);
-    connect(ui(), &DMW::open_temp_instance_file_signal,             xml(), &XMLM::open_temp_instance_file);
+    connect(ui(), &DMW::open_temp_instance_file_signal,             xml(), &XMLM::open_temp_instance_file);    
 
     connect(ui(), &DMW::load_experiment_signal,        this, [&](){
 
@@ -1223,8 +1272,7 @@ void ExVrController::generate_main_window_connections(){
     connect(ui(), &DMW::open_log_directory_signal,                  xml(), &XMLM::open_log_directory);
 
     // -> controller
-    connect(ui(), &DMW::close_exvr_signal,                                          this, &CON::close_exvr);
-    connect(ui(), &DMW::generate_instances_signals,                                 this, &CON::show_generate_instances_dialog);
+    connect(ui(), &DMW::close_exvr_signal,                                          this, &CON::close_exvr);    
     connect(ui(), &DMW::load_full_exp_wtih_default_instance_signal,                 this, &CON::load_full_exp_with_default_instance_to_unity);
     connect(ui(), &DMW::load_selected_routine_with_default_instance_signal,         this, &CON::load_selected_routine_with_default_instance_to_unity);
     connect(ui(), &DMW::load_from_selected_routine_with_default_instance_signal,    this, &CON::load_from_selected_routine_with_default_instance_to_unity);
@@ -1249,26 +1297,6 @@ void ExVrController::generate_main_window_connections(){
     connect(ui(), &DMW::previous_element_signal,            exp_launcher(), &LAU::previous_element);    
 }
 
-
-
-void ExVrController::generate_flow_diagram_connections(){
-
-    auto flowDiagram = ui()->flow_diagram();
-    // -> experiment
-    connect(flowDiagram, &FlowDiagramW::select_element_signal,          this, [&](ElementKey elementKey){
-        exp()->select_element(elementKey);}
-    );
-    connect(flowDiagram, &FlowDiagramW::unselect_element_signal,        this, [&](){exp()->unselect_all_elements();});
-    connect(flowDiagram, &FlowDiagramW::add_element_signal,             exp(), &EXP::add_element);
-    connect(flowDiagram, &FlowDiagramW::remove_selected_element_signal, exp(), &EXP::remove_selected_element);
-    connect(flowDiagram, &FlowDiagramW::move_element_left_signal,       exp(), &EXP::move_left);
-    connect(flowDiagram, &FlowDiagramW::move_element_right_signal,      exp(), &EXP::move_right);
-    connect(flowDiagram, &FlowDiagramW::duplicate_element_signal,       exp(), &EXP::duplicate_element);
-    connect(flowDiagram, &FlowDiagramW::remove_element_signal,          exp(), &EXP::remove_element_of_key);
-    connect(flowDiagram, &FlowDiagramW::clean_current_routine_condition_signal, exp(), &EXP::clean_current_routine_condition);
-    connect(flowDiagram, &FlowDiagramW::clean_all_routine_conditions_signal,    exp(), &EXP::clean_all_routine_conditions);
-    connect(flowDiagram, &FlowDiagramW::set_duration_for_all_routine_conditions_signal,    exp(), &EXP::set_duration_for_all_routine_conditions);
-}
 
 void ExVrController::generate_controller_connections(){
     // -> exp launcher

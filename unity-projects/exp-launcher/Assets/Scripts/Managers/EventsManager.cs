@@ -39,6 +39,7 @@ namespace Ex{
         public class String4Event : UnityEvent<string, string, string, string> { }
         public class ExComponentMessageEvent : UnityEvent<ExComponent, string> { }
 
+
         public class Command {
 
             public UnityEvent NextElementEvent      = new UnityEvent();
@@ -107,12 +108,14 @@ namespace Ex{
 
         public class Log {
 
-            public Events.StringEvent Error = new Events.StringEvent();            
-            public Events.StringEvent Warning = new Events.StringEvent();            
-            public Events.StringEvent Message = new Events.StringEvent();
-            public Events.StringEvent LoggerError = new Events.StringEvent();
-            public Events.StringEvent LoggerWarning = new Events.StringEvent();
-            public Events.StringEvent LoggerMessage = new Events.StringEvent();
+            public class MessageEvent : UnityEvent<string, bool> { }
+
+            public MessageEvent Error = new MessageEvent();            
+            public MessageEvent Warning = new MessageEvent();            
+            public MessageEvent Message = new MessageEvent();
+            public MessageEvent LoggerError = new MessageEvent();
+            public MessageEvent LoggerWarning = new MessageEvent();
+            public MessageEvent LoggerMessage = new MessageEvent();
         }
 
         public class Stacktrace {

@@ -81,7 +81,7 @@
         <file alias="Play_delay">icons/Play_delay.png</file>
         <file alias="Play_pause">icons/Play_pause.png</file>
         <file alias="Thera_trainer">icons/Thera_trainer.png</file>
-        <file alias="Qualisys">icons/Qualisys.jpg</file>
+        <file alias="Qualisys">icons/Qualisys.png</file>
         <file alias="Video_file">icons/Video_file.png</file>
         <file alias="Video_record">icons/Video_record.png</file>
         <file alias="FOV">icons/FOV.png</file>
@@ -97,6 +97,13 @@
         <file alias="Go_to_current">icons/Go_to_current.png</file>
         <file alias="Do_not_follow_condition">icons/Do_not_follow_condition.png</file>
         <file alias="Follow_condition">icons/Follow_condition.png</file>
+        <file alias="Blend">icons/Blend.png</file>
+        <file alias="Buttons">icons/Buttons.png</file>
+        <file alias="Config">icons/Config.png</file>
+        <file alias="Cylinder">icons/Cylinder.png</file>
+        <file alias="Landmark">icons/Landmark.png</file>
+        <file alias="Parallel_port">icons/Parallel_port.png</file>
+        <file alias="Flag_pole">icons/FlagPole.png</file>
     </qresource>
     <qresource prefix="/">
         <file alias="DefaultStyle">nodes/DefaultStyle.json</file>

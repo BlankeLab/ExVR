@@ -93,17 +93,19 @@ using static Ex.ExComponent;
 //}
 //#endif
 
-namespace Ex
-{
+namespace Ex{
+
     public class ComponentInfo{
-        public ComponentInfo(Category category, Pritority priority, Reserved reserved) {
+        public ComponentInfo(Category category, Pritority priority, Reserved reserved, bool catchExceptions) {
             this.category = category;
             this.priority = priority;
             this.reserved = reserved;
+            this.catchExceptions = catchExceptions;
         }
         public Category category;
         public Pritority priority;
         public Reserved reserved;
+        public bool catchExceptions;
     }
 
     public class Components : MonoBehaviour{
@@ -131,8 +133,8 @@ namespace Ex
             [Category.Viewer] = "[C:Viewer]"
         };
 
-        private static ComponentInfo gen_info(Category category, Pritority pritority, Reserved reserved) {
-            return new ComponentInfo(category, pritority, reserved);
+        private static ComponentInfo gen_info(Category category, Pritority pritority, Reserved reserved, bool catchExceptions = true) {
+            return new ComponentInfo(category, pritority, reserved, catchExceptions);
         }
 
         public static readonly Dictionary<string, ComponentInfo> Names2Info = new Dictionary<string, ComponentInfo> {
@@ -152,37 +154,39 @@ namespace Ex
             ["Ex.FPPAvatarCameraComponent"] = gen_info(Category.Camera, Pritority.Low, Reserved.Closed),
             ["Ex.TPPAvatarCameraComponent"] = gen_info(Category.Camera, Pritority.Low, Reserved.Closed),
             // cloud
-            ["Ex.CloudComponent"] = gen_info(Category.Cloud, Pritority.Medium, Reserved.Public),
-            ["Ex.ScanerVideoComponent"] = gen_info(Category.Cloud, Pritority.Medium, Reserved.LNCO),            
+            ["Ex.CloudComponent"]       = gen_info(Category.Cloud, Pritority.Medium, Reserved.Public),
+            ["Ex.ScanerVideoComponent"] = gen_info(Category.Cloud, Pritority.Medium, Reserved.LNCO),
             // environment
-            ["Ex.SkyComponent"] = gen_info(Category.Environment, Pritority.Hight, Reserved.Public),
+            ["Ex.PostProcessComponent"] = gen_info(Category.Environment, Pritority.Hight, Reserved.Public),
+            ["Ex.SkyComponent"]         = gen_info(Category.Environment, Pritority.Hight, Reserved.Public),
             // environment
             ["Ex.ConfigComponent"] = gen_info(Category.Flow, Pritority.Hight, Reserved.Public),
             // input
-            ["Ex.JoypadComponent"] = gen_info(Category.Input, Pritority.Hight, Reserved.Public),
-            ["Ex.MouseComponent"] = gen_info(Category.Input, Pritority.Hight, Reserved.Public),
-            ["Ex.KeyboardComponent"] = gen_info(Category.Input, Pritority.Hight, Reserved.Public),
+            ["Ex.JoypadComponent"] = gen_info(Category.Input, Pritority.Hight, Reserved.Public, false),
+            ["Ex.MouseComponent"] = gen_info(Category.Input, Pritority.Hight, Reserved.Public, false),
+            ["Ex.KeyboardComponent"] = gen_info(Category.Input, Pritority.Hight, Reserved.Public, false),
             // interaction
             ["Ex.FlagPoleComponent"] = gen_info(Category.Interaction, Pritority.Medium, Reserved.Public),
             ["Ex.MarkToCleanComponent"] = gen_info(Category.Interaction, Pritority.Medium, Reserved.Public),
             ["Ex.TargetToGrabComponent"] = gen_info(Category.Interaction, Pritority.Medium, Reserved.Public),
             // model
-            ["Ex.CubeComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public),
-            ["Ex.SphereComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public),
-            ["Ex.TorusComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public),
-            ["Ex.LinesComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public),
-            ["Ex.CylinderComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public),
-            ["Ex.LandmarkComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public),
+            ["Ex.CubeComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
+            ["Ex.SphereComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
+            ["Ex.TorusComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
+            ["Ex.LinesComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
+            ["Ex.CylinderComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
+            ["Ex.LandmarkComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
             // network
-            ["Ex.UdpReaderComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public),
-            ["Ex.UdpWriterComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public),
-            ["Ex.SerialPortReaderComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public),
-            ["Ex.SerialPortWriterComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public),
-            ["Ex.ParallelPortWriterComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public),
+            ["Ex.UdpReaderComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public, false),
+            ["Ex.UdpWriterComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public, false),
+            ["Ex.SerialPortReaderComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public, false),
+            ["Ex.SerialPortWriterComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public, false),
+            ["Ex.ParallelPortWriterComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public, false),
             // output
-            ["Ex.LoggerComponent"] = gen_info(Category.Output, Pritority.Hight, Reserved.Public),
-            ["Ex.LoggerConditionComponent"] = gen_info(Category.Output, Pritority.Hight, Reserved.Public),
-            ["Ex.LoggerColumnsComponent"] = gen_info(Category.Output, Pritority.Hight, Reserved.Public),
+            ["Ex.LoggerComponent"] = gen_info(Category.Output, Pritority.Hight, Reserved.Public, false),
+            ["Ex.LoggerConditionComponent"] = gen_info(Category.Output, Pritority.Hight, Reserved.Public, false),
+            ["Ex.LoggerColumnsComponent"] = gen_info(Category.Output, Pritority.Hight, Reserved.Public, false),
+            ["Ex.LoggerExperimentComponent"] = gen_info(Category.Output, Pritority.Hight, Reserved.Public, false),
             // resource
             ["Ex.ImageResourceComponent"] = gen_info(Category.Resource, Pritority.Hight, Reserved.Public),
             ["Ex.PlotResourceComponent"] = gen_info(Category.Resource, Pritority.Hight, Reserved.Public),
@@ -323,7 +327,7 @@ namespace Ex
         public bool initialize() {
 
             // initialize components
-            ExVR.ExpLog().component_manager(Function.initialize, true);
+            ExVR.ExpLog().components(Function.initialize, true);
             foreach (var component in sortedComponents) {
 
                 if (component.is_function_defined(Function.initialize)) {
@@ -336,7 +340,7 @@ namespace Ex
                 }
 
             }
-            ExVR.ExpLog().component_manager(Function.initialize, false);
+            ExVR.ExpLog().components(Function.initialize, false);
 
             return true;
         }
@@ -406,7 +410,7 @@ namespace Ex
 
         public void start_experiment() {
                         
-            ExVR.ExpLog().component_manager(Function.start_experiment, true);
+            ExVR.ExpLog().components(Function.start_experiment, true);
 
             foreach (var component in sortedComponents) {
 
@@ -426,13 +430,13 @@ namespace Ex
                 }
             }
 
-            ExVR.ExpLog().component_manager(Function.start_experiment, false);
+            ExVR.ExpLog().components(Function.start_experiment, false);
         }
 
 
         public void stop_experiment() {
 
-            ExVR.ExpLog().component_manager(Function.stop_experiment, true);
+            ExVR.ExpLog().components(Function.stop_experiment, true);
             foreach (var component in reverseSortedComponents) {
 
                 if (component.is_function_defined(Function.stop_experiment)) {
@@ -451,7 +455,7 @@ namespace Ex
                 component.currentTimeline = null;
                 component.currentC = null;
             }
-            ExVR.ExpLog().component_manager(Function.stop_experiment, false);
+            ExVR.ExpLog().components(Function.stop_experiment, false);
         }
         public void close(ExComponent componentToClose) {
 
@@ -466,7 +470,7 @@ namespace Ex
 
         public void clean() {
             
-            ExVR.ExpLog().component_manager(Function.clean, true);
+            ExVR.ExpLog().components(Function.clean, true);
             foreach (var component in reverseSortedComponents) {
 
                 if (component.is_function_defined(Function.clean)) {
@@ -477,7 +481,7 @@ namespace Ex
                 // destroy gameobject
                 Destroy(component.gameObject);
             }
-            ExVR.ExpLog().component_manager(Function.clean, false);
+            ExVR.ExpLog().components(Function.clean, false);
 
             // clean container
             sortedComponents.Clear();

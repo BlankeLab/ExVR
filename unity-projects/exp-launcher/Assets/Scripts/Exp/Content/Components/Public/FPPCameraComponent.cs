@@ -28,7 +28,7 @@ namespace Ex {
 
         protected override void start_experiment() {
             if (!initC.get<bool>("init_transform_do_not_apply")) {
-                var tr = initC.get_transform("init_transform");
+                var tr = initC.get_transform_value("init_transform");
                 if (initC.get<bool>(useNeutralP)) {
                     CameraUtility.set_calibration_transform(tr.position, tr.rotation);
                 } else {
@@ -39,7 +39,7 @@ namespace Ex {
 
         public override void update_from_current_config() {
             if (!currentC.get<bool>("transform_do_not_apply")) {
-                var tr = currentC.get_transform("transform");
+                var tr = currentC.get_transform_value("transform");
                 if (currentC.get<bool>(useNeutralP)) {
                     CameraUtility.set_calibration_transform(tr.position, tr.rotation);
                 } else {

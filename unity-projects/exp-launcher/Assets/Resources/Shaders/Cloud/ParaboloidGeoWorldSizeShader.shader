@@ -60,28 +60,42 @@ Shader "Custom/Cloud/ParaboloidGeoWorldSizeShader"
 			int _Circles;
 			int _Details; //1, 2 or 3
 			float4 _Tint;
-
 			int _OBBFiltering;
-			float3 _ObbPos;
-			float3 _ObbSize;
-			float4x4 _ObbOrientation;
+
+			float4 _ObbsPos[10];
+			float4 _ObbsSize[10];
+			float4x4 _ObbsOrientation[10];
 
 			float4 valid_vertex(float4 p) {
 
-				float3 dir = p.xyz - _ObbPos;
-				for (int ii = 0; ii < 3; ++ii) {
+				for (int idOBB = 0; idOBB < 10; ++idOBB) {
 
-					float d = dot(dir, _ObbOrientation[ii].xyz);
-					if (d > _ObbSize[ii]) {
-						return float4(p.x, p.y, p.z, 0.0);
-					}
+					if (_ObbsSize[idOBB].w == 1.f) {
 
-					if (d < -_ObbSize[ii]) {
-						return float4(p.x, p.y, p.z, 0.0);
+						float3 dir = p.xyz - _ObbsPos[idOBB];
+						bool inside = true;
+
+						for (int idV = 0; idV < 3; ++idV) {
+
+							if (inside) {
+
+								float d = dot(dir, _ObbsOrientation[idOBB][idV].xyz);
+								if (d > _ObbsSize[idOBB][idV]) {
+									inside = false;
+								}
+								if (d < -_ObbsSize[idOBB][idV]) {
+									inside = false;
+								}
+							}
+						}
+
+						if (inside) {
+							return float4(p.x, p.y, p.z, 1.0);
+						}
 					}
 				}
 
-				return float4(p.x, p.y, p.z, 1.0);
+				return float4(p.x, p.y, p.z, 0.0);
 			}
 
 

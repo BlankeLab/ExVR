@@ -30,93 +30,95 @@
 
 namespace tool::ex {
 
-    struct Connection;
-    using ConnectionUP = std::unique_ptr<Connection>;
+struct Connection{
 
-    struct Connection{
-
-        explicit Connection(ConnectionKey id) : key(IdKey::Type::Connection, id.v){
-        }
-
-        enum class Type{
-            Component,Connector
-        };
-
-        static ConnectionUP copy_with_new_element_id(const Connection &connectionToCopy, std::unordered_map<int,int> keysMapping){
-
-            ConnectionUP connection = std::make_unique<Connection>(ConnectionKey{-1});
-
-            if(connectionToCopy.startType == Type::Component){
-                connection->startKey = connectionToCopy.startKey;
-            }else{
-                connection->startKey = keysMapping[connectionToCopy.startKey];
-            }
-
-            if(connectionToCopy.endType == Type::Component){
-                connection->endKey = connectionToCopy.endKey;
-            }else{
-                connection->endKey = keysMapping[connectionToCopy.endKey];
-            }
-
-            connection->startType       = connectionToCopy.startType;
-            connection->endType         = connectionToCopy.endType;
-            connection->startIndex      = connectionToCopy.startIndex;
-            connection->endIndex        = connectionToCopy.endIndex;
-            connection->slot            = connectionToCopy.slot;
-            connection->signal          = connectionToCopy.signal;
-            connection->startDataType   = connectionToCopy.startDataType;
-            connection->endDataType     = connectionToCopy.endDataType;
-
-            return connection;
-        }
-
-        inline QString to_string() const{
-            return
-                QSL("Connection(") % QString::number(key()) %
-                QSL("|signal:") % signal % QSL("|startDataType:") % startDataType %
-                QSL("|endDataType:")  % endDataType % QSL("|slot:") % slot % QSL(")");
-        }
-
-        Type startType;
-        Type endType;
-
-        int startKey;
-        int endKey;
-
-        int startIndex;
-        int endIndex;
-
-        QString slot;
-        QString signal;
-
-        QString startDataType;
-        QString endDataType;
-
-        IdKey key;
-
-        bool selected = false;
+    enum class Type{
+        Component,Connector
     };
 
-    // TODO: add component/connector pointers instead of id
+    Connection() = delete;
+    Connection(ConnectionKey id) : m_key(IdKey::Type::Connection, id.v){}
+    Connection(const Connection &) = delete;
+    Connection& operator=(const Connection&) = delete;
 
+    static std::unique_ptr<Connection> copy_with_new_element_id(const Connection &connectionToCopy, std::unordered_map<int,int> keysMapping){
 
-    static bool operator<(const ConnectionUP &l, const ConnectionUP &r){
-        if(l->key() == r->key()){
-            return false;
+        std::unique_ptr<Connection> connection = std::make_unique<Connection>(ConnectionKey{-1});
+
+        if(connectionToCopy.startType == Type::Component){
+            connection->startKey = connectionToCopy.startKey;
+        }else{
+            connection->startKey = keysMapping[connectionToCopy.startKey];
         }
-        if(
-            (l->startKey == r->startKey) &&
-            (l->endKey == r->endKey) &&
-            (l->startIndex == r->startIndex) &&
-            (l->endIndex == r->endIndex)){
-            return false;
+
+        if(connectionToCopy.endType == Type::Component){
+            connection->endKey = connectionToCopy.endKey;
+        }else{
+            connection->endKey = keysMapping[connectionToCopy.endKey];
         }
-        return true;
+
+        connection->startType       = connectionToCopy.startType;
+        connection->endType         = connectionToCopy.endType;
+        connection->startIndex      = connectionToCopy.startIndex;
+        connection->endIndex        = connectionToCopy.endIndex;
+        connection->slot            = connectionToCopy.slot;
+        connection->signal          = connectionToCopy.signal;
+        connection->startDataType   = connectionToCopy.startDataType;
+        connection->endDataType     = connectionToCopy.endDataType;
+
+        return connection;
     }
 
-    static bool operator==(const ConnectionUP &l, const ConnectionUP &r){
-        return !(l < r) && !(r < l);
+    inline QString to_string() const{
+        return
+            QSL("Connection(") % QString::number(key()) %
+            QSL("|signal:") % signal % QSL("|startDataType:") % startDataType %
+            QSL("|endDataType:")  % endDataType % QSL("|slot:") % slot % QSL(")");
     }
+
+    constexpr int key() const noexcept{ return m_key();}
+    constexpr ConnectionKey c_key() const noexcept {return ConnectionKey{key()};}
+
+    Type startType;
+    Type endType;
+
+    int startKey;
+    int endKey;
+
+    int startIndex;
+    int endIndex;
+
+    QString slot;
+    QString signal;
+
+    QString startDataType;
+    QString endDataType;
+
+    bool selected = false;
+
+private:
+    IdKey m_key;
+};
+
+
+
+static bool operator<(const std::unique_ptr<Connection> &l, const std::unique_ptr<Connection> &r){
+    if(l->key() == r->key()){
+        return false;
+    }
+    if(
+        (l->startKey == r->startKey) &&
+        (l->endKey == r->endKey) &&
+        (l->startIndex == r->startIndex) &&
+        (l->endIndex == r->endIndex)){
+        return false;
+    }
+    return true;
+}
+
+[[maybe_unused]]  static bool operator==(const std::unique_ptr<Connection> &l, const std::unique_ptr<Connection> &r){
+    return !(l < r) && !(r < l);
+}
 }
 
 

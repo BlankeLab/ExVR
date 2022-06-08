@@ -30,11 +30,11 @@
 
 using namespace tool::ex;
 
-ConfigUP Config::copy_with_new_element_id(const Config &configToCopy, const QString &newName){
+std::unique_ptr<Config> Config::copy_with_new_element_id(const Config &configToCopy, const QString &newName){
 
-    ConfigUP config = std::make_unique<Config>(newName, ConfigKey{-1});
+    auto config = std::make_unique<Config>(newName, ConfigKey{-1});
     for(const auto &arg : configToCopy.args){ // create a new element id for each arg when we duplicate
-        config->args[arg.first] = Arg::copy_with_new_element_id(arg.second);
+        config->args[arg.first] = Arg::copy(arg.second);
     }
     return config;
 }

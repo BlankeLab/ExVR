@@ -71,15 +71,15 @@ namespace Ex {
         };
 
         public void log_message(string message) {
-            ExVR.Log().message(string.Format("[RESOURCE] {0}", message), false);
+            ExVR.Log().message(string.Format("[RESOURCE] {0}", message), false, "", "", 0, true, false);
         }
 
         public void log_warning(string warning) {
-            ExVR.Log().warning(string.Format("[RESOURCE] {0}", warning));
+            ExVR.Log().warning(string.Format("[RESOURCE] {0}", warning), true, "", "", 0, true, false);
         }
 
         public void log_error(string error) {
-            ExVR.Log().error(string.Format("[RESOURCE] {0}", error));
+            ExVR.Log().error(string.Format("[RESOURCE] {0}", error), true, "", "", 0, true, false);
         }
 
         private Dictionary<ResourceType, Dictionary<string, ExResource>> m_pathMappingResources = null; // type - path -> resource        
@@ -190,7 +190,7 @@ namespace Ex {
             return true;
         }
 
-        public void generate_from_xml(XML.Experiment xmlExperiment) {
+        public bool generate_from_xml(XML.Experiment xmlExperiment) {
 
 
             XML.Resources xmlResources = xmlExperiment.Resources;
@@ -326,7 +326,9 @@ namespace Ex {
                 // compile assembly from scripts
                 if (scriptsFiles.Count > 0) {
                     log_message(string.Format("Compile C# scripts [{0}]...", scriptsFiles.Count));                    
-                    CSharpScriptResource.compile_assembly_from_scripts_files(scriptsFiles.ToArray());
+                    if(CSharpScriptResource.compile_assembly_from_scripts_files(scriptsFiles.ToArray()) == null) {
+                        return false;
+                    }
                 }
             }
 
@@ -342,6 +344,8 @@ namespace Ex {
                     }
                 }
             }
+
+            return true;
         }
 
         public ExResource get_resource_file_data(int key) {

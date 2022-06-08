@@ -88,9 +88,16 @@ private slots :
 
 private :
 
+    std::optional<QStringView> extract_balise(QStringView &message);
+    std::optional<QStringView> extract_balise_message(QStringView balise, QStringView start, QStringView end);
+
     static inline const QString Sep       = QSL("|");
     static inline const QString StartCmd  = QSL("[%]");
     static inline const QString EndCmd    = QSL("[/%]");
+
+    static inline const QString SBalise  = QSL("[$");
+    static inline const QString EBalise  = QSL("$]");
+
 
     static inline const QString SLog           = QSL("[$L]");
     static inline const QString ELog           = QSL("[/L$]");

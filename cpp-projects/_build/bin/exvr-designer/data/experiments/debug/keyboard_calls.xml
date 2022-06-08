@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Experiment name="keyboard_calls" version="1.0a48" mode="designer" designer-used="C:/all/lnco-exvr/exvr/cpp-projects/_build/bin/exvr-designer/ExVR.exe">
+    <Settings debug="1" csharp_debug_info="0" catch_components_exceptions="0" positional_tracking="1" catch_external_keyboard_events="1">
+        <Display mode="0" stereo_fov="60" fullscreen="0" monitor_id="1" resolution_id="2" custom_width="1920" custom_height="1080"/>
+        <Camera neutral_x="0" neutral_y="1" neutral_z="0"/>
+    </Settings>
+    <Resources reload="200"/>
+    <Components>
+        <Component key="0" name="Keyboard" type="Keyboard">
+            <InitConfig key="0" name="standard"/>
+            <Configs>
+                <Config key="1" name="standard"/>
+            </Configs>
+        </Component>
+    </Components>
+    <FlowElements>
+        <Routines>
+            <Routine key="1" name="Routine 1" randomizer="0" informations="">
+                <Condition key="0" name="default" duration="10" ui_scale="10" ui_size="1" sets_keys="">
+                    <Action key="0" key_component="0" key_config="1" node_used="1" node_position="216 331">
+                        <!--Component Keyboard with config standard -->
+                        <Timeline type="Update">
+                            <!--Starts at 0(s) and ends at 10s(), duration: 10(s) -->
+                            <Interval t1="0" t2="10"/>
+                        </Timeline>
+                        <Timeline type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 10s(), duration: 10(s) -->
+                            <Interval t1="0" t2="10"/>
+                        </Timeline>
+                    </Action>
+                    <Connector key="0" name="UpdateRoutine" node_position="165 183">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="1" name="DecimalCounter" node_position="759 73">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="2" name="PassValueTrigger" node_position="453 98">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="3" name="Integer" node_position="223 87">
+                        <Arg name="value" ui="Integer spin box" value="1" type="System.Int32" dim="0"/>
+                    </Connector>
+                    <Connector key="4" name="CheckKeyboardButton" node_position="413 268">
+                        <Arg name="value" ui="Combo box text" value="Backspace" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="5" name="DecimalCounter" node_position="1050 217">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="6" name="PassValueTrigger" node_position="763 260">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="7" name="PassValueTrigger" node_position="816 376">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="8" name="PassValueTrigger" node_position="832 545">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="9" name="DecimalCounter" node_position="1094 359">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="10" name="DecimalCounter" node_position="1108 534">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <!--Connection between Key0:Connector:UpdateRoutine:Port0 and Key2:Connector:PassValueTrigger:Port1 -->
+                    <Connection key="0" out_type="connector" out_key="0" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="2" slot_id="1" in_data_type="trigger" slot="input value 1"/>
+                    <!--Connection between Key2:Connector:PassValueTrigger:Port0 and Key1:Connector:DecimalCounter:Port0 -->
+                    <Connection key="1" out_type="connector" out_key="2" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="1" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key3:Connector:Integer:Port0 and Key2:Connector:PassValueTrigger:Port0 -->
+                    <Connection key="2" out_type="connector" out_key="3" signal_id="0" out_data_type="integer" signal="output value 0" in_type="connector" in_key="2" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key0:Component:Keyboard:Port0 and Key4:Connector:CheckKeyboardButton:Port0 -->
+                    <Connection key="3" out_type="component" out_key="0" signal_id="0" out_data_type="keyboard_button" signal="button" in_type="connector" in_key="4" slot_id="0" in_data_type="keyboard_button" slot="input value 0"/>
+                    <!--Connection between Key4:Connector:CheckKeyboardButton:Port2 and Key6:Connector:PassValueTrigger:Port1 -->
+                    <Connection key="4" out_type="connector" out_key="4" signal_id="2" out_data_type="real" signal="output value 2" in_type="connector" in_key="6" slot_id="1" in_data_type="trigger" slot="input value 1"/>
+                    <!--Connection between Key3:Connector:Integer:Port0 and Key6:Connector:PassValueTrigger:Port0 -->
+                    <Connection key="5" out_type="connector" out_key="3" signal_id="0" out_data_type="integer" signal="output value 0" in_type="connector" in_key="6" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key6:Connector:PassValueTrigger:Port0 and Key5:Connector:DecimalCounter:Port0 -->
+                    <Connection key="6" out_type="connector" out_key="6" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="5" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key4:Connector:CheckKeyboardButton:Port0 and Key7:Connector:PassValueTrigger:Port1 -->
+                    <Connection key="7" out_type="connector" out_key="4" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="7" slot_id="1" in_data_type="trigger" slot="input value 1"/>
+                    <!--Connection between Key4:Connector:CheckKeyboardButton:Port1 and Key8:Connector:PassValueTrigger:Port1 -->
+                    <Connection key="8" out_type="connector" out_key="4" signal_id="1" out_data_type="real" signal="output value 1" in_type="connector" in_key="8" slot_id="1" in_data_type="trigger" slot="input value 1"/>
+                    <!--Connection between Key3:Connector:Integer:Port0 and Key7:Connector:PassValueTrigger:Port0 -->
+                    <Connection key="9" out_type="connector" out_key="3" signal_id="0" out_data_type="integer" signal="output value 0" in_type="connector" in_key="7" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key3:Connector:Integer:Port0 and Key8:Connector:PassValueTrigger:Port0 -->
+                    <Connection key="10" out_type="connector" out_key="3" signal_id="0" out_data_type="integer" signal="output value 0" in_type="connector" in_key="8" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key7:Connector:PassValueTrigger:Port0 and Key9:Connector:DecimalCounter:Port0 -->
+                    <Connection key="11" out_type="connector" out_key="7" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="9" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                    <!--Connection between Key8:Connector:PassValueTrigger:Port0 and Key10:Connector:DecimalCounter:Port0 -->
+                    <Connection key="12" out_type="connector" out_key="8" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="10" slot_id="0" in_data_type="decimal" slot="input value 0"/>
+                </Condition>
+            </Routine>
+        </Routines>
+        <ISIs/>
+        <Loops/>
+    </FlowElements>
+    <FlowSequence>
+        <Element key="1" type="Routine"/>
+    </FlowSequence>
+</Experiment>

@@ -59,7 +59,7 @@ namespace Ex{
             if (arm.ContainsKey(positionName)) {
                 return arm[positionName];
             }
-            ExVR.Log().error("Position " + positionName + " doesn't exist");
+            ExVR.Log().error(string.Format("Position {0} doesn't exist", positionName));
             return new Vector3();
         }
 
@@ -69,7 +69,7 @@ namespace Ex{
             if (arm.ContainsKey(normalName)) {
                 return arm[normalName];
             }
-            ExVR.Log().error("Normal " + normalName + " doesn't exist");
+            ExVR.Log().error(string.Format("Normal {0} doesn't exist", normalName));
             return new Vector3();
         }
 
@@ -78,7 +78,7 @@ namespace Ex{
             if (armInfo.ContainsKey(measureName)) {
                 return armInfo[measureName];
             }
-            ExVR.Log().error("Measure " + measureName + " doesn't exist");
+            ExVR.Log().error(string.Format("Measure {0} doesn't exist", measureName));
             return 0f;
         }
 
@@ -87,7 +87,7 @@ namespace Ex{
             if (armDirection.ContainsKey(directionName)) {
                 return armDirection[directionName];
             }
-            ExVR.Log().error("Direction " + directionName + " doesn't exist");
+            ExVR.Log().error(string.Format("Direction {0} doesn't exist", directionName));
             return new Vector3();
         }
 
@@ -96,7 +96,7 @@ namespace Ex{
             if (armRotations.ContainsKey(rotationName)) {
                 return armRotations[rotationName];
             }
-            ExVR.Log().error("Rotation " + rotationName + " doesn't exist");
+            ExVR.Log().error(string.Format("Rotation {0} doesn't exist", rotationName));
             return new Quaternion();
         }
 
@@ -226,7 +226,7 @@ namespace Ex{
             add_signal("new hands frame");
 
             // init leap provider
-            m_leap = ExVR.Display().cameras().get_eye_camera_transform().gameObject.AddComponent<Leap.Unity.LeapXRServiceProvider>();
+            m_leap = ExVR.Display().cameras().get_eye_camera_transform().gameObject.AddComponent<Leap.Unity.LeapXRServiceProvider>();                        
 
             return true;
         }
@@ -240,6 +240,23 @@ namespace Ex{
                 log_warning("LeapMotion not connected.");
             }
         }
+
+        protected override void update_parameter_from_gui(string updatedArgName) {
+            update_from_current_config();
+        }
+
+        public override void update_from_current_config() {
+            if (currentC.get<bool>("use_transform_as_origin")) {
+
+                currentC.update_transform("transform", transform, false, true, true, true);
+                m_leap.deviceOrigin = transform;
+                m_leap.deviceOffsetMode = Leap.Unity.LeapXRServiceProvider.DeviceOffsetMode.Transform;
+            } else {
+                m_leap.deviceOffsetMode = Leap.Unity.LeapXRServiceProvider.DeviceOffsetMode.Default;
+                m_leap.deviceOrigin = null;
+            }
+        }
+
 
         protected override void pre_update() {
 

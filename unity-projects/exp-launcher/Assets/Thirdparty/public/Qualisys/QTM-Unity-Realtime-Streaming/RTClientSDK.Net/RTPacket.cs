@@ -1,170 +1,220 @@
-﻿// Realtime SDK for Qualisys Track Manager. Copyright 2015 Qualisys AB
+﻿// Realtime SDK for Qualisys Track Manager. Copyright 2015-2018 Qualisys AB
 //
+using QTMRealTimeSDK.Settings;
 using System;
-using System.Linq;
-using System.Collections;
 using System.Collections.Generic;
-using System.Xml.Serialization;
+using System.Linq;
 using System.Text.RegularExpressions;
-using System.Net;
-using System.Net.Sockets;
+using System.Xml.Serialization;
 
 namespace QTMRealTimeSDK.Data
 {
-#region Enumerations related to RTPacket
+    #region Enumerations related to RTPacket
 
-	/// <summary>Type of package sent via RT</summary>
-	public enum PacketType
-	{
-		PacketError = 0,
-		PacketCommand,
-		PacketXML,
-		PacketData,
-		PacketNoMoreData,
-		PacketC3DFile,
-		PacketEvent,
-		PacketDiscover,
-		PacketQTMFile,
-		PacketNone
-	}
+    /// <summary>Type of package sent via RT</summary>
+    public enum PacketType
+    {
+        PacketError = 0,
+        PacketCommand,
+        PacketXML,
+        PacketData,
+        PacketNoMoreData,
+        PacketC3DFile,
+        PacketEvent,
+        PacketDiscover,
+        PacketQTMFile,
+        PacketNone
+    }
 
-	/// <summary>Type of component sent with RT</summary>
-	public enum ComponentType
-	{
-		Component3d = 1,
-		Component3dNoLabels,
-		ComponentAnalog,
-		ComponentForce,
-		Component6d,
-		Component6dEuler,
-		Component2d,
-		Component2dLinearized,
-		Component3dResidual,
-		Component3dNoLabelsResidual,
-		Component6dResidual,
-		Component6dEulerResidual,
-		ComponentAnalogSingle,
-		ComponentImage,
-		ComponentForceSingle,
-        ComponentGazeVector,
-		ComponentNone,
-        ComponentAll
-	}
+    /// <summary>Type of component streamed</summary>
+    public enum ComponentType
+    {
+        // Labeled 3d markers (Get3DMarkerData)
+        Component3d = 1,
+        // Unidentified 3d markers (Get3DMarkerNoLabelsData)
+        Component3dNoLabels = 2,
+        // Analog data (GetAnalogData)
+        ComponentAnalog = 3,
+        // Force data (GetForceData)
+        ComponentForce = 4,
+        // 6D data - position and rotation matrix (Get6DOFData)
+        Component6d = 5,
+        // 6D data - position and Euler angles (Get6DOFEulerData)
+        Component6dEuler = 6,
+        // 2D marker data (Get2DMarkerData)
+        Component2d = 7,
+        // Linearized 2D marker data (Get2DLinearizedMarkerDAta)
+        Component2dLinearized = 8,
+        // Labeled 3d markers with residual (Get3DMarkerResidualData)
+        Component3dResidual = 9,
+        // Unidentified 3d markers with residual (Get3DMarkerNoLabelsResidualData)
+        Component3dNoLabelsResidual = 10,
+        // 6D data - position and rotation matrix with residuals with residual (Get6DOFResidualData)
+        Component6dResidual = 11,
+        // 6D data - position and Euler angles with residual (Get6DOFEulerResidualData)
+        Component6dEulerResidual = 12,
+        // Analog data from available analog devices. Only one sample per channel and camera frame. The latest sample is used if more than one sample is available. (GetAnalogSingleData)
+        ComponentAnalogSingle = 13,
+        // Image frame from a specific camera. Image size and format is set with the XML settings, see Image settings. (GetImageData)
+        ComponentImage = 14,
+        // Force data from available force plates. Only one sample per plate and camera frame. The latest sample is used if more than one sample is available. (GetForceSingleData)
+        ComponentForceSingle = 15,
+        // Gaze vector data from eye tracker (GetGazeVectorData)
+        ComponentGazeVector = 16,
+        // Timecode component
+        ComponentTimecode = 17,
+        // Skeleton component
+        ComponentSkeleton = 18,
+        // Eye tracker component
+        ComponentEyeTracker = 19,
+        // Nothing
+        ComponentNone = 20,
+    }
 
-	/// <summary>Events sent from QTM via RT</summary>
-	public enum QTMEvent
-	{
-		EventConnected = 1,
-		EventConnectionClosed,
-		EventCaptureStarted,
-		EventCaptureStopped,
-		EventCaptureFetchingFinished,
-		EventCalibrationStarted,
-		EventCalibrationStopped,
-		EventRTFromFileStarted,
-		EventRTFromFileStopped,
-		EventWaitingForTrigger,
-		EventCameraSettingsChanged,
-		EventQTMShuttingDown,
-		EventCaptureSaved,
-		EventNone
-	}
+    /// <summary>Events sent from QTM via RT</summary>
+    public enum QTMEvent
+    {
+        Connected = 1,
+        ConnectionClosed,
+        CaptureStarted,
+        CaptureStopped,
+        CaptureFetchingFinished,
+        CalibrationStarted,
+        CalibrationStopped,
+        RTFromFileStarted,
+        RTFromFileStopped,
+        WaitingForTrigger,
+        CameraSettingsChanged,
+        QTMShuttingDown,
+        CaptureSaved,
+        ReprocessingStarted,
+        ReprocessingStopped,
+        Trigger,
+        None
+    }
 
-#endregion
+    // <summary>Timecode types available from QTM</summary>
+    public enum TimecodeType
+    {
+        SMPTE = 0,
+        IRIG,
+        CameraTime
+    }
 
-#region Data structures related to RTPacket
+    #endregion
 
-	/// <summary>Data for cameras, includes 2D marker data</summary>
-	public struct Camera
-	{
-		/// <summary>Number of markers</summary>
-		public uint MarkerCount;
-		/// <summary>Only first bits is used, too much light enters camera</summary>
-		public byte StatusFlags;
-		/// <summary>Marker data for this camera</summary>
-		public Q2D[] MarkerData2D;
-	}
+    #region Data structures related to RTPacket
 
-	/// <summary>Struct for xyz coordinates</summary>
-	public struct Point
-	{
+    /// <summary>Data for cameras, includes 2D marker data</summary>
+    public struct Camera
+    {
+        /// <summary>Number of markers</summary>
+        public uint MarkerCount;
+        /// <summary>Only first bits is used, too much light enters camera</summary>
+        public byte StatusFlags;
+        /// <summary>Marker data for this camera</summary>
+        public Q2D[] MarkerData2D;
+    }
+
+    /// <summary>Struct for xyz coordinates</summary>
+    public struct Point
+    {
         [XmlElement("X")]
-		public float X;
+        public float X;
         [XmlElement("Y")]
         public float Y;
         [XmlElement("Z")]
         public float Z;
-	}
+    }
+    /// <summary>Struct for quaterinion </summary>
+    public struct QuatRotation
+    {
+        [XmlElement("A")]
+        public float X;
+        [XmlElement("B")]
+        public float Y;
+        [XmlElement("C")]
+        public float Z;
+        [XmlElement("D")]
+        public float W;
+    }
 
+    /// <summary>Struct for Euler rotation</summary>
+    public struct EulerRotation
+    {
+        public float First;
+        public float Second;
+        public float Third;
+    }
     /// <summary>Data from a force plate, includes samples</summary>
-	public struct ForcePlate
-	{
+    public struct ForcePlate
+    {
         /// <summary>ID of plate</summary>
-		public int PlateId;
+        public int PlateId;
         /// <summary>Number of forces in frame</summary>
-		public int ForceCount;
+        public int ForceCount;
         /// <summary>Force number, increased with the force frequency</summary>
-		public int ForceNumber;
+        public int ForceNumber;
         /// <summary>Samples collected from plate</summary>
-		public ForceSample[] ForceSamples;
-	}
+        public ForceSample[] ForceSamples;
+    }
 
-	/// <summary>samples for a force plat</summary>
-	public struct ForceSample
-	{
-		/// <summary>Coordinate of the force </summary>
-		public Point Force;
-		/// <summary>Coordinate of the moment </summary>
-		public Point Moment;
-		/// <summary>Coordinate of the force application point </summary>
-		public Point ApplicationPoint;
-	}
+    /// <summary>samples for a force plat</summary>
+    public struct ForceSample
+    {
+        /// <summary>Coordinate of the force </summary>
+        public Point Force;
+        /// <summary>Coordinate of the moment </summary>
+        public Point Moment;
+        /// <summary>Coordinate of the force application point </summary>
+        public Point ApplicationPoint;
+    }
 
-	/// <summary>2D Data for markers from cameras. used by both for non- and linearized marker</summary>
-	public struct Q2D
-	{
-		/// <summary>X coordinate of the marker</summary>
-		public uint X;
-		/// <summary>Y coordinate of the marker</summary>
-		public uint Y;
-		/// <summary>X diameter of the marker</summary>
-		public ushort DiameterX;
-		/// <summary>Y diameter of the marker</summary>
-		public ushort DiameterY;
-	}
+    /// <summary>2D Data for markers from cameras. used by both for non- and linearized marker</summary>
+    public struct Q2D
+    {
+        /// <summary>X coordinate of the marker</summary>
+        public uint X;
+        /// <summary>Y coordinate of the marker</summary>
+        public uint Y;
+        /// <summary>X diameter of the marker</summary>
+        public ushort DiameterX;
+        /// <summary>Y diameter of the marker</summary>
+        public ushort DiameterY;
+    }
 
-	/// <summary>3D data for marker</summary>
-	public struct Q3D
-	{
-		/// <summary>ID of marker, 0 of marker has label</summary>
-		public uint Id;
-		/// <summary>Position data for marker</summary>
-		public Point Position;
-		/// <summary>Residual for marker, -1 if residual was not requested</summary>
-		public float Residual;
-	}
+    /// <summary>3D data for marker</summary>
+    public struct Q3D
+    {
+        /// <summary>ID of marker, 0 of marker has label</summary>
+        public uint Id;
+        /// <summary>Position data for marker</summary>
+        public Point Position;
+        /// <summary>Residual for marker, -1 if residual was not requested</summary>
+        public float Residual;
+    }
 
-	/// <summary>Data for 6DOF (6 Degrees Of Freedom) Body</summary>
-	public struct Q6DOF
-	{
-		/// <summary>Position data for bod</summary>
-		public Point Position;
-		/// <summary>Rotation matrix for bod</summary>
-		public float[] Matrix;
-		/// <summary>Residual for body, -1 if residual was not requested</summary>
-		public float Residual;
-	}
+    /// <summary>Data for 6DOF (6 Degrees Of Freedom) Body</summary>
+    public struct Q6DOF
+    {
+        /// <summary>Position data for body</summary>
+        public Point Position;
+        /// <summary>Rotation matrix for body</summary>
+        public float[] Matrix;
+        /// <summary>Residual for body, -1 if residual was not requested</summary>
+        public float Residual;
+    }
 
-	/// <summary>Data for 6DOF (6 Degrees Of Freedom) Body, Euler angles instead of matri</summary>
-	public struct Q6DOFEuler
-	{
-		/// <summary>Position data for bod</summary>
-		public Point Position;
-		/// <summary>Euler angles for bod</summary>
-		public Point Rotation;
-		/// <summary>Residual for body, -1 if residual was not requested</summary>
-		public float Residual;
-	}
+    /// <summary>Data for 6DOF (6 Degrees Of Freedom) Body, Euler angles instead of matrix</summary>
+    public struct Q6DOFEuler
+    {
+        /// <summary>Position data for body</summary>
+        public Point Position;
+        /// <summary>Euler angles for body</summary>
+        public EulerRotation Rotation;
+        /// <summary>Residual for body, -1 if residual was not requested</summary>
+        public float Residual;
+    }
 
     /// <summary>Data from a analog device, includes samples</summary>
     public struct Analog
@@ -175,30 +225,32 @@ namespace QTMRealTimeSDK.Data
         public uint ChannelCount;
         /// <summary>Samples for all channels</summary>
         public AnalogChannelData[] Channels;
+        /// <summary>Start sample number for analog data packet</summary>
+        public uint SampleNumber;
     }
 
     /// <summary>Channel data from analog device</summary>
     public struct AnalogChannelData
-	{
-		/// <summary>Sample data for channel</summary>
-		public float[] Samples;
+    {
+        /// <summary>Sample data for channel</summary>
+        public float[] Samples;
         /// <summary>Sample number</summary>
         public uint SampleNumber;
-	}
+    }
 
     /// <summary>Data for camera image</summary>
-	public struct CameraImage
-	{
+    public struct CameraImage
+    {
         /// <summary>Id of camera image originates from</summary>
-		public uint CameraID;
+        public uint CameraID;
         /// <summary>Image format</summary>
-		public ImageFormat ImageFormat;
+        public ImageFormat ImageFormat;
         /// <summary>Width of image</summary>
-		public uint Width;
+        public uint Width;
         /// <summary>Height of image</summary>
-		public uint Height;
+        public uint Height;
         /// <summary>Scaled value of cropping from left</summary>
-		public float LeftCrop;
+        public float LeftCrop;
         /// <summary>Scaled value of cropping from top</summary>
         public float TopCrop;
         /// <summary>Scaled value of cropping from right</summary>
@@ -206,44 +258,110 @@ namespace QTMRealTimeSDK.Data
         /// <summary>Scaled value of cropping from bottom</summary>
         public float BottomCrop;
         /// <summary>Size of image data</summary>
-		public int ImageSize;
+        public int ImageSize;
         /// <summary>Actual image data</summary>
-		public byte[] ImageData;
-	}
+        public byte[] ImageData;
+    }
 
     /// <summary>Data for Gaze vector.</summary>
     public struct GazeVector
+    {
+        /// <summary>Sample number</summary>
+        public uint SampleNumber;
+        /// <summary>Gaze vector data array</summary>
+        public GazeVectorSample[] GazeVectorData;
+    }
+    public struct GazeVectorSample
     {
         /// <summary>Gaze vector</summary>
         public Point Gaze;
         /// <summary>Gaze vector position</summary>
         public Point Position;
-        public uint SampleNumber;
     }
 
-    /// <summary>Data with response from Discovery broadcast</summary>
-    public struct DiscoveryResponse
+    /// <summary>Data for Eye tracker.</summary>
+    public struct EyeTracker
     {
-        /// <summary>Hostname of server</summary>
-        public string HostName;
-        /// <summary>IP to server</summary>
-        public string IpAddress;
-        /// <summary>Base port</summary>
-        public short Port;
-        /// <summary>Info text about host</summary>
-        public string InfoText;
-        /// <summary>Number of cameras connected to server</summary>
-        public int CameraCount;
+        /// <summary>Sample number</summary>
+        public uint SampleNumber;
+        /// <summary>Eye tracker data array</summary>
+        public EyeTrackerSample[] EyeTrackerData;
     }
 
-#endregion
+    /// <summary>Data for Eye tracker.</summary>
+    public struct EyeTrackerSample
+    {
+        /// <summary>Left Pupil Position</summary>
+        public float LeftPupilDiameter;
+        /// <summary>Right Pupil Position</summary>
+        public float RightPupilDiameter;
+    }
 
-	public class RTPacket
-	{
+    /// <summary>Data for Timecode.</summary>
+    public struct Timecode
+    {
+        /// <summary>Gaze vector</summary>
+        public TimecodeType Type;
+        /// <summary>Gaze vector position</summary>
+        public uint High;
+        /// <summary>Sample number</summary>
+        public uint Low;
+
+        public override string ToString()
+        {
+            return this.FormatTimestamp();
+        }
+    }
+
+    /// <summary> IRIG timecode struct </summary>
+    public struct IRIGTimecode
+    {
+        public uint Year;
+        public uint Day;
+        public uint Hour;
+        public uint Minute;
+        public uint Second;
+        public uint Tenth;
+    }
+
+    /// <summary> SMPTE timecode struct </summary>
+    public struct SMPTETimecode
+    {
+        public uint Hour;
+        public uint Minute;
+        public uint Second;
+        public uint Frame;
+    }
+
+    /// <summary>Data for Skeleton segment</summary>
+    public struct SkeletonSegment
+    {
+        /// <summary>ID</summary>
+        public uint ID;
+        /// <summary>Skeleton position</summary>
+        public Point Position;
+        /// <summary>Skeleton rotation</summary>
+        public QuatRotation Rotation;
+    }
+    /// <summary>Data for Skeleton</summary>
+    public struct Skeleton
+    {
+        // <summary>Segment data</summary>
+        public List<SkeletonSegment> Segments;
+        /// <summary>Sample number</summary>
+        public uint SampleNumber;
+        /// <summary>Number of segments</summary>
+        public uint SegmentCount;
+    }
+
+    #endregion
+
+    public class RTPacket
+    {
         /// <summary>return packet with no data but only type set to error packet</summary>
-        public static RTPacket ErrorPacket{ get { return new RTPacket(PacketType.PacketError); } }
+        public static RTPacket ErrorPacket { get { return new RTPacket(PacketType.PacketError); } }
 
-		int mMajorVersion;
+        int mMajorVersion;
         /// <summary>Major protocol version of packet</summary>
         public int MajorVersion { get { return mMajorVersion; } }
 
@@ -251,25 +369,21 @@ namespace QTMRealTimeSDK.Data
         /// <summary>Minor protocol version of packet</summary>
         public int MinorVersion { get { return mMinorVersion; } }
 
-		int mPacketSize;
+        int mPacketSize;
         /// <summary>size of packet in bytes</summary>
         public int PacketSize { get { return mPacketSize; } }
 
-		PacketType mPacketType;
-		 /// <summary>what type of packet</summary>
+        PacketType mPacketType;
+        /// <summary>what type of packet</summary>
         public PacketType PacketType { get { return mPacketType; } }
 
-		long mTimestamp;
-		 /// <summary>if the packet is a data packet, this will return the timestamp, otherwise -1</summary>
+        long mTimestamp;
+        /// <summary>if the packet is a data packet, this will return the timestamp, otherwise -1</summary>
         public long TimeStamp { get { return mTimestamp; } }
 
-		int mFrameNumber;
-		 /// <summary>if the packet is a data packet, this will return the frame number, otherwise -1</summary>
+        int mFrameNumber;
+        /// <summary>if the packet is a data packet, this will return the frame number, otherwise -1</summary>
         public int Frame { get { return mFrameNumber; } }
-
-		int mComponentCount;
-		 /// <summary>if the packet is a data packet, this will return the number of component types in packet, otherwise -1</summary>
-        public int ComponentCount { get { return mComponentCount; } }
 
         uint m2DDropRate;
         /// <summary>Drop rate from cameras</summary>
@@ -279,7 +393,7 @@ namespace QTMRealTimeSDK.Data
         public uint OutOfSyncRate { get { return m2DOutOfSyncRate; } }
 
         /// <summary>Number of cameras</summary>
-        public int CameraCount { get { return (m2DMarkerData != null) ? m2DMarkerData.Count : -1 ; } }
+        public int CameraCount { get { return (m2DMarkerData != null) ? m2DMarkerData.Count : -1; } }
         /// <summary>Number of markers</summary>
         public int MarkerCount { get { return (m3DMarkerData != null) ? m3DMarkerData.Count : -1; } }
         /// <summary>Number of bodies</summary>
@@ -287,22 +401,26 @@ namespace QTMRealTimeSDK.Data
 
         byte[] mData;
         internal byte[] Data { get { return mData; } }
-		List<Camera> m2DMarkerData;
-		List<Camera> m2DLinearMarkerData;
-		List<Q3D> m3DMarkerData;
-		List<Q3D> m3DMarkerResidualData;
-		List<Q3D> m3DMarkerNoLabelData;
-		List<Q3D> m3DMarkerNoLabelResidualData;
+
+        List<Camera> m2DMarkerData;
+        List<Camera> m2DLinearizedMarkerData;
+        List<Q3D> m3DMarkerData;
+        List<Q3D> m3DMarkerResidualData;
+        List<Q3D> m3DMarkerNoLabelData;
+        List<Q3D> m3DMarkerNoLabelResidualData;
         List<Q6DOF> m6DOFData;
         List<Q6DOF> m6DOFResidualData;
         List<Q6DOFEuler> m6DOFEulerData;
         List<Q6DOFEuler> m6DOFEulerResidualData;
-		List<Analog> mAnalogDevices;
-        List<Analog> mAnalogSingleSample;
-		List<ForcePlate> mForcePlates;
-		List<ForcePlate> mForceSinglePlate;
+        List<Analog> mAnalogData;
+        List<Analog> mAnalogSingleData;
+        List<ForcePlate> mForcePlateData;
+        List<ForcePlate> mForceSinglePlateData;
         List<CameraImage> mImageData;
-        List<GazeVector> mGazeVector;
+        List<GazeVector> mGazeVectorData;
+        List<EyeTracker> mEyeTrackerData;
+        List<Timecode> mTimecodeData;
+        List<Skeleton> mSkeletonData;
 
 
         /// <summary>
@@ -319,64 +437,65 @@ namespace QTMRealTimeSDK.Data
         /// </summary>
         /// <param name="majorVersion">Major version of packet, default is latest version.</param>
         /// <param name="minorVersion">Minor version of packet, default is latest version.</param>
-        /// <param name="bigEndian">if packet should use big endianess, default is false.</param>
-		public RTPacket(int majorVersion = RTProtocol.Constants.MAJOR_VERSION,
-                        int minorVersion = RTProtocol.Constants.MINOR_VERSION)
-		{
-			mMajorVersion = majorVersion;
-			mMinorVersion = minorVersion;
+        public RTPacket(int majorVersion = RTProtocol.Constants.MAJOR_VERSION, int minorVersion = RTProtocol.Constants.MINOR_VERSION)
+        {
+            mMajorVersion = majorVersion;
+            mMinorVersion = minorVersion;
 
-			m2DMarkerData = new List<Camera>();
-			m2DLinearMarkerData = new List<Camera>();
+            m2DMarkerData = new List<Camera>();
+            m2DLinearizedMarkerData = new List<Camera>();
 
             m3DMarkerData = new List<Q3D>();
             m3DMarkerResidualData = new List<Q3D>();
             m3DMarkerNoLabelData = new List<Q3D>();
             m3DMarkerNoLabelResidualData = new List<Q3D>();
 
-			m6DOFData = new List<Q6DOF>();
+            m6DOFData = new List<Q6DOF>();
             m6DOFResidualData = new List<Q6DOF>();
             m6DOFEulerData = new List<Q6DOFEuler>();
             m6DOFEulerResidualData = new List<Q6DOFEuler>();
 
-            mAnalogDevices = new List<Analog>();
-		    mAnalogSingleSample = new List<Analog>();
+            mAnalogData = new List<Analog>();
+            mAnalogSingleData = new List<Analog>();
 
-            mForcePlates = new List<ForcePlate>();
-			mForceSinglePlate = new List<ForcePlate>();
+            mForcePlateData = new List<ForcePlate>();
+            mForceSinglePlateData = new List<ForcePlate>();
 
             mImageData = new List<CameraImage>();
-            mGazeVector = new List<GazeVector>();
+            mGazeVectorData = new List<GazeVector>();
+            mEyeTrackerData = new List<EyeTracker>();
+
+            mTimecodeData = new List<Timecode>();
+            mSkeletonData = new List<Skeleton>();
 
             ClearData();
-		}
+        }
 
         /// <summary>
         /// Get version of packet.
         /// </summary>
         /// <param name="majorVersion">Major version of packet.</param>
         /// <param name="minorVersion">Minor version of packet.</param>
-		public void GetVersion(ref int majorVersion, ref int minorVersion)
-		{
-			majorVersion = mMajorVersion;
-			minorVersion = mMinorVersion;
-		}
+        public void GetVersion(ref int majorVersion, ref int minorVersion)
+        {
+            majorVersion = mMajorVersion;
+            minorVersion = mMinorVersion;
+        }
 
         /// <summary>
         /// Clear packet from data.
         /// </summary>
-		private void ClearData()
-		{
-			mData = null;
-			mPacketSize = -1;
-			mPacketType = PacketType.PacketNone;
+        private void ClearData()
+        {
+            mData = null;
+            mPacketSize = -1;
+            mPacketType = PacketType.PacketNone;
 
-			mTimestamp = -1;
-			mFrameNumber = -1;
-			mComponentCount = -1;
+            mTimestamp = -1;
+            mFrameNumber = -1;
 
-			m2DMarkerData.Clear();
-			m2DLinearMarkerData.Clear();
+            m2DMarkerData.Clear();
+            m2DLinearizedMarkerData.Clear();
             m3DMarkerData.Clear();
             m3DMarkerResidualData.Clear();
             m3DMarkerNoLabelData.Clear();
@@ -385,14 +504,16 @@ namespace QTMRealTimeSDK.Data
             m6DOFResidualData.Clear();
             m6DOFEulerData.Clear();
             m6DOFEulerResidualData.Clear();
-			mAnalogDevices.Clear();
-			mAnalogSingleSample.Clear();
-			mForcePlates.Clear();
-			mForceSinglePlate.Clear();
+            mAnalogData.Clear();
+            mAnalogSingleData.Clear();
+            mForcePlateData.Clear();
+            mForceSinglePlateData.Clear();
             mImageData.Clear();
-            mGazeVector.Clear();
-
-		}
+            mGazeVectorData.Clear();
+            mEyeTrackerData.Clear();
+            mTimecodeData.Clear();
+            mSkeletonData.Clear();
+        }
 
         private Object packetLock = new Object();
 
@@ -401,47 +522,45 @@ namespace QTMRealTimeSDK.Data
         /// Set the data of packet.
         /// </summary>
         /// <param name="data">byte data recieved from server</param>
-		internal void SetData(byte[] data)
-		{
-			/*  === Data packet setup ===
-			 *  Packet size - 4 bytes
-			 *  packet type - 4 bytes
-			 *  timestamp - 8 bytes
-			 *  Component count - 4 bytes
-			 *  [for each component]
-			 *    Component size - 4 bytes
-			 *    Component type - 4 bytes
-			 *    Component Data - [Component size] bytes
-			 */
+        internal void SetData(byte[] data)
+        {
+            /*  === Data packet setup ===
+            *  Packet size - 4 bytes
+            *  packet type - 4 bytes
+            *  timestamp - 8 bytes
+            *  Component count - 4 bytes
+            *  [for each component]
+            *    Component size - 4 bytes
+            *    Component type - 4 bytes
+            *    Component Data - [Component size] bytes
+            */
 
             lock (packetLock)
             {
-
                 ClearData();
-			    mData = data;
-                SetPacketHeader();
+                mData = data;
+                SetPacketHeader(mData);
 
-			    if (mPacketType == PacketType.PacketData)
-			    {
-				    SetTimeStamp();
-				    SetFrameNumber();
-				    SetComponentCount();
-
+                if (mPacketType == PacketType.PacketData)
+                {
+                    mTimestamp = BitConverter.ToInt64(mData, RTProtocol.Constants.PACKET_HEADER_SIZE);
+                    mFrameNumber = BitConverter.ToInt32(mData, RTProtocol.Constants.PACKET_HEADER_SIZE + 8);
+                    var components = BitConverter.ToInt32(mData, RTProtocol.Constants.PACKET_HEADER_SIZE + 12);
                     int position = RTProtocol.Constants.PACKET_HEADER_SIZE + RTProtocol.Constants.DATA_PACKET_HEADER_SIZE;
 
-                    for (int component = 1; component <= mComponentCount; component++)
+                    for (int component = 1; component <= components; component++)
                     {
                         ComponentType componentType = GetComponentType(position);
                         position += RTProtocol.Constants.COMPONENT_HEADER;
                         if (componentType == ComponentType.Component3d)
                         {
                             /* Marker count - 4 bytes
-                             * 2D Drop rate - 2 bytes
-                             * 2D Out of sync rate - 2 bytes
-                             * [Repeated per marker]
-                             *   X - 4 bytes
-                             *   Y - 4 bytes
-                             *   Z - 4 bytes
+                            * 2D Drop rate - 2 bytes
+                            * 2D Out of sync rate - 2 bytes
+                            * [Repeated per marker]
+                            *   X - 4 bytes
+                            *   Y - 4 bytes
+                            *   Z - 4 bytes
                             */
                             uint markerCount = BitConvert.GetUInt32(mData, ref position);
                             m2DDropRate = BitConvert.GetUShort(mData, ref position);
@@ -460,14 +579,14 @@ namespace QTMRealTimeSDK.Data
                         else if (componentType == ComponentType.Component3dNoLabels)
                         {
                             /* Marker count - 4 bytes
-                             * 2D Drop rate - 2 bytes
-                             * 2D Out of sync rate - 2 bytes
-                             * [Repeated per marker]
-                             *   X - 4 bytes
-                             *   Y - 4 bytes
-                             *   Z - 4 bytes
-                             *   ID - 4 bytes
-                             */
+                            * 2D Drop rate - 2 bytes
+                            * 2D Out of sync rate - 2 bytes
+                            * [Repeated per marker]
+                            *   X - 4 bytes
+                            *   Y - 4 bytes
+                            *   Z - 4 bytes
+                            *   ID - 4 bytes
+                            */
 
                             int markerCount = BitConvert.GetInt32(mData, ref position);
                             m2DDropRate = BitConvert.GetUShort(mData, ref position);
@@ -486,14 +605,13 @@ namespace QTMRealTimeSDK.Data
                         else if (componentType == ComponentType.ComponentAnalog)
                         {
                             /* Analog Device count - 4 bytes
-						     * [Repeated per device]
+                             * [Repeated per device]
                              *   Device id - 4 bytes
                              *   Channel count - 4 bytes
                              *   Sample count - 4 bytes
                              *   Sample number - 4 bytes
                              *   Analog data - 4 * channelcount * sampleCount
-						     */
-
+                             */
                             uint deviceCount = BitConvert.GetUInt32(mData, ref position);
                             for (int i = 0; i < deviceCount; i++)
                             {
@@ -501,39 +619,44 @@ namespace QTMRealTimeSDK.Data
                                 analogDeviceData.DeviceID = BitConvert.GetUInt32(mData, ref position);
                                 analogDeviceData.ChannelCount = BitConvert.GetUInt32(mData, ref position);
                                 analogDeviceData.Channels = new AnalogChannelData[analogDeviceData.ChannelCount];
-
                                 uint sampleCount = BitConvert.GetUInt32(mData, ref position);
-                                if (sampleCount * analogDeviceData.ChannelCount * 4 > mData.Length)
+                                analogDeviceData.SampleNumber = BitConvert.GetUInt32(mData, ref position);
+                                if (sampleCount > 0)
                                 {
-                                }
-                                else if (sampleCount > 0)
-                                {
-                                    uint sampleNumber = BitConvert.GetUInt32(mData, ref position);
                                     for (uint j = 0; j < analogDeviceData.ChannelCount; j++)
                                     {
-                                        AnalogChannelData sample = new AnalogChannelData();
-                                        sample.Samples = new float[sampleCount];
+                                        AnalogChannelData analogChannelData = new AnalogChannelData();
+                                        analogChannelData.Samples = new float[sampleCount];
                                         for (uint k = 0; k < sampleCount; k++)
                                         {
-                                            sample.SampleNumber = sampleNumber + k;
-                                            sample.Samples[k] = BitConvert.GetFloat(mData, ref position);
+                                            analogChannelData.SampleNumber = analogDeviceData.SampleNumber + k;
+                                            analogChannelData.Samples[k] = BitConvert.GetFloat(mData, ref position);
                                         }
-
-                                        analogDeviceData.Channels[j] = sample;
+                                        analogDeviceData.Channels[j] = analogChannelData;
                                     }
                                 }
-                                mAnalogDevices.Add(analogDeviceData);
+                                else
+                                {
+                                    for (uint j = 0; j < analogDeviceData.ChannelCount; j++)
+                                    {
+                                        AnalogChannelData analogChannelData = new AnalogChannelData();
+                                        analogChannelData.Samples = new float[0];
+                                        analogChannelData.SampleNumber = 0;
+                                        analogDeviceData.Channels[j] = analogChannelData;
+                                    }
+                                }
+                                mAnalogData.Add(analogDeviceData);
                             }
                         }
                         else if (componentType == ComponentType.ComponentForce)
                         {
                             /* Force plate count - 4 bytes
-                             * [Repeated per plate]
-						     *   Force plate ID - 4 bytes
-						     *   Force count - 4 bytes
-						     *   forceNumber - 4 bytes
-						     *   Force data - 36 * force count bytes
-						     */
+                            * [Repeated per plate]
+                            *   Force plate ID - 4 bytes
+                            *   Force count - 4 bytes
+                            *   forceNumber - 4 bytes
+                            *   Force data - 36 * force count bytes
+                            */
 
                             int forcePlateCount = BitConvert.GetInt32(mData, ref position);
                             for (int i = 0; i < forcePlateCount; i++)
@@ -553,21 +676,21 @@ namespace QTMRealTimeSDK.Data
                                     plate.ForceSamples[j] = sample;
                                 }
 
-                                mForcePlates.Add(plate);
+                                mForcePlateData.Add(plate);
                             }
 
                         }
                         else if (componentType == ComponentType.Component6d)
                         {
                             /* Body count - 4 bytes
-                             * 2D Drop rate - 2 bytes
-                             * 2D Out of sync rate - 2 bytes
-                             * [Repeated per body]
-                             *   X - 4 bytes
-                             *   Y - 4 bytes
-                             *   Z - 4 bytes
-                             *   rotation matrix - 9*4 bytes
-                             */
+                            * 2D Drop rate - 2 bytes
+                            * 2D Out of sync rate - 2 bytes
+                            * [Repeated per body]
+                            *   X - 4 bytes
+                            *   Y - 4 bytes
+                            *   Z - 4 bytes
+                            *   rotation matrix - 9*4 bytes
+                            */
 
                             int bodyCount = BitConvert.GetInt32(mData, ref position);
                             m2DDropRate = BitConvert.GetUShort(mData, ref position);
@@ -592,14 +715,14 @@ namespace QTMRealTimeSDK.Data
                         {
 
                             /* Body count - 4 bytes
-                             * 2D Drop rate - 2 bytes
-                             * 2D Out of sync rate - 2 bytes
-                             * [Repeated per body]
-                             *   X - 4 bytes
-                             *   Y - 4 bytes
-                             *   Z - 4 bytes
-                             *   Euler Angles - 3*4 bytes
-                             */
+                            * 2D Drop rate - 2 bytes
+                            * 2D Out of sync rate - 2 bytes
+                            * [Repeated per body]
+                            *   X - 4 bytes
+                            *   Y - 4 bytes
+                            *   Z - 4 bytes
+                            *   Euler Angles - 3*4 bytes
+                            */
 
                             int bodyCount = BitConvert.GetInt32(mData, ref position);
                             m2DDropRate = BitConvert.GetUShort(mData, ref position);
@@ -609,7 +732,7 @@ namespace QTMRealTimeSDK.Data
                             {
                                 Q6DOFEuler body = new Q6DOFEuler();
                                 body.Position = BitConvert.GetPoint(mData, ref position);
-                                body.Rotation = BitConvert.GetPoint(mData, ref position);
+                                body.Rotation = BitConvert.GetEulerRotation(mData, ref position);
                                 body.Residual = -1;
                                 m6DOFEulerData.Add(body);
                             }
@@ -618,17 +741,17 @@ namespace QTMRealTimeSDK.Data
                         else if (componentType == ComponentType.Component2d || componentType == ComponentType.Component2dLinearized)
                         {
                             /* Camera Count - 4 bytes
-                             * 2D Drop rate - 2 bytes
-                             * 2D Out of sync rate - 2 bytes
-                             * [Repeated per Camera]
-                             *   Marker Count - 4 bytes
-                             *   Status Flags - 1 byte
-                             *   [Repeated per Marker]
-                             *     X - 4 Bytes
-                             *     Y - 4 Bytes
-                             *     Diameter X - 4 bytes
-                             *     Diameter Y - 4 bytes
-                             */
+                            * 2D Drop rate - 2 bytes
+                            * 2D Out of sync rate - 2 bytes
+                            * [Repeated per Camera]
+                            *   Marker Count - 4 bytes
+                            *   Status Flags - 1 byte
+                            *   [Repeated per Marker]
+                            *     X - 4 Bytes
+                            *     Y - 4 Bytes
+                            *     Diameter X - 4 bytes
+                            *     Diameter Y - 4 bytes
+                            */
 
                             uint cameraCount = BitConvert.GetUInt32(mData, ref position);
                             m2DDropRate = BitConvert.GetUShort(mData, ref position);
@@ -652,20 +775,20 @@ namespace QTMRealTimeSDK.Data
                                 if (componentType == ComponentType.Component2d)
                                     m2DMarkerData.Add(camera);
                                 else if (componentType == ComponentType.Component2dLinearized)
-                                    m2DLinearMarkerData.Add(camera);
+                                    m2DLinearizedMarkerData.Add(camera);
                             }
 
                         }
                         else if (componentType == ComponentType.Component3dResidual)
                         {
                             /* Marker count - 4 bytes
-                             * 2D Drop rate - 2 bytes
-                             * 2D Out of sync rate - 2 bytes
-                             * [Repeated per marker]
-                             *   X - 4 bytes
-                             *   Y - 4 bytes
-                             *   Z - 4 bytes
-                             *   Residual - 4 bytes
+                            * 2D Drop rate - 2 bytes
+                            * 2D Out of sync rate - 2 bytes
+                            * [Repeated per marker]
+                            *   X - 4 bytes
+                            *   Y - 4 bytes
+                            *   Z - 4 bytes
+                            *   Residual - 4 bytes
                             */
                             int markerCount = BitConvert.GetInt32(mData, ref position);
                             m2DDropRate = BitConvert.GetUShort(mData, ref position);
@@ -684,14 +807,14 @@ namespace QTMRealTimeSDK.Data
                         else if (componentType == ComponentType.Component3dNoLabelsResidual)
                         {
                             /* Marker count - 4 bytes
-                             * 2D Drop rate - 2 bytes
-                             * 2D Out of sync rate - 2 bytes
-                             * [Repeated per marker]
-                             *   X - 4 bytes
-                             *   Y - 4 bytes
-                             *   Z - 4 bytes
-                             *   Residual - 4 bytes
-                             *   ID - 4 bytes
+                            * 2D Drop rate - 2 bytes
+                            * 2D Out of sync rate - 2 bytes
+                            * [Repeated per marker]
+                            *   X - 4 bytes
+                            *   Y - 4 bytes
+                            *   Z - 4 bytes
+                            *   ID - 4 bytes
+                            *   Residual - 4 bytes
                             */
                             int markerCount = BitConvert.GetInt32(mData, ref position);
                             m2DDropRate = BitConvert.GetUShort(mData, ref position);
@@ -701,8 +824,8 @@ namespace QTMRealTimeSDK.Data
                             {
                                 Q3D marker = new Q3D();
                                 marker.Position = BitConvert.GetPoint(mData, ref position);
-                                marker.Residual = BitConvert.GetFloat(mData, ref  position);
-                                marker.Id = BitConvert.GetUInt32(mData, ref  position);
+                                marker.Id = BitConvert.GetUInt32(mData, ref position);
+                                marker.Residual = BitConvert.GetFloat(mData, ref position);
 
                                 m3DMarkerNoLabelResidualData.Add(marker);
                             }
@@ -711,15 +834,15 @@ namespace QTMRealTimeSDK.Data
                         else if (componentType == ComponentType.Component6dResidual)
                         {
                             /* Body count - 4 bytes
-                             * 2D Drop rate - 2 bytes
-                             * 2D Out of sync rate - 2 bytes
-                             * [Repeated per marker]
-                             *   X - 4 bytes
-                             *   Y - 4 bytes
-                             *   Z - 4 bytes
-                             *   rotation matrix - 9*4 bytes
-                             *   residual - 9*4 bytes
-                             */
+                            * 2D Drop rate - 2 bytes
+                            * 2D Out of sync rate - 2 bytes
+                            * [Repeated per marker]
+                            *   X - 4 bytes
+                            *   Y - 4 bytes
+                            *   Z - 4 bytes
+                            *   rotation matrix - 9*4 bytes
+                            *   residual - 9*4 bytes
+                            */
 
                             int bodyCount = BitConvert.GetInt32(mData, ref position);
                             m2DDropRate = BitConvert.GetUShort(mData, ref position);
@@ -741,15 +864,15 @@ namespace QTMRealTimeSDK.Data
                         {
 
                             /* Body count - 4 bytes
-                             * 2D Drop rate - 2 bytes
-                             * 2D Out of sync rate - 2 bytes
-                             * [Repeated per marker]
-                             *   X - 4 bytes
-                             *   Y - 4 bytes
-                             *   Z - 4 bytes
-                             *   Euler Angles - 3*4 bytes
-                             *   residual - 9*4 bytes
-                             */
+                            * 2D Drop rate - 2 bytes
+                            * 2D Out of sync rate - 2 bytes
+                            * [Repeated per marker]
+                            *   X - 4 bytes
+                            *   Y - 4 bytes
+                            *   Z - 4 bytes
+                            *   Euler Angles - 3*4 bytes
+                            *   residual - 9*4 bytes
+                            */
 
                             int bodyCount = BitConvert.GetInt32(mData, ref position);
                             m2DDropRate = BitConvert.GetUShort(mData, ref position);
@@ -759,7 +882,7 @@ namespace QTMRealTimeSDK.Data
                             {
                                 Q6DOFEuler body = new Q6DOFEuler();
                                 body.Position = BitConvert.GetPoint(mData, ref position);
-                                body.Rotation = BitConvert.GetPoint(mData, ref position);
+                                body.Rotation = BitConvert.GetEulerRotation(mData, ref position);
                                 body.Residual = BitConvert.GetFloat(mData, ref position);
                                 m6DOFEulerResidualData.Add(body);
                             }
@@ -768,11 +891,11 @@ namespace QTMRealTimeSDK.Data
                         else if (componentType == ComponentType.ComponentAnalogSingle)
                         {
                             /* Analog Device count - 4 bytes
-                             * [Repeated per device]
-                             *   Device id - 4 bytes
-                             *   Channel count - 4 bytes
-                             *   Analog data - 4 * channelcount
-                             */
+                            * [Repeated per device]
+                            *   Device id - 4 bytes
+                            *   Channel count - 4 bytes
+                            *   Analog data - 4 * channelcount
+                            */
 
                             int deviceCount = BitConvert.GetInt32(mData, ref position);
                             for (int i = 0; i < deviceCount; i++)
@@ -790,24 +913,24 @@ namespace QTMRealTimeSDK.Data
                                     device.Channels[j] = sample;
                                 }
 
-                                mAnalogSingleSample.Add(device);
+                                mAnalogSingleData.Add(device);
                             }
                         }
                         else if (componentType == ComponentType.ComponentImage)
                         {
                             /* Camera count - 4 bytes
-                             * [Repeated per marker]
-                             *   Camera ID - 4 bytes
-                             *   Image Format - 4 bytes
-                             *   Width - 4 bytes
-                             *   Height- 4 bytes
-                             *   Left crop - 4 bytes
-                             *   Top crop - 4 bytes
-                             *   Right crop - 4 bytes
-                             *   Bottom crop - 4 bytes
-                             *   Image size- 4 bytes
-                             *   Image data - [Image size bytes]
-                             */
+                            * [Repeated per marker]
+                            *   Camera ID - 4 bytes
+                            *   Image Format - 4 bytes
+                            *   Width - 4 bytes
+                            *   Height- 4 bytes
+                            *   Left crop - 4 bytes
+                            *   Top crop - 4 bytes
+                            *   Right crop - 4 bytes
+                            *   Bottom crop - 4 bytes
+                            *   Image size- 4 bytes
+                            *   Image data - [Image size bytes]
+                            */
 
                             int cameraCount = BitConvert.GetInt32(mData, ref position);
                             for (int i = 0; i < cameraCount; i++)
@@ -829,13 +952,33 @@ namespace QTMRealTimeSDK.Data
                                 mImageData.Add(image);
                             }
                         }
+                        else if (componentType == ComponentType.ComponentTimecode)
+                        {
+                            /* Timecode count - 4 bytes
+                            * [Repeated per marker]
+                            *   Timecode Type - 4 bytes
+                            *   Timecode High - 4 bytes
+                            *   Timecode Low - 4 bytes
+                            */
+
+                            int timecodeCount = BitConvert.GetInt32(mData, ref position);
+                            for (int i = 0; i < timecodeCount; i++)
+                            {
+                                Timecode timecode = new Timecode();
+                                timecode.Type = (TimecodeType)BitConvert.GetUInt32(mData, ref position);
+                                timecode.High = BitConvert.GetUInt32(mData, ref position);
+                                timecode.Low = BitConvert.GetUInt32(mData, ref position);
+
+                                mTimecodeData.Add(timecode);
+                            }
+                        }
                         else if (componentType == ComponentType.ComponentForceSingle)
                         {
                             /* Force plate count - 4 bytes
-                             * [Repeated per plate]
-						     *   Force plate ID - 4 bytes
-						     *   Force data - 36 bytes
-						     */
+                            * [Repeated per plate]
+                            *   Force plate ID - 4 bytes
+                            *   Force data - 36 bytes
+                            */
 
                             int forcePlateCount = BitConvert.GetInt32(mData, ref position);
                             for (int i = 0; i < forcePlateCount; i++)
@@ -849,17 +992,17 @@ namespace QTMRealTimeSDK.Data
                                 plate.ForceSamples[0].Moment = BitConvert.GetPoint(mData, ref position);
                                 plate.ForceSamples[0].ApplicationPoint = BitConvert.GetPoint(mData, ref position);
 
-                                mForceSinglePlate.Add(plate);
+                                mForceSinglePlateData.Add(plate);
                             }
                         }
                         else if (componentType == ComponentType.ComponentGazeVector)
                         {
                             /* Gaze vector count - 4 bytes
-                             * Gaze vector sample count - 4 bytes
-                             * Gaze vector sample number - 4 bytes (omitted if sample count is 0)
-                             * [Repeated per gaze vector (omitted if sample count is 0)]
-						     *   Gaze vector data - 24 bytes
-						     */
+                            * Gaze vector sample count - 4 bytes
+                            * Gaze vector sample number - 4 bytes (omitted if sample count is 0)
+                            * [Repeated per gaze vector (omitted if sample count is 0)]
+                            *   Gaze vector data - 24 bytes
+                            */
 
                             int gazeVectorCount = BitConvert.GetInt32(mData, ref position);
                             for (int i = 0; i < gazeVectorCount; i++)
@@ -870,121 +1013,104 @@ namespace QTMRealTimeSDK.Data
                                 {
                                     uint sampleNumber = BitConvert.GetUInt32(mData, ref position);
                                     gazeVector.SampleNumber = sampleNumber;
+                                    gazeVector.GazeVectorData = new GazeVectorSample[sampleCount];
                                     for (var sample = 0; sample < sampleCount; sample++)
                                     {
-                                        gazeVector.Gaze = BitConvert.GetPoint(mData, ref position);
-                                        gazeVector.Position = BitConvert.GetPoint(mData, ref position);
+                                        gazeVector.GazeVectorData[sample].Gaze = BitConvert.GetPoint(mData, ref position);
+                                        gazeVector.GazeVectorData[sample].Position = BitConvert.GetPoint(mData, ref position);
                                     }
                                 }
-                                mGazeVector.Add(gazeVector);
+                                mGazeVectorData.Add(gazeVector);
                             }
+                        }
+                        else if (componentType == ComponentType.ComponentEyeTracker)
+                        {
+                            /* Eye tracker count - 4 bytes
+                            * Eye tracker sample count - 4 bytes
+                            * Eye tracker sample number - 4 bytes (omitted if sample count is 0)
+                            * [Repeated per eye tracker (omitted if sample count is 0)]
+                            * Eye tracker data - 8 bytes
+                            */
+
+                            int eyeTrackerCount = BitConvert.GetInt32(mData, ref position);
+                            for (int i = 0; i < eyeTrackerCount; i++)
+                            {
+                                EyeTracker eyeTracker = new EyeTracker();
+                                uint sampleCount = BitConvert.GetUInt32(mData, ref position);
+                                if (sampleCount > 0)
+                                {
+                                    uint sampleNumber = BitConvert.GetUInt32(mData, ref position);
+                                    eyeTracker.SampleNumber = sampleNumber;
+                                    eyeTracker.EyeTrackerData = new EyeTrackerSample[sampleCount];
+                                    for (var sample = 0; sample < sampleCount; sample++)
+                                    {
+                                        eyeTracker.EyeTrackerData[sample].LeftPupilDiameter = BitConvert.GetFloat(mData, ref position);
+                                        eyeTracker.EyeTrackerData[sample].RightPupilDiameter = BitConvert.GetFloat(mData, ref position);
+                                    }
+                                }
+                                mEyeTrackerData.Add(eyeTracker);
+                            }
+                        }
+                        else if (componentType == ComponentType.ComponentSkeleton)
+                        {
+                            int skeletonCount = BitConvert.GetInt32(mData, ref position);
+                            for (int i = 0; i < skeletonCount; i++)
+                            {
+                                Skeleton skeleton = new Skeleton();
+
+                                skeleton.SegmentCount = BitConvert.GetUInt32(mData, ref position);
+
+                                skeleton.Segments = new List<SkeletonSegment>();
+                                for (int segment = 0; segment < skeleton.SegmentCount; segment++)
+                                {
+                                    SkeletonSegment skeletonSegment = new SkeletonSegment();
+                                    skeletonSegment.ID = BitConvert.GetUInt32(mData, ref position);
+                                    skeletonSegment.Position = BitConvert.GetPoint(mData, ref position);
+                                    skeletonSegment.Rotation.X = BitConvert.GetFloat(mData, ref position);
+                                    skeletonSegment.Rotation.Y = BitConvert.GetFloat(mData, ref position);
+                                    skeletonSegment.Rotation.Z = BitConvert.GetFloat(mData, ref position);
+                                    skeletonSegment.Rotation.W = BitConvert.GetFloat(mData, ref position);
+                                    skeleton.Segments.Add(skeletonSegment);
+                                }
+                                mSkeletonData.Add(skeleton);
+                            }
+                        }
+                        else
+                        {
+                            // Any missing component types?
                         }
                     }
                 }
-			}
-		}
+            }
+        }
         #endregion
 
-#region private set functions for packet header data
+        #region private set functions for packet header data
         /// <summary>
         /// Set this packet's header.
         /// </summary>
-        private void SetPacketHeader()
-		{
-            mPacketSize = GetSize();
-            SetType();
-		}
-
-        /// <summary>
-        /// Get the packet type of this packet.
-        /// </summary>
-        /// <returns>Packet type</returns>
-		private void SetType()
-		{
+        private void SetPacketHeader(byte[] data)
+        {
+            mPacketSize = GetPacketSize(data);
             if (mPacketSize < 4)
-				mPacketType = PacketType.PacketNone;
-
-			byte[] packetData = new byte[4];
-			Array.Copy(mData, 4, packetData, 0, 4);
-			mPacketType = (PacketType)BitConverter.ToInt32(packetData, 0);
-		}
-
-       /// <summary>
-        /// set timestamp for this packet
-        /// </summary>
-        private void SetTimeStamp()
-        {
-            if (mPacketType == PacketType.PacketData)
             {
-                byte[] timeStampData = new byte[8];
-                Array.Copy(mData, RTProtocol.Constants.PACKET_HEADER_SIZE, timeStampData, 0, 8);
-                mTimestamp = BitConverter.ToInt64(timeStampData, 0);
+                mPacketType = PacketType.PacketNone;
+                return;
             }
-            else
-            {
-                mTimestamp = -1;
-            }
+            mPacketType = (PacketType)BitConverter.ToInt32(mData, 4);
         }
 
-        /// <summary>
-        /// Set frame number for this packet
-        /// </summary>
-        private void SetFrameNumber()
-        {
-            if (mPacketType == PacketType.PacketData)
-            {
-                byte[] frameData = new byte[4];
-                Array.Copy(mData, RTProtocol.Constants.PACKET_HEADER_SIZE + 8, frameData, 0, 4);
-                mFrameNumber = BitConverter.ToInt32(frameData, 0);
-            }
-            else
-            {
-                mFrameNumber = -1;
-            }
-        }
+        #endregion
 
-        /// <summary>
-        /// set component count for this function
-        /// </summary>
-        private void SetComponentCount()
-        {
-            if (mPacketType == PacketType.PacketData)
-            {
-                byte[] componentCountData = new byte[4];
-                Array.Copy(mData, RTProtocol.Constants.PACKET_HEADER_SIZE + 12, componentCountData, 0, 4);
-                mComponentCount = BitConverter.ToInt32(componentCountData, 0);
-            }
-            else
-            {
-                mComponentCount = -1;
-            }
-        }
-#endregion
+        #region get functions for packet header data
 
-#region get functions for packet header data
-
-        /// <summary>
-        /// Get the size and packet type of a packet.
-        /// </summary>
-        /// <param name="data">byte data for packet</param>
-        /// <param name="size">returns size of packet</param>
-        /// <param name="type">returns type of packet</param>
-        /// <param name="bigEndian">if packet is big endian or not, default is false</param>
-        /// <returns>true if header was retrieved successfully </returns>
-        internal static bool GetPacketHeader(byte[] data, out int size, out PacketType type)
-        {
-            size = BitConverter.ToInt32(data, 0);
-            type = (PacketType)BitConverter.ToInt32(data, 4);
-            return true;
-        }
 
         /// <summary>
         /// Get number of bytes in packet.
         /// </summary>
         /// <param name="data">bytes from packet.</param>
-        /// <param name="bigEndian">if packet is big endian or not, default is false</param>
         /// <returns>Size of packet.</returns>
-        internal static int GetSize(byte[] data)
+        internal static int GetPacketSize(byte[] data)
         {
             return BitConverter.ToInt32(data, 0);
         }
@@ -993,7 +1119,6 @@ namespace QTMRealTimeSDK.Data
         /// Get the packet type of packet.
         /// </summary>
         /// <param name="data">bytes from packet.</param>
-        /// <param name="bigEndian">if packet is big endian or not. default is false</param>
         /// <returns>packet type</returns>
         internal static PacketType GetPacketType(byte[] data)
         {
@@ -1007,7 +1132,6 @@ namespace QTMRealTimeSDK.Data
         /// Get time stamp in a data packet.
         /// </summary>
         /// <param name="data">bytes from packet.</param>
-        /// <param name="bigEndian">if packet is big endian or not. default is false</param>
         /// <returns>time stamp from packet</returns>
         internal static long GetTimeStamp(byte[] data)
         {
@@ -1022,7 +1146,6 @@ namespace QTMRealTimeSDK.Data
         /// Get frame number from a data packet.
         /// </summary>
         /// <param name="data">bytes from packet.</param>
-        /// <param name="bigEndian">if packet is big endian or not. default is false</param>
         /// <returns>frame number from packet</returns>
         internal static int GetFrameNumber(byte[] data)
         {
@@ -1037,7 +1160,6 @@ namespace QTMRealTimeSDK.Data
         /// Get count of different component types from a datapacket
         /// </summary>
         /// <param name="data">bytes from packet.</param>
-        /// <param name="bigEndian">if packet is big endian or not. default is false</param>
         /// <returns>number of component types in packet</returns>
         internal static int GetComponentCount(byte[] data)
         {
@@ -1048,109 +1170,9 @@ namespace QTMRealTimeSDK.Data
             return -1;
         }
 
-        /// <summary>
-        /// Get the size and packet type of a packet.
-        /// </summary>
-        /// <param name="data">byte data for packet</param>
-        /// <param name="size">returns size of packet</param>
-        /// <param name="type">returns type of packet</param>
-        /// <param name="bigEndian">if packet is big endian or not, default is false</param>
-        /// <returns>true if header was retrieved successfully </returns>
-        internal bool GetPacketHeader(out int size, out PacketType type)
-        {
-            byte[] data = new byte[8];
-            Array.Copy(mData, 0, data, 0, 8);
-            size = BitConverter.ToInt32(data, 0);
-            type = (PacketType)BitConverter.ToInt32(data, 4);
-            return true;
-        }
+        #endregion
 
-        /// <summary>
-        /// Get number of bytes in packet.
-        /// </summary>
-        /// <param name="data">bytes from packet.</param>
-        /// <returns>Size of packet.</returns>
-        internal int GetSize()
-        {
-            byte[] data = new byte[4];
-            Array.Copy(mData, 0, data, 0, 4);
-            return BitConverter.ToInt32(data, 0);
-        }
-
-        /// <summary>
-        /// Get the packet type of packet.
-        /// </summary>
-        /// <param name="data">bytes from packet.</param>
-        /// <param name="bigEndian">if packet is big endian or not. default is false</param>
-        /// <returns>packet type</returns>
-        internal PacketType GetPacketType()
-        {
-           byte[] data = new byte[4];
-            Array.Copy(mData, 4, data, 0, 4);
-
-            if (data.GetLength(0) < 4)
-                return PacketType.PacketNone;
-
-            return (PacketType)BitConverter.ToInt32(data, 0);
-        }
-
-        /// <summary>
-        /// Get time stamp in a data packet.
-        /// </summary>
-        /// <param name="data">bytes from packet.</param>
-        /// <param name="bigEndian">if packet is big endian or not. default is false</param>
-        /// <returns>time stamp from packet</returns>
-        internal long GetTimeStamp()
-        {
-            if (GetPacketType() == PacketType.PacketData)
-            {
-                byte[] data = new byte[8];
-                Array.Copy(mData, RTProtocol.Constants.PACKET_HEADER_SIZE, data, 0, 8);
-
-                return BitConverter.ToInt64(data,0);
-            }
-            return -1;
-        }
-
-        /// <summary>
-        /// Get frame number from a data packet.
-        /// </summary>
-        /// <param name="data">bytes from packet.</param>
-        /// <param name="bigEndian">if packet is big endian or not. default is false</param>
-        /// <returns>frame number from packet</returns>
-        internal int GetFrameNumber()
-        {
-            if (GetPacketType() == PacketType.PacketData)
-            {
-                byte[] data = new byte[4];
-                Array.Copy(mData, RTProtocol.Constants.PACKET_HEADER_SIZE+8, data, 0, 4);
-
-                return BitConverter.ToInt32(data,0);
-            }
-            return -1;
-        }
-
-        /// <summary>
-        /// Get count of different component types from a datapacket
-        /// </summary>
-        /// <param name="data">bytes from packet.</param>
-        /// <param name="bigEndian">if packet is big endian or not. default is false</param>
-        /// <returns>number of component types in packet</returns>
-        internal int GetComponentCount()
-        {
-            if (GetPacketType() == PacketType.PacketData)
-            {
-                byte[] data = new byte[4];
-                Array.Copy(mData, RTProtocol.Constants.PACKET_HEADER_SIZE + 12, data, 0, 4);
-
-                return BitConverter.ToInt32(data, 0);
-            }
-            return -1;
-        }
-
-#endregion
-
-#region Component related get functions
+        #region Component related get functions
 
         /// <summary>
         /// Get component type at position in this packet.
@@ -1158,57 +1180,46 @@ namespace QTMRealTimeSDK.Data
         /// <param name="position">position in packet where the component starts</param>
         /// <returns>Component type</returns>
         private ComponentType GetComponentType(int position)
-		{
-			byte[] componentData = new byte[4];
-			Array.Copy(mData, position+4, componentData, 0, 4);
-			return (ComponentType)BitConverter.ToInt32(componentData, 0);
-		}
-
-        /// <summary>
-        /// Get size of component at position of this packet.
-        /// </summary>
-        /// <param name="position">position in packet where the component starts</param>
-        /// <returns>size of component.</returns>
-        private int GetComponentSize(int position)
-		{
-			byte[] componentData = new byte[4];
-			Array.Copy(mData, position, componentData, 0, 4);
-			return BitConverter.ToInt32(componentData, 0);
-		}
+        {
+            return (ComponentType)BitConverter.ToInt32(mData, position + 4);
+        }
 
         /// <summary>
         /// Get error string from this packet.
         /// </summary>
         /// <returns>error string, null if the packet is not an error packet.</returns>
-		public string GetErrorString()
-		{
-			if (mPacketType == PacketType.PacketError)
-                return System.Text.Encoding.Default.GetString(mData, RTProtocol.Constants.PACKET_HEADER_SIZE,GetSize()-RTProtocol.Constants.PACKET_HEADER_SIZE-1);
-			return null;
-		}
+        public string GetErrorString()
+        {
+            if (mPacketType == PacketType.PacketError)
+                return System.Text.Encoding.ASCII.GetString(mData, RTProtocol.Constants.PACKET_HEADER_SIZE, GetPacketSize(mData) - RTProtocol.Constants.PACKET_HEADER_SIZE - 1);
+            return null;
+        }
 
         /// <summary>
         /// Get command string from this packet.
         /// </summary>
         /// <returns>command string, null if the packet is not a command packet.</returns>
-		public string GetCommandString()
-		{
+        public string GetCommandString()
+        {
             if (mPacketType == PacketType.PacketCommand)
-                //return BitConverter.ToString(mData, RTProtocol.Constants.PACKET_HEADER_SIZE);
-                return System.Text.Encoding.Default.GetString(mData, RTProtocol.Constants.PACKET_HEADER_SIZE,GetSize()-RTProtocol.Constants.PACKET_HEADER_SIZE-1);
+            {
+                return System.Text.Encoding.ASCII.GetString(mData, RTProtocol.Constants.PACKET_HEADER_SIZE, GetPacketSize(mData) - RTProtocol.Constants.PACKET_HEADER_SIZE - 1);
+            }
             return null;
-		}
+        }
 
         /// <summary>
         /// Get XML string from this packet.
         /// </summary>
         /// <returns>XML string, null if the packet is not a XML packet.</returns>
-		public string GetXMLString()
-		{
-			if (mPacketType == PacketType.PacketXML)
-                return System.Text.Encoding.Default.GetString(mData, RTProtocol.Constants.PACKET_HEADER_SIZE,GetSize()-RTProtocol.Constants.PACKET_HEADER_SIZE-1);
-			return null;
-		}
+        public string GetXMLString()
+        {
+            if (mPacketType == PacketType.PacketXML)
+            {
+                return System.Text.Encoding.ASCII.GetString(mData, RTProtocol.Constants.PACKET_HEADER_SIZE, GetPacketSize(mData) - RTProtocol.Constants.PACKET_HEADER_SIZE - 1);
+            }
+            return null;
+        }
 
         /// <summary>
         /// Get event type from this packet.
@@ -1220,196 +1231,12 @@ namespace QTMRealTimeSDK.Data
             {
                 return (QTMEvent)mData[RTProtocol.Constants.PACKET_HEADER_SIZE];
             }
-            return QTMEvent.EventNone;
+            return QTMEvent.None;
         }
 
-        /// <summary>
-        /// Get port from discovery packet
-        /// </summary>
-        /// <returns>port number, -1 if packet is not a response</returns>
-        public short GetDiscoverResponseBasePort()
-        {
-            if (mPacketType == PacketType.PacketCommand)
-            {
-                byte[] portData = new byte[2];
-                Array.Copy(mData, GetSize()-2, portData, 0, 2);
-                return BitConverter.ToInt16(portData, 0);
-            }
+        #endregion
 
-            return -1;
-        }
-
-        /// <summary>
-        /// get all data from discovery packet
-        /// </summary>
-        /// <param name="discoveryResponse">data from packet</param>
-        /// <returns>true if </returns>
-        public bool GetDiscoverData(out DiscoveryResponse discoveryResponse)
-        {
-            if (mPacketType == PacketType.PacketCommand)
-            {
-                byte[] portData = new byte[2];
-                Array.Copy(mData, GetSize() - 2, portData, 0, 2);
-                Array.Reverse(portData);
-                discoveryResponse.Port = BitConverter.ToInt16(portData, 0);
-
-                byte[] stringData = new byte[GetSize() - 10];
-                Array.Copy(mData, 8, stringData, 0, GetSize() - 10);
-                string data = System.Text.Encoding.Default.GetString(stringData);
-                string[] splittedData = data.Split(',');
-                
-                discoveryResponse.HostName = splittedData[0].Trim();
-                discoveryResponse.InfoText = splittedData[1].Trim();
-				
-                string camcount = splittedData[2].Trim();
-                Regex pattern = new Regex("\\d*");
-                Match camMatch = pattern.Match(camcount);
-               
-                if (camMatch.Success)
-                {
-                    camcount = camMatch.Groups[0].Value;
-                    discoveryResponse.CameraCount = int.Parse(camcount);
-                }
-                else
-                {
-                    discoveryResponse.CameraCount = -1;
-                }
-				try
-				{
-                    discoveryResponse.IpAddress = "";
-                    IPAddress[] adresses = System.Net.Dns.GetHostAddresses(discoveryResponse.HostName);
-                    foreach(IPAddress ip in adresses)
-                    {
-                        if (ip.AddressFamily == AddressFamily.InterNetwork)
-                        {
-                            discoveryResponse.IpAddress = ip.ToString();
-                            break;
-                        }
-                    }
-				}
-				catch
-				{
-					discoveryResponse.IpAddress = "";
-
-					return false;
-				}
-                return true;
-            }
-
-            discoveryResponse.CameraCount = -1;
-            discoveryResponse.HostName = "";
-            discoveryResponse.InfoText = "";
-            discoveryResponse.IpAddress = "";
-            discoveryResponse.Port = -1;
-
-            return false;
-        }
-
-        //////////////////////////////////////////////////////////////////
-        ////////////////////     STATIC FUNCTIONS     ////////////////////
-        //////////////////////////////////////////////////////////////////
-
-        /// <summary>
-        /// Get component type at position in a packet.
-        /// </summary>
-        /// <param name="data">packet data</param>
-        /// <param name="position">position in packet where the component starts</param>
-        /// <param name="bigEndian">if packet is big endian, default is false</param>
-        /// <returns>Component type.</returns>
-        internal static ComponentType GetComponentType(byte[] data, int position)
-        {
-            return (ComponentType)BitConverter.ToInt32(data, position + 4);
-        }
-
-        /// <summary>
-        /// Get component type at position in a packet.
-        /// </summary>
-        /// <param name="data">packet data</param>
-        /// <param name="position">position in packet where the component starts</param>
-        /// <param name="bigEndian">if packet is big endian, default is false</param>
-        /// <returns>size of component.</returns>
-        internal static int GetComponentSize(byte[] data, int position, bool bigEndian)
-        {
-            if (bigEndian)
-                Array.Reverse(data, position, 4);
-
-            return BitConverter.ToInt32(data, position);
-        }
-
-        /// <summary>
-        /// Get error string from a packet.
-        /// </summary>
-        /// <param name="data">packet data</param>
-        /// <param name="bigEndian">if packet is big endian, default is false</param>
-        /// <returns>error string, null if the packet is not an error packet.</returns>
-        internal static string GetErrorString(byte[] data)
-        {
-            if (GetPacketType(data) == PacketType.PacketError)
-                return BitConverter.ToString(data, RTProtocol.Constants.PACKET_HEADER_SIZE);
-            return null;
-        }
-
-        /// <summary>
-        /// Get command string from a packet.
-        /// </summary>
-        /// <param name="data">packet data</param>
-        /// <param name="bigEndian">if packet is big endian, default is false</param>
-        /// <returns>command string, null if the packet is not a command packet.</returns>
-        internal static string GetCommandString(byte[] data)
-        {
-            if (GetPacketType(data) == PacketType.PacketCommand)
-                return BitConverter.ToString(data, RTProtocol.Constants.PACKET_HEADER_SIZE);
-            return null;
-        }
-
-        /// <summary>
-        /// Get XML string from a packet.
-        /// </summary>
-        /// <param name="data">packet data</param>
-        /// <param name="bigEndian">if packet is big endian, default is false</param>
-        /// <returns>XML string, null if the packet is not a XML packet.</returns>
-        internal string GetXMLString(byte[] data)
-		{
-			if (GetPacketType(data) == PacketType.PacketXML)
-                return BitConverter.ToString(mData, RTProtocol.Constants.PACKET_HEADER_SIZE);
-            return null;
-		}
-
-        /// <summary>
-        /// Get event type of a event packet
-        /// </summary>
-        /// <param name="data">packet data</param>
-        /// <param name="bigEndian">if packet is big endian, default is false</param>
-        /// <returns>event type of packet</returns>
-        internal static QTMEvent GetEvent(byte[] data)
-        {
-            if (GetPacketType(data) == PacketType.PacketEvent)
-            {
-                return (QTMEvent)data[RTProtocol.Constants.PACKET_HEADER_SIZE + 1];
-            }
-            return QTMEvent.EventNone;
-        }
-
-        /// <summary>
-        /// Get base port from Discovery response packet
-        /// </summary>
-        /// <param name="data">packet data</param>
-        /// <param name="bigEndian">if packet is big endian, default is false</param>
-        /// <returns>port from response</returns>
-        internal static short GetDiscoverResponseBasePort(byte[] data)
-        {
-            if (GetPacketType(data) == PacketType.PacketCommand)
-            {
-                return BitConverter.ToInt16(data, GetSize(data) - 2);
-            }
-
-            return -1;
-        }
-
- #endregion
-
-#region get functions for streamed data
-
+        #region get functions for streamed data
         /// <summary>
         /// Get 2D marker data
         /// </summary>
@@ -1419,6 +1246,22 @@ namespace QTMRealTimeSDK.Data
             lock (packetLock)
             {
                 return m2DMarkerData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get 2D marker data
+        /// </summary>
+        public void Get2DMarkerData(List<Camera> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = m2DMarkerData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(m2DMarkerData[i]);
+                }
             }
         }
 
@@ -1439,11 +1282,27 @@ namespace QTMRealTimeSDK.Data
         /// Get linear 2D marker data
         /// </summary>
         /// <returns>List of all linear 2D marker data</returns>
-        public List<Camera> Get2DLinearMarkerData()
+        public List<Camera> Get2DLinearizedMarkerData()
         {
             lock (packetLock)
             {
-                return m2DLinearMarkerData;
+                return m2DLinearizedMarkerData;
+            }
+        }
+
+        /// <summary>
+        /// Get linear 2D marker data
+        /// </summary>
+        public void Get2DLinearizedMarkerData(List<Camera> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = m2DLinearizedMarkerData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(m2DLinearizedMarkerData[i]);
+                }
             }
         }
 
@@ -1452,15 +1311,15 @@ namespace QTMRealTimeSDK.Data
         /// </summary>
         /// <param name="index">index to get data from.</param>
         /// <returns>linear 2D marker data</returns>
-        public Camera Get2DLinearMarkerData(int index)
+        public Camera Get2DLinearizedMarkerData(int index)
         {
             lock (packetLock)
             {
-                return m2DLinearMarkerData[index];
+                return m2DLinearizedMarkerData[index];
             }
         }
 
-         /// <summary>
+        /// <summary>
         /// Get 3D marker data
         /// </summary>
         /// <returns>List of all 3D marker data</returns>
@@ -1469,6 +1328,22 @@ namespace QTMRealTimeSDK.Data
             lock (packetLock)
             {
                 return m3DMarkerData;
+            }
+        }
+
+        /// <summary>
+        /// Get 3D marker data
+        /// </summary>
+        public void Get3DMarkerData(List<Q3D> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = m3DMarkerData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(m3DMarkerData[i]);
+                }
             }
         }
 
@@ -1485,7 +1360,6 @@ namespace QTMRealTimeSDK.Data
             }
         }
 
-
         /// <summary>
         /// Get 3D marker data
         /// </summary>
@@ -1495,6 +1369,22 @@ namespace QTMRealTimeSDK.Data
             lock (packetLock)
             {
                 return m3DMarkerResidualData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get 3D marker data
+        /// </summary>
+        public void Get3DMarkerResidualData(List<Q3D> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = m3DMarkerResidualData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(m3DMarkerResidualData[i]);
+                }
             }
         }
 
@@ -1512,6 +1402,89 @@ namespace QTMRealTimeSDK.Data
         }
 
         /// <summary>
+        /// Get unidentified 3D marker data at index
+        /// </summary>
+        /// <param name="index">index to get data from.</param>
+        /// <returns>Unidentified 3D marker data</returns>
+        public Q3D Get3DMarkerNoLabelsResidualData(int index)
+        {
+            lock (packetLock)
+            {
+                return m3DMarkerNoLabelResidualData[index];
+            }
+        }
+
+        /// <summary>
+        /// Get unidentified 3D marker data
+        /// </summary>
+        /// <returns>List of all unidentified 3D marker data</returns>
+        public List<Q3D> Get3DMarkerNoLabelsResidualData()
+        {
+            lock (packetLock)
+            {
+                return m3DMarkerNoLabelResidualData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get unidentified 3D marker data
+        /// </summary>
+        public void Get3DMarkerNoLabelsResidualData(List<Q3D> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = m3DMarkerNoLabelResidualData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(m3DMarkerNoLabelResidualData[i]);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Get unidentified 3D marker data at index
+        /// </summary>
+        /// <param name="index">index to get data from.</param>
+        /// <returns>Unidentified 3D marker data</returns>
+        public Q3D Get3DMarkerNoLabelsData(int index)
+        {
+            lock (packetLock)
+            {
+                return m3DMarkerNoLabelData[index];
+            }
+        }
+
+        /// <summary>
+        /// Get unidentified 3D marker data
+        /// </summary>
+        /// <returns>List of all unidentified 3D marker data</returns>
+        public List<Q3D> Get3DMarkerNoLabelsData()
+        {
+            lock (packetLock)
+            {
+                return m3DMarkerNoLabelData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get unidentified 3D marker data
+        /// </summary>
+        public void Get3DMarkerNoLabelsData(List<Q3D> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = m3DMarkerNoLabelData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(m3DMarkerNoLabelData[i]);
+                }
+            }
+        }
+
+        /// <summary>
         /// Get 6DOF data
         /// </summary>
         /// <returns>List of all 6DOF body data (orientation described with rotation matrix)</returns>
@@ -1520,6 +1493,22 @@ namespace QTMRealTimeSDK.Data
             lock (packetLock)
             {
                 return m6DOFData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get 6DOF data
+        /// </summary>
+        public void Get6DOFData(List<Q6DOF> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = m6DOFData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(m6DOFData[i]);
+                }
             }
         }
 
@@ -1536,7 +1525,48 @@ namespace QTMRealTimeSDK.Data
             }
         }
 
-         /// <summary>
+        /// <summary>
+        /// Get 6DOF data with residual
+        /// </summary>
+        /// <returns>List of all 6DOF body data (orientation described with rotation matrix)</returns>
+        public List<Q6DOF> Get6DOFResidualData()
+        {
+            lock (packetLock)
+            {
+                return m6DOFResidualData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get 6DOF data with residual
+        /// </summary>
+        public void Get6DOFResidualData(List<Q6DOF> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = m6DOFResidualData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(m6DOFResidualData[i]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get 6DOF data with residual of body at index
+        /// </summary>
+        /// <param name="index">index to get data from.</param>
+        /// <returns>6DOF body data (orientation described with rotation matrix)</returns>
+        public Q6DOF Get6DOFResidualData(int index)
+        {
+            lock (packetLock)
+            {
+                return m6DOFResidualData[index];
+            }
+        }
+
+        /// <summary>
         /// Get 6DOF data
         /// </summary>
         /// <returns>List of all 6DOF body data (orientation described with Euler angles)</returns>
@@ -1545,6 +1575,22 @@ namespace QTMRealTimeSDK.Data
             lock (packetLock)
             {
                 return m6DOFEulerData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get 6DOF data
+        /// </summary>
+        public void Get6DOFEulerData(List<Q6DOFEuler> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = m6DOFEulerData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(m6DOFEulerData[i]);
+                }
             }
         }
 
@@ -1562,14 +1608,71 @@ namespace QTMRealTimeSDK.Data
         }
 
         /// <summary>
-        /// Get all samples from all analog devices
+        /// Get 6DOF euler residual data
         /// </summary>
-        /// <returns>List of analog devices containing all samples gathered this frame</returns>
-        public List<Analog> GetAnalogDevices()
+        /// <returns>List of all 6DOF body data (orientation described with Euler angles)</returns>
+        public List<Q6DOFEuler> Get6DOFEulerResidualData()
         {
             lock (packetLock)
             {
-                return mAnalogDevices.ToList();
+                return m6DOFEulerResidualData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get 6DOF euler residual data
+        /// </summary>
+        public void Get6DOFEulerResidualData(List<Q6DOFEuler> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = m6DOFEulerResidualData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(m6DOFEulerResidualData[i]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get 6DOF data of body at index
+        /// </summary>
+        /// <param name="index">index to get data from.</param>
+        /// <returns>6DOF body data (orientation described with Euler angles)</returns>
+        public Q6DOFEuler Get6DOFEulerResidualData(int index)
+        {
+            lock (packetLock)
+            {
+                return m6DOFEulerResidualData[index];
+            }
+        }
+
+        /// <summary>
+        /// Get all samples from all analog devices
+        /// </summary>
+        /// <returns>List of analog devices containing all samples gathered this frame</returns>
+        public List<Analog> GetAnalogData()
+        {
+            lock (packetLock)
+            {
+                return mAnalogData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get all samples from all analog devices
+        /// </summary>
+        public void GetAnalogData(List<Analog> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = mAnalogData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(mAnalogData[i]);
+                }
             }
         }
 
@@ -1578,23 +1681,39 @@ namespace QTMRealTimeSDK.Data
         /// </summary>
         /// <param name="index">index to get data from.</param>
         /// <returns>Analog device containing all samples gathered this frame</returns>
-        public Analog GetAnalogDevice(int index)
+        public Analog GetAnalogData(int index)
         {
             lock (packetLock)
             {
-                return mAnalogDevices[index];
+                return mAnalogData[index];
             }
         }
 
         /// <summary>
-        /// Get sample from all analog devices(only one sample per frame)
+        /// Get sample from all analog devices (only one sample per frame)
         /// </summary>
         /// <returns>List of analog devices containing only one sample gathered this frame</returns>
-        public List<Analog> GetAnalogSingleDevices()
+        public List<Analog> GetAnalogSingleData()
         {
             lock (packetLock)
             {
-                return mAnalogSingleSample.ToList();
+                return mAnalogSingleData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get sample from all analog devices (only one sample per frame)
+        /// </summary>
+        public void GetAnalogSingleData(List<Analog> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = mAnalogSingleData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(mAnalogSingleData[i]);
+                }
             }
         }
 
@@ -1603,11 +1722,11 @@ namespace QTMRealTimeSDK.Data
         /// </summary>
         /// <param name="index">index to get data from.</param>
         /// <returns>Analog device containing one sample gathered this frame</returns>
-        public Analog GetAnalogSingleDevice(int index)
+        public Analog GetAnalogSingleData(int index)
         {
             lock (packetLock)
             {
-                return mAnalogSingleSample[index];
+                return mAnalogSingleData[index];
             }
         }
 
@@ -1615,11 +1734,27 @@ namespace QTMRealTimeSDK.Data
         /// Get samples from all force plates
         /// </summary>
         /// <returns>List of all force plates containing all samples gathered this frame</returns>
-        public List<ForcePlate> GetForcePlates()
+        public List<ForcePlate> GetForceData()
         {
             lock (packetLock)
             {
-                return mForcePlates.ToList();
+                return mForcePlateData.ToList();
+            }
+        }
+        
+        /// <summary>
+        /// Get samples from all force plates
+        /// </summary>
+        public void GetForceData(List<ForcePlate> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = mForcePlateData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(mForcePlateData[i]);
+                }
             }
         }
 
@@ -1628,11 +1763,11 @@ namespace QTMRealTimeSDK.Data
         /// </summary>
         /// <param name="index">index to get data from.</param>
         /// <returns>Force plate containing all samples gathered this frame</returns>
-        public ForcePlate GetForcePlate(int index)
+        public ForcePlate GetForceData(int index)
         {
             lock (packetLock)
             {
-                return mForcePlates[index];
+                return mForcePlateData[index];
             }
         }
 
@@ -1640,11 +1775,27 @@ namespace QTMRealTimeSDK.Data
         /// Get sample from all force plates (only one sample per frame)
         /// </summary>
         /// <returns>List of all force plates containing one sample gathered this frame</returns>
-        public List<ForcePlate> GetForceSinglePlates()
+        public List<ForcePlate> GetForceSingleData()
         {
             lock (packetLock)
             {
-                return mForceSinglePlate.ToList();
+                return mForceSinglePlateData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get sample from all analog devices (only one sample per frame)
+        /// </summary>
+        public void GetForceSingleData(List<ForcePlate> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = mForceSinglePlateData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(mForceSinglePlateData[i]);
+                }
             }
         }
 
@@ -1653,11 +1804,11 @@ namespace QTMRealTimeSDK.Data
         /// </summary>
         /// <param name="index">index to get data from.</param>
         /// <returns>Force plate containing all samples gathered this frame</returns>
-        public ForcePlate GetForceSinglePlate(int index)
+        public ForcePlate GetForceSingleData(int index)
         {
             lock (packetLock)
             {
-                return mForceSinglePlate[index];
+                return mForceSinglePlateData[index];
             }
         }
 
@@ -1670,6 +1821,22 @@ namespace QTMRealTimeSDK.Data
             lock (packetLock)
             {
                 return mImageData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get images from all cameras
+        /// </summary>
+        public void GetImageData(List<CameraImage> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = mImageData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(mImageData[i]);
+                }
             }
         }
 
@@ -1687,29 +1854,183 @@ namespace QTMRealTimeSDK.Data
         }
 
         /// <summary>
+        /// Get timecode information from packet
+        /// </summary>
+        /// <returns>list of all timecodes</returns>
+        public List<Timecode> GetTimecodeData()
+        {
+            lock (packetLock)
+            {
+                return mTimecodeData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get timecode information from packet
+        /// </summary>
+        public void GetTimecodeData(List<Timecode> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = mTimecodeData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(mTimecodeData[i]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get timecode data at index
+        /// </summary>
+        /// <param name="index">index to get data from.(not camera index!)</param>
+        /// <returns>Timecode from index</returns>
+        public Timecode GetTimecodeData(int index = 0)
+        {
+            lock (packetLock)
+            {
+                return mTimecodeData[index];
+            }
+        }
+
+        /// <summary>
+        /// Get timecode type at index
+        /// </summary>
+        /// <param name="index">index to get data from.(not camera index!)</param>
+        /// <returns>Timecode type from index</returns>
+        public TimecodeType GetTimecodeType(int index = 0)
+        {
+            lock (packetLock)
+            {
+                return mTimecodeData[index].Type;
+            }
+        }
+
+        /// <summary>
+        /// Get all gaze vectors
+        /// </summary>
+        /// <returns>list of all gaze vectors</returns>
+        public List<GazeVector> GetGazeVectorData()
+        {
+            lock (packetLock)
+            {
+                return mGazeVectorData.ToList();
+            }
+        }
+        
+        /// <summary>
         /// Get gaze vectors from all cameras
         /// </summary>
         /// <returns>list of all images</returns>
-        public List<GazeVector> GetGazeVectors()
+        public void GetGazeVectorData(List<GazeVector> output)
         {
+            output.Clear();
             lock (packetLock)
             {
-                return mGazeVector.ToList();
+                int c = mGazeVectorData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(mGazeVectorData[i]);
+                }
             }
         }
+
         /// <summary>
-        /// Get gaze vector data from cameras at index
+        /// Get gaze vector at index
         /// </summary>
         /// <param name="index">index to get data from.(not camera index!)</param>
         /// <returns>Gaze vector from index</returns>
-        public GazeVector GetGazeVector(int index)
+        public GazeVector GetGazeVectorData(int index)
         {
             lock (packetLock)
             {
-                return mGazeVector[index];
+                return mGazeVectorData[index];
             }
         }
-#endregion
 
+        /// <summary>
+        /// Get all eye trackers
+        /// </summary>
+        /// <returns>list of all eye trackers</returns>
+        public List<EyeTracker> GetEyeTrackerData()
+        {
+            lock (packetLock)
+            {
+                return mEyeTrackerData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get all eye trackers
+        /// </summary>
+        public void GetEyeTrackerData(List<EyeTracker> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = mEyeTrackerData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(mEyeTrackerData[i]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get eye tracker at index
+        /// </summary>
+        /// <param name="index">index to get data from.(not camera index!)</param>
+        /// <returns>Eye tracker from index</returns>
+        public EyeTracker GetEyeTrackerData(int index)
+        {
+            lock (packetLock)
+            {
+                return mEyeTrackerData[index];
+            }
+        }
+
+        /// <summary>
+        /// Get skeleton from all cameras
+        /// </summary>
+        /// <returns>list of all images</returns>
+        public List<Skeleton> GetSkeletonData()
+        {
+            lock (packetLock)
+            {
+                return mSkeletonData.ToList();
+            }
+        }
+
+        /// <summary>
+        /// Get skeleton from all cameras
+        /// </summary>
+        /// <returns>list of all images</returns>
+        public void GetSkeletonData(List<Skeleton> output)
+        {
+            output.Clear();
+            lock (packetLock)
+            {
+                int c = mSkeletonData.Count;
+                for (int i = 0; i < c; ++i)
+                {
+                    output.Add(mSkeletonData[i]);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get skeleton data from cameras at index
+        /// </summary>
+        /// <param name="index">index to get data from.(not camera index!)</param>
+        /// <returns>Gaze vector from index</returns>
+        public Skeleton GetSkeletonData(int index)
+        {
+            lock (packetLock)
+            {
+                return mSkeletonData[index];
+            }
+        }
+        #endregion
     }
 }

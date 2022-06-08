@@ -62,7 +62,13 @@ namespace Ex {
         }
 
         protected override void start_experiment() {
+
             base.start_experiment();
+
+            if (initC.get<bool>("add_header_line")) {
+                write(initC.get<string>("header_line"), true);
+            }
+
             columnsValue = new List<string>();
         }
 

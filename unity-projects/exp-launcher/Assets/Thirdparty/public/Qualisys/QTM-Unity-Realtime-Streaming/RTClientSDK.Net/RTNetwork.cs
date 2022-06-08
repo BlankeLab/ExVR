@@ -1,4 +1,4 @@
-﻿// Realtime SDK for Qualisys Track Manager. Copyright 2015 Qualisys AB
+﻿// Realtime SDK for Qualisys Track Manager. Copyright 2015-2018 Qualisys AB
 //
 using System.Net;
 using System.Net.Sockets;
@@ -15,12 +15,12 @@ namespace QTMRealTimeSDK.Network
         private TcpClient mTCPClient = null;
 
         string mErrorString;
-        private SocketError mErrorCode = SocketError.NotConnected;
+        private SocketError mSocketError = SocketError.NotConnected;
 
         /// <summary>
         /// Default constructor
         /// </summary>
-        internal RTNetwork() 
+        internal RTNetwork()
         {
         }
 
@@ -47,14 +47,18 @@ namespace QTMRealTimeSDK.Network
                 }
 
                 mTCPClient = new TcpClient();
+                // Adding timeout to connection, otherwise system sometimes
+                // hangs when attempting to connect to an invalid host; programs won't
+                // continue after mTCPClient.Connect() until a new request is made 
+                mTCPClient.SendTimeout = 500;
                 mTCPClient.Connect(serverIP[0], port);
                 // Disable Nagle's algorithm
                 mTCPClient.NoDelay = true;
             }
-            catch(SocketException e)
+            catch (SocketException e)
             {
                 mErrorString = e.Message;
-                mErrorCode = e.SocketErrorCode;
+                mSocketError = e.SocketErrorCode;
 
                 if (mTCPClient != null)
                 {
@@ -63,38 +67,36 @@ namespace QTMRealTimeSDK.Network
 
                 return false;
             }
-            
+
             return true;
         }
 
         /// <summary>
-        /// Closes all sockets(command(TCP), stream(UDP) and broadcast(UDP)).
+        /// Closes selected sockets(command(TCP), stream(UDP) and broadcast(UDP)). All sockets closed by default.
         /// </summary>
-        internal void Disconnect()
+        internal void Disconnect(bool tcp = true, bool udp = true, bool udpBroadcast = true)
         {
-            if (mTCPClient != null)
+            if (tcp && mTCPClient != null)
             {
                 if (mTCPClient.Client != null)
                 {
-                    mTCPClient.Client.Shutdown(SocketShutdown.Send);
-                    // Empty receive buffer
-                    while (mTCPClient.Available > 0)
+                    // If this is not checked, I keep getting a "The socket is not connected" exception
+                    if (mTCPClient.Client.Connected)
                     {
-                        byte[] buffer = new byte[mTCPClient.ReceiveBufferSize];
-                        mTCPClient.Client.Receive(buffer);
+                        mTCPClient.Client.Shutdown(SocketShutdown.Send);
                     }
                 }
                 mTCPClient.Close();
                 mTCPClient = null;
             }
 
-            if (mUDPClient != null)
+            if (udp && mUDPClient != null)
             {
                 mUDPClient.Close();
                 mUDPClient = null;
             }
 
-            if (mUDPBroadcastClient != null)
+            if (udpBroadcast && mUDPBroadcastClient != null)
             {
                 mUDPBroadcastClient.Close();
                 mUDPBroadcastClient = null;
@@ -118,7 +120,7 @@ namespace QTMRealTimeSDK.Network
         /// <returns>True if socket creation was successful</returns>
         internal bool CreateUDPSocket(ref ushort udpPort, bool broadcast = false)
         {
-            if(udpPort == 0 || udpPort > 1023)
+            if (udpPort == 0 || udpPort > 1023)
             {
                 IPEndPoint e = new IPEndPoint(IPAddress.Any, udpPort);
                 UdpClient tempSocket = new UdpClient(e);
@@ -134,9 +136,7 @@ namespace QTMRealTimeSDK.Network
                 {
                     mUDPClient = tempSocket;
                 }
-
                 return true;
-                
             }
             else
             {
@@ -145,85 +145,96 @@ namespace QTMRealTimeSDK.Network
             }
         }
 
-        /// <summary>
-        /// Receive data from sockets. Order is TCP, UDP then broadcast.
-        /// </summary>
-        /// <param name="receivebuffer">received data</param>
-        /// <param name="onlyTCP">we only want to receive TCP packet, to avoid getting realtime packets</param>
-        /// <param name="timeout">timeout for receiving data on sockets, default is 1 000 000 microseconds (one second)</param>
-        /// <returns>number of bytes received on socket, 0 on timeout and -1 on socket error</returns>
-        internal int Receive(ref byte[] receivebuffer, bool onlyTCP = false, int timeout = 1000000)
+        internal int ReceiveBroadcast(ref byte[] receivebuffer, int bufferSize, ref EndPoint remoteEP, int timeout)
         {
-            List<Socket> receiveList = new List<Socket>();
-            List<Socket> errorList = new List<Socket>();
-
-            if (mTCPClient != null)
-            {
-                receiveList.Add(mTCPClient.Client);
-                errorList.Add(mTCPClient.Client);
-            }
-
-            if (mUDPClient != null && !onlyTCP)
-            {
-                receiveList.Add(mUDPClient.Client);
-                errorList.Add(mUDPClient.Client);
-            }
-
-            if (mUDPBroadcastClient != null && !onlyTCP)
-            {
-                receiveList.Add(mUDPBroadcastClient.Client);
-                errorList.Add(mUDPBroadcastClient.Client);
-            }
-
-            if (receiveList.Count == 0)
-            {
-                receivebuffer = null;
-                return 0;
-            }
-
-            Socket.Select(receiveList, null, errorList, timeout);
-
-            if (mTCPClient != null && errorList.Contains(mTCPClient.Client))
-            {
-                // Error from TCP socket
-                mErrorString = "Error reading from TCP socket";
-            }
-            else if (mTCPClient != null && receiveList.Contains(mTCPClient.Client))
-            {
-                // Receive data from TCP socket
-                int receiveddata = mTCPClient.Client.Receive(receivebuffer);
-                return receiveddata;
-            }
-            else if (mUDPClient != null && errorList.Contains(mUDPClient.Client))
-            {
-                // Error from UDP socket
-                mErrorString = "Error reading from UDP socket";
-            }
-            else if (mUDPClient != null && receiveList.Contains(mUDPClient.Client))
-            {
-                // Receive data from UDP socket
-                int receiveddata = mUDPClient.Client.Receive(receivebuffer);
-                return receiveddata;
-            }
-            else if (mUDPBroadcastClient != null && errorList.Contains(mUDPBroadcastClient.Client))
-            {
-                // Error from broadcast socket
-                mErrorString = "Error reading from Broadcast UDP socket";
-            }
-            else if (mUDPBroadcastClient != null && receiveList.Contains(mUDPBroadcastClient.Client))
-            {
-                // Receive data from broadcast socket
-                int receiveddata = mUDPBroadcastClient.Client.Receive(receivebuffer);
-                return receiveddata;
-            }
-            else
-            {
-                // General error
-                receivebuffer = null;
+            if (mUDPBroadcastClient == null)
                 return -1;
-            }
 
-            receivebuffer = null;
+            try
+            {
+                List<Socket> receiveList = new List<Socket>();
+                List<Socket> errorList = new List<Socket>();
+
+                if (mUDPBroadcastClient != null)
+                {
+                    receiveList.Add(mUDPBroadcastClient.Client);
+                    errorList.Add(mUDPBroadcastClient.Client);
+                }
+
+                Socket.Select(receiveList, null, errorList, timeout);
+
+                if (mUDPBroadcastClient != null && errorList.Contains(mUDPBroadcastClient.Client))
+                {
+                    // Error from broadcast socket
+                    mErrorString = "Error reading from Broadcast UDP socket";
+                }
+                else if (mUDPBroadcastClient != null && receiveList.Contains(mUDPBroadcastClient.Client))
+                {
+                    // Receive data from broadcast socket
+                    return mUDPBroadcastClient.Client.ReceiveFrom(receivebuffer, bufferSize, SocketFlags.None, ref remoteEP);
+                }
+            }
+            catch (SocketException exception)
+            {
+                // Ignore and return
+                mErrorString = exception.Message;
+            }
+            return -1;
+        }
+
+        internal int Receive(ref byte[] receivebuffer, int offset, int bufferSize, bool header, int timeout)
+        {
+            try
+            {
+                List<Socket> receiveList = new List<Socket>();
+                List<Socket> errorList = new List<Socket>();
+
+                if (mTCPClient != null)
+                {
+                    receiveList.Add(mTCPClient.Client);
+                    errorList.Add(mTCPClient.Client);
+                }
+
+                if (mUDPClient != null)
+                {
+                    receiveList.Add(mUDPClient.Client);
+                    errorList.Add(mUDPClient.Client);
+                }
+
+                if (receiveList.Count == 0)
+                {
+                    receivebuffer = null;
+                    return 0;
+                }
+
+                Socket.Select(receiveList, null, errorList, timeout);
+
+                if (mTCPClient != null && errorList.Contains(mTCPClient.Client))
+                {
+                    // Error from TCP socket
+                    mErrorString = "Error reading from TCP socket";
+                }
+                else if (mTCPClient != null && receiveList.Contains(mTCPClient.Client))
+                {
+                    // Receive data from TCP socket
+                    return mTCPClient.Client.Receive(receivebuffer, offset, header ? RTProtocol.Constants.PACKET_HEADER_SIZE : bufferSize, SocketFlags.None);
+                }
+                else if (mUDPClient != null && errorList.Contains(mUDPClient.Client))
+                {
+                    // Error from UDP socket
+                    mErrorString = "Error reading from UDP socket";
+                }
+                else if (mUDPClient != null && receiveList.Contains(mUDPClient.Client))
+                {
+                    // Receive data from UDP socket
+                    return mUDPClient.Client.Receive(receivebuffer, offset, bufferSize, SocketFlags.None);
+                }
+            }
+            catch (SocketException exception)
+            {
+                // Ignore and return
+                mErrorString = exception.Message;
+            }
             return -1;
         }
 
@@ -241,14 +252,42 @@ namespace QTMRealTimeSDK.Network
             {
                 sentData += mTCPClient.Client.Send(sendBuffer);
             }
-            catch(SocketException e)
+            catch (SocketException e)
             {
                 mErrorString = e.Message;
-                mErrorCode = e.SocketErrorCode;
+                mSocketError = e.SocketErrorCode;
                 return false;
             }
-            
+
             return true;
+        }
+
+        /// <summary>
+        /// Try and get all the local IP addresses
+        /// </summary>
+        /// <returns></returns>
+        private static List<IPAddress> GetLocalIPAddresses()
+        {
+            try
+            {
+                List<IPAddress> localIPs = new List<IPAddress>();
+
+                var hostName = Dns.GetHostName();
+                var host = Dns.GetHostEntry(hostName);
+                foreach (IPAddress ip in host.AddressList)
+                {
+                    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        localIPs.Add(ip);
+                    }
+                }
+                return localIPs;
+            }
+            catch (Exception)
+            {
+                // Ignore exception
+            }
+            return null;
         }
 
         /// <summary>
@@ -265,34 +304,80 @@ namespace QTMRealTimeSDK.Network
 
             try
             {
-                foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+                var nics = NetworkInterface.GetAllNetworkInterfaces();
+                if (nics.Length > 0)
                 {
-                    if (nic.NetworkInterfaceType != NetworkInterfaceType.Ethernet &&
-                        nic.NetworkInterfaceType != NetworkInterfaceType.Wireless80211)
-                        continue;
-                    foreach (UnicastIPAddressInformation ip in nic.GetIPProperties().UnicastAddresses)
+                    foreach (NetworkInterface nic in nics)
                     {
-                        if (ip.Address.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
+                        try
                         {
-                            IPAddress broadcastAddress = ip.Address.GetBroadcastAddress(ip.IPv4Mask);
-                            if (broadcastAddress == null)
+                            if (nic.NetworkInterfaceType != NetworkInterfaceType.Ethernet &&
+                                nic.NetworkInterfaceType != NetworkInterfaceType.Wireless80211)
                                 continue;
+                            foreach (UnicastIPAddressInformation ip in nic.GetIPProperties().UnicastAddresses)
+                            {
+                                if (ip.Address.AddressFamily != System.Net.Sockets.AddressFamily.InterNetwork)
+                                    continue;
 
-                            IPEndPoint e = new IPEndPoint(broadcastAddress, discoverPort);
-                            mUDPBroadcastClient.Client.SendTo(sendBuffer, bufferSize, 0, e);
+                                IPAddress ipv4Mask;
+                                try
+                                {
+                                    ipv4Mask = ip.IPv4Mask;
+                                }
+                                catch (Exception)
+                                {
+                                    ipv4Mask = IPAddress.Parse("255.255.255.0");
+                                }
+                                var broadcastAddress = ip.Address.GetBroadcastAddress(ipv4Mask);
+                                if (broadcastAddress != null)
+                                {
+                                    IPEndPoint e = new IPEndPoint(broadcastAddress, discoverPort);
+                                    mUDPBroadcastClient.Client.SendTo(sendBuffer, bufferSize, 0, e);
+                                }
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            // Ignore broadcast failure, since we might have more IPs to send to
+                        }
+
+                    }
+                }
+                else
+                {
+                    var localIPs = GetLocalIPAddresses();
+                    foreach (var ip in localIPs)
+                    {
+                        try
+                        {
+                            var ipv4Mask = IPAddress.Parse("255.255.255.0");
+                            var broadcastAddress = ip.GetBroadcastAddress(ipv4Mask);
+                            if (broadcastAddress != null)
+                            {
+                                IPEndPoint e = new IPEndPoint(broadcastAddress, discoverPort);
+                                mUDPBroadcastClient.Client.SendTo(sendBuffer, bufferSize, 0, e);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            // Ignore broadcast failure, since we might have more IPs to send to
                         }
                     }
                 }
             }
-            catch (SocketException ex)
+            catch (SocketException e)
             {
-                mErrorCode = ex.SocketErrorCode;
-                mErrorString = ex.Message;
+                mSocketError = e.SocketErrorCode;
+                mErrorString = e.Message;
+                return false;
+            }
+            catch (Exception e)
+            {
+                mErrorString = e.Message;
                 return false;
             }
             return true;
         }
-
         /// <summary>
         /// Error string related to errors that could have occurred during execution of commands
         /// </summary>
@@ -308,14 +393,18 @@ namespace QTMRealTimeSDK.Network
         /// <returns>Socket error</returns>
         internal SocketError GetError()
         {
-            return mErrorCode;
+            return mSocketError;
         }
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (!disposed)
             {
-                Disconnect();
+                if (disposing)
+                {
+                    Disconnect();
+                }
+                disposed = true;
             }
         }
 
@@ -324,6 +413,8 @@ namespace QTMRealTimeSDK.Network
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        private bool disposed = false;
     }
 
     internal static class IPAddressExtensions
@@ -333,32 +424,32 @@ namespace QTMRealTimeSDK.Network
             if (address == null || subnetMask == null)
                 return null;
 
-            byte[] ipAdressBytes = address.GetAddressBytes();
+            byte[] ipAddressBytes = address.GetAddressBytes();
             byte[] subnetMaskBytes = subnetMask.GetAddressBytes();
 
-            if (ipAdressBytes.Length != subnetMaskBytes.Length)
+            if (ipAddressBytes.Length != subnetMaskBytes.Length)
                 throw new ArgumentException("Lengths of IP address and subnet mask do not match.");
 
-            byte[] broadcastAddress = new byte[ipAdressBytes.Length];
+            byte[] broadcastAddress = new byte[ipAddressBytes.Length];
             for (int i = 0; i < broadcastAddress.Length; i++)
             {
-                broadcastAddress[i] = (byte)(ipAdressBytes[i] | (subnetMaskBytes[i] ^ 255));
+                broadcastAddress[i] = (byte)(ipAddressBytes[i] | (subnetMaskBytes[i] ^ 255));
             }
             return new IPAddress(broadcastAddress);
         }
 
         internal static IPAddress GetNetworkAddress(this IPAddress address, IPAddress subnetMask)
         {
-            byte[] ipAdressBytes = address.GetAddressBytes();
+            byte[] ipAddressBytes = address.GetAddressBytes();
             byte[] subnetMaskBytes = subnetMask.GetAddressBytes();
 
-            if (ipAdressBytes.Length != subnetMaskBytes.Length)
+            if (ipAddressBytes.Length != subnetMaskBytes.Length)
                 throw new ArgumentException("Lengths of IP address and subnet mask do not match.");
 
-            byte[] broadcastAddress = new byte[ipAdressBytes.Length];
+            byte[] broadcastAddress = new byte[ipAddressBytes.Length];
             for (int i = 0; i < broadcastAddress.Length; i++)
             {
-                broadcastAddress[i] = (byte)(ipAdressBytes[i] & (subnetMaskBytes[i]));
+                broadcastAddress[i] = (byte)(ipAddressBytes[i] & (subnetMaskBytes[i]));
             }
             return new IPAddress(broadcastAddress);
         }

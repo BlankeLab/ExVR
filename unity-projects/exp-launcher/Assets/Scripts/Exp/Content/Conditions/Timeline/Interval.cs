@@ -40,6 +40,10 @@ namespace Ex{
             return (time >= tStartS) && (time <= tEndS);
         }
 
+        public double duration() {
+            return tEndS - tStartS;
+        }
+
         public double tStartS    = 0.0;
         public double tEndS      = 0.0;
     }

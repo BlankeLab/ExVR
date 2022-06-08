@@ -29,45 +29,33 @@
 
 // qt-utility
 #include "qt_str.hpp"
-#include "data/id_key.hpp"
 
 namespace tool::ex {
 
 struct Interval{
 
-    Interval(): key(IdKey::Type::Interval, -1){}
-    Interval(SecondsTS tS, SecondsTS tE, IntervalKey id) : key(IdKey::Type::Interval, id.v), start(tS), end(tE){}
+    Interval(SecondsTS tS, SecondsTS tE) : start(tS), end(tE){}
+    Interval(const Interval &interval) = default;
 
-    static Interval copy_with_new_element_id(const Interval &intervalToCopy){
-        return Interval(intervalToCopy.start, intervalToCopy.end, IntervalKey{-1});
-    }
+    void merge_with(const Interval &i);
 
     bool inside(SecondsTS time) const;
-    bool collide(Interval interval);
+    static bool inside(SecondsTS start, SecondsTS end, SecondsTS time);
+    bool collide(const Interval &interval);
+
     Seconds length() const;
 
-    IdKey key;
+    inline QString to_string() const{return QSL("[") % QString::number(start.v) % QSL(", ") % QString::number(end.v) % QSL("]");}
+
     SecondsTS start{0.};
     SecondsTS end{0.};
-
-    void merge(const Interval &i){
-        start = SecondsTS{std::min(start.v, i.start.v)};
-        end   = SecondsTS{std::max(end.v,   i.end.v)};
-    }
-
-    inline QString to_string() const{return QSL("[") % QString::number(start.v) % QSL(", ") % QString::number(end.v) % QSL("]");}
 };
 
-    [[maybe_unused]] static Interval merge_intervals(const Interval &i1, const Interval &i2){
-        return Interval(SecondsTS{std::min(i1.start.v,i2.start.v)},
-                        SecondsTS{std::max(i1.end.v, i2.end.v)}, IntervalKey{i1.key()});
+[[maybe_unused]] static bool compare_intervals(const Interval &i1, const Interval &i2){
+    if(almost_equal(i1.start.v,i2.start.v)){
+        return i1.end.v < i2.end.v;
     }
-
-    [[maybe_unused]] static bool compare_intervals(const Interval &i1, const Interval &i2){
-        if(almost_equal(i1.start.v,i2.start.v)){
-            return i1.end.v < i2.end.v;
-        }
-        return i1.start.v < i2.start.v;
-    }
+    return i1.start.v < i2.start.v;
+}
 
 }

@@ -26,11 +26,6 @@
 
 // Qt
 #include <QStringList>
-//#include <QRegularExpression>
-
-// qt-utility
-#include "qt_highlighting.hpp"
-#include "qt_str.hpp"
 
 namespace tool::ex{
 

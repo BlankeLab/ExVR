@@ -28,7 +28,7 @@ BOOST_PYTHON_MODULE(ex){
 
     bp::class_<std::vector<double>>("VectorDouble").def(bp::vector_indexing_suite<std::vector<double>>() );
 
-    bp::def("log", &ExComponent::log, bp::arg("message"));
+    bp::def("log", &ExComponent::log_message, bp::arg("message"));
     bp::def("log_error", &ExComponent::log_error, bp::arg("error"));
     bp::def("signal_bool", &ExComponent::signal_bool, bp::arg("key"), bp::arg("index"), bp::arg("value"));
     bp::def("signal_int", &ExComponent::signal_int, bp::arg("key"), bp::arg("index"), bp::arg("value"));
@@ -113,6 +113,7 @@ bool PythonScriptComponent::initialize(){
 
         // Read data from initConfig
         m_modulePath = get<std::string>(ParametersContainer::InitConfig, "path_module");
+
         auto [moduleDirectoryPath, moduleName] = tool::str::split_path_and_filename(m_modulePath);
         tool::str::remove_from_right(moduleName, '.');
         m_moduleName = moduleName;
@@ -120,7 +121,9 @@ bool PythonScriptComponent::initialize(){
         m_className    = get<std::string>(ParametersContainer::InitConfig, "class_name");
         m_pythonLibPath= get<std::string>(ParametersContainer::InitConfig, "path_lib");
 
-        // Add paths to sys.path
+        // Add paths to sys.path        
+        PyRun_SimpleString(componentStr); // TEST
+
         PyRun_SimpleString("import sys;");
         PyRun_SimpleString(std::string("sys.path.append(\"" + m_moduleDirectoryPath + "\");").c_str());
         PyRun_SimpleString(std::string("sys.path.append(\"" + m_pythonLibPath + "\");").c_str());
@@ -211,40 +214,41 @@ void PythonScriptComponent::slot(int index){
     std::string valueName = std::string("slot") + std::to_string(index);
 //    log("PyComponent::slot(int index) : " + valueName + " " + std::to_string(dynamic.count(valueName)));
 
-    if(dynamic.count(valueName)){
-        auto &v =dynamic[valueName];
-        if(v.type() == typeid (bool)){
-            call_function("slot", index, std::any_cast<bool>(v));
-            return;
-        }else if(v.type() == typeid (int)){
-            call_function("slot", index, std::any_cast<int>(v));
-            return;
-        }else if(v.type() == typeid (float)){
-            call_function("slot", index, std::any_cast<float>(v));
-            return;
-        }else if(v.type() == typeid (double)){
-            call_function("slot", index, std::any_cast<double>(v));
-            return;
-        }else if(v.type() == typeid (std::string)){
-            call_function("slot", index, std::any_cast<std::string>(v));
-            return;
-        }
-    }
+//    if(contains(ParametersContainer::Dynamic, valueName)){
+//        auto v = &containers[ParametersContainer::Dynamic][valueName];
+//        if(v->type() == typeid (bool)){
+//            call_function("slot", index, std::any_cast<bool>(*v));
+//            return;
+//        }else if(v->type() == typeid (int)){
+//            call_function("slot", index, std::any_cast<int>(*v));
+//            return;
+//        }else if(v->type() == typeid (float)){
+//            call_function("slot", index, std::any_cast<float>(*v));
+//            return;
+//        }else if(v->type() == typeid (double)){
+//            call_function("slot", index, std::any_cast<double>(*v));
+//            return;
+//        }else if(v->type() == typeid (std::string)){
+//            call_function("slot", index, std::any_cast<std::string>(*v));
+//            return;
+//        }
+//    }
 
-    if(dynamicArray.count(valueName)){
-        auto &v =dynamicArray[valueName];
-        if(std::get<0>(v).type() == typeid(std::vector<double>)){
 
-            auto values = std::any_cast<std::vector<double>>(std::get<0>(v));
-//            log_error("Values double " + std::to_string(values.size()));
-            call_function("slot", index, toPythonList(values));
-            return;
-        }
-    }
+//    if(dynamicArray.count(valueName)){
+//        auto &v =dynamicArray[valueName];
+//        if(std::get<0>(v).type() == typeid(std::vector<double>)){
+
+//            auto values = std::any_cast<std::vector<double>>(std::get<0>(v));
+////            log_error("Values double " + std::to_string(values.size()));
+//            call_function("slot", index, toPythonList(values));
+//            return;
+//        }
+//    }
     log_error("No value with name " + valueName + " found.");
 }
 
 void PythonScriptComponent::remove_module(){
     PyRun_SimpleString(std::string("if '" + m_moduleName + "' in sys.modules:\n\tdel sys.modules[\"" + m_moduleName + "\"]").c_str());
-    log("Module removed: " + m_moduleName);
+    log_message("Module removed: " + m_moduleName);
 }

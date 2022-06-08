@@ -41,7 +41,7 @@ namespace Ex {
 
             // connections
             connections().add_slot("input", (input) => {
-                invoke_signal("output", m_currentMethod.Invoke(null, new object[1] { input }));
+                invoke_signal("output", call_function(input));
             });
             connections().add_signal("output");
 
@@ -94,22 +94,24 @@ namespace Ex {
         #endregion
 
         #region private_functions
+
         private static string generate_code(string className, string initConfigExtraContent, List<string> configsName, List<string> condConfigsFunctionContent, List<string> condConfigsExtraContent) {
+            
 
             StringBuilder b = new StringBuilder();
             b.Append("using System;\nusing System.Collections.Generic;\nusing UnityEngine;\n");
             b.Append(" namespace Ex.CSharpFunctions { public class ");
             b.Append(className);
-            b.Append(" { \n");
+            b.Append(" { \nstatic int countErrors = 0;");
             b.Append(initConfigExtraContent);
             for (int ii = 0; ii < configsName.Count; ++ii) {
                 b.Append("public class ");
                 b.Append(configsName[ii]);
-                b.Append(" { \n");
+                b.Append("{\n");
                 b.Append(condConfigsExtraContent[ii]);
-                b.Append("\n public static object function(object input) {\nobject output = null;\n");
+                b.Append("\n public static object function(object input) {\nobject output = null;\ntry{");
                 b.Append(condConfigsFunctionContent[ii]);
-                b.Append(" \nreturn output;\n} \n}");
+                b.Append("\n}catch(System.Exception ex){\nCSharpFunctionComponent.display_static_exception(countErrors++,ex);}\nreturn output;\n}\n}");
             }
             b.Append("\n }\n}");
             return b.ToString();
@@ -177,7 +179,7 @@ namespace Ex {
                         componentName = componentName.Replace(c, "_");
                     }
 
-                    csharpFunctionsComponentsCode.Add(CSharpFunctionComponent.generate_code(componentName, initConfigExtraContent, configs, condConfigsFuncContent, condConfigsExtraContent)); ;
+                    csharpFunctionsComponentsCode.Add(generate_code(componentName, initConfigExtraContent, configs, condConfigsFuncContent, condConfigsExtraContent)); ;
                 }
             }
 
@@ -187,11 +189,25 @@ namespace Ex {
         #endregion
 
         #region public_functions
+        public static void display_static_exception(int countErrors, System.Exception e,
+            [System.Runtime.CompilerServices.CallerMemberName] string memberName = "",
+            [System.Runtime.CompilerServices.CallerFilePath] string sourceFilePath = "",
+            [System.Runtime.CompilerServices.CallerLineNumber] int sourceLineNumber = 0) {
 
-        public void call_function(object value) {
-            if (m_currentMethod != null) {
-                m_currentMethod.Invoke(null, new object[1] { value });
+            if (countErrors <= 10) {
+                ExVR.Log().error(string.Format("[error-exception] "), true, memberName, sourceFilePath, sourceLineNumber);
+                ExVR.Log().error(string.Format("[message] {0}", e.Message), false);
+                if(countErrors == 10) {
+                    ExVR.Log().error("Too many errors, exception display disabled. Please fix issues and reload experiment.");
+                }
             }
+        }
+
+        public object call_function(object value) {
+            if (m_currentMethod != null) {
+                return m_currentMethod.Invoke(null, new object[1] { value });
+            }
+            return null;
         }
 
         #endregion

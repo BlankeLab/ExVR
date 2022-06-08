@@ -29,8 +29,6 @@
 // catch
 #include "catch.hpp"
 
-// base
-#include "utility/benchmark.hpp"
 
 // qt-utility
 #include "qt_logger.hpp"
@@ -42,67 +40,56 @@
 using namespace tool;
 using namespace tool::ex;
 
-//void myMessageOutput(QtMsgType type, const QMessageLogContext &context, const QString &msg)
-//{
-//    QByteArray localMsg = msg.toLocal8Bit();
-//    const char *file = context.file ? context.file : "";
-//    const char *function = context.function ? context.function : "";
-//    switch (type) {
-//    case QtDebugMsg:
-//        fprintf(stderr, "%s\n", localMsg.constData());
-////        fprintf(stderr, "Debug: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-//        break;
-//    case QtInfoMsg:
-//        fprintf(stderr, "%s\n", localMsg.constData());
-////        fprintf(stderr, "Info: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-//        break;
-//    case QtWarningMsg:
-//        fprintf(stderr, "\033[1;33mWarning\033[0m: %s\n", localMsg.constData());
-////        fprintf(stderr, "Warning: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-//        break;
-//    case QtCriticalMsg:
-//        fprintf(stderr, "\033[31mCritical\033[0m: %s\n", localMsg.constData());
-////        fprintf(stderr, "Critical: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-//        break;
-//    case QtFatalMsg:
-//        fprintf(stderr, "\033[31mFatal\033[0m: %s\n", localMsg.constData());
-////        fprintf(stderr, "Fatal: %s (%s:%u, %s)\n", localMsg.constData(), file, context.line, function);
-//        break;
+
+
+// https://www.froglogic.com/blog/tip-of-the-week/unit-tests-for-qt-based-applications-with-catch/
+
+//    SECTION("Matrix 3x3"){
+//        REQUIRE(geo::equals(dm1,from_glm(glmdm1)));
+//        REQUIRE(dm1.determinant() == glm::determinant(glmdm1));
 //    }
-//}
 
+//    SECTION("Look at"){
+//        auto lightView1 = from_glm(glm::lookAt(
+//            glm::vec3(-2.0f, 4.0f, -1.0f),
+//            glm::vec3( 0.0f, 0.0f,  0.0f),
+//            glm::vec3( 0.0f, 1.0f,  0.0f)
+//        ));
 
+//        auto lightView2 = geo::Mat4f::LookAt(
+//            geo::Pt3f{-2.0f, 4.0f, -1.0f},
+//            geo::Vec3f{0.0f, 0.0f,  0.0f},
+//            geo::Vec3f{0.0f, 1.0f,  0.0f}
+//        );
+
+//        REQUIRE(geo::equals(clean(lightView1),clean(lightView2)));
+//    }
+
+TEST_CASE("Experiment"){
+
+    Experiment exp("1.0");
+    auto types = Component::all_components_types();
+
+    SECTION("Components types"){
+
+        qDebug() << from_view(Component::get_type_name(types[0]));
+        for(const auto & type : types){
+            exp.add_new_component(type, {0});
+        }
+        REQUIRE(exp.compM.count() == types.size());
+        qDebug() << "Components count: " << exp.compM.count();
+
+        auto c = exp.compM.get_component(RowId{0});
+        REQUIRE(!c->rename_config(RowId{1}, "test"));
+        REQUIRE(c->rename_config(RowId{0}, "test"));
+        c->add_config(std::make_unique<Config>("test2", ConfigKey{-1}));
+        REQUIRE(!c->rename_config(RowId{0}, "test"));
+    }
+}
 
 TEST_CASE("Experiments loading"){
 
-
-//    qInstallMessageHandler(myMessageOutput);
-
-
-
-    tool::Bench::disable_display();
-
-    // init logging system
-    QtLogger::init(QApplication::applicationDirPath() % QSL("/logs/"), QSL("designer_test.html"));
-    QtLogger::set_html_ui_type_message_color(QtLogger::MessageType::normal,  QColor(189,189,189));
-    QtLogger::set_html_ui_type_message_color(QtLogger::MessageType::warning, QColor(243, 158, 3));
-    QtLogger::set_html_ui_type_message_color(QtLogger::MessageType::error,   QColor(244,4,4));
-    QtLogger::set_html_ui_type_message_color(QtLogger::MessageType::unknow,  Qt::white);
-
-    size_t countMessages = 0;
-    size_t countWarnings = 0;
-    size_t countErrors = 0;
-    QtLogger::connect(QtLogger::get(), &QtLogger::message_signal, [&](QString m){++countMessages;
-        qDebug() << m.remove("<p><font color=#bdbdbd>").remove("</font></p>\n");
-    });
-    QtLogger::connect(QtLogger::get(), &QtLogger::warning_signal, [&](QString w){++countWarnings;
-        qWarning() << w.remove("<p><font color=#f39e03>").remove("</font></p>\n");
-    });
-    QtLogger::connect(QtLogger::get(), &QtLogger::error_signal, [&](QString e){++countErrors;
-        qCritical() << e.remove("<p><font color=#f40404>").remove("</font></p>\n");
-    });
-
-    tool::ex::Paths::initialize_paths(QApplication::applicationDirPath() + "/../exvr-designer");
+    return;
 
     std::vector<QString> failureExp={
         "","///","../../../..","\aàé_gub"
@@ -136,33 +123,6 @@ TEST_CASE("Experiments loading"){
         REQUIRE(xmlIoM.load_experiment_file(path));
         exp.clean_experiment();
     }
-
-    QtLogger::message(QSL("Messages: ") % QString::number(countMessages));
-    QtLogger::warning(QSL("Warnings: ") % QString::number(countWarnings));
-    QtLogger::error(QSL("Errors: ") % QString::number(countErrors));
-
-    // https://www.froglogic.com/blog/tip-of-the-week/unit-tests-for-qt-based-applications-with-catch/
-
-//    SECTION("Matrix 3x3"){
-//        REQUIRE(geo::equals(dm1,from_glm(glmdm1)));
-//        REQUIRE(dm1.determinant() == glm::determinant(glmdm1));
-//    }
-
-//    SECTION("Look at"){
-//        auto lightView1 = from_glm(glm::lookAt(
-//            glm::vec3(-2.0f, 4.0f, -1.0f),
-//            glm::vec3( 0.0f, 0.0f,  0.0f),
-//            glm::vec3( 0.0f, 1.0f,  0.0f)
-//        ));
-
-//        auto lightView2 = geo::Mat4f::LookAt(
-//            geo::Pt3f{-2.0f, 4.0f, -1.0f},
-//            geo::Vec3f{0.0f, 0.0f,  0.0f},
-//            geo::Vec3f{0.0f, 1.0f,  0.0f}
-//        );
-
-//        REQUIRE(geo::equals(clean(lightView1),clean(lightView2)));
-//    }
 
 
 }

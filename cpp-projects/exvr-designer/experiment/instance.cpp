@@ -30,12 +30,12 @@
 using namespace tool;
 using namespace tool::ex;
 
-Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &elements, size_t idInstance){   
+Instance::Instance(const Randomizer *randomizer, const std::vector<FlowElement*> &elements, size_t idInstance){
 
     this->idInstance = idInstance;
 
     QVector<LoopInfo> infos;
-    auto get_index_from_loop_node = [&](Element *elem){
+    auto get_index_from_loop_node = [&](FlowElement *elem){
         for(int ii = 0; ii < to_signed(elements.size()); ++ii){
             if(elements[to_unsigned(ii)] == elem){
                 return ii;
@@ -45,19 +45,19 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
     };
 
     // retrieve cast elements
-    std_v1<Routine *> routines;
-    std_v1<Isi *> ISIs;
-    std_v1<Loop *> loops;
+    std::vector<Routine *> routines;
+    std::vector<Isi *> ISIs;
+    std::vector<Loop *> loops;
     for(const auto elem : elements){
-        if(elem->type == Element::Type::Isi){
+        if(elem->type() == FlowElement::Type::Isi){
             ISIs.push_back(dynamic_cast<Isi*>(elem));
             continue;
         }
-        if(elem->type == Element::Type::Routine){
+        if(elem->type() == FlowElement::Type::Routine){
             routines.push_back(dynamic_cast<Routine*>(elem));
             continue;
         }
-        if(elem->type == Element::Type::LoopStart){
+        if(elem->type() == FlowElement::Type::LoopStart){
             loops.push_back(dynamic_cast<LoopNode*>(elem)->loop);
             continue;
         }
@@ -65,7 +65,7 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
 
 
     // generate randomization for each loop
-    std::unordered_map<int, std_v1<QString>> loopsSetsNames;
+    std::unordered_map<int, std::vector<QStringView>> loopsSetsNames;
     std::unordered_map<int, size_t> loopsCurentSetId;        
 
     for(const auto loop : loops){
@@ -79,56 +79,41 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
         const size_t totalNbReps = multiplier * to_unsigned(loop->nbReps);
 
         // fill list of sets
-        std_v1<QString> setsOccurenciesStr;
+        std::vector<QStringView> setsOccurenciesStr;
         if(loop->mode != Loop::Mode::File){
 
             for(const auto &set : loop->sets){
-                for(size_t ii = 0; ii < set.occurencies; ++ii){
-                    setsOccurenciesStr.push_back(set.name);
+                for(size_t ii = 0; ii < set->occurencies; ++ii){
+                    setsOccurenciesStr.push_back(set->name);
                 }
             }
         }else{
             for(const auto &set : loop->fileSets){
-                for(size_t ii = 0; ii < set.occurencies; ++ii){
-                    setsOccurenciesStr.push_back(set.name);
+                for(size_t ii = 0; ii < set->occurencies; ++ii){
+                    setsOccurenciesStr.push_back(set->name);
                 }
             }
         }
 
-
-        std_v1<QString> setsNames;
-        setsNames.reserve(totalNbReps);
-
-//        const bool randomizeOnce = true;
-//        if(randomizeOnce){
-
+        std::vector<QStringView> setsNames;
         switch (loop->mode) {
             case Loop::Mode::Fixed:{
 
+                setsNames.reserve(totalNbReps);
                 for(size_t ii = 0; ii < totalNbReps; ++ii){
                     setsNames.push_back(setsOccurenciesStr[ii%setsOccurenciesStr.size()]);
                 }
-
-            break;}case Loop::Mode::File:{
-
-                for(size_t ii = 0; ii < totalNbReps; ++ii){
-                    setsNames.push_back(setsOccurenciesStr[ii%setsOccurenciesStr.size()]);
-                }
-
             break;}case Loop::Mode::Shuffle:{
 
-                for(auto &set : randomizer->shuffle(setsOccurenciesStr, totalNbReps)){
-                    setsNames.push_back(std::move(set));
-                }
+                setsNames = randomizer->shuffle(setsOccurenciesStr, totalNbReps, loop->noFollowingValues);
 
             break;}case Loop::Mode::Random:{
 
-                for(auto &set : randomizer->randomize(setsOccurenciesStr, totalNbReps)){
-                    setsNames.push_back(std::move(set));
-                }
+                setsNames = randomizer->randomize(setsOccurenciesStr, totalNbReps, loop->noFollowingValues);
 
             break;}case Loop::Mode::FixedRandomStart:{
 
+                setsNames.reserve(totalNbReps);
                 const size_t start = randomizer->randomize_start(setsOccurenciesStr.size());
                 for(size_t ii = 0; ii < totalNbReps; ++ii){
                     setsNames.push_back(setsOccurenciesStr[(start+ii)%setsOccurenciesStr.size()]);
@@ -136,6 +121,7 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
 
             break;}case Loop::Mode::FixedInstanceShiftStart:{
 
+                setsNames.reserve(totalNbReps);
                 for(size_t ii = 0; ii < totalNbReps; ++ii){
                     setsNames.push_back(setsOccurenciesStr[(ii+idInstance)%setsOccurenciesStr.size()]);
                 }
@@ -145,12 +131,13 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
                 // generate
                 if(idInstance == 0){
                     onlyOnceRandomLoopSets[loop->key()] = {};
-                    for(auto &set : randomizer->randomize(setsOccurenciesStr, totalNbReps)){
-                        onlyOnceRandomLoopSets[loop->key()].push_back(std::move(set));
+                    for(auto set : randomizer->randomize(setsOccurenciesStr, totalNbReps, loop->noFollowingValues)){
+                        onlyOnceRandomLoopSets[loop->key()].push_back(set);
                     }
                 }
                 // retrieve
-                for(const auto &set : onlyOnceRandomLoopSets[loop->key()]){
+                setsNames.reserve(totalNbReps);
+                for(auto set : onlyOnceRandomLoopSets[loop->key()]){
                     setsNames.push_back(set);
                 }
 
@@ -159,12 +146,14 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
                 // generate
                 if(idInstance == 0) {
                     onlyOnceShuffleLoopSets[loop->key()] = {};
-                    for(auto &set : randomizer->shuffle(setsOccurenciesStr, totalNbReps)){
-                        onlyOnceShuffleLoopSets[loop->key()].push_back(std::move(set));
+                    for(auto set : randomizer->shuffle(setsOccurenciesStr, totalNbReps, loop->noFollowingValues)){
+                        onlyOnceShuffleLoopSets[loop->key()].push_back(set);
                     }
                 }
+
                 // retrieve
-                for(const auto &set : onlyOnceShuffleLoopSets[loop->key()]){
+                setsNames.reserve(totalNbReps);
+                for(auto set : onlyOnceShuffleLoopSets[loop->key()]){
                     setsNames.push_back(set);
                 }
 
@@ -177,12 +166,13 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
                         everyNRandomLoopSets[loop->key()] = {};
                     }
 
-                    for(auto &set : randomizer->randomize(setsOccurenciesStr, totalNbReps)){
-                        everyNRandomLoopSets[loop->key()].push_back(std::move(set));
+                    for(auto set : randomizer->randomize(setsOccurenciesStr, totalNbReps, loop->noFollowingValues)){
+                        everyNRandomLoopSets[loop->key()].push_back(set);
                     }
                 }
                 // retrieve
-                for(const auto &set : everyNRandomLoopSets[loop->key()]){
+                setsNames.reserve(totalNbReps);
+                for(auto set : everyNRandomLoopSets[loop->key()]){
                     setsNames.push_back(set);
                 }
 
@@ -195,14 +185,22 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
                          everyNShuffleLoopSets[loop->key()] = {};
                      }
 
-                    for(auto &set : randomizer->shuffle(setsOccurenciesStr, totalNbReps)){
-                        everyNShuffleLoopSets[loop->key()].push_back(std::move(set));
+                    for(auto set : randomizer->shuffle(setsOccurenciesStr, totalNbReps, loop->noFollowingValues)){
+                        everyNShuffleLoopSets[loop->key()].push_back(set);
                     }
                 }
 
                 // retrieve
-                for(const auto &set : everyNShuffleLoopSets[loop->key()]){
+                setsNames.reserve(totalNbReps);
+                for(auto set : everyNShuffleLoopSets[loop->key()]){
                     setsNames.push_back(set);
+                }
+
+            break;}case Loop::Mode::File:{
+
+                setsNames.reserve(totalNbReps);
+                for(size_t ii = 0; ii < totalNbReps; ++ii){
+                    setsNames.push_back(setsOccurenciesStr[ii%setsOccurenciesStr.size()]);
                 }
 
             break;}
@@ -215,7 +213,7 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
     }
 
     // generate randomization for each ISI
-    std::unordered_map<int, std_v1<double>> isisIntervals;
+    std::unordered_map<int, std::vector<double>> isisIntervals;
     std::unordered_map<int, size_t> isisCurentIntervalId;
     for(const auto isi : ISIs){
 
@@ -227,11 +225,11 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
 
         const bool randomizeOnce = true;
 
-        std_v1<double> intervals;
+        std::vector<double> intervals;
         const size_t totalNbReps = multiplier;
         if(randomizeOnce){
             if(isi->randomized){
-                for(auto &isi : randomizer->randomize(isi->intervals, totalNbReps)){
+                for(auto &isi : randomizer->randomize(isi->intervals, totalNbReps, false)){
                     intervals.emplace_back(std::move(isi));
                 }
             }else{
@@ -249,7 +247,7 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
 
     for(size_t ii = 0; ii < elements.size(); ++ii){
 
-        if(elements[ii]->type == Element::Type::Routine){
+        if(elements[ii]->type() == FlowElement::Type::Routine){
 
             auto routine = dynamic_cast<Routine*>(elements[ii]);
 
@@ -258,18 +256,19 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
             instanceElem.elem = routine;
 
             // retrieve condition
+            QStringList conditions;
+            conditions.reserve(static_cast<int>(routine->insideLoops.size()));
             for(const auto &loop : routine->insideLoops){
-                instanceElem.condition += loopsSetsNames[loop->key()][loopsCurentSetId[loop->key()]] + "-";
+                conditions << loopsSetsNames[loop->key()][loopsCurentSetId[loop->key()]].toString();
             }
-
-            if(instanceElem.condition.size() == 0){ // if no condition, set to "default"
-                instanceElem.condition = "default";
-            }else{                
-                instanceElem.condition.resize(instanceElem.condition.size()-1); // remove last "-"
+            if(conditions.size() > 0){
+                instanceElem.condition = conditions.join('-');
+            }else{
+                instanceElem.condition = QSL("default");
             }
             flow.emplace_back(std::move(instanceElem));
 
-        }else if(elements[ii]->type == Element::Type::Isi){
+        }else if(elements[ii]->type() == FlowElement::Type::Isi){
 
             auto isi = dynamic_cast<Isi*>(elements[ii]);
 
@@ -282,7 +281,7 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
             flow.emplace_back(std::move(instanceElem));
 
 
-        }else if(elements[ii]->type == Element::Type::LoopStart){
+        }else if(elements[ii]->type() == FlowElement::Type::LoopStart){
 
             // store information about current loop
             auto loopNode = dynamic_cast<LoopNode*>(elements[ii]);
@@ -293,7 +292,7 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
             info.idEnd   = get_index_from_loop_node(loopNode->loop->end);
             infos << std::move(info);
 
-        }else if(elements[ii]->type == Element::Type::LoopEnd){
+        }else if(elements[ii]->type() == FlowElement::Type::LoopEnd){
 
             // increment loop set and go back to loop start if necessary
             auto loop = dynamic_cast<LoopNode*>(elements[ii])->loop;
@@ -336,7 +335,7 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
         const int key = element.elem->key();
         const QString cond = element.condition;
 
-        if(element.elem->type == Element::Type::Routine){
+        if(element.elem->type() == FlowElement::Type::Routine){
 
             if(routinesIterations.count(key) == 0){
                 routinesIterations[key] = 1;
@@ -354,7 +353,7 @@ Instance::Instance(const Randomizer *randomizer, const std_v1<Element*> &element
             routinesIterations[key]++;
             routinesConditionsIterations[key][cond]++;
 
-        }else if(element.elem->type == Element::Type::Isi){
+        }else if(element.elem->type() == FlowElement::Type::Isi){
 
             if(isisIterations.count(key) == 0){
                 isisIterations[key] = 1;
@@ -399,7 +398,7 @@ std::unique_ptr<Instance> Instance::generate_from_one_routine(Routine *routine){
 std::unique_ptr<Instance> Instance::generate_from_element_to_the_end(const Randomizer *randomizer, const Experiment &experiment, size_t idInstance){
 
     // check if an element is selected
-    Element *selectedElement = experiment.selectedElement;
+    FlowElement *selectedElement = experiment.selectedElement;
     if(!selectedElement){
         QtLogger::message("No selected element in the flow.");
         return nullptr;
@@ -428,7 +427,7 @@ std::unique_ptr<Instance> Instance::generate_from_element_to_the_end(const Rando
 std::unique_ptr<Instance> Instance::generate_from_start_to_element(const Randomizer *randomizer, const Experiment &experiment, size_t idInstance){
 
     // check if an element is selected
-    Element *selectedElement = experiment.selectedElement;
+    FlowElement *selectedElement = experiment.selectedElement;
     if(!selectedElement){
         QtLogger::message("No selected element in the flow.");
         return nullptr;

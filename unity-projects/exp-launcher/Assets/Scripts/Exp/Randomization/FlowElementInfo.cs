@@ -42,7 +42,7 @@ namespace Ex {
         public Interval interval() {
             return m_interval;
         }
-        public FlowElement.FlowElementType type() {
+        public FlowElement.Type type() {
             return m_element.type();
         }
 

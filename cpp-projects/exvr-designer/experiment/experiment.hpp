@@ -26,12 +26,14 @@
 
 // std
 #include <optional>
+#include <ranges>
 
 // local
 // # data
-#include "data/routine.hpp"
-#include "data/isi.hpp"
-#include "data/loop.hpp"
+#include "data/flow_elements/node_flow.hpp"
+#include "data/flow_elements/routine.hpp"
+#include "data/flow_elements/isi.hpp"
+#include "data/flow_elements/loop.hpp"
 #include "data/settings.hpp"
 #include "data/gui.hpp"
 #include "data/interval.hpp"
@@ -43,6 +45,8 @@
 // # experiment
 #include "randomizer.hpp"
 
+template<class T>
+concept FlowElementDerived = std::is_base_of<tool::ex::FlowElement, T>::value;
 
 namespace tool::ex{
 
@@ -55,36 +59,8 @@ constexpr static int UpdateRoutines    = 0b1000;
 constexpr static int UpdateUI          = 0b10000;
 constexpr static int UpdateResources   = 0b100000;
 constexpr static int UpdateSettings    = 0b1000000;
-constexpr static int ResetUI           = 0b10000000;
+[[maybe_unused]] constexpr static int ResetUI           = 0b10000000;
 constexpr static int UpdateAll         = UpdateComponents | UpdateFlow | UpdateSelection | UpdateUI | UpdateRoutines | UpdateResources | UpdateSettings;
-
-//enum class Update{
-//    ELEMENT, select_element,unselect_elements, add_element, remove_element, move_element, modify_element_name,
-//    ROUTINE, select_condition, move_condition,
-//    CONDITION, modify_condition,
-//    ACTION, fill_action, remove_actions,
-//};
-
-
-//struct Up{
-
-//    Up(bool all) : m_all(all){
-//    }
-
-//    Up(std_v1<Update> updates){
-//        for(auto &update : updates){
-//            m_updates.emplace(update);
-//        }
-//    }
-
-//    bool check(Update u) const{
-//        return m_all ? true : (m_updates.count(u) != 0);
-//    }
-
-//private:
-//    bool m_all = false;
-//    std::unordered_set<Update> m_updates;
-//};
 
 
 class Experiment;
@@ -100,16 +76,70 @@ public:
 
     // getters
     // # element
-    std_v1<Element*> get_elements() const;
-    std_v1<Element*> get_elements_from_type(Element::Type type) const;
-    Element *get_element(ElementKey elementKey) const;
+    auto nb_elements()const noexcept -> size_t;
+    auto nb_elements_no_nodes()const noexcept-> size_t;
+
+    auto get_element_position(FlowElement *element) const -> RowId;
+    auto get_element_position_no_nodes(FlowElement *element) const -> RowId;
+
+    auto get_element(RowId id) const -> FlowElement*;
+    auto get_element_no_nodes(RowId id) const -> FlowElement*;
+    auto get_element(ElementKey elementKey, bool showError = true) const -> FlowElement*;
+
+
+
+    template<class T>
+    auto get_element_from_type_and_id(ElementKey key) const -> T*{
+        for(const auto &elem : elements){
+            if(T* child = dynamic_cast<T*>(elem.get()); child != nullptr){
+                if(elem->key() == key.v){
+                    return child;
+                }
+            }
+        }
+        return nullptr;
+    }
+
+    auto get_elements() const -> std::vector<FlowElement*>;
+
+//    template <typename T>
+//    static constexpr FlowElement::Type get_type(){
+//        if constexpr(std::is_same<T, Routine>()){
+//            return FlowElement::Type::Routine;
+//        }else if constexpr(std::is_same<T, Isi>()){
+//            return FlowElement::Type::Isi;
+//        }else if constexpr(std::is_same<T, LoopNode>()){
+//            return FlowElement::Type::LoopStart;
+//        }
+//        return FlowElement::Type::Node;
+//    }
+
+    auto get_elements_from_type(FlowElement::Type type) const{
+        return elements | std::ranges::views::filter([type](const auto &element) {
+            return element->type() == type;
+        });
+    }
+
+    template<FlowElementDerived T>
+    auto get_elements_from_type() const -> std::vector<T*>{
+
+        std::vector<T*> children;
+        for(const auto &elem : elements){
+            if(auto child = dynamic_cast<T*>(elem.get()); child != nullptr){
+                children.push_back(child);
+            }
+        }
+        return children;
+    }
+
     // ## routine
-    Routine *get_routine(ElementKey routineKey) const;
+    auto get_routine(ElementKey routineKey) const -> Routine*;
     // ### condition
-    Condition *get_condition(ConditionKey conditionKey) const;
-    Condition *get_condition(ElementKey routineKey, ConditionKey conditionKey) const;
+    auto get_condition(ConditionKey conditionKey) const -> Condition*;
+    auto get_condition(ElementKey routineKey, ConditionKey conditionKey) const -> Condition*;
     // #### action
     Action *get_action(ElementKey routineKey, ConditionKey conditionKey, ActionKey actionKey) const;
+
     // ## isi
     Isi *get_isi(ElementKey isiKey) const;
     // ## loop
@@ -134,28 +164,7 @@ public:
     inline void reset_update_flag() noexcept{updateFlag = 0;}
     inline int update_flag() const noexcept {return updateFlag;}
 
-    template<class T>
-    std_v1<T*> get_elements_from_type() const{
-        std_v1<T*> children;
-        for(const auto &elem : elements){
-            if(auto child = dynamic_cast<T*>(elem.get()); child != nullptr){
-                children.emplace_back(child);
-            }
-        }
-        return children;
-    }
 
-    template<class T>
-    T* get_element_from_type_and_id(ElementKey key) const{
-        for(const auto &elem : elements){
-            if(T* child = dynamic_cast<T*>(elem.get()); child != nullptr){
-                if(elem->key() == key.v){
-                    return child;
-                }
-            }
-        }
-        return nullptr;
-    }
 
 public slots:
 
@@ -182,6 +191,7 @@ public slots:
     void remove_resource(Resource::Type type, size_t index);
     void clean_resources(Resource::Type type);
     void update_reload_resource_code(int reloadCode);
+    void copy_resource(Resource *resource);
 
     // ui
     void toggle_actions_connections_separation();
@@ -195,7 +205,8 @@ public slots:
     void update_exp_state(ExpState state, QStringView infos);
 
     // components
-    void add_component(Component::Type type, RowId id);
+    void add_new_component(Component::Type type, RowId id);
+    void copy_component(Component *component, std::vector<ConfigKey> configKeys, RowId id);
     void duplicate_component(ComponentKey componentKey);
     void remove_component(ComponentKey componentKey);
     void update_component_position(ComponentKey componentKey, RowId id);
@@ -203,6 +214,7 @@ public slots:
     void sort_components_by_category();
     void sort_components_by_type();
     void sort_components_by_name();
+    void delete_unused_components();
     // # components configs
     void select_config_in_component(ComponentKey componentKey, RowId id);
     void insert_config_in_component(ComponentKey componentKey, RowId id, QString configName);
@@ -217,11 +229,13 @@ public slots:
     void swap_arg(ComponentKey componentKey, ConfigKey configKey, QStringView argName1, QStringView argName2, bool initConfig);
 
     // elements
-    size_t get_element_position(Element *element) const;
     void unselect_all_elements(bool updateSignal = true) noexcept;
     void select_element(ElementKey elementKey, bool updateSignal = true);
-    void add_element(Element::Type type, size_t index);
-    void remove_element(Element *elemToDelete);    
+    void select_element_id(RowId elementId, bool updateSignal = true);
+    void select_element_id_no_nodes(RowId elementId, bool updateSignal = true);
+    void select_element_from_ptr(FlowElement *element, bool updateSignal = true);
+    void add_element(FlowElement::Type type, size_t index);
+    void remove_element(FlowElement *elemToDelete);    
     void remove_element_of_key(ElementKey elementKey);
     void duplicate_element(ElementKey elementKey);
     void clean_current_routine_condition(ElementKey routineKey);
@@ -230,6 +244,7 @@ public slots:
     void remove_selected_element();
     void move_left(size_t id);
     void move_right(size_t id);
+    void move_element(ElementKey elementKey);
     void update_element_name(ElementKey elementKey, QString elemName);
     void update_element_informations(ElementKey elementKey, QString informations);
 
@@ -241,6 +256,7 @@ public slots:
     void modify_loop_type(ElementKey loopKey, Loop::Mode type);
     void modify_loop_nb_reps(ElementKey loopKey, int nbReps);
     void modify_loop_N(ElementKey loopKey, int N);
+    void modify_loop_no_following_value(ElementKey loopKey, bool state);
     void remove_set(ElementKey loopKey, RowId id);
     void sort_loop_sets_lexico(ElementKey loopKey);
     void sort_loop_sets_num(ElementKey loopKey);
@@ -275,7 +291,7 @@ public slots:
         std::optional<ConfigKey> ConfigKey, bool fillUpdateTimeline, bool fillVisibilityTimeline);
     void add_action_to_all_routines_conditions(ComponentKey componentKey,
         std::optional<ConfigKey> ConfigKey, bool fillUpdateTimeline, bool fillVisibilityTimeline);
-
+    void insert_action_to(ComponentKey componentKey,  std::vector<std::tuple<ElementKey,ConditionKey,ConfigKey,bool, bool>> details);
     void modify_action(ElementKey routineKey, ConditionKey conditionKey, ComponentKey componentKey,
         bool changeConfig, bool changeUpdateTimeline, bool changeVisibilityTimeline,
         ConfigKey ConfigKey, bool fillUpdateTimeline, bool fillVisibilityTimeline);
@@ -294,10 +310,10 @@ public slots:
     void move_action_up(ElementKey routineKey, ConditionKey conditionKey, ActionKey actionKey);
     void move_action_down(ElementKey routineKey, ConditionKey conditionKey, ActionKey actionKey);
     // #### timeline
-    void add_timeline_interval(ElementKey routineKey,ConditionKey conditionKey, ActionKey actionKey, bool updateTimeline, TimelineKey timelineKey, Interval interval);
-    void remove_timeline_interval(ElementKey routineKey,ConditionKey conditionKey, ActionKey actionKey, bool updateTimeline, TimelineKey timelineKey, Interval interval);
+    void add_timeline_interval(ElementKey routineKey,ConditionKey conditionKey, ActionKey actionKey, bool updateTimeline, Interval interval);
+    void remove_timeline_interval(ElementKey routineKey,ConditionKey conditionKey, ActionKey actionKey, bool updateTimeline, Interval interval);
     // #### config
-    void select_action_config(ElementKey routineKey, ConditionKey conditionKey, ActionKey actionKey, RowId  configTabId);
+    void select_action_config(ElementKey routineKey, ConditionKey conditionKey, ActionKey actionKey, RowId configTabId);
     // ### connection
     void create_connection(ElementKey routineKey,ConditionKey conditionKey, Connection *connection);
     void delete_connections(ElementKey routineKey, ConditionKey conditionKey);
@@ -318,25 +334,33 @@ public slots:
     void select_nodes_and_connections(ElementKey routineKey, ConditionKey conditionKey,
         std_v1<ConnectorKey> connectorsKey, std_v1<ComponentKey> componentsKey, std_v1<ConnectionKey> connectionsKey, bool doUpdate);
 
+    // # debug
+    void display_exp_infos();
+
 private :    
 
     // clean
     void remove_elements_not_in_flow();
 
+    auto get_element_iterator(ElementKey elementKey) const -> std::vector<std::unique_ptr<FlowElement>>::const_iterator;
+    auto get_element_iterator(FlowElement *element) const -> std::vector<std::unique_ptr<FlowElement>>::const_iterator;
+
 
 public :
 
+    States states;
     Randomizer randomizer;
 
     // elements
-    std_v1<ElementUP> elements;
-    std_v1<LoopUP> loops; // not in the flow
-    Element *selectedElement = nullptr;
+    std_v1<std::unique_ptr<FlowElement>> elements;
+    std_v1<std::unique_ptr<Loop>> loops; // not in the flow
+    FlowElement *selectedElement = nullptr;
     Routine *lastRoutineSelected = nullptr;
     Isi *lastIsiSelected = nullptr;
 
-    // states
-    States states;
+    // managers
+    ComponentsManager compM;
+    ResourcesManager resM;
 
     // infos
     using UiKey   = QStringView;
@@ -346,8 +370,6 @@ public :
     umap<int, umap<int, umap<int, umap<UiKey, UiValue>>>> connectorsInfo;
     umap<int, umap<int, umap<UiKey, UiValue>>>  componentsInfo;
 
-
-
 private :
 
     // update
@@ -356,11 +378,68 @@ private :
     GUI m_gui;
     Settings m_settings;
 
-    // components
-    ComponentsManager *m_compM = nullptr;
+};
 
-    // resources
-    ResourcesManager *m_resM = nullptr;
+class ExperimentManager{
+public:
+
+    static void init(){
+        if(m_expManager == nullptr){
+            m_expManager = std::make_unique<ExperimentManager>();
+        }
+    }
+    static ExperimentManager *get(){
+        if(m_expManager != nullptr){
+            return m_expManager.get();
+        }
+        return nullptr;
+    }
+
+    inline void init_current(const QString &numVersion){
+        auto currentSource = IdKey::current_source();
+        IdKey::set_source(IdKey::Source::Current);
+        m_experiment = std::make_unique<Experiment>(numVersion);
+        IdKey::set_source(currentSource);
+    }
+
+    inline void init_imported(const QString &numVersion){
+        auto currentSource = IdKey::current_source();
+        IdKey::set_source(IdKey::Source::Imported);
+        m_importedExperiment = std::make_unique<Experiment>(numVersion);
+        IdKey::set_source(currentSource);
+    }
+
+    inline Experiment *current(){
+        return m_experiment.get();
+    }
+    inline Experiment *imported(){
+        return m_importedExperiment.get();
+    }
+
+    inline void clean_current(){
+        auto currentSource = IdKey::current_source();
+        IdKey::set_source(IdKey::Source::Current);
+        m_experiment = nullptr;
+        IdKey::set_source(currentSource);
+    }
+
+    inline void clean_imported(){        
+        auto currentSource = IdKey::current_source();
+        IdKey::set_source(IdKey::Source::Imported);
+        m_importedExperiment = nullptr;
+        IdKey::set_source(currentSource);
+    }
+
+    inline void clean(){
+        clean_imported();
+        clean_current();
+    }
+
+private:
+
+    std::unique_ptr<Experiment> m_experiment = nullptr;
+    std::unique_ptr<Experiment> m_importedExperiment = nullptr;
+    static inline std::unique_ptr<ExperimentManager> m_expManager = nullptr;
 };
 }
 

@@ -47,9 +47,9 @@ namespace Ex{
             m_receiver = new UdpReceiver();
             m_receiver.initialize(init_config().get<int>("read_port"), ipAddresses[0]);
 
-            log_message("Thera trainer device intialized: " + m_receiver.initialized);
+            log_message("Thera trainer device intialized: " + m_receiver.initialized());
 
-            return m_receiver.initialized;
+            return m_receiver.initialized();
         }
 
         protected override void set_update_state(bool doUpdate){
@@ -59,15 +59,17 @@ namespace Ex{
         protected override void update() {
 
             var messages = m_receiver.read_all_messages();
-            if (messages.Count > 0) {
-                var message = messages[messages.Count - 1];
-                message = message.Replace(",", ".");
-                if (message.Length > 0) {
-                    var split = message.Split('_');
-                    if (split.Length == 3) {
-                        invoke_signal("new pos", new Vector2(Converter.to_float(split[0]), Converter.to_float(split[1])));
-                        invoke_signal("battery", Converter.to_int(split[2]));
-                    }
+            if(messages == null) {
+                return;
+            }
+
+            var message = messages[messages.Count - 1].Item2;
+            message = message.Replace(",", ".");
+            if (message.Length > 0) {
+                var split = message.Split('_');
+                if (split.Length == 3) {
+                    invoke_signal("new pos", new Vector2(Converter.to_float(split[0]), Converter.to_float(split[1])));
+                    invoke_signal("battery", Converter.to_int(split[2]));
                 }
             }
         }

@@ -47,7 +47,7 @@ namespace Ex {
         protected override void update_from_gui() {
             var args  = m_config.get_list<string>(valueStr);
             if(args.Count != 3) {
-                log_error("Invalid TimeConnector arg.");
+                log_error("Invalid TimeConnector arg.", true);
                 return;
             }
             sinceExp  = (args[0] == "Time since exp");

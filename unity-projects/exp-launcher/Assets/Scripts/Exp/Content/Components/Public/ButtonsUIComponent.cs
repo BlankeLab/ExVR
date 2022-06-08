@@ -46,7 +46,7 @@ namespace Ex {
 
         private Dictionary<int, Dictionary<int, Button>> m_buttons = null;
         private Dictionary<int, Dictionary<int, TextMeshProUGUI>> m_buttonsText = null;
-        private List<Button> m_buttonsL = null;
+        private List<System.Tuple<Button, TextMeshProUGUI>> m_buttonsL = null;
         private List<int> m_buttonsNb = null;
 
         private Material m_buttonsMat = null;
@@ -58,7 +58,8 @@ namespace Ex {
         protected override bool initialize() {
 
             // signals
-            add_signal("validated");
+            add_signal("validated id");
+            add_signal("validated text");
             // slots            
             add_slot("set id", (buttonId) => {
                 select_button((int)buttonId);
@@ -206,7 +207,7 @@ namespace Ex {
                 m_buttonsText = new Dictionary<int, Dictionary<int, TextMeshProUGUI>>(lines.Length);
                 m_buttonsLine = new List<GameObject>(lines.Length);
 
-                m_buttonsL    = new List<Button>();
+                m_buttonsL    = new List<System.Tuple<Button, TextMeshProUGUI>>();
                 m_buttonsNb   = new List<int>(lines.Length);
                 selectedButtonId = -1;
 
@@ -214,6 +215,7 @@ namespace Ex {
 
                     var lineGO = GO.generate_empty_scene_object(string.Format("Line{0}", ii), m_buttonsParent, true);
                     lineGO.transform.localPosition = new Vector3(0, 0, -0.01f);
+                    lineGO.transform.localRotation = Quaternion.identity;
                     lineGO.transform.localScale = new Vector3(1, 1, 1);
                     var le = lineGO.AddComponent<LayoutElement>();
                     le.flexibleWidth = 1f;
@@ -246,6 +248,7 @@ namespace Ex {
                             
                             buttonGO.transform.localPosition = Vector3.zero;
                             buttonGO.transform.localScale = new Vector3(1, 1, 1);
+                            buttonGO.transform.localRotation = Quaternion.identity;
 
                             var button = buttonGO.GetComponent<Button>();
                             button.GetComponent<UnityEngine.UI.Image>().material = m_buttonsMat;
@@ -253,9 +256,10 @@ namespace Ex {
                             buttonGO.SetActive(true);
 
                             lineButtons.Add(jj, button);
-                            lineButtonsText.Add(jj, buttonGO.transform.Find("Text (TMP)").gameObject.GetComponent<TextMeshProUGUI>());
+                            var textGUI = buttonGO.transform.Find("Text (TMP)").gameObject.GetComponent<TextMeshProUGUI>();
+                            lineButtonsText.Add(jj, textGUI);
 
-                            m_buttonsL.Add(button);
+                            m_buttonsL.Add(new System.Tuple<Button, TextMeshProUGUI>(button, textGUI));
                             if (selectedButtonId == -1) {
                                 selectedButtonId = 0;
                             }
@@ -332,17 +336,17 @@ namespace Ex {
             }
 
             for (int ii = 0; ii < m_buttonsL.Count; ++ii) {
-                m_buttonsL[ii].interactable = (ii == id);
+                m_buttonsL[ii].Item1.interactable = (ii == id);
             }
             selectedButtonId = id;
         }
 
         public void validate_button() {
-            if (selectedButtonId >= 0 && selectedButtonId < m_buttonsL.Count) {
-                invoke_signal("validated", selectedButtonId);
+            if (selectedButtonId >= 0 && selectedButtonId < m_buttonsL.Count) {                
+                invoke_signal("validated id", selectedButtonId);
+                invoke_signal("validated text", m_buttonsL[selectedButtonId].Item2.text);
             }
         }
-
 
         #endregion
     }

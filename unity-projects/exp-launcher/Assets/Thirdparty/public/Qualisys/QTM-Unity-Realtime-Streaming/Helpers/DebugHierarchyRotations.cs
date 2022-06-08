@@ -1,0 +1,35 @@
+﻿using System.Collections.Generic;
+using UnityEngine;
+
+#if UNITY_EDITOR
+
+namespace QualisysRealTime.Unity
+{
+    public class DebugHierarchyRotations : MonoBehaviour
+    {
+        public Color color = Color.red;
+        private void OnDrawGizmos()
+        {
+            var transforms = new Stack<Transform>();
+            transforms.Push(transform);
+            while (transforms.Count > 0)
+            {
+                var x = transforms.Pop();
+                UnityEditor.Handles.color = color;
+                UnityEditor.Handles.ArrowHandleCap(-1, x.transform.position, x.rotation, 0.04f, EventType.Repaint);
+
+                foreach (Transform child in x)
+                {
+                    if (child.gameObject.activeInHierarchy)
+                    {
+                        UnityEditor.Handles.DrawLine(x.position, child.position);
+                        transforms.Push(child);
+                    }
+                }
+
+            }
+        }
+    }
+}
+
+#endif

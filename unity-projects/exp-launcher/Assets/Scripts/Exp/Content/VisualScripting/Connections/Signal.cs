@@ -29,29 +29,18 @@ using System.Diagnostics;
 namespace Ex.Events{
 
     public class Signal{
-
-        //bool m_infiniteLoop = false;
-        //int m_invokeCount = 0;
-        //private Stopwatch m_swInfinityLoop = new Stopwatch();
-
-        public string m_name;
-
-        //public void log_error(string error) {
-        //    ExVR.Log().error(String.Format("[SIGNAL] {0} : {1}", m_name, error));
-        //}
-
+        
+        private bool m_connected = false;
+        private string m_name;
+       
         public event EventHandler<object> ev = delegate { };
         public void invoke(object arg = null) {
-
-            //if (check_infinity_loop()) {
-            //    return;
-            //}
-
             ev?.Invoke(this, arg);
         }
 
         public void reset() {
             ev = delegate { };
+            m_connected = false;
         }
 
         public Signal(string name) {
@@ -62,8 +51,16 @@ namespace Ex.Events{
             return m_name;
         }
 
+        public bool is_connected() {
+            return m_connected;
+        }
+
         public void remove_listeners() {
             reset();
+        }
+
+        public void set_connected() {
+            m_connected = true;
         }
 
         //private bool check_infinity_loop() {

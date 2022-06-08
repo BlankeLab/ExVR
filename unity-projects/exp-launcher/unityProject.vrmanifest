@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.exvrexp.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "C:\\lnco-exvr\\exvr\\unity-projects\\exp-launcher\\Assets\\StreamingAssets\\SteamVR\\actions.json",
+      "action_manifest_path": "D:\\dev\\lnco-exvr\\exvr\\unity-projects\\exp-launcher\\Assets\\StreamingAssets\\SteamVR\\actions.json",
       "strings": {
         "en_us": {
           "name": "ExVR-exp [Testing]"

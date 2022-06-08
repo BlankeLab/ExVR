@@ -31,8 +31,6 @@ using UnityEngine;
 
 namespace Ex {
 
-
-
     public class SkyComponent : ExComponent {
 
         // default cameras parameters

@@ -99,8 +99,8 @@ namespace Ex{
             send_infos_to_ui();
 
             // signals
-            invoke_signal(eyeCamSignal, TransformValue.from_transform(ExVR.Display().cameras().get_eye_camera_transform()));
-            invoke_signal(neutralCamSignal, TransformValue.from_transform(ExVR.Display().cameras().get_calibration_transform()));
+            invoke_signal(eyeCamSignal,     Converter.to_transform_value(ExVR.Display().cameras().get_eye_camera_transform()));
+            invoke_signal(neutralCamSignal, Converter.to_transform_value(ExVR.Display().cameras().get_calibration_transform()));
         }
 
         protected override void update_parameter_from_gui(string updatedArgName) {

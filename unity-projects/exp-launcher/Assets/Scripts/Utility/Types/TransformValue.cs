@@ -26,18 +26,18 @@
 using UnityEngine;
 
 namespace Ex {
+
     public class TransformValue {
 
-        public static TransformValue from_transform(Transform transform) {
-            var trV = new TransformValue();
-            trV.position = transform.position;
-            trV.rotation = transform.rotation;
-            trV.scale    = transform.localScale;
-            return trV;
+        public TransformValue() { }
+        public TransformValue(Vector3 position, Quaternion rotation, Vector3 scale) {
+            this.position = position;
+            this.rotation = rotation;
+            this.scale    = scale;
         }
 
         public Vector3 position     = Vector3.zero;
         public Quaternion rotation  = Quaternion.identity;
-        public Vector3 scale        = Vector3.one;
+        public Vector3 scale        = Vector3.one;        
     }
 }

@@ -22,18 +22,23 @@
 ** SOFTWARE.                                                                      **
 ************************************************************************************/
 
-namespace Ex
-{
+// system
+using System.Collections.Generic;
+
+namespace Ex{
 
     public class UdpWriterComponent : ExComponent{
 
-        private UdpSender m_udp = null;
+        private UdpSender m_udpSender = null;
+        static private readonly string m_triggerExpTimeSignalStr = "trigger exp time";
 
         protected override bool initialize() {
 
             // signals
-            add_slot("send message", (message) => { send_message((string)message);});
-            add_signal("nb bytes sent");
+            add_slot("send message", (message) => {
+                m_udpSender.send_message((string)message);
+            });
+            add_signal(m_triggerExpTimeSignalStr);
 
             bool ipv6 = false; // initC.get<bool>("ipv6");
             var ipAddresses = NetworkInfo.get_ip_addresses(initC.get<string>("writing_address"),ipv6);
@@ -42,20 +47,42 @@ namespace Ex
                 return false;
             }
 
-            m_udp = new UdpSender();
-            m_udp.initialize(initC.get<int>("writing_port"), ipAddresses[0]);
-            return true;
+            m_udpSender = new UdpSender();
+            return m_udpSender.initialize(initC.get<int>("writing_port"), ipAddresses[0]);
+        }
+
+        protected override void clean() {
+            m_udpSender.clean();
+        }
+
+        protected override void update() {
+
+
+            double triggerTime;
+            List<double> triggerTimes = null;
+            while (m_udpSender.triggerTimes.TryDequeue(out triggerTime)) {
+                if (triggerTimes == null) {
+                    triggerTimes = new List<double>();
+                }
+                triggerTimes.Add(triggerTime);                
+            }
+
+            if (triggerTimes != null) {
+                foreach (var time in triggerTimes) {
+                    invoke_signal(m_triggerExpTimeSignalStr, time);
+                }
+            }
         }
 
         public void send_message(string message) {
             if (is_updating()) {
-                invoke_signal("nb bytes sent", m_udp.send_message(message));
+                m_udpSender.send_message(message);
             }
         }
 
         public void send_bytes(byte[] bytes) {
             if (is_updating()) {
-                invoke_signal("nb bytes sent", m_udp.send_bytes(bytes));
+                m_udpSender.send_bytes(bytes);
             }
         }
     }

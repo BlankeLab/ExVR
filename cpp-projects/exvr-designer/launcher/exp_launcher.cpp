@@ -58,6 +58,28 @@ void ExpLauncher::init_communication(){
 }
 
 
+std::optional<QStringView> ExpLauncher::extract_balise(QStringView &message){
+
+    int idStart = message.indexOf(SBalise);
+    int idEnd   = message.indexOf(EBalise);
+
+    if(idStart == -1 || idEnd == -1){
+        return std::nullopt;
+    }
+
+    auto leftBalise = message.mid(idStart, idEnd - idStart + EBalise.size());
+    message = message.right(message.size() - idEnd - EBalise.size());
+    return leftBalise;
+}
+
+std::optional<QStringView> ExpLauncher::extract_balise_message(QStringView balise, QStringView start, QStringView end){
+    if(balise.startsWith(start) && balise.endsWith(end)){
+        return balise.mid(start.size(), balise.size() - start.size() - end.size());
+    }
+    return std::nullopt;
+}
+
+
 std::optional<QStringView> look_for_balise(QStringView message, QStringView start, QStringView end){
     int idStart = message.indexOf(start) + start.size();
     int idEnd   = message.indexOf(end);
@@ -89,147 +111,153 @@ void ExpLauncher::message_from_exp_launcher(QString m){
     QStringView message = messagesReceived[messagesReceived.size()-1];
 
 
-    // LOG
-    if(auto log = look_for_balise(message, SLog, ELog); log.has_value()){
-        QtLogger::unity_message(log.value(), true, false);
-        return;
-    }
+    while(message.length() > 0){
+        if(auto balise = extract_balise(message); balise.has_value()){
 
-    // INFO COMPONENT
-    if(auto infoComponent = look_for_balise(message, SInfoComponent, EInfoComponent); infoComponent.has_value()){
-
-        // 0 id component
-        // 1 id config
-        // 2 info key
-        // 3 info value
-        auto info = infoComponent.value();
-        int count = info.count('|');
-        if(count <= 2){
-            QtLogger::error(QSL("Invalid component info from exp-launcher: ") % info, true, true);
-            return;
-        }
-
-        int idSep = info.indexOf('|');
-        int componentKey = info.left(idSep).toInt();
-        info = info.mid(idSep+1);
-
-        idSep = info.indexOf('|');
-        int configKey = info.left(idSep).toInt();
-        info = info.mid(idSep+1);
-
-        idSep = info.indexOf('|');
-        QStringView infoKey   = info.left(idSep);
-        QStringView infoValue = info.mid(idSep+1);
-
-        emit GSignals::get()->component_info_update_signal(ComponentKey{componentKey}, ConfigKey{configKey}, infoKey, infoValue);
-        return;
-    }
-
-    // INFO CONNECTOR
-    if(auto infoConnector = look_for_balise(message, SInfoConnector, EInfoConnector); infoConnector.has_value()){
-
-        // 0 id routine
-        // 1 id condition
-        // 2 id connector
-        // 3 info key
-        // 4 info value
-        auto info = infoConnector.value();
-        int count = info.count('|');
-        if(count <= 3){
-            QtLogger::error(QSL("Invalid connector info from exp-launcher: ") % info, true, true);
-            return;
-        }
-
-        int idSep = info.indexOf('|');
-        int elementKey = info.left(idSep).toInt();
-        info = info.mid(idSep+1);
-
-        idSep = info.indexOf('|');
-        int conditionKey = info.left(idSep).toInt();
-        info = info.mid(idSep+1);
-
-        idSep = info.indexOf('|');
-        int connectorKey = info.left(idSep).toInt();
-        info = info.mid(idSep+1);
-
-        idSep = info.indexOf('|');
-        QStringView infoKey = info.left(idSep);
-        QStringView infoValue = info.mid(idSep+1);
-
-        emit GSignals::get()->connector_info_update_signal(ElementKey{elementKey}, ConditionKey{conditionKey}, ConnectorKey{connectorKey}, infoKey, infoValue);
-        return;
-    }
-
-
-    // EXPERIMENT STATE
-    if(auto exp = look_for_balise(message, SExpState, EExpState); exp.has_value()){
-
-        auto expState = exp.value();
-        int count = expState.count('|');
-        if(count == 0){
-            emit GSignals::get()->exp_state_updated_signal(static_cast<ExpState>(expState.toInt()), QSL(""));
-        }else if(count == 8){
-            int idSep = expState.indexOf('|');
-            auto state = static_cast<ExpState>(expState.left(idSep).toInt());
-            QStringView infos = expState.mid(idSep+1);
-            emit GSignals::get()->exp_state_updated_signal(state, infos);
-        }else{
-            QtLogger::error(QSL("Invalid experiment state info from exp-launcher: ") % expState, true, true);
-        }
-        return;
-    }
-
-    // EXPERIMENT LAUNCHER STATE
-    if(auto expL = look_for_balise(message, SExpLauncherState, EExpLauncherState);  expL.has_value()){
-
-        auto expLState = expL.value();
-        int count = expLState.count('|');
-        if(count == 0){
-
-            auto state = static_cast<ExpLauncherState>(expLState.toInt());
-            if(state == ExpLauncherState::Closing){
-                close_program();
+            // LOG
+            if(auto log = extract_balise_message(balise.value(), SLog, ELog); log.has_value()){
+                QtLogger::unity_message(log.value(), true, false);
+                continue;
             }
-            emit GSignals::get()->exp_launcher_state_updated_signal(state, QSL(""));
 
-        }else if(count == 2){
+            // INFO COMPONENT
+            if(auto infoComponent = extract_balise_message(balise.value(), SInfoComponent, EInfoComponent); infoComponent.has_value()){
 
-            int idSep = expLState.indexOf('|');
-            auto state = static_cast<ExpLauncherState>(expLState.left(idSep).toInt());
-            expLState = expLState.mid(idSep+1);
+                // 0 id component
+                // 1 id config
+                // 2 info key
+                // 3 info value
+                auto info = infoComponent.value();
+                int count = info.count('|');
+                if(count <= 2){
+                    QtLogger::error(QSL("Invalid component info from exp-launcher: ") % info, true, true);
+                    return;
+                }
 
-            auto infos = expLState;
+                int idSep = info.indexOf('|');
+                int componentKey = info.left(idSep).toInt();
+                info = info.mid(idSep+1);
 
-            if(state == ExpLauncherState::Starting){
+                idSep = info.indexOf('|');
+                int configKey = info.left(idSep).toInt();
+                info = info.mid(idSep+1);
 
-                idSep = expLState.indexOf('|');
-                m_expLauncherCommunication->writingPort = static_cast<quint16>(expLState.left(idSep).toInt());
-                expLState = expLState.mid(idSep+1);
+                idSep = info.indexOf('|');
+                QStringView infoKey   = info.left(idSep);
+                QStringView infoValue = info.mid(idSep+1);
 
-                editor = static_cast<quint16>(expLState.toInt()) == 1;
-
+                emit GSignals::get()->component_info_update_signal(ComponentKey{componentKey}, ConfigKey{configKey}, infoKey, infoValue);
+                continue;
             }
-            emit GSignals::get()->exp_launcher_state_updated_signal(state, infos);
+
+            // INFO CONNECTOR
+            if(auto infoConnector = extract_balise_message(balise.value(), SInfoConnector, EInfoConnector); infoConnector.has_value()){
+
+                // 0 id routine
+                // 1 id condition
+                // 2 id connector
+                // 3 info key
+                // 4 info value
+                auto info = infoConnector.value();
+                int count = info.count('|');
+                if(count <= 3){
+                    QtLogger::error(QSL("Invalid connector info from exp-launcher: ") % info, true, true);
+                    return;
+                }
+
+                int idSep = info.indexOf('|');
+                int elementKey = info.left(idSep).toInt();
+                info = info.mid(idSep+1);
+
+                idSep = info.indexOf('|');
+                int conditionKey = info.left(idSep).toInt();
+                info = info.mid(idSep+1);
+
+                idSep = info.indexOf('|');
+                int connectorKey = info.left(idSep).toInt();
+                info = info.mid(idSep+1);
+
+                idSep = info.indexOf('|');
+                QStringView infoKey   = info.left(idSep);
+                QStringView infoValue = info.mid(idSep+1);
+
+                emit GSignals::get()->connector_info_update_signal(ElementKey{elementKey}, ConditionKey{conditionKey}, ConnectorKey{connectorKey}, infoKey, infoValue);
+                continue;
+            }
+
+            // EXPERIMENT STATE
+            if(auto exp = extract_balise_message(balise.value(), SExpState, EExpState); exp.has_value()){
+
+                auto expState = exp.value();
+                int count = expState.count('|');
+                if(count == 0){
+                    emit GSignals::get()->exp_state_updated_signal(static_cast<ExpState>(expState.toInt()), QSL(""));
+                }else if(count == 8){
+                    int idSep = expState.indexOf('|');
+                    auto state = static_cast<ExpState>(expState.left(idSep).toInt());
+                    QStringView infos = expState.mid(idSep+1);
+                    emit GSignals::get()->exp_state_updated_signal(state, infos);
+                }else{
+                    QtLogger::error(QSL("Invalid experiment state info from exp-launcher: ") % expState, true, true);
+                }
+                continue;
+            }
+
+
+            // EXPERIMENT LAUNCHER STATE
+            if(auto expL = extract_balise_message(balise.value(), SExpLauncherState, EExpLauncherState);  expL.has_value()){
+
+                auto expLState = expL.value();
+                int count = expLState.count('|');
+                if(count == 0){
+
+                    auto state = static_cast<ExpLauncherState>(expLState.toInt());
+                    if(state == ExpLauncherState::Closing){
+                        close_program();
+                    }
+                    emit GSignals::get()->exp_launcher_state_updated_signal(state, QSL(""));
+
+                }else if(count == 2){
+
+                    int idSep = expLState.indexOf('|');
+                    auto state = static_cast<ExpLauncherState>(expLState.left(idSep).toInt());
+                    expLState = expLState.mid(idSep+1);
+
+                    auto infos = expLState;
+
+                    if(state == ExpLauncherState::Starting){
+
+                        idSep = expLState.indexOf('|');
+                        m_expLauncherCommunication->writingPort = static_cast<quint16>(expLState.left(idSep).toInt());
+                        expLState = expLState.mid(idSep+1);
+
+                        editor = static_cast<quint16>(expLState.toInt()) == 1;
+
+                    }
+                    emit GSignals::get()->exp_launcher_state_updated_signal(state, infos);
+
+                }else{
+                    QtLogger::error(QSL("Invalid experiment launcher state info from exp-launcher: ") % expLState, true, true);
+                }
+                continue;
+            }
+
+            // ERROR
+            if(auto error = extract_balise_message(balise.value(), SError, EError); error.has_value()){
+                QtLogger::unity_error(error.value(), true, false);
+                continue;
+            }
+
+            // WARNING
+            if(auto warning = extract_balise_message(balise.value(), SWarning, EWarning); warning.has_value()){
+                QtLogger::unity_warning(warning.value(), true, false);
+                continue;
+            }
 
         }else{
-            QtLogger::error(QSL("Invalid experiment launcher state info from exp-launcher: ") % expLState, true, true);
+            break;
         }
-        return;
     }
-
-    // ERROR
-    if(auto error = look_for_balise(message, SError, EError); error.has_value()){
-        QtLogger::unity_error(error.value(), true, false);
-        return;
-    }
-
-    // WARNING
-    if(auto warning = look_for_balise(message, SWarning, EWarning); warning.has_value()){
-        QtLogger::unity_warning(warning.value(), true, false);
-        return;
-    }
-
-    QtLogger::unity_unknow(message, true, false);
 }
 
 void ExpLauncher::start_program(Settings settings){

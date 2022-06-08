@@ -38,7 +38,7 @@ struct ConnectionNode{
         vector2_t, vector3_t, transform_t,
         string_list_t, decimal_list_t, real_list_t, gameobject_list_t,
         any_t, void_t,
-        id_any_t, string_any_t,
+        id_any_t, string_any_t, time_any_t,
         lm_frame_t, lm_hands_frame_t, image_t, plot_t, variant_t, kinect_body_t, component_out_data_t,
         keyboard_button_event_t, joypad_button_event_t, joypad_axis_event_t, mouse_button_event_t,
         SizeEnum};
@@ -71,6 +71,7 @@ struct ConnectionNode{
         {T::variant_t,                  "variant"sv,               "variant"sv},
         {T::id_any_t,                   "id_any"sv,                "id any"sv},
         {T::string_any_t,               "string_any"sv,            "str any"sv},
+        {T::time_any_t,                 "time_any"sv,              "time any"sv},
         {T::keyboard_button_event_t,    "keyboard_button"sv,       "k. button"sv},
         {T::joypad_button_event_t,      "joypad_button"sv,         "j. button."sv},
         {T::joypad_axis_event_t,        "joypad_axis"sv,           "j. axis."sv},

@@ -29,8 +29,8 @@
 
 using namespace tool::ex;
 
-ConnectorUP Connector::copy_with_new_element_id(const Connector &connectorToCopy){
-    ConnectorUP connector = std::make_unique<Connector>(
+std::unique_ptr<Connector> Connector::copy_with_new_element_id(const Connector &connectorToCopy){
+    std::unique_ptr<Connector> connector = std::make_unique<Connector>(
         ConnectorKey{-1}, connectorToCopy.type, connectorToCopy.name, connectorToCopy.pos, connectorToCopy.arg
     );
     connector->inputValidity = connectorToCopy.inputValidity;

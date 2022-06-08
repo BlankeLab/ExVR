@@ -44,8 +44,9 @@ namespace Ex{
         public string designerDefaultInstanceFile;
         public string designerLogDir;
 
-        public string lastLoadedInstanceFile = "";
 
+        public string currentExperimentFile = "";
+        public string currentInstanceFile   = "";
 
         public void initialize() {
 

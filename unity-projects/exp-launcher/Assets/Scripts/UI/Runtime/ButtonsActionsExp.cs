@@ -47,7 +47,6 @@ namespace Ex{
         public Button bNext = null;
         public Button bPrevious = null;
         public Button bToggleCam = null;
-        public Button bFPS = null;
 
         public GameObject debugIndicator = null;
 
@@ -87,8 +86,8 @@ namespace Ex{
                 bReloadCurrent.interactable = false;
 
                 string instanceFilePath;
-                if (System.IO.File.Exists(ExVR.Paths().lastLoadedInstanceFile)){
-                    instanceFilePath = ExVR.Paths().lastLoadedInstanceFile;
+                if (System.IO.File.Exists(ExVR.Paths().currentInstanceFile)){
+                    instanceFilePath = ExVR.Paths().currentInstanceFile;
                 } else {
                     ExVR.Log().warning("No last loaded instance file found, will try to load default instance file instead.");
                     instanceFilePath = ExVR.Paths().designerDefaultInstanceFile;
@@ -126,12 +125,7 @@ namespace Ex{
             bToggleCam.onClick.AddListener(() => {
                 update_runtime_debug_camera();
             });
- 
 
-            bFPS.onClick.AddListener(() => {
-                var goG = ExVR.GO().DebugScene.transform.Find("[Graphy]").gameObject;
-                goG.SetActive(!goG.activeSelf);
-            });
 
             runtimeDebugCamera.hide();
         }

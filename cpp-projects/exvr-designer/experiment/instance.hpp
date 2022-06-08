@@ -44,29 +44,29 @@ struct LoopInfo{
 struct InstanceElement{
     int elementIteration = 0;
     int conditionIteration = 0;
-    Element *elem;
+    FlowElement *elem;
     QString condition;
 };
 
 struct Instance {
 
     Instance() = default;
-    Instance(const Randomizer *randomizer, const std_v1<Element*> &elements, size_t idInstance);
+    Instance(const Randomizer *randomizer, const std::vector<FlowElement*> &elements, size_t idInstance);
 
     static std::unique_ptr<Instance> generate_from_full_experiment(const Randomizer *randomizer, const Experiment &experiment, size_t idInstance);
     static std::unique_ptr<Instance> generate_from_one_routine(Routine *routine);
     static std::unique_ptr<Instance> generate_from_element_to_the_end(const Randomizer *randomizer, const Experiment &experiment, size_t idInstance);
     static std::unique_ptr<Instance> generate_from_start_to_element(const Randomizer *randomizer, const Experiment &experiment, size_t idInstance);
 
-    static inline std::unordered_map<int, std_v1<QString>> onlyOnceShuffleLoopSets = {};
-    static inline std::unordered_map<int, std_v1<QString>> onlyOnceRandomLoopSets = {};
-    static inline std::unordered_map<int, std_v1<QString>> everyNShuffleLoopSets = {};
-    static inline std::unordered_map<int, std_v1<QString>> everyNRandomLoopSets = {};
+    static inline std::unordered_map<int, std::vector<QStringView>> onlyOnceShuffleLoopSets = {};
+    static inline std::unordered_map<int, std::vector<QStringView>> onlyOnceRandomLoopSets = {};
+    static inline std::unordered_map<int, std::vector<QStringView>> everyNShuffleLoopSets = {};
+    static inline std::unordered_map<int, std::vector<QStringView>> everyNRandomLoopSets = {};
 
     QString filePath = "";
     QString fileName = "debug-instance";
     size_t idInstance = 0;
-    std_v1<InstanceElement> flow;
+    std::vector<InstanceElement> flow;
 };
 
 }

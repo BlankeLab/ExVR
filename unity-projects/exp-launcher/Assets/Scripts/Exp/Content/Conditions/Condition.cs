@@ -247,7 +247,7 @@ namespace Ex{
 
             foreach (var connector in connectors) {
                 if (!connector.base_initialize()) {
-                    ExVR.Log().error(string.Format("Cannot initialize connector {0} with key {1}.", connector.name, connector.keyStr));
+                    ExVR.Log().error(string.Format("Cannot initialize connector [{0}] with key [{1}].", connector.name, connector.keyStr));
                     return false;
                 }
             }
@@ -384,44 +384,44 @@ namespace Ex{
                 }                
 
                 // pre start routine
-                ExVR.ExpLog().condition(ExComponent.Function.pre_start_routine, true);
+                ExVR.ExpLog().action(ExComponent.Function.pre_start_routine, true);
                 foreach (var action in actions) {
                     action.pre_start_routine();
                 }
-                ExVR.ExpLog().condition(ExComponent.Function.pre_start_routine, false);
+                ExVR.ExpLog().action(ExComponent.Function.pre_start_routine, false);
 
                 // start routine
-                ExVR.ExpLog().condition(ExComponent.Function.start_routine, true);
+                ExVR.ExpLog().action(ExComponent.Function.start_routine, true);
                 foreach (var action in actions) {
                     action.start_routine();
                 }
-                ExVR.ExpLog().condition(ExComponent.Function.start_routine, false);
+                ExVR.ExpLog().action(ExComponent.Function.start_routine, false);
 
                 // post start routine
-                ExVR.ExpLog().condition(ExComponent.Function.post_start_routine, true);
+                ExVR.ExpLog().action(ExComponent.Function.post_start_routine, true);
                 foreach (var action in actions) {
                     action.post_start_routine();
                 }
-                ExVR.ExpLog().condition(ExComponent.Function.post_start_routine, false);
+                ExVR.ExpLog().action(ExComponent.Function.post_start_routine, false);
             }
 
             // connectors
             {                
                 // pre start routine
-                ExVR.ExpLog().condition(ExConnector.Function.pre_start_routine, true);
+                ExVR.ExpLog().connector(ExConnector.Function.pre_start_routine, true);
                 foreach (var connector in connectors) {
                     set_current(connector);
                     connector.base_pre_start_routine();
                 }
-                ExVR.ExpLog().condition(ExConnector.Function.pre_start_routine, false);
+                ExVR.ExpLog().connector(ExConnector.Function.pre_start_routine, false);
 
                 // start routine
-                ExVR.ExpLog().condition(ExConnector.Function.start_routine, true);
+                ExVR.ExpLog().connector(ExConnector.Function.start_routine, true);
                 foreach (var connector in connectors) {
                     set_current(connector);
                     connector.base_start_routine();
                 }
-                ExVR.ExpLog().condition(ExConnector.Function.start_routine, false);
+                ExVR.ExpLog().connector(ExConnector.Function.start_routine, false);
             }
         }
 
@@ -464,39 +464,39 @@ namespace Ex{
         }
 
         public void play() {
-            ExVR.ExpLog().condition(ExComponent.Function.play, true);
+            ExVR.ExpLog().action(ExComponent.Function.play, true);
             foreach (var action in actions) {
                 action.play();
             }
-            ExVR.ExpLog().condition(ExComponent.Function.play, false);
+            ExVR.ExpLog().action(ExComponent.Function.play, false);
         }
 
         public void pause() {
-            ExVR.ExpLog().condition(ExComponent.Function.pause, true);
+            ExVR.ExpLog().action(ExComponent.Function.pause, true);
             foreach (var action in actions) {
                 action.pause();
             }
-            ExVR.ExpLog().condition(ExComponent.Function.pause, false);
+            ExVR.ExpLog().action(ExComponent.Function.pause, false);
         }
         public void stop_routine() {
 
             // connectors
             {
-                ExVR.ExpLog().condition(ExConnector.Function.stop_routine, true);
+                ExVR.ExpLog().connector(ExConnector.Function.stop_routine, true);
                 foreach (var connector in connectors) {
                     set_current(connector);
                     connector.base_stop_routine();
                 }
-                ExVR.ExpLog().condition(ExConnector.Function.stop_routine, false);
+                ExVR.ExpLog().connector(ExConnector.Function.stop_routine, false);
             }
 
             // actions
             {
-                ExVR.ExpLog().condition(ExComponent.Function.stop_routine, true);
+                ExVR.ExpLog().action(ExComponent.Function.stop_routine, true);
                 foreach (var action in reverseOrderActions) {
                     action.stop_routine();
                 }
-                ExVR.ExpLog().condition(ExComponent.Function.stop_routine, false);
+                ExVR.ExpLog().action(ExComponent.Function.stop_routine, false);
             }
             
             // remove connections between components and connectors

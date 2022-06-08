@@ -28,38 +28,37 @@
 #include "data/id_key.hpp"
 
 // local
-#include "forward.hpp"
 #include "data/timeline.hpp"
 #include "data/connection.hpp"
 
 namespace tool::ex {
 
-struct Action;
-using ActionUP = std::unique_ptr<Action>;
-
 struct Action{
 
     Action() = delete;
     Action(Component *component, Config *config, ActionKey id);
+    Action(const Action&) = delete;
+    Action& operator=(const Action&) = delete;
 
-    void select_config(RowId  configTabId);
+    void select_config(RowId configTabId);
     void update_intervals_with_max_length(SecondsTS maxLength);
 
     inline QString to_string() const{return QSL("Action(") % QString::number(key()) % QSL(")");}
 
-    static ActionUP generate_component_action(Component *component, SecondsTS duration,
+    static std::unique_ptr<Action> generate_component_action(Component *component, SecondsTS duration,
         std::optional<ConfigKey> configKey, bool fillUpdateTimeline, bool fillVisibilityTimeline);
-    static ActionUP copy_with_new_element_id(const Action &actionToCopy);
+    static std::unique_ptr<Action> copy_with_new_element_id(const Action &actionToCopy);
 
     void check_integrity();
 
-    IdKey key;
+    constexpr int key() const noexcept{ return m_key();}
+    constexpr ActionKey a_key() const noexcept {return ActionKey{key()};}
 
     Config    *config               = nullptr;
     Component *component            = nullptr;
 
-    TimelineUP timelineUpdate       = nullptr;
-    TimelineUP timelineVisibility   = nullptr;
+    std::unique_ptr<Timeline> timelineUpdate       = nullptr;
+    std::unique_ptr<Timeline> timelineVisibility   = nullptr;
 
     // ui
     // # graph
@@ -67,22 +66,30 @@ struct Action{
     //QSize nodeSize;
     bool nodeUsed = false;
     bool nodeSelected = false;
+
+private:
+    IdKey m_key;
 };
 
-static bool operator<(const ActionUP &l, const ActionUP &r){
-    if(l->key() == r->key()){
+[[maybe_unused]]  static bool operator<(const std::unique_ptr<Action> &l, const std::unique_ptr<Action> &r){
+
+    if(l->key() < r->key()){
+        return true;
+    }
+
+    if(l->key() > r->key()){
         return false;
     }
 
-    if(l->component->key() == r->component->key()){
-        return false;
+    if(l->component->key() < r->component->key()){
+        return true;
     }
 
-    return true;
+    return false;
 }
 
-static bool operator==(const ActionUP &l, const ActionUP &r){
-    return !(l < r) && !(r < l);
+[[maybe_unused]] static bool operator==(const std::unique_ptr<Action> &l, const std::unique_ptr<Action> &r){
+    return (l->key() == r->key()) && (l->component->key() == r->component->key());
 }
 
 }

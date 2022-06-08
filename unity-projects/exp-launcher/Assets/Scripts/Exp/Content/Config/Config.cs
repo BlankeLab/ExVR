@@ -76,7 +76,9 @@ namespace Ex {
         public bool has(string argName) {
             return args.ContainsKey(argName);
         }
-        
+
+        #region get
+
         public Argument get(string argName) {
 
             if (!has(argName)) {
@@ -142,6 +144,10 @@ namespace Ex {
             }
         }
 
+        #endregion
+
+        #region get_if_exists
+
         // get only if exists
         public void get_if_exists<T>(string argName, ref T value) {
             if (has(argName)) {
@@ -173,67 +179,165 @@ namespace Ex {
             }
         }
 
+        #endregion
 
-        // resources    
-        public List<ImageResource> get_images_resources_list(string argName) {
+        #region get_type
 
-            List<ImageResource> resources = new List<ImageResource>();
+        public Color get_color(string argName) {
+
             if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type image doesn't exist.", argName));
-                return resources;
+                log_error(string.Format("Argument {0} of type Color doesn't exist.", argName));
+                return new Color(0f, 0f, 0f);
+            }
+            return Converter.to_color((List<object>)args[argName].value);
+        }
+
+        public Vector2 get_vector2(string argName) {
+
+            if (!has(argName)) {
+                log_error(string.Format("Argument {0} of type Vector2 doesn't exist.", argName));
+                return new Vector2(0f, 0f);
+            }
+            return Converter.to_vector2((List<object>)args[argName].value);
+        }
+
+        public Vector3 get_vector3(string argName) {
+
+            if (!has(argName)) {
+                log_error(string.Format("Argument {0} of type Vector3 doesn't exist.", argName));
+                return new Vector3(0f, 0f, 0f);
+            }
+            return Converter.to_vector3((List<object>)args[argName].value);
+        }
+
+        public Vector3 get_euler_angles(string argName, Converter.AxisOrder order = Converter.AxisOrder.PitchYawRoll) {
+
+            if (!has(argName)) {
+                log_error(string.Format("Argument {0} of type Vector3 doesn't exist.", argName));
+                return new Vector3(0f, 0f, 0f);
+            }
+            return Converter.to_vector3((List<object>)args[argName].value, order);
+        }
+
+
+        public TransformValue get_transform_value(string argName, Converter.AxisOrder order = Converter.AxisOrder.PitchYawRoll) {
+            if (!has(argName)) {
+                log_error(string.Format("Argument {0} of type Transform doesn't exist.", argName));
+                return new TransformValue();
+            }
+            return Converter.to_transform_value(args[argName].value, order);
+        }
+
+        // others types
+        public DecimalValue get_decimal(string argName) {
+            if (!has(argName)) {
+                log_error(string.Format("Argument {0} of type DecimalValue doesn't exist.", argName));
+                return new DecimalValue();
+            }
+            return Converter.to_decimal(args[argName].value);
+        }
+
+        public List<T> get_list<T>(string argName) {
+            if (!has(argName)) {
+                log_error(string.Format("Argument {0} of type List doesn't exist.", argName));
+                return new List<T>();
+            }
+            return Converter.to_list<T>(args[argName].value);
+        }
+
+        public AnimationCurve get_curve(string argName) {
+
+            if (!has(argName)) {
+                log_error(string.Format("Argument {0} of type AnimationCurve doesn't exist.", argName));
+                return new AnimationCurve();
+            }
+            return Converter.to_animation_curve(get_list<float>(argName));
+        }
+
+        #endregion
+
+        #region get_ex
+
+        public T get_component<T>(string argName) where T : ExComponent {
+
+            if (!has(argName)) {
+                log_error(string.Format("Argument {0} doesn't exist.", argName));
+                return null;
+            }
+
+            var split = ((List<object>)args[argName].value);
+            if (split.Count == 2) {
+                string nameStr = (string)split[0];
+                string idStr = (string)split[1];
+                int key = Converter.to_int(idStr);
+                if (key == -1) {
+                    return null;
+                }
+                return (T)ExVR.Components().get_from_key(key);
+            }
+            return null;
+        }
+
+        public Tuple<Routine, Condition, ExComponent, ComponentConfig> get_component_config(string argName) {
+
+            if (!has(argName)) {
+                log_error(string.Format("Argument {0} doesn't exist.", argName));
+                return null;
+            }
+
+            var split = ((List<object>)args[argName].value);
+            if (split.Count == 6) {
+
+                Condition condition = null;
+                Routine routine = ExVR.Routines().get((string)split[2]);
+                if (routine != null) {
+                    condition = routine.get_condition_from_name((string)split[3]);
+                }
+
+                int componentKey = Converter.to_int((string)split[4]);
+                int configKey = Converter.to_int((string)split[5]);
+                if (componentKey == -1 || configKey == -1) {
+                    log_error("Invalid component/config key.");
+                    return null;
+                }
+                ExComponent component = ExVR.Components().get_from_key(componentKey);
+                if (component != null) {
+                    ComponentConfig config = component.get_config(configKey);
+                    if (config != null) {
+                        return new Tuple<Routine, Condition, ExComponent, ComponentConfig>(routine, condition, component, config);
+                    } else {
+                        log_error(string.Format("Cannot find config from key {0} in component {1}", config, component.name));
+                    }
+                } else {
+                    log_error(string.Format("Cannot find component from key {0}", componentKey));
+                }
+
+            }
+            return null;
+        }
+        public List<T> get_components_list<T>(string argName) where T : ExComponent {
+
+            List<T> components = new List<T>();
+            if (!has(argName)) {
+                log_error(string.Format("Argument {0} of type ComponentsList doesn't exist.", argName));
+                return components;
             }
 
             var split = ((List<object>)args[argName].value);
             foreach (var keyStr in split) {
                 int key = Converter.to_int((string)keyStr);
-                var resourceData = ExVR.Resources().get_resource_file_data(ResourcesManager.ResourceType.Image, key);
-                if (resourceData != null) {
-                    resources.Add((ImageResource)(resourceData));
+                var component = ExVR.Components().get_from_key(key);
+                if (component != null) {
+                    components.Add((T)(component));
                 }
             }
-            return resources;
+            return components;
         }
 
-        public List<AssetBundleResource> get_asset_bundles_resources_list(string argName) {
+        #endregion
 
-            List<AssetBundleResource> resources = new List<AssetBundleResource>();
-            if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type Asset bundle doesn't exist.", argName));
-                return resources;
-            }
+        #region get_resources_data
 
-            var split = ((List<object>)args[argName].value);
-            foreach (var keyStr in split) {
-                int key = Converter.to_int((string)keyStr);
-                var resourceData = ExVR.Resources().get_resource_file_data(ResourcesManager.ResourceType.UnityAssetBundle, key);
-                if (resourceData != null) {
-                    resources.Add((AssetBundleResource)(resourceData));
-                }
-            }
-            return resources;
-        }
-
-
-        public List<PlotResource> get_plots_resources_list(string argName) {
-
-            List<PlotResource> resources = new List<PlotResource>();
-            if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type PlotResource doesn't exist.", argName));
-                return resources;
-            }
-
-            var split = ((List<object>)args[argName].value);
-            foreach (var keyStr in split) {
-                int key = Converter.to_int((string)keyStr);
-                var resourceData = ExVR.Resources().get_resource_file_data(ResourcesManager.ResourceType.Plot, key);
-                if (resourceData != null) {
-                    resources.Add((PlotResource)(resourceData));
-                }
-            }
-            return resources;
-        }
-
-        // # alias
         public string get_resource_alias(string argName) {
 
             if (!has(argName)) {
@@ -248,7 +352,7 @@ namespace Ex {
             return "";
         }
 
-        // # resource data
+
         public AudioResource get_resource_audio_data(string argName) {
             string audioAlias = get_resource_alias(argName);
             if (audioAlias.Length == 0) {
@@ -305,8 +409,10 @@ namespace Ex {
             return ExVR.Resources().get_volumetric_video_file_data(volumetricVideoAlias);
         }
 
+        #endregion
 
-        // # resource sub data
+        #region get_resource_sub_data
+
         public string get_resource_path(ResourcesManager.ResourceType type, string argName) {
             string alias = get_resource_alias(argName);
             if (alias.Length == 0) {
@@ -318,7 +424,7 @@ namespace Ex {
         public Texture2D get_resource_image(string argName, bool returnDefaultIfNull = true) {
 
             var data = get_resource_image_data(argName);
-            if(data == null) {
+            if (data == null) {
                 if (returnDefaultIfNull) {
                     return ExVR.Resources().get_image_file_data("default_texture").texture;
                 } else {
@@ -337,145 +443,127 @@ namespace Ex {
             return ExVR.Resources().get_text_file_data(txtAlias).content;
         }
 
-        // components
-        public T get_component<T>(string argName)  where T : ExComponent {
+        #endregion
 
+        #region get_resources_list
+
+        public List<ImageResource> get_images_resources_list(string argName) {
+
+            List<ImageResource> resources = new List<ImageResource>();
             if (!has(argName)) {
-                log_error(string.Format("Argument {0} doesn't exist.", argName));
-                return null;
+                log_error(string.Format("Argument {0} of type image doesn't exist.", argName));
+                return resources;
             }
 
-            var split = ((List<object>)args[argName].value);
-            if (split.Count == 2) {
-                string nameStr = (string)split[0];
-                string idStr   = (string)split[1];
-                int key = Converter.to_int(idStr);
-                if(key == -1) {
-                    return null;
-                }
-                return (T)ExVR.Components().get_from_key(key);
-            }
-            return null;
-        }
-
-        public Tuple<Routine, Condition, ExComponent,ComponentConfig> get_component_config(string argName){
-
-            if (!has(argName)) {
-                log_error(string.Format("Argument {0} doesn't exist.", argName));
-                return null;
-            }
-
-            var split = ((List<object>)args[argName].value);
-            if (split.Count == 6) {
-
-                Condition condition = null;
-                Routine routine = ExVR.Routines().get((string)split[2]);
-                if(routine != null) {
-                    condition = routine.get_condition_from_name((string)split[3]);
-                }
-
-                int componentKey = Converter.to_int((string)split[4]);
-                int configKey    = Converter.to_int((string)split[5]);
-                if (componentKey == -1 || configKey == -1) {
-                    log_error("Invalid component/config key.");
-                    return null;
-                }
-                ExComponent component = ExVR.Components().get_from_key(componentKey);
-                if(component != null) {
-                    ComponentConfig config = component.get_config(configKey);
-                    if (config != null) {
-                        return new Tuple<Routine, Condition, ExComponent, ComponentConfig>(routine, condition, component, config);
-                    } else {
-                        log_error(string.Format("Cannot find config from key {0} in component {1}", config, component.name));
-                    }
-                } else {
-                    log_error(string.Format("Cannot find component from key {0}", componentKey));
-                }
-                
-            }
-            return null;
-        }
-
-
-        public List<T> get_components_list<T>(string argName) where T : ExComponent {
-
-            List<T> components = new List<T>();
-            if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type ComponentsList doesn't exist.", argName));
-                return components;
-            }
-
-            var split = ((List<object>)args[argName].value);
-            foreach(var keyStr in split) {
+            foreach (var keyStr in ((List<object>)args[argName].value)) {
                 int key = Converter.to_int((string)keyStr);
-                var component = ExVR.Components().get_from_key(key);
-                if(component != null) {
-                    components.Add((T)(component));
+                var resourceData = ExVR.Resources().get_resource_file_data(ResourcesManager.ResourceType.Image, key);
+                if (resourceData != null) {
+                    resources.Add((ImageResource)(resourceData));
                 }
             }
-            return components;
+            return resources;
         }
 
-        // others types
-        public DecimalValue get_decimal(string argName) {
+        public List<AssetBundleResource> get_asset_bundles_resources_list(string argName) {
+
+            List<AssetBundleResource> resources = new List<AssetBundleResource>();
             if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type DecimalValue doesn't exist.", argName));
-                return new DecimalValue();
+                log_error(string.Format("Argument {0} of type Asset bundle doesn't exist.", argName));
+                return resources;
             }
-            return Converter.to_decimal(args[argName].value);
+
+            foreach (var keyStr in ((List<object>)args[argName].value)) {
+                int key = Converter.to_int((string)keyStr);
+                var resourceData = ExVR.Resources().get_resource_file_data(ResourcesManager.ResourceType.UnityAssetBundle, key);
+                if (resourceData != null) {
+                    resources.Add((AssetBundleResource)(resourceData));
+                }
+            }
+            return resources;
         }
 
-        public List<T> get_list<T>(string argName) {
+        public List<PlotResource> get_plots_resources_list(string argName) {
+
+            List<PlotResource> resources = new List<PlotResource>();
             if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type List doesn't exist.", argName));
-                return new List<T>();
+                log_error(string.Format("Argument {0} of type PlotResource doesn't exist.", argName));
+                return resources;
             }
-            return Converter.to_list<T>(args[argName].value);
+
+            foreach (var keyStr in ((List<object>)args[argName].value)) {
+                int key = Converter.to_int((string)keyStr);
+                var resourceData = ExVR.Resources().get_resource_file_data(ResourcesManager.ResourceType.Plot, key);
+                if (resourceData != null) {
+                    resources.Add((PlotResource)(resourceData));
+                }
+            }
+            return resources;
         }
 
-        public Color get_color(string argName) {
+        #endregion
 
+        #region set
+
+        public void add<T>(string argName, T value) {
+
+            if (has(argName)) {
+                log_error(string.Format("Argument with name [{0}] of type [{1}] already exists.", argName, typeof(T).ToString()));
+                return;
+            }
+            args[argName] = new Argument();
+            args[argName].value = value;
+            args[argName].type = typeof(T);
+        }
+
+
+        public void init_or_set<T>(string argName, T value) {
+            if (has(argName)) {
+                set(argName, value);
+            } else {
+                add(argName, value);
+            }
+        }
+
+        public void set<T>(string argName, T value) {
             if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type Color doesn't exist.", argName));
-                return new Color(0f, 0f, 0f);
+                log_error(string.Format("Argument with name [{0}] of type [{1}] doesn't exist in config.", argName, typeof(T).ToString()));
+                return;
             }
-            return Converter.to_color((List<object>)args[argName].value);
+            args[argName].value = value;
         }
 
-        public Vector2 get_vector2(string argName) {
 
-            if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type Vector2 doesn't exist.", argName));
-                return new Vector2(0f, 0f);
-            }
-            return Converter.to_vector2((List<object>)args[argName].value);
+        public void set_vector2(string argName, Vector2 value) {
+            set(argName, Converter.to_object_list(value));
         }
 
-        public Vector3 get_vector3(string argName) {
-
-            if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type Vector3 doesn't exist.", argName));
-                return new Vector3(0f, 0f, 0f);
-            }
-            return Converter.to_vector3((List<object>)args[argName].value);
+        public void set_vector3(string argName, Vector3 value) { 
+            set(argName, Converter.to_object_list(value));
         }
-        public Vector3 get_vector3_with_order(string argName, Converter.AxisOrder order = Converter.AxisOrder.PitchYawRoll) {
-
-            if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type Vector3 doesn't exist.", argName));
-                return new Vector3(0f, 0f, 0f);
-            }
-            return Converter.to_vector3((List<object>)args[argName].value, order);
+        public void set_color(string argName, Color color) {
+            set(argName, Converter.to_object_list(color));
         }
 
-        public TransformValue get_transform(string argName, Converter.AxisOrder order = Converter.AxisOrder.PitchYawRoll) {
-
-            if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type Transform doesn't exist.", argName));
-                return new TransformValue();
-            }
-            return Converter.to_transform(args[argName].value, order);
+        public void set_transform(string argName, Transform transform, bool local = false) {
+            set(argName, Converter.to_object_list(transform, local));
         }
+
+        public void set_transform(string argName, TransformValue transform) {
+            set(argName, Converter.to_object_list(transform));
+        }
+
+        public void set_transform(string argName, List<Vector3> transform) {
+            set(argName, Converter.to_object_list(transform));
+        }
+
+        public void set_list<T>(string argName, List<T> values) {
+            set(argName, Converter.to_object_list(values));
+        }
+
+        #endregion
+
+        #region update
 
         public void update_transform(string argName, Transform transform, bool local = true, bool position = true, bool rotation = true, bool scale = true) {
 
@@ -483,16 +571,8 @@ namespace Ex {
                 log_error(string.Format("Argument {0} of type Transform doesn't exist.", argName));
                 return;
             }
-            Converter.apply_to_transform(args[argName].value, transform, local, position, rotation, scale);
-        }
 
-        public AnimationCurve get_curve(string argName) {
-
-            if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type AnimationCurve doesn't exist.", argName));
-                return new AnimationCurve();
-            }                        
-            return Converter.to_curve(get_list<float>(argName));
+            Apply.to_transform(args[argName].value, transform, local, position, rotation, scale);
         }
 
         public void update_text(string baseArgName, TMPro.TextMeshProUGUI text) {
@@ -538,11 +618,15 @@ namespace Ex {
             // alignment
             text.alignment = ConfigUtility.textAlignment[get<string>(baseArgName + "_alignment")];
 
-            // colors
-            //text.color = get_color(baseArgName + "_color");
-            text.faceColor = get_color(baseArgName + "_face_color");
+            // face
+            var fc = get_color(baseArgName + "_face_color");
+            if (fc == Color.white) { // bug if face color is white, it's not applied
+                text.faceColor = new Color32(255, 255, 255, 254);
+            } else {
+                text.faceColor = fc;
+            }            
 
-            // ouline         
+            // ouline
             text.outlineColor = get_color(baseArgName + "_outline_color");
             text.outlineWidth = get<float>(baseArgName + "_outline_width");
 
@@ -551,6 +635,8 @@ namespace Ex {
             text.lineSpacing = get<float>(baseArgName + "_line_spacing");
             text.wordSpacing = get<float>(baseArgName + "_word_spacing");
             text.characterSpacing = get<float>(baseArgName + "_character_spacing");
+
+            text.UpdateFontAsset();
 
             // check if input font exists in list
             // if not do nothing
@@ -582,83 +668,9 @@ namespace Ex {
             //public bool isRightToLeftText { get; set; }
         }
 
-        // setters
-        public void init_or_set<T>(string argName, T value) {
-            if (has(argName)) {
-                set(argName, value);
-            } else {
-                add(argName, value);
-            }
-        }
-        public void add<T>(string argName, T value) {
+        #endregion
 
-            if (has(argName)) {
-                log_error(string.Format("Argument {0} of type {1} already exists.", argName, typeof(T).ToString()));
-                return;
-            }
-            args[argName] = new Argument();
-            args[argName].value = value;
-            args[argName].type = typeof(T);
-        }
-
-        public void set<T>(string argName, T value) {
-            if (!has(argName)) {
-                log_error(string.Format("Argument {0} of type {1} doesn't exist in config.", argName, typeof(T).ToString()));
-                return;
-            }
-            args[argName].value = value;
-        }
-
-        public void set_vector2(string argName, Vector2 value) {
-            set(argName, Converter.to_list(value));
-        }
-
-        public void set_vector3(string argName, Vector3 value) { 
-            set(argName, Converter.to_list(value));
-        }
-
-        public void set_transform(string argName, Transform transform, bool local = false) {
-            set(argName, Converter.to_list(transform, local));
-        }
-
-        public void set_transform(string argName, TransformValue transform) {
-            set(argName, Converter.to_list(transform));
-        }
-
-        public void set_transform(string argName, List<Vector3> transform) {
-            set(argName, Converter.to_list(transform));
-        }
-        public void set_color(string argName, Color color) {
-            set(argName, Converter.to_list(color));
-        }
-
-        public void set_list<T>(string argName, List<T> values) {
-
-            List<object> elements = new List<object>(values.Count);
-            foreach (T value in values) {
-                elements.Add(value);
-            }
-            set(argName, elements);
-        }
-
-        // # alias
-        //public void set_resource_alias(string argName, string resourceAlias) {
-
-
-            //if (!has(argName)) {
-            //    log_error(string.Format("Argument {0} doesn't exist.", argName));
-            //    return "";
-            //}
-
-            //var split = ((List<object>)args[argName].value);
-            //if (split.Count == 2) {
-            //    return (string)split[0];
-            //}
-            //return "";
-        //}
-
-
-        // xml
+        #region xml
         public bool update_from_xml(XML.Arg xmlArg) {
 
             // get the name from its id
@@ -697,6 +709,8 @@ namespace Ex {
                 args[xmlArg.Name] = arg;
             }
         }
+
+        #endregion
     }
 
     public class ComponentInitConfig : Config{

@@ -41,10 +41,12 @@ namespace Ex.Events{
 
         public void connect(Signal signal) {
             signal.ev += (sender, value) => m_action.Invoke(value);
+            signal.set_connected();
         }
 
         public void connect(Signal signal, Func<object, object> convertor) {
             signal.ev += (sender, value) => m_action.Invoke(convertor.Invoke(value));
+            signal.set_connected();
         }
     }
 }

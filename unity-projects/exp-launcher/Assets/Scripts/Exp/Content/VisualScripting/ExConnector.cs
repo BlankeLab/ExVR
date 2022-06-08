@@ -174,9 +174,10 @@ namespace Ex {
         }
 
         protected string verbose_name() {
-            return String.Format(" [From connector: [{0}] ({1})([{2}])]",
+            return String.Format(" [From connector with name [{0}] of type [{1}] and key [{2}] from function [{3}]]",
                 name,
                 this.GetType().ToString(),
+                key,                
                 currentFunction.ToString()
             );
         }
@@ -219,40 +220,11 @@ namespace Ex {
 
         protected void display_exception(Exception e) {
 
-            var stack = new System.Diagnostics.StackTrace(e, true);
-            System.Diagnostics.StackFrame frame = stack.GetFrame(0);
-
-            string className = "Unknow";
-            string functionName = "Unknow";
-
-            int lineNb = 0;
-            int columnNb = 0;
-            string fileName = null;
-            if (frame != null) {
-
-                var method = frame.GetMethod();
-                if (method != null) {
-                    className = method.ReflectedType.Name;
-                    functionName = method.ToString();
-                }
-
-                lineNb = frame.GetFileLineNumber();
-                columnNb = frame.GetFileColumnNumber();
-                fileName = frame.GetFileName();
-            }
-
-            var builder = new StringBuilder();
-            builder.Append("[CONNECTOR]\n");
-            if (fileName != null) {
-                builder.AppendFormat("  ->LOCATION: from class [{0}] in function " +
-                    "[{1}] in file [{2}] at line ({3}) and column ({4})\n",
-                    className, functionName, fileName, lineNb.ToString(), columnNb.ToString());
-            } else {
-                builder.AppendFormat("  ->LOCATION: from class [{0}] in function ({1})\n",
-                    className, functionName);
-            }
-            builder.AppendFormat("  ->EXCEPTION_MESSAGE: {0}", e.Message);
-            log_error(builder.ToString(), true);
+            log_error(string.Format("[ERROR-EXCEPTION] "), true, false);
+            log_error(string.Format("[MESSAGE] {0}", e.Message), false, false);
+            log_warning(string.Format("\t[SOURCE] {0}", e.Source), false, false);
+            log_warning(string.Format("\t[TARGET] {0}", e.TargetSite.ToString()), false, false);
+            log_warning(string.Format("\t[STACK]: {0}", e.StackTrace), false, false);
         }
 
         public void setup_connector_object(XML.Connector xmlConnector) {

@@ -37,8 +37,15 @@ namespace Ex{
 
         protected override string generate_file_name() {
             string dateStr = string.Format("_{0}", DateTime.Now.ToString(m_dateTimeFormat));
-            return string.Format("{0}{1}{2}.{3}", m_baseFileName, m_addInstanceToFileName ? 
-                string.Concat("_", ExVR.Experiment().instanceName) : "", m_addDateToFileName ? dateStr : "", m_fileExtension);
+            return string.Format("{0}{1}{2}.{3}", m_baseFileName, 
+                m_addInstanceToFileName ? 
+                    string.Format("_{0}", ExVR.Experiment().instanceName) : 
+                    "", 
+                m_addDateToFileName ? 
+                    dateStr : 
+                    "", 
+                m_fileExtension
+            );
         }
 
         protected override bool initialize() {
@@ -65,14 +72,24 @@ namespace Ex{
         }
 
         protected override void start_experiment() {
+
             base.start_experiment();
+
+            if (initC.get<bool>("add_header_line")) {
+                write(initC.get<string>("header_line"), true);
+            }
         }
 
         protected override void start_routine() {
 
             if(m_insertNewRoutineInfo) {
-                string startRoutineLine = String.Format("[Routine:{0}][Condition:{1}][Time(ms):{2}])", 
-                    currentRoutine.name, currentCondition.name, ExVR.Time().ms_start_routine_since_start_experiment().ToString());
+                string startRoutineLine = String.Format("[Time_exp(ms):{0}][Routine:{1}|Iter:{2}][Condition:{3}|Iter:{4}][Frame_id:{5}])", 
+                    Converter.to_string(ExVR.Time().ellapsed_exp_ms()),
+                    currentRoutine.name, currentRoutine.element_iteration(),
+                    currentCondition.name, currentRoutine.condition_iteration(),
+                    Converter.to_string(ExVR.Time().frame_id())
+                );
+                
                 write(startRoutineLine, true);
             }
         }

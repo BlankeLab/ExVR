@@ -28,20 +28,29 @@
 // Qt
 #include <QObject>
 #include <QDesktopWidget>
-
 #include <QMetaEnum>
 
 // qt-utility
 #include "qt_logger.hpp"
 
 // local
+// # exp
 #include "experiment/global_signals.hpp"
-#include "widgets/designer_window.hpp"
-#include "widgets/dialogs/copy_to_conditions_dialog.hpp"
-#include "widgets/dialogs/benchmark_dialog.hpp"
+// # IO
 #include "IO/xml_io_manager.hpp"
+// # resources
 #include "resources/resources_manager.hpp"
+// # gui
+// ## widgets
+#include "gui/widgets/designer_window.hpp"
+// ## dialogs
+#include "gui/dialogs/copy_to_conditions_dialog.hpp"
+#include "gui/dialogs/add_component_to_conditions_dialog.hpp"
+#include "gui/dialogs/benchmark_dialog.hpp"
+#include "gui/dialogs/import_sub_exp_dialog.hpp"
+// ## ui
 #include "ui_copy_to_conditions.h"
+
 
 
 namespace tool::ex {
@@ -50,25 +59,11 @@ class ExVrController : public QObject{
 
     Q_OBJECT
 
-//    template<typename EnumType>
-//    QString ToString(const EnumType& enumValue)
-//    {
-//        const char* enumName = qt_getEnumName(enumValue);
-//        const QMetaObject* metaObject = qt_getEnumMetaObject(enumValue);
-//        if (metaObject)
-//        {
-//            const int enumIndex = metaObject->indexOfEnumerator(enumName);
-//            return QString("%1::%2::%3").arg(metaObject->className(), enumName, metaObject->enumerator(enumIndex).valueToKey(enumValue));
-//        }
-
-//        return QString("%1::%2").arg(enumName).arg(static_cast<int>(enumValue));
-//    }
-
 public :
 
     ExVrController(const QString &nVersion, bool lncoComponents);
 
-    inline Experiment *exp(){return m_experiment.get();}
+    inline Experiment *exp(){return ExperimentManager::get()->current();}
     inline DesignerWindow *ui(){return m_designerWindow.get();}
     inline ExpLauncher *exp_launcher(){return m_expLauncher.get();}
     inline XmlIoManager *xml(){return m_xmlManager.get();}
@@ -99,6 +94,9 @@ private slots:
     // # go to
     void go_to_current_specific_instance_element();
 
+    // instances
+    void generate_instances(QString directoryPath, unsigned int seed, bool manual, int nbInstances, int startId, QString baseName, QStringList manualNames);
+
     // dialogs
     // # modal    
     void show_add_action_detailed_dialog(ComponentKey componentKey);
@@ -107,9 +105,9 @@ private slots:
     void show_play_with_delay_dialog();
     void show_about_dialog();
     // # non modal
-    void show_generate_instances_dialog();
     void show_got_to_specific_instance_element_dialog();
     void show_component_informations_dialog(ComponentKey componentKey);
+    void show_import_dialog();
 
     // data
     void update_gui_from_experiment();
@@ -138,7 +136,6 @@ private:
     // generate connections
     void generate_global_signals_connections();
     void generate_main_window_connections();
-    void generate_flow_diagram_connections();
     void generate_controller_connections();
     void generate_resources_manager_connections();
     void generate_logger_connections();
@@ -146,8 +143,7 @@ private:
 
 private :
 
-    // data
-    std::unique_ptr<Experiment> m_experiment = nullptr;
+    // data    
     std::unique_ptr<Instance> m_currentInstance = nullptr;
 
     // I/O
@@ -159,18 +155,20 @@ private :
     // # dialogs
     // ## non modal
     std::unique_ptr<QDialog> m_componentsInfoD              = nullptr;
+    std::unique_ptr<ImportSubExpDialog> m_importD           = nullptr;
     std::unique_ptr<QDialog> m_goToD                        = nullptr;
     std::unique_ptr<BenchmarkDialog> m_benchmarkD           = nullptr;
+    GenerateInstancesDialog m_instancesD;
     ResourcesManagerDialog m_resourcesD;
     DocumentationDialog m_documentationD;
-    GenerateInstancesDialog m_instancesD;
+
     // ## modal
     std::unique_ptr<QDialog> modalDialog = nullptr;
+    std::unique_ptr<AddComponentToConditionsDialog> addComponentToCondsD = nullptr;
     CopyToConditionDialog m_copyToCondD;
     SettingsDialog m_settingsD;
 
     std::unordered_map<QEvent::Type, std::unordered_map<QString, int>> countEvents;
-
 
 
     // experiment launcher

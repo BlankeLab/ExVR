@@ -57,7 +57,7 @@ namespace tool::ex{
         template<class T> std::optional<T> read_attribute(const QString &name, bool raiseError); // primary template
 
         bool has_attribute(const QStringList &names) const{
-            for(const auto &name : names){
+            for(const auto &name : names){                                
                 if(r->attributes().hasAttribute(name)){
                     return true;
                 }
@@ -203,7 +203,7 @@ namespace tool::ex{
 
         // ### write
         void write_argument(const Arg &arg);
-        void write_set(const Set &set);
+        void write_set(const Set *set);
         void write_generator(const Generator &generator);
         void write_config(const Config *config, bool initConfig = false);
         void write_interval(const Interval &interval);
@@ -214,7 +214,7 @@ namespace tool::ex{
         void write_connection(const Condition *condition, const Connection *connection);
         void write_condition(const Condition *condition);
         void write_connector(const Connector *connector);
-        void write_element(const Element *element);
+        void write_element(const FlowElement *element);
         void write_loop(const Loop *loop);
         void write_isi(const Isi *isi);
         void write_routine(const Routine *routine);
@@ -226,23 +226,23 @@ namespace tool::ex{
 
         // ### read
         Generator           read_generator();
-        ConfigUP            read_config();
+        std::unique_ptr<Config>            read_config();
         std::tuple<std::optional<Arg>, QString>  read_argument();
         std::optional<Interval> read_interval();
-        TimelineUP          read_timeline();
-        std::tuple<ActionUP, QString> read_action();
-        std::tuple<ConnectionUP, QString> read_connection(Condition *condition);
-        std::tuple<ConnectorUP, QString> read_connector();
-        ConditionUP         read_condition(Routine *routine);
-        ComponentUP         read_component();
+        std::unique_ptr<Timeline>          read_timeline();
+        std::tuple<std::unique_ptr<Action>, QString> read_action();
+        std::tuple<std::unique_ptr<Connection>, QString> read_connection(Condition *condition);
+        std::tuple<std::unique_ptr<Connector>, QString> read_connector();
+        std::unique_ptr<Condition>         read_condition(Routine *routine);
+        std::unique_ptr<Component>         read_component();
         bool                read_components();
         std::unique_ptr<Resource> read_resource();
 
         RoutineUP           read_routine();
-        std::tuple<LoopNodeUP, LoopUP, LoopNodeUP> read_loop();
-        std::optional<Set> read_set();
+        std::tuple<std::unique_ptr<LoopNode>, std::unique_ptr<Loop>, std::unique_ptr<LoopNode>> read_loop();
+        std::unique_ptr<Set> read_set();
         IsiUP               read_isi();
-        bool                read_configs(Component *component);
+        std::vector<std::unique_ptr<Config>> read_configs();
         bool                read_ISIs();
         bool                read_loops();
         bool                read_routines();
@@ -251,7 +251,7 @@ namespace tool::ex{
         bool                read_flow_sequence();
         bool                read_settings();
         bool                read_exp();
-        ElementUP           read_element();
+        std::unique_ptr<FlowElement>           read_element();
 
         void check_read_elements();
 
@@ -263,8 +263,8 @@ namespace tool::ex{
 
         std_v1<RoutineUP>  readXmlRoutines;
         std_v1<IsiUP>      readXmlISIs;
-        std_v1<LoopNodeUP> readXmlStartLoops;
-        std_v1<LoopNodeUP> readXmlEndLoops;
+        std_v1<std::unique_ptr<LoopNode>> readXmlStartLoops;
+        std_v1<std::unique_ptr<LoopNode>> readXmlEndLoops;
 
         QString expFileToLoad;
         QString expFileToSave;

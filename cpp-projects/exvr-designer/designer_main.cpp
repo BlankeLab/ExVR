@@ -22,6 +22,9 @@
 ** SOFTWARE.                                                                      **
 ************************************************************************************/
 
+// std
+#include <ranges>
+
 // Qt
 #include <QApplication>
 #include <QSplashScreen>
@@ -31,14 +34,14 @@
 
 // local
 #include "controller/exvr_controller.hpp"
-//#include "utility/path_utility.hpp"
 
 using namespace tool::ex;
+
 
 int main(int argc, char *argv[]){
 
     // build parameters
-    const QString numVersion = "1.0a19";
+    const QString numVersion = "1.0a48";
     bool lncoComponents = true;
 
     // compiler check
@@ -62,3 +65,10 @@ int main(int argc, char *argv[]){
     return ret;
 }
 
+
+
+//    std::vector<int> c = {1,2,3,4,5};
+
+//    auto evenNumbers = c | std::ranges::views::filter([]( auto v) {
+//        return v % 2 == 0;
+//    });

@@ -102,28 +102,28 @@ namespace Ex{
         // states
         private bool m_experimentCleaned = false;
         private bool m_experimentLoaded = false;
-
+        private int m_onGuiCanceled = 0;
 
         // xml
         private XML.Experiment m_xmlExperiment = null;
         private XML.ExperimentFlow m_xmlFlow = null;
 
+        // dll
+        public DLLExperiment cppDll = null;
+
 
         #region unity
 
-        private const string expStr = "[EXP] {0}";
+        static private readonly string expStr = "[EXP] {0}";
+        static private readonly string inforFormat = "{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}";
+        static private readonly string ordersFormat = "{0}/{1}";
+        static private readonly string callsNbFormat = "{0};{1}";
+        static private readonly string routineStr = "R";
+        static private readonly string isiStr = "I";
+        static private readonly string nullStr = "-";
 
-
-
-        //double previousUpdateTime = 0f;
 
         void Update() {
-
-            //double currentUpdateTime = ExVR.Time().ellapsed_time_program_ms();
-            //if (currentUpdateTime - previousUpdateTime < 8.0) { // do not call update more thant 125 times per second
-            //    return;
-            //}
-            //previousUpdateTime = currentUpdateTime;
 
             if (!ExVR.Time().is_experiment_running()) {
                 apply_scheduled_actions();
@@ -148,12 +148,12 @@ namespace Ex{
 
             {   // update all components states
                 Profiler.BeginSample("[ExVR][Experiment] update_components_states");
-                if (elementInfo.type() == FlowElement.FlowElementType.Routine) {
+                if (elementInfo.type() == FlowElement.Type.Routine) {
                     routines.update_components_states((RoutineInfo)elementInfo);
-                }else if (elementInfo.type() == FlowElement.FlowElementType.Isi){
+                }else if (elementInfo.type() == FlowElement.Type.Isi){
                     ExVR.Components().set_every_component_states_to_false();
                 }
-                Profiler.EndSample();
+                Profiler.EndSample();                
             }
 
             {   // update all components
@@ -162,9 +162,15 @@ namespace Ex{
                 Profiler.EndSample();
             }
 
+            // when switching to new element, we wait until we reach the end the update before allowing calls to OnGui
+            if (ExVR.Time().onGuiWait) {
+                m_onGuiCanceled = 0;
+                ExVR.Time().onGuiWait = false;
+            }            
+
             {   // trigger each time
                 Profiler.BeginSample("[ExVR][Experiment] trigger_update_signals");
-                if (elementInfo.type() == FlowElement.FlowElementType.Routine) {
+                if (elementInfo.type() == FlowElement.Type.Routine) {
                     routines.trigger_update_signals((RoutineInfo)elementInfo);
                 }
                 Profiler.EndSample();
@@ -178,12 +184,21 @@ namespace Ex{
 
             send_current_experiment_state_to_gui();
 
+            if(ExVR.ExpLog().size_flow() > 100) {
+                ExVR.ExpLog().write();
+            }
+
             ExVR.Time().end_frame();
         }
 
         private void OnGUI() {
 
             if (!ExVR.Time().is_experiment_running()) {
+                return;
+            }            
+
+            if (ExVR.Time().onGuiWait) {
+                m_onGuiCanceled++;
                 return;
             }
 
@@ -193,18 +208,15 @@ namespace Ex{
 
         #endregion unity
 
-
-
-        public void log_message(string message, bool extraInfo = false) {
-            ExVR.Log().message(string.Format(expStr, message), extraInfo);
+        public void log_message(string message) {
+            ExVR.Log().message(string.Format(expStr, message), false, "", "", 0, true, false);
+        }
+        public void log_warning(string warning) {
+            ExVR.Log().warning(string.Format(expStr, warning), false, "", "", 0, true, false);
         }
 
-        public void log_warning(string warning, bool extraInfo = false) {
-            ExVR.Log().warning(string.Format(expStr, warning), extraInfo);
-        }
-
-        public void log_error(string error, bool extraInfo = false) {
-            ExVR.Log().error(string.Format(expStr, error), extraInfo);
+        public void log_error(string error) {
+            ExVR.Log().error(string.Format(expStr, error), false, "", "", 0, true, false);
         }
 
         public bool is_loaded() { return m_experimentLoaded; }
@@ -252,11 +264,14 @@ namespace Ex{
             ExVR.Events().gui.MessageFromGUI.AddListener((strCmd) => {
                 execute_command(strCmd);
             });
+
+            // init DLL
+            cppDll = new DLLExperiment();
         }
 
         public void clean_experiment() {
 
-            log_message("Clean experiment...");
+            ExVR.ExpLog().exp("Clean experiment...", true, false, false);
 
             if (ExVR.Time().is_experiment_started()) {
                 stop_experiment();
@@ -268,7 +283,7 @@ namespace Ex{
 
             m_experimentLoaded = false;
 
-            log_message("Experiment cleaned.");
+            ExVR.ExpLog().exp("Experiment cleaned.", true, false, false);
         }
 
         #region load_experiment
@@ -292,23 +307,23 @@ namespace Ex{
             var info = schreduler.current_element_info();
             if (info != null) {
 
-                bool isRoutine = (info.type() == FlowElement.FlowElementType.Routine);
+                bool isRoutine = (info.type() == FlowElement.Type.Routine);
 
                 string elementTimeStr   = Converter.to_string(ExVR.Time().ellapsed_element_ms());
                 string expTimeStr       = Converter.to_string(ExVR.Time().ellapsed_exp_ms());                
-                string interStr         = info.interval() != null ? Converter.to_string(info.interval().tEndS * 1000) : "-";
-                string orderStr         = string.Format("{0}/{1}", info.order()+1, schreduler.instance.total_number_of_elements());
+                string interStr         = info.interval() != null ? Converter.to_string(info.interval().tEndS * 1000) : nullStr;
+                string orderStr         = string.Format(ordersFormat, info.order()+1, schreduler.instance.total_number_of_elements());
                 string elementKey       = Converter.to_string(info.key());
 
-                string callsNb          = string.Format("{0};{1}", 
+                string callsNb          = string.Format(callsNbFormat, 
                     Converter.to_string(info.element().calls_nb()),
-                    isRoutine ? Converter.to_string(((RoutineInfo)info).condition().calls_nb()) : "-"
+                    isRoutine ? Converter.to_string(((RoutineInfo)info).condition().calls_nb()) : nullStr
                 );
 
-                string typeStr          = isRoutine ? "R" : "I";
+                string typeStr          = isRoutine ? routineStr : isiStr;
                 string typeSpecificInfo = isRoutine ? ((RoutineInfo)info).condition().key_str() :  ((ISIInfo)info).duration_str();
 
-                infoStr = string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
+                infoStr = string.Format(inforFormat,
                     elementTimeStr,
                     expTimeStr,
                     interStr,
@@ -328,7 +343,6 @@ namespace Ex{
 
             // init state
             ExVR.Network().set_launcher_loading_state(xmlExperimentPath, xmlInstancePath);
-            ExVR.ExpLog().exp(string.Format("Load XML [{0} , {1}]", xmlExperimentPath, xmlInstancePath), true, false, false);
 
             // clean
             if (m_experimentLoaded) {
@@ -354,7 +368,7 @@ namespace Ex{
         public bool generate_experiment(string xmlExperimentPath, string xmlInstancePath) {
 
             if (ExVR.Time().is_experiment_started()) {
-                log_error("Experiment must be stopped before loading a new one.");
+                log_error("Experiment must be stopped before loading a new one.");                
                 return false;
             }
 
@@ -374,7 +388,7 @@ namespace Ex{
 
             // xml experiment
             {
-                log_message(string.Format("Read XML experiment file: {0}", xmlExperimentPath));
+                log_message("Read XML experiment file...");
                 var serializer = new XmlSerializer(typeof(XML.Experiment));
                 var stream = new FileStream(xmlExperimentPath, FileMode.Open);
                 m_xmlExperiment = serializer.Deserialize(stream) as XML.Experiment;
@@ -386,7 +400,7 @@ namespace Ex{
             }
             // xml instance
             {
-                log_message(string.Format("Read XML instance file: {0}", xmlInstancePath));
+                log_message("Read XML instance file...");
                 var serializer = new XmlSerializer(typeof(XML.ExperimentFlow));
                 var stream = new FileStream(xmlInstancePath, FileMode.Open);
                 m_xmlFlow = serializer.Deserialize(stream) as XML.ExperimentFlow;
@@ -397,14 +411,18 @@ namespace Ex{
                 ExVR.Experiment().instanceName = split[split.Length - 1];
             }
 
-            ExVR.ExpLog().exp(string.Format("XML [{0}] loaded from designer {1} with version {2}.", m_xmlExperiment.Name, m_xmlExperiment.DesignerUsed, m_xmlExperiment.Version), true, false, false);
-            ExVR.ExpLog().exp("Initialize experiment.", false, false ,false);
+            log_message(string.Format("XML [{0}] loaded from designer {1} with version {2}.", m_xmlExperiment.Name, m_xmlExperiment.DesignerUsed, m_xmlExperiment.Version));
+            log_message("Initialize experiment.");
 
             // read settings
             ExVR.GuiSettings().read_from_xml(m_xmlExperiment.Settings);
 
             // generate resources
-            experimentResourcesManager.generate_from_xml(m_xmlExperiment);
+            if (!experimentResourcesManager.generate_from_xml(m_xmlExperiment)) {
+                log_error("Experiment loading failed. Please solve errors and start loading again.");
+                generationTimer.Stop();
+                return false;
+            }
 
             // generate components 
             log_message(string.Format("Load components: {0}", m_xmlExperiment.Components.Component.Count));
@@ -440,17 +458,16 @@ namespace Ex{
                 return false;
             }
 
-
             
             double generationTime = generationTimer.Elapsed.TotalMilliseconds * 0.001;
             generationTimer.Stop();
 
-            // GUI log
             log_message(string.Format("Experiment loaded in {0}s", generationTime));
-            // flow log
-            ExVR.ExpLog().exp(string.Format("Experiment initialized in {0}s ", generationTime), true, false, false);
 
-            ExVR.Paths().lastLoadedInstanceFile = xmlInstancePath;
+            var paths = ExVR.Paths();
+            paths.currentExperimentFile = xmlExperimentPath;
+            paths.currentInstanceFile   = xmlInstancePath;
+
 
             return true;
         }
@@ -479,9 +496,10 @@ namespace Ex{
             }
 
             ExVR.Time().start_experiment();
+
             ExVR.Display().reset_experiment_settings();
             ExVR.ExpLog().reset_strackTrace();
-
+            
             routines.start_experiment();
             schreduler.start_current_flow_element();
 

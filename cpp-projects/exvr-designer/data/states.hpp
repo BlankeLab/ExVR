@@ -31,7 +31,7 @@
 #include "data/unity_types.hpp"
 
 // local
-#include "element.hpp"
+#include "flow_elements/flow_element.hpp"
 
 namespace tool::ex {
 
@@ -149,7 +149,7 @@ namespace tool::ex {
         bool neverLoaded = true;
         int currentElementKey=-1;
         int currentConditionKey=-1;
-        Element::Type currentElementType;
+        FlowElement::Type currentElementType;
         QString currentElementName = "";
 
         QString currentTypeSpecificInfo = "";

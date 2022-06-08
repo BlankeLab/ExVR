@@ -71,6 +71,7 @@ INCLUDEPATH += \
     $$PYTHON_INCLUDES \
     $$BOOST_INCLUDES \
     $$SIGNALS_INCLUDES \
+    $$SIGSLOT_INCLUDES \
 
 ####################################### LIBRAIRIES
 

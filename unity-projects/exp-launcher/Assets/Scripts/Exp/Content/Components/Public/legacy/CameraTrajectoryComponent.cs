@@ -59,7 +59,7 @@ namespace Ex{
                 cp.translation          = Converter.to_vector3(splitArg[3]);
                 cp.rotation             = Converter.to_vector3(splitArg[4]);
                 cp.color                = Converter.to_color(splitArg[5]);
-                cp.speed                = Converter.to_curve(splitArg[6]);
+                cp.speed                = Converter.to_animation_curve(splitArg[6]);
                 cp.id                   = id++;
                 positions.Add(cp);                
             }

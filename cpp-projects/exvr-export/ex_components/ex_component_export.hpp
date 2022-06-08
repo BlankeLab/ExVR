@@ -26,9 +26,11 @@
 
 // local
 #include "exvr/ex_component.hpp"
+#include "exvr/ex_experiment.hpp"
 #include "utility/export.hpp"
 
 extern "C"{
+
 
     DECL_EXPORT void delete_ex_component(tool::ex::ExComponent *c);
 
@@ -59,51 +61,5 @@ extern "C"{
     DECL_EXPORT void action_from_gui_ex_component(tool::ex::ExComponent*c, int initConfig, const char* action);
 
     DECL_EXPORT void call_slot_ex_component(tool::ex::ExComponent*c, int index);
-
-    DECL_EXPORT int contains_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName);
-
-    DECL_EXPORT void update_parameter_bool_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, int value);
-    DECL_EXPORT void update_parameter_int_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, int value);
-    DECL_EXPORT void update_parameter_float_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, float value);
-    DECL_EXPORT void update_parameter_double_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, double value);
-    DECL_EXPORT void update_parameter_string_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, const char* value);
-
-    DECL_EXPORT int get_parameter_int_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName);
-    DECL_EXPORT float get_parameter_float_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName);
-    DECL_EXPORT double get_parameter_double_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName);
-    DECL_EXPORT const char* get_parameter_string_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName);
-
-    DECL_EXPORT int get_size_parameter_array_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName);
-    DECL_EXPORT void get_parameter_array_int_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, int* values);
-    DECL_EXPORT void get_parameter_array_float_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, float* values);
-    DECL_EXPORT void get_parameter_array_double_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, double* values);
-
-//    DECL_EXPORT void update_parameter_array_bool_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, bool* values, int size);
-    DECL_EXPORT void update_parameter_array_int_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, int* values, int size);
-    DECL_EXPORT void update_parameter_array_float_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, float* values, int size);
-    DECL_EXPORT void update_parameter_array_double_ex_component(tool::ex::ExComponent*c, int containerId, const char* paramName, double* values, int size);
-
-    DECL_EXPORT void init_callbacks_ex_component(
-        tool::ex::ExComponent*c,
-        StackTraceCB stackTraceCB,
-        LogCB logCB,
-        LogWarningCB logWarningCB,
-        LogErrorCB logErrorCB,
-        EllapsedTimeExpMsCB ellapsedTimeExpMsCB,
-        EllapsedTimeRoutineMsCB ellapsedTimeRoutineMsCB,
-        GetCB getCB,
-        IsInitializedCB isInitializedCB,
-        IsVisibleCB isVisibleCB,
-        IsUpdatingCB isUpdatingCB,
-        IsClosedCB isClosedCB,
-        NextCB nextCB,
-        PreviousCB previousCB,
-        CloseCB closeCB,
-        SignalBoolCB signalBoolCB,
-        SignalIntCB signalIntCB,
-        SignalFloatCB signalFloatCB,
-        SignalDoubleCB signalDoubleCB,
-        SignalStringCB signalStringCB
-    );
 }
 
