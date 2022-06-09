@@ -2,15 +2,15 @@
 
 ## Summary
 
-* [Description](https://github.com/FlorianLance/exvr#description)
-* [Origin](https://github.com/FlorianLance/exvr#origin)
-* [Content](https://github.com/FlorianLance/exvr#content)
-* [How to install](https://github.com/FlorianLance/exvr#how-to-install)
-* [How to compile from code](https://github.com/FlorianLance/exvr#how-to-compile)
-* [Documentation](https://github.com/FlorianLance/exvr#documentation)
-* [Tutorials](https://github.com/FlorianLance/exvr#tutorials)
-* [Captures](https://github.com/FlorianLance/exvr#captures)
-* [Authors](https://github.com/FlorianLance/exvr#authors)
+* [Description](https://github.com/BlankeLab/exvr#description)
+* [Origin](https://github.com/BlankeLab/exvr#origin)
+* [Content](https://github.com/BlankeLab/exvr#content)
+* [How to install](https://github.com/BlankeLab/exvr#how-to-install)
+* [How to compile from code](https://github.com/BlankeLab/exvr#how-to-compile)
+* [Documentation](https://github.com/BlankeLab/exvr#documentation)
+* [Tutorials](https://github.com/BlankeLab/exvr#tutorials)
+* [Captures](https://github.com/BlankeLab/exvr#captures)
+* [Authors](https://github.com/BlankeLab/exvr#authors)
 
 ## Description
 
@@ -24,7 +24,7 @@ They both communicate between themselves and makes easy to operate changes and s
 Once the design done, the user can then share the full experiment by exporting it, allowing accurate replications on others computers.
 
 <p float="center">
-  <img src="https://github.com/FlorianLance/exvr/blob/main/captures/4-panel.png" width="800" />
+  <img src="https://github.com/BlankeLab/exvr/blob/main/captures/4-panel.png" width="800" />
 </p>
 
 ## Origin
@@ -62,7 +62,7 @@ The project has been developped at [EPFL LNCO laboratory](https://www.epfl.ch/la
 
 ## How to install
 
-Go [here](https://github.com/FlorianLance/exvr/releases/tag/1.0a17) to download the last release.
+Go [here](https://github.com/BlankeLab/exvr/releases/tag/1.0a17) to download the last release.
 
 ## How to compile from code
 
@@ -77,24 +77,24 @@ https://visualstudio.microsoft.com/vs/community/).
 
 ## Documentation
 
-* [General](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_general.md)
+* [General](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_general.md)
 * UI
-  * [Flow creation](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_flow_creation.md)
-  * [Element selection](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_element_selection.md)
-  * [Components list](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_component_list.md)
-  * [Routines conditions](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_routines_conditions.md)
-  * [Resources manager](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_resources_manager.md)
-  * [Randomization](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_randomization.md)
-  * [Toolbar](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_toolboar.md)
-  * [Logs](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_logs.md)
-  * [Settings](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_settings.md)
+  * [Flow creation](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_flow_creation.md)
+  * [Element selection](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_element_selection.md)
+  * [Components list](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_component_list.md)
+  * [Routines conditions](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_routines_conditions.md)
+  * [Resources manager](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_resources_manager.md)
+  * [Randomization](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_randomization.md)
+  * [Toolbar](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_toolboar.md)
+  * [Logs](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_logs.md)
+  * [Settings](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_ui_settings.md)
 * Content
-  * [Components description](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_components.md)
-  * [Connectors description](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_connectors.md)
-  * [Scripting](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_scripting.md)
-  * [Visual scripting](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_visual_scripting.md)
-  * [Exp-launcher](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_exp_launcher.md)
-  * [Samples](https://github.com/FlorianLance/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_samples.md)
+  * [Components description](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_components.md)
+  * [Connectors description](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_connectors.md)
+  * [Scripting](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_scripting.md)
+  * [Visual scripting](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_visual_scripting.md)
+  * [Exp-launcher](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_exp_launcher.md)
+  * [Samples](https://github.com/BlankeLab/exvr/blob/main/cpp-projects/_build/bin/exvr-designer/data/documentation/doc_content_samples.md)
 
 (TODO)
 
