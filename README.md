@@ -62,7 +62,7 @@ The project has been developped at [EPFL LNCO laboratory](https://www.epfl.ch/la
 
 ## How to install
 
-Go [here](https://github.com/BlankeLab/exvr/releases/tag/1.0a17) to download the last release.
+Go [here](https://github.com/BlankeLab/exvr/releases/tag/1.0a50) to download the last release.
 
 ## How to compile from code
 
