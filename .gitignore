@@ -51,7 +51,6 @@ unity-projects/exp-launcher/Unity.XRLineRenderer*
 unity-projects/exp-launcher/Assets/_TerrainAutoUpgrade
 unity-projects/exp-launcher/*.exe
 unity-projects/exp-launcher/.vs
-unity-projects/exp-launcher/Packages
 unity-projects/exp-launcher/AssetBundles
 unity-projects/exp-launcher/etc
 unity-projects/exp-launcher/Library
