@@ -31,6 +31,8 @@
 
 // local
 #include "gui/ex_widgets/ex_resource_w.hpp"
+#include "gui/ex_widgets/ex_component_w.hpp"
+#include "gui/ex_widgets/ex_components_list_w.hpp"
 
 using namespace tool::ex;
 using namespace tool::ui;
@@ -425,4 +427,150 @@ void LoggerExperimentInitConfigParametersW::create_connections(){
 
 void LoggerExperimentInitConfigParametersW::late_update_ui(){
     m_p->dateTimeFormat.w->setEnabled(m_p->addDateToFileName.w->isChecked());
+}
+
+struct GlobalLoggerInitConfigParametersW::Impl{
+
+    QWidget *mainW = nullptr;
+    QTabWidget *mainTab = nullptr;
+
+    QWidget *inputW = nullptr;
+    ExComponentsListW inputsComponents{"inputs_components"};
+
+    QWidget *networkW = nullptr;
+    ExComponentsListW networkComponents{"network_components"};
+
+    QWidget *uiW = nullptr;
+    ExComponentsListW uiComponents{"ui_components"};
+
+    QWidget *trackingW = nullptr;
+    ExComponentsListW trackingComponents{"tracking_components"};
+
+    // directories
+    ExResourceW resource{"directory"};
+    ExCheckBoxW addCurrentInstanceToSubDirectoryName{"add_current_instance_to_sub_directory_name"};
+    ExCheckBoxW addDateToSubDirectoryName{"add_date_to_sub_directory_name"};
+    ExLineEditW baseSubDirectoryName{"base_sub_directory_name"};
+    ExLineEditW dateTimeFormat{"date_time_format"};
+    ExLineEditW fileExtension{"file_extension"};
+
+    // # experience
+    ExCheckBoxW expEllapsedExpTime{"ellapsed_exp_time"};
+    ExCheckBoxW expFrameId{"frame_id"};
+    ExCheckBoxW expStartFrameTime{"start_frame_time"};    
+    // # element
+    ExCheckBoxW expEllapsedElementTime{"ellapsed_element_time"};
+    ExCheckBoxW expElementOrder{"element_order"};
+    ExCheckBoxW expRoutineName{"routine_name"};
+    ExCheckBoxW expElementIteration{"element_iteration"};
+    // # condition
+    ExCheckBoxW expConditionName{"condition_name"};
+    ExCheckBoxW expConditionNbCalls{"condition_nb_calls"};
+    ExCheckBoxW expActionsCount{"actions_count"};
+    ExCheckBoxW expConnectorsCount{"connectors_count"};
+    ExCheckBoxW expConnectionsCount{"connections_count"};
+    ExCheckBoxW expConditionDuration{"condition_duration"};
+    // # camera
+    ExCheckBoxW expEyesCamera{"eyes_camera"};
+    ExCheckBoxW expCalibration{"camera_calibration"};
+    ExCheckBoxW expCameraRig{"camera_rig"};
+    // # misc
+    ExCheckBoxW expFramerate{"framerate"};
+};
+
+GlobalLoggerInitConfigParametersW::GlobalLoggerInitConfigParametersW() :  ConfigParametersW(), m_p(std::make_unique<Impl>()){
+}
+
+void GlobalLoggerInitConfigParametersW::insert_widgets(){
+
+    add_widget(F::gen(L::VB(),{m_p->resource()}, LStretch{false}));
+
+    auto l1 = F::gen(L::HB(), {W::txt("Global logging directory name:"), m_p->baseSubDirectoryName()}, LStretch{false}, LMargins{false});
+    auto l2 = F::gen(L::HB(), {m_p->addCurrentInstanceToSubDirectoryName()}, LStretch{true}, LMargins{false});
+    auto l3 = F::gen(L::HB(), {m_p->addDateToSubDirectoryName()}, LStretch{true}, LMargins{false});
+    auto l4 = F::gen(L::HB(), {W::txt("Date format:"),    m_p->dateTimeFormat()},  LStretch{true}, LMargins{false});
+    auto l5 = F::gen(L::HB(), {W::txt("File extension:"), m_p->fileExtension()}, LStretch{true}, LMargins{false});
+    add_widget(F::gen(L::VB(),
+        {l1,l2,l3,l4,l5},
+        LStretch{false}, LMargins{true}, QFrame::Box)
+    );
+
+    auto tw = new QTabWidget();
+    tw->addTab(m_p->mainW = new QWidget(), "Exp");
+    tw->addTab(m_p->inputW = new QWidget(), "Input");
+    tw->addTab(m_p->networkW = new QWidget(), "Network");
+    tw->addTab(m_p->uiW = new QWidget(), "UI");
+    tw->addTab(m_p->trackingW = new QWidget(), "Tracking");
+
+    auto l = ui::L::VB();
+    m_p->mainW->setLayout(l);
+    l->addWidget(F::gen(L::VB(),{ui::W::txt("<b>Data to log</b>")}, LStretch{false}));
+    l->addWidget(F::gen(L::VB(),{ui::W::txt("Experience:"), F::gen(L::VB(),{m_p->expEllapsedExpTime(), m_p->expFrameId(), m_p->expStartFrameTime()},
+            LStretch{false})}, LStretch{false}, LMargins{false}));
+    l->addWidget(F::gen(L::VB(),{ui::W::txt("Routine:"), F::gen(L::VB(),{m_p->expEllapsedElementTime(), m_p->expElementOrder(),
+            m_p->expRoutineName(), m_p->expElementIteration()},LStretch{false})}, LStretch{false}, LMargins{false}));
+    l->addWidget(F::gen(L::VB(),{ui::W::txt("Condition:"),F::gen(L::VB(),{m_p->expConditionName(), m_p->expConditionNbCalls(),
+            m_p->expActionsCount(), m_p->expConnectorsCount(), m_p->expConnectionsCount(), m_p->expConditionDuration()},LStretch{false})}, LStretch{false}, LMargins{false}));
+    l->addWidget(F::gen(L::VB(),{ui::W::txt("Cameras (position,rotation):"), F::gen(L::VB(),{m_p->expEyesCamera(), m_p->expCalibration(), m_p->expCameraRig()},LStretch{false})}, LStretch{false}, LMargins{false}));
+    l->addWidget(F::gen(L::VB(),{ui::W::txt("Misc:"), F::gen(L::VB(),{m_p->expFramerate()},LStretch{false})}, LStretch{false}, LMargins{false}));
+    l->addStretch(0);
+
+    l = ui::L::VB();
+    m_p->inputW->setLayout(l);
+    l->addWidget(F::gen(L::VB(),{m_p->inputsComponents()}, LStretch{false}));
+
+    l = ui::L::VB();
+    m_p->networkW->setLayout(l);
+    l->addWidget(F::gen(L::VB(),{m_p->networkComponents()}, LStretch{false}));
+
+    l = ui::L::VB();
+    m_p->uiW->setLayout(l);
+    l->addWidget(F::gen(L::VB(),{m_p->uiComponents()}, LStretch{false}));
+
+    l = ui::L::VB();
+    m_p->trackingW->setLayout(l);
+    l->addWidget(F::gen(L::VB(),{m_p->trackingComponents()}, LStretch{false}));
+
+    add_widget(F::gen(L::VB(),{tw}, LStretch{false}, LMargins{false}));
+
+    no_end_stretch();
+}
+
+void GlobalLoggerInitConfigParametersW::init_and_register_widgets(){
+
+    // directories/files
+    add_input_ui(m_p->inputsComponents.init_widget(Component::Category::Input, true, "Input components to log"));
+    add_input_ui(m_p->networkComponents.init_widget(Component::Category::Network, true, "Network components to log"));
+    add_input_ui(m_p->uiComponents.init_widget(Component::Category::UI, true, "UI components to log"));
+    add_input_ui(m_p->trackingComponents.init_widget(Component::Category::Tracking, true, "Tracking components to log"));
+    add_input_ui(m_p->resource.init_widget(Resource::Type::Directory, "Directory to use:"));
+    add_input_ui(m_p->addCurrentInstanceToSubDirectoryName.init_widget("Add current instance to directory name", true));
+    add_input_ui(m_p->addDateToSubDirectoryName.init_widget("Add current date to directory name", true));
+    add_input_ui(m_p->baseSubDirectoryName.init_widget("global_log"));
+    add_input_ui(m_p->dateTimeFormat.init_widget("yyyy-MM-dd_H-mm-ss"));
+    add_input_ui(m_p->fileExtension.init_widget("csv"));
+
+    // # experience
+    add_input_ui(m_p->expEllapsedExpTime.init_widget("Ellapsed time (ms) since starting of the experiment", true));
+    add_input_ui(m_p->expFrameId.init_widget("Frame id", true));
+    add_input_ui(m_p->expStartFrameTime.init_widget("Start frame time (ms)", true));
+    // # routine
+    add_input_ui(m_p->expEllapsedElementTime.init_widget("Ellasped time (ms) since starting of the routine", true));
+    add_input_ui(m_p->expElementOrder.init_widget("Order id", true));
+    add_input_ui(m_p->expRoutineName.init_widget("Name", true));
+    add_input_ui(m_p->expElementIteration.init_widget("Iteration", true));
+    // # condition
+    add_input_ui(m_p->expConditionName.init_widget("Name", true));
+    add_input_ui(m_p->expConditionNbCalls.init_widget("Nb calls", true));
+    add_input_ui(m_p->expActionsCount.init_widget("Nb actions", true));
+    add_input_ui(m_p->expConnectorsCount.init_widget("Nb connectors", true));
+    add_input_ui(m_p->expConnectionsCount.init_widget("Nb connections", true));
+    add_input_ui(m_p->expConditionDuration.init_widget("Duration", true));
+    // # camera
+    add_input_ui(m_p->expEyesCamera.init_widget("Eyes", true));
+    add_input_ui(m_p->expCalibration.init_widget("Calibration", true));
+    add_input_ui(m_p->expCameraRig.init_widget("Camera rig", true));
+    // # misc
+    add_input_ui(m_p->expFramerate.init_widget("Framerate (average on last second)", true));
+
 }

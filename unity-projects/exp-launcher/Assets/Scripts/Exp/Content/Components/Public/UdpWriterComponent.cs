@@ -30,7 +30,7 @@ namespace Ex{
     public class UdpWriterComponent : ExComponent{
 
         private UdpSender m_udpSender = null;
-        static private readonly string m_triggerExpTimeSignalStr = "trigger exp time";
+        static private readonly string m_messageSentSignalStr = "message sent";
 
         protected override bool initialize() {
 
@@ -38,7 +38,7 @@ namespace Ex{
             add_slot("send message", (message) => {
                 m_udpSender.send_message((string)message);
             });
-            add_signal(m_triggerExpTimeSignalStr);
+            add_signal(m_messageSentSignalStr);
 
             bool ipv6 = false; // initC.get<bool>("ipv6");
             var ipAddresses = NetworkInfo.get_ip_addresses(initC.get<string>("writing_address"),ipv6);
@@ -58,18 +58,20 @@ namespace Ex{
         protected override void update() {
 
 
-            double triggerTime;
-            List<double> triggerTimes = null;
-            while (m_udpSender.triggerTimes.TryDequeue(out triggerTime)) {
-                if (triggerTimes == null) {
-                    triggerTimes = new List<double>();
+            TimeAny trigger;
+            List<TimeAny> triggers = null;
+            while (m_udpSender.triggersSent.TryDequeue(out trigger)) {
+                if (triggers == null) {
+                    triggers = new List<TimeAny>();
                 }
-                triggerTimes.Add(triggerTime);                
+                triggers.Add(trigger);                
             }
 
-            if (triggerTimes != null) {
-                foreach (var time in triggerTimes) {
-                    invoke_signal(m_triggerExpTimeSignalStr, time);
+            if (is_updating()) {
+                if (triggers != null) {
+                    foreach (var trigger2 in triggers) {
+                        invoke_signal(m_messageSentSignalStr, trigger2);
+                    }
                 }
             }
         }

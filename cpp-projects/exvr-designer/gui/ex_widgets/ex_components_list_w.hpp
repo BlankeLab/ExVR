@@ -43,6 +43,7 @@ public:
 
     ExComponentsListW(QString name ="");
     ExComponentsListW *init_widget(Component::Type componentType, QString title, bool enabled = true);
+    ExComponentsListW *init_widget(Component::Category componentCategory, bool canBeLogged, QString title, bool enabled = true);
 
     void update_from_arg(const Arg &arg) override;
     Arg convert_to_arg() const override;
@@ -51,6 +52,8 @@ public:
 private:
 
     std::optional<Component::Type> m_componentType;
+    std::optional<Component::Category> m_componentCategory;
+    bool m_canBeLogged = false;
 
     QPushButton *m_icon =  nullptr;
     QLabel *m_title = nullptr;

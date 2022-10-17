@@ -81,9 +81,6 @@ namespace Ex {
             return Builder.autoRef.memoryManager;
         }
 
-        static public DebugManager Debug() {
-            return Builder.autoRef.debugManager;
-        }
 
         // experiment
         static public Experiment Experiment() {

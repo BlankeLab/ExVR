@@ -32,13 +32,34 @@
 
 namespace tool::ex {
 
+
+class ExKeyboardButtonTrigger : public ExItemW<QWidget>{
+
+public:
+
+    ExKeyboardButtonTrigger(QString name ="");
+    ExKeyboardButtonTrigger *init_widget(bool enabled = true);
+
+    void update_from_arg(const Arg &arg) override;
+    Arg convert_to_arg() const override;
+
+    ExComboBoxTextW timeMode = {"time_mode"};
+    ExComboBoxTextW keys = {"key"};
+};
+
+class ExKeyboardButtonTriggerEmbeddedW : public NodeContainerW<ExKeyboardButtonTrigger>{
+    Q_OBJECT
+public:
+    void initialize() override;
+    QString button();
+};
 class KeyboardButtonEmbeddedW : public NodeContainerW<ExComboBoxTextW>{
 Q_OBJECT
 public:
     void initialize() override;
 };
 
-class CheckKeyboardButtonNodeDataModel : public TypedConnectorDataModel<Connector::Type::Check_keyboard_button, KeyboardButtonEmbeddedW>{
+class CheckKeyboardButtonNodeDataModel : public TypedConnectorDataModel<Connector::Type::Check_keyboard_button, ExKeyboardButtonTriggerEmbeddedW>{
 Q_OBJECT
 public slots:
     void compute() override;

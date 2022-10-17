@@ -127,7 +127,7 @@ namespace Ex{
             var messages = m_udpCommunication.read_all_messages();
             if(messages != null) {
                 foreach (var message in messages) {
-                    ExVR.Events().gui.MessageFromGUI.Invoke(message.Item2);
+                    ExVR.Events().gui.MessageFromGUI.Invoke(message.Item3);
                 }
             }
 

@@ -33,7 +33,7 @@ namespace Ex {
 
         protected override bool initialize() {
 
-            add_signals(2);
+            add_signals(3);
             add_slot(0, (input) => {       
                 base_slot1(input); }
             );
@@ -49,9 +49,11 @@ namespace Ex {
         private void compute() {
 
             var timeAny = (TimeAny)input0;
-            invoke_signal(0, timeAny.time);
+            invoke_signal(0, timeAny.expTime);
+            invoke_signal(1, timeAny.routineTime);
+
             if (timeAny.value != null) {
-                invoke_signal(1, timeAny.value);
+                invoke_signal(2, timeAny.value);
                 send_connector_infos_to_gui(string.Format("Type:{0}", Converter.get_type_name(timeAny.value.GetType())));                
             } else {
                 send_connector_infos_to_gui("Type: NULL");

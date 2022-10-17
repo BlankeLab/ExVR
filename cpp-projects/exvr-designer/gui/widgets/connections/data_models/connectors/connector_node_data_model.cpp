@@ -397,8 +397,7 @@ void ConnectorNodeDataModel::unlock_embedded_widget(){
 void ConnectorNodeDataModel::update_with_info(QStringView id, QStringView value){
     if(id[0] == 'v'){
         if(m_widget->update_with_info(value)){
-            // slow
-//             emit embeddedWidgetSizeUpdated();
+            emit embeddedWidgetSizeUpdated();
         }
     }
 }

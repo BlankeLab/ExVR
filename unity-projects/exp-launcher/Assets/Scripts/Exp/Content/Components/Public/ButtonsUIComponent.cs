@@ -50,6 +50,8 @@ namespace Ex {
         private List<int> m_buttonsNb = null;
 
         private Material m_buttonsMat = null;
+        //private Material m_textMat = null;
+        
 
         public int selectedButtonId = -1;
 
@@ -78,11 +80,12 @@ namespace Ex {
             m_buttonsUiGO.name = "Buttons UI";
             m_buttonsUiGO.GetComponent<UnityEngine.UI.Image>().material = ExVR.GlobalResources().instantiate_default_transparent_mat();
             m_buttonsMat = ExVR.GlobalResources().instantiate_default_ui_mat();
+            //m_textMat    = ExVR.GlobalResources().instantiate_default_ui_mat();
 
             m_topText       = m_buttonsUiGO.transform.Find("Top text").GetComponent<TextMeshProUGUI>();
-            m_bottomText = m_buttonsUiGO.transform.Find("Bottom text").GetComponent<TextMeshProUGUI>();
-            m_leftText = m_buttonsUiGO.transform.Find("Middle/Left text").GetComponent<TextMeshProUGUI>();       
-            m_rightText = m_buttonsUiGO.transform.Find("Middle/Right text").GetComponent<TextMeshProUGUI>();
+            m_bottomText    = m_buttonsUiGO.transform.Find("Bottom text").GetComponent<TextMeshProUGUI>();
+            m_leftText      = m_buttonsUiGO.transform.Find("Middle/Left text").GetComponent<TextMeshProUGUI>();       
+            m_rightText     = m_buttonsUiGO.transform.Find("Middle/Right text").GetComponent<TextMeshProUGUI>();
             m_buttonsParent = m_buttonsUiGO.transform.Find("Middle/Buttons");
 
 
@@ -187,7 +190,8 @@ namespace Ex {
             } else {
 
                 for (int ii = 0; ii < lines.Length; ++ii) {
-                    if (lines[ii].Length != m_buttonsNb[ii]) {
+                    var buttonsPerLine = Text.split(lines[ii], "_");
+                    if (buttonsPerLine.Length != m_buttonsNb[ii]) {
                         reset = true;
                         break;
                     }
@@ -252,11 +256,16 @@ namespace Ex {
 
                             var button = buttonGO.GetComponent<Button>();
                             button.GetComponent<UnityEngine.UI.Image>().material = m_buttonsMat;
+
+                            //button.GetComponent<UnityEngine.UI.Image>().sprite = new Sprite()
                             button.interactable = false;
                             buttonGO.SetActive(true);
 
                             lineButtons.Add(jj, button);
                             var textGUI = buttonGO.transform.Find("Text (TMP)").gameObject.GetComponent<TextMeshProUGUI>();
+                            //textGUI.material = ExVR.GlobalResources().instantiate_default_ui_mat();
+
+
                             lineButtonsText.Add(jj, textGUI);
 
                             m_buttonsL.Add(new System.Tuple<Button, TextMeshProUGUI>(button, textGUI));
@@ -277,6 +286,38 @@ namespace Ex {
                 var buttonsName = lines[ii].Split(new char[] { '_' }, System.StringSplitOptions.None);
                 for (int jj = 0; jj < buttonsName.Length; ++jj) {
                     if (buttonsName[jj].Length > 0) {
+
+                        var image = m_buttonsText[ii][jj].transform.parent.GetComponent<UnityEngine.UI.Image>();
+
+                        string currentButtonName = m_buttonsText[ii][jj].text;
+
+                        // update button name text settings
+
+
+                        if (buttonsName[jj][0] == '#') {
+
+                            var alias = buttonsName[jj].Substring(1);
+                            var resource = ExVR.Resources().get_image_file_data(alias, false);
+                            if (resource != null) {
+
+                                image.sprite = Sprite.Create(
+                                    resource.texture,
+                                    new Rect(0.0f, 0.0f, resource.texture.width, resource.texture.height),
+                                    new Vector2(0f, 0f),
+                                    100.0f,
+                                    0,
+                                    SpriteMeshType.FullRect
+                                );
+
+                                currentC.update_text("buttons_ts", m_buttonsText[ii][jj]);
+                                //m_buttonsText[ii][jj].color = new Color(0, 0, 0, 0);
+                                //m_buttonsText[ii][jj].faceColor = new Color(0, 0, 0, 0);
+                                m_buttonsText[ii][jj].fontSize = 0f;
+                                continue;
+                            }
+                        }
+
+                        image.sprite = null;
                         currentC.update_text("buttons_ts", m_buttonsText[ii][jj]);
                         m_buttonsText[ii][jj].text = buttonsName[jj];
                     }
@@ -291,6 +332,11 @@ namespace Ex {
         #endregion
 
         #region public_functions
+
+        public void set_text(string text) {
+            currentC.set<string>("buttons_text", text);
+            update_from_current_config();
+        }
 
         public void select_next_button() {
 
@@ -329,9 +375,6 @@ namespace Ex {
         public void select_button(int id) {
 
             if (m_buttonsL.Count == 0) {
-                return;
-            }
-            if(id == selectedButtonId) {
                 return;
             }
 

@@ -27,6 +27,7 @@
 // Qt
 #include <QMainWindow>
 #include <QDesktopWidget>
+#include <QDockWidget>
 
 // local
 // # experiment
@@ -124,6 +125,8 @@ signals :
     void load_selected_routine_with_default_instance_signal();
     void load_from_selected_routine_with_default_instance_signal();
     void load_until_selected_routine_with_default_instance_signal();
+    // ## debug
+    void load_full_exp_with_02duration_signal();
     // # flow
     void play_experiment_signal();
     void play_pause_experiment_signal();
@@ -140,7 +143,7 @@ signals :
 
     // instances
     void generate_instances_signals();
-    void load_full_exp_with_specific_instance_signal();
+    void load_full_exp_with_specific_instance_signal();    
 
     // unity
     void start_experiment_launcher_signal();
@@ -171,6 +174,10 @@ private:
     Ui::ExVrMainUI m_ui;
 
     // generated ui
+    // # docks
+    QDockWidget *m_dwComponents         = nullptr;
+    QDockWidget *m_dwLogs               = nullptr;
+    QDockWidget *m_dwElementViewer      = nullptr;
     // # experiment widgets
     FlowDiagramWUP m_flowDiagramW       = nullptr;
     ElementDisplayWUP m_elementViewerW  = nullptr;
@@ -262,6 +269,7 @@ private:
     QAction m_crashAct;
     QAction m_deleteUnusedComponentAct;
     QAction m_displayKeysAct;
+    QAction m_fullLoadWith0DurationAct;
     // # resources
     QAction m_showResourcesManagerDialogAct;
     QAction m_showCSharpScriptDirectoryAct;
@@ -278,7 +286,8 @@ private:
     QTimer m_logTimer;
 
     // logs
-    QStringList logs;   
+    QStringList logs;
+    QTextBrowser *m_tbLogs = nullptr;
 };
 }
 

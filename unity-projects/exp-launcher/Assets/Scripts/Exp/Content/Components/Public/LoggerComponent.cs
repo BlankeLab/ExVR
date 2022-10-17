@@ -94,8 +94,5 @@ namespace Ex{
             }
         }
 
-        protected override void stop_experiment() {
-            base.stop_experiment();
-        }
     }
 }

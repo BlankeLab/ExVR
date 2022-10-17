@@ -97,7 +97,6 @@ namespace Ex{
             invoke_signal("visibility changed", visibility);
         }
 
-        // public 
         public override void update_from_current_config() {
             reset_config_transform();
         }
@@ -149,7 +148,7 @@ namespace Ex{
                             }
                             typeComponent = CSharpScriptResource.get_type_from_compiled_assembly(componentParameters.name);
                             if (typeComponent == null) {
-                                ExVR.Log().error("Cannot instantiate type " + componentParameters.name);
+                                ExVR.Log().error(string.Format("Cannot instantiate type [{0}]", componentParameters.name));
                                 continue;
                             }
                         }
@@ -172,7 +171,8 @@ namespace Ex{
 
                     var varField = typeComponent.GetField(parameter.name);
                     if (varField == null) {
-                        ExVR.Log().error("Variable " + parameter.name + " doesn't exist in component " + generatedComponent.name + " from GameObject " + generatedComponent.gameObject.name);
+                        ExVR.Log().error(string.Format("Variable [{0}] doesn't exist in component [{1}] from GameObject [{2}]", 
+                            parameter.name, generatedComponent.name, generatedComponent.gameObject.name));
                         continue;
                     }
 
@@ -209,7 +209,7 @@ namespace Ex{
                         int length = endIndex - startIndex;
                         parameter.type = parameter.type.Substring(startIndex, length);
 
-                        Type elementType = Type.GetType(parameter.type + ", " + parameter.fullAssemblyName);
+                        Type elementType = Type.GetType(string.Concat(parameter.type, ", ",parameter.fullAssemblyName));
                         if (elementType != null) {
 
                             var listType = typeof(List<>);

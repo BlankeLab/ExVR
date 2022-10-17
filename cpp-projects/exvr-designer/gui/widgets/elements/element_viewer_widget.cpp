@@ -26,6 +26,7 @@
 
 // local
 #include "experiment/global_signals.hpp"
+#include "gui/settings/display.hpp"
 
 // Qt
 #include <QFileDialog>
@@ -34,7 +35,6 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QTableWidget>
-#include <QItemDelegate>
 #include <QRegExpValidator>
 
 using namespace tool::ex;
@@ -42,23 +42,25 @@ using namespace tool::ex;
 ElementViewerW::ElementViewerW(QTabWidget *twCurrentElement) :  m_layout(new QHBoxLayout(this)),
     m_routineUI(std::make_unique<Ui::RoutineW>()), m_loopUI(std::make_unique<Ui::LoopW>()), m_isiUI(std::make_unique<Ui::IsiW>()), m_toolBox(twCurrentElement){
 
-    // init ui
+    // init ui and styles
+    // # rouine
     m_routineUI->setupUi(&m_routineW);
-    m_loopUI->setupUi(&m_loopW);
-    m_isiUI->setupUi(&m_isiW);
-
-    init_no_selection_ui();
     init_routine_ui();
+    // # loop
+    m_loopUI->setupUi(&m_loopW);
     init_loop_ui();
+    // # ISI
+    m_isiUI->setupUi(&m_isiW);
     init_isi_ui();
+    // # no selection
+    init_no_selection_ui();
 
     m_toolBox->removeTab(0);
     m_toolBox->insertTab(0, &m_noSelectionW, QSL("No selection"));
 }
 
 void ElementViewerW::reset(){
-
-//    m_toolBox->setVisible(false);
+    // ...
 }
 
 void ElementViewerW::update_from_current_element(FlowElement *elem){
@@ -93,34 +95,38 @@ void ElementViewerW::update_from_current_element(FlowElement *elem){
     }
 }
 
-void ElementViewerW::update_set_settings(QTableWidgetItem *item){
+void ElementViewerW::update_set_name(RowId id){
 
     QTableWidget *tw = m_loopUI->twSets;
-    int row = item->row();
-    if(item->column() == 0){
+    int row = id.v;
 
-        QString currentSet = tw->item(row,0)->text();
+    auto button = qobject_cast<QPushButton*>(tw->cellWidget(row,0));
+    QString currentSet = button->text();
+    bool ok;
+    QString newSetName = QInputDialog::getText(this,
+       tr("Define selected Set name"),
+       tr("Enter name:"), QLineEdit::Normal,
+       currentSet, &ok);
 
-        bool ok;
-        QString newSetName = QInputDialog::getText(this,
-           tr("Define selected Set name"),
-           tr("Enter name:"), QLineEdit::Normal,
-           currentSet, &ok);
+    if(ok && newSetName.length() > 0){
+        emit GSignals::get()->modify_loop_set_name_signal(m_currentElementId, newSetName.replace(' ', '_').replace('-', '_'), RowId{row});
+    }
+}
 
-        if(ok && newSetName.length() > 0){
-            emit GSignals::get()->modify_loop_set_name_signal(m_currentElementId, newSetName.replace(' ', '_').replace('-', '_'), RowId{row});
-        }
+void ElementViewerW::update_set_occurencies(RowId id){
 
-    }else if(item->column() == 1){
+    QTableWidget *tw = m_loopUI->twSets;
+    int row = id.v;
 
-        bool ok;
-        int newOccurenciesNb = QInputDialog::getInt(this,
-            tr("Define selected set number of occurencies"),
-            tr("Enter number:"),
-            tw->item(row,1)->text().toInt(), 0, 100000, 1, &ok);
-        if(ok ){
-            emit GSignals::get()->modify_loop_set_occurrencies_nb_signal(m_currentElementId, newOccurenciesNb, RowId{row});
-        }
+    auto button = qobject_cast<QPushButton*>(tw->cellWidget(row,0));
+    QString currentNb = button->text();
+    bool ok;
+    int newOccurenciesNb = QInputDialog::getInt(this,
+        tr("Define selected set number of occurencies"),
+        tr("Enter number:"),
+        currentNb.toInt(), 0, 100000, 1, &ok);
+    if(ok ){
+        emit GSignals::get()->modify_loop_set_occurrencies_nb_signal(m_currentElementId, newOccurenciesNb, RowId{row});
     }
 }
 
@@ -129,13 +135,25 @@ void ElementViewerW::init_no_selection_ui(){
     QVBoxLayout *vbl = new QVBoxLayout();
     m_noSelectionW.setLayout(vbl);
 
-    m_allElementsLW = new QListWidget();
     vbl->addWidget(m_allElementLa = new QLabel("Current flow elements (0): "));
-    vbl->addWidget(m_allElementsLW);
+    vbl->addWidget(m_noSelectionTW = new QTableWidget());
 
-    connect(m_allElementsLW, &QListWidget::itemSelectionChanged, this, [=]{
-        emit GSignals::get()->select_element_id_no_nodes_signal(RowId{m_allElementsLW->currentRow()}, true);
-    });
+    m_noSelectionTW->verticalHeader()->setDefaultSectionSize(20);
+    m_noSelectionTW->verticalHeader()->hide();
+    m_noSelectionTW->setColumnCount(4);
+    m_noSelectionTW->horizontalHeader()->setMinimumSectionSize(10);
+    m_noSelectionTW->horizontalHeader()->setStretchLastSection(false);
+    m_noSelectionTW->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);    
+    m_noSelectionTW->setColumnWidth(0, 30); // id
+    m_noSelectionTW->setColumnWidth(1, 20); // type
+    m_noSelectionTW->setColumnWidth(2, 100); // name
+    m_noSelectionTW->setColumnWidth(3, 80); // loo level
+    m_noSelectionTW->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    m_noSelectionTW->setSelectionMode(QAbstractItemView::SelectionMode::NoSelection);
+
+//    connect(m_allElementsLW, &QListWidget::itemSelectionChanged, this, [=]{
+//        emit GSignals::get()->select_element_id_no_nodes_signal(RowId{m_allElementsLW->currentRow()}, true);
+//    });
 }
 
 void ElementViewerW::init_routine_ui(){
@@ -198,32 +216,24 @@ void ElementViewerW::init_routine_ui(){
     connect(teI, &QTextEdit::textChanged, this, [=]{
         emit GSignals::get()->update_element_informations_signal(m_currentElementId, teI->toPlainText());
     });
+    ui->laName->setStyleSheet("QLabel{font: bold;}");
 }
 
-class Delegate : public QItemDelegate {
-public:
-    QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex & index) const{
-
-        QLineEdit *lineEdit = new QLineEdit(parent);
-        if(index.column() == 0){
-//            lineEdit->setValidator(new QRegExpValidator(QRegExp("[^-\n\r]")));
-//            lineEdit->setValidator(new QRegExpValidator(QRegExp("-{0}")));
-        }else if(index.column() == 1){
-            lineEdit->setValidator(new QIntValidator(0, 10000));
-        }
-        return lineEdit;
-    }
-};
 
 void ElementViewerW::init_loop_ui(){
 
     Ui::LoopW *ui = m_loopUI.get();
 
-    QTableWidget *tw = ui->twSets;
-    tw->setItemDelegate(new Delegate);
-    tw->setColumnWidth(0, 100);
-    tw->setColumnWidth(1, 75);
-    tw->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    QTableWidget *twS = ui->twSets;
+    twS->setColumnWidth(0, 120);
+    twS->setColumnWidth(1, 75);
+    twS->setColumnWidth(2, 25);
+    twS->setColumnWidth(3, 25);
+    twS->setColumnWidth(4, 25);    
+    twS->horizontalHeader()->setStretchLastSection(false);
+    twS->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+    twS->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    twS->setSelectionMode(QAbstractItemView::SelectionMode::NoSelection);
 
     // name
     connect(ui->pbSetName, &QPushButton::clicked, this, [&, ui]{
@@ -253,42 +263,6 @@ void ElementViewerW::init_loop_ui(){
 
     // style
     connect(ui->cbLoopStyle,QOverload<int>::of( &QComboBox::currentIndexChanged),[=](int index){
-
-        if(m_currentLoopIndex == 3){ // previous mode was file mode
-            QMessageBox msgBox;
-            msgBox.setIcon(QMessageBox::Question);
-            msgBox.setText("If you switch to an other mode, current loop conditions will be deleted. Do you want to continue?");
-            msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-            msgBox.setDefaultButton(QMessageBox::Cancel);
-            msgBox.setModal(true);
-
-            if(msgBox.exec() == QMessageBox::Ok){
-                m_currentLoopIndex = index;
-            }else{
-                ui->cbLoopStyle->blockSignals(true);
-                ui->cbLoopStyle->setCurrentIndex(m_currentLoopIndex);
-                ui->cbLoopStyle->blockSignals(false);
-                return;
-            }
-        }
-
-        if(index == 3){ // file mode
-            QMessageBox msgBox;
-            msgBox.setIcon(QMessageBox::Question);
-            msgBox.setText("If you switch to file mode, current loop conditions will be deleted. Do you want to continue?");
-            msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-            msgBox.setDefaultButton(QMessageBox::Cancel);
-            msgBox.setModal(true);
-
-            if(msgBox.exec() == QMessageBox::Ok){
-                m_currentLoopIndex = index;
-            }else{
-                ui->cbLoopStyle->blockSignals(true);
-                ui->cbLoopStyle->setCurrentIndex(m_currentLoopIndex);
-                ui->cbLoopStyle->blockSignals(false);
-                return;
-            }
-        }
         emit GSignals::get()->modify_loop_type_signal(m_currentElementId, static_cast<Loop::Mode>(index));
     });
 
@@ -297,55 +271,27 @@ void ElementViewerW::init_loop_ui(){
         ui->pbAdd->setEnabled(ui->teAdd->toPlainText().size() > 0);
     });
 
-    connect(tw, &QTableWidget::itemSelectionChanged, this, [=]{
-        int row = tw->currentRow();
-        emit GSignals::get()->select_loop_set_signal(m_currentElementId, tw->item(row,0)->text());
-    });
-
-    connect(tw, &QTableWidget::itemClicked,       this, &ElementViewerW::update_set_settings);
-    connect(tw, &QTableWidget::itemDoubleClicked, this, &ElementViewerW::update_set_settings);
-
-
     connect(ui->pbAdd, &QPushButton::clicked, this, [=]{
         QString txt = ui->teAdd->toPlainText().replace(' ', '_').replace('-', '_');
         ui->teAdd->blockSignals(true);
         ui->teAdd->setText(txt);
         ui->teAdd->blockSignals(false);
-        emit GSignals::get()->add_loop_sets_signal(m_currentElementId, txt, RowId{tw->currentRow()+1});
+        emit GSignals::get()->add_loop_sets_signal(m_currentElementId, txt, RowId{ui->sbRowId->value()});
     });
-    connect(ui->pbRemove, &QPushButton::clicked, this, [=]{
-        int id = tw->currentRow();
-        if(id > -1){
-            emit GSignals::get()->remove_set_signal(m_currentElementId, RowId{id});
-        }
-    });
-    connect(ui->pbUp, &QPushButton::clicked, this, [=]{
-        int id = tw->currentRow();
-        if(id > -1){
-            emit GSignals::get()->move_loop_set_up_signal(m_currentElementId, RowId{id});
-        }
-    });
-    connect(ui->pbDown, &QPushButton::clicked, this, [=]{
-        int id = tw->currentRow();
-        if(id > -1){
-            emit GSignals::get()->move_loop_set_down_signal(m_currentElementId, RowId{id});
-        }
-    });
-    connect(ui->pbChooseFile, &QPushButton::clicked, this, [=]{
+    connect(ui->pbInitFromFile, &QPushButton::clicked, this, [=]{
         QString filePath = QFileDialog::getOpenFileName(nullptr, "Sets file to load",QCoreApplication::applicationDirPath() + "/data", "sets (*.txt)", nullptr);
         if(filePath.size() == 0){
             return;
         }
         emit GSignals::get()->load_loop_sets_file_signal(m_currentElementId, filePath);
     });
-    connect(ui->pbReload, &QPushButton::clicked, this, [=]{
-        emit GSignals::get()->reload_loop_sets_file_signal(m_currentElementId);
-    });
 
     auto teI = ui->teInformations;
     connect(teI, &QTextEdit::textChanged, this, [=]{
         emit GSignals::get()->update_element_informations_signal(m_currentElementId, teI->toPlainText());
     });
+
+    ui->laName->setStyleSheet("QLabel{font: bold;}");
 }
 
 void ElementViewerW::init_isi_ui(){
@@ -385,18 +331,6 @@ void ElementViewerW::init_isi_ui(){
         int id = lw->currentRow()+1;
         emit GSignals::get()->add_isi_interval_signal(m_currentElementId, ui->dsbNewIsi->value(), RowId{id});
     });
-    connect(ui->pbRemove, &QPushButton::clicked, this, [=]{
-        int id = lw->currentRow();
-        emit GSignals::get()->remove_isi_interval_signal(m_currentElementId, RowId{id});
-    });
-    connect(ui->pbUp, &QPushButton::clicked, this, [=]{
-        int id = lw->currentRow();
-        emit GSignals::get()->move_isi_interval_up_signal(m_currentElementId, RowId{id});
-    });
-    connect(ui->pbDown, &QPushButton::clicked, this, [=]{
-        int id = lw->currentRow();
-        emit GSignals::get()->move_isi_interval_down_signal(m_currentElementId, RowId{id});
-    });
 
     auto teI = ui->teInformations;
     connect(teI, &QTextEdit::textChanged, this, [=]{
@@ -404,109 +338,130 @@ void ElementViewerW::init_isi_ui(){
     });
 }
 
+
 void ElementViewerW::update_no_selection_ui(){
 
-    m_allElementsLW->blockSignals(true);
-    m_allElementsLW->clear();
-    auto exp = ExperimentManager::get()->current();
 
+    auto exp = ExperimentManager::get()->current();
     m_allElementLa->setText(QSL("Current flow elements (") % QString::number(exp->nb_elements_no_nodes()) % QSL(")"));
+
+    m_noSelectionTW->blockSignals(true);
+    m_noSelectionTW->clear();
+
+    m_noSelectionTW->setRowCount(static_cast<int>(exp->nb_elements_no_nodes()));
+    m_noSelectionTW->setHorizontalHeaderLabels({"Id","T","Name","Loop level"});
+
+    QImage rImage = QImage(20,20, QImage::Format_BGR888);
+    rImage.fill(Qt::darkGreen);
+    QPixmap rIcon = QPixmap::fromImage(rImage);
+
+    QImage lImage = QImage(20,20, QImage::Format_BGR888);
+    lImage.fill(Qt::darkBlue);
+    QPixmap lIcon = QPixmap::fromImage(lImage);
+
+
     size_t row = 0;
     for(const auto &element : exp->elements){
 
-        QString base = QSL(" [ID:") % QString::number(element->key()) %
-                    QSL("] [L:") % QString::number(element->insideLoops.size()) % QSL("]");
+        using enum FlowElement::Type;
+        if(element->type() == Node){
+            continue;
+        }
 
+        auto laId = new QLabel(QString::number(row));
+        laId->setStyleSheet(display::Styles::qtable_qlabel());
+        laId->setAlignment(Qt::AlignCenter);
+        m_noSelectionTW->setCellWidget(row, 0, laId);
+
+        QString extra;
+
+        auto ic = new QLabel();
         switch(element->type()){
-            using enum FlowElement::Type;
-            case Node:
-                continue;
-            case Routine:
-                m_allElementsLW->addItem(QString::number(row) % QSL(" [R] ") % element->name() % base);
+            case Routine:{
+                ic->setPixmap(rIcon);
                 break;
-            case Isi:
-                m_allElementsLW->addItem(QString::number(row) % QSL( "[I] ") % element->name() % base);
+            }case LoopStart:{
+                ic->setPixmap(lIcon);
+                extra =" (start)";
                 break;
-            case LoopStart:
-                m_allElementsLW->addItem(QString::number(row) % QSL(" [LS] ") % element->name() % base);
+            }case LoopEnd:{
+                ic->setPixmap(lIcon);
+                extra =" (end)";
                 break;
-            case LoopEnd:
-                m_allElementsLW->addItem(QString::number(row) % QSL(" [LE] ") % element->name() % base);
-                break;
-            default:
+            }default:
                 break;
         }
+
+        m_noSelectionTW->setCellWidget(row, 1, ic);
+        auto laName =new QLabel(element->name()%extra);
+        laName->setStyleSheet(display::Styles::qtable_qlabel());
+        m_noSelectionTW->setCellWidget(row, 2, laName);
+        auto laIL = new QLabel(QString::number(element->insideLoops.size()));
+        laIL->setStyleSheet(display::Styles::qtable_qlabel());
+        laIL->setAlignment(Qt::AlignCenter);
+        m_noSelectionTW->setCellWidget(row, 3, laIL);
+
         ++row;
     }
 
-    m_allElementsLW->blockSignals(false);
+    m_noSelectionTW->blockSignals(false);
 }
 
 
 void ElementViewerW::update_loop_ui(Loop *loop){
 
     Ui::LoopW *ui = m_loopUI.get();
-    QTableWidget *tw = ui->twSets;
+    QTableWidget *twS = ui->twSets;
 
-    int currentCol = tw->currentColumn();
-    tw->blockSignals(true);
-    tw->clear();
-
-    ui->wChooseFile->setHidden(true);
-    ui->wAddSet->setHidden(false);
-    ui->fMove->setHidden(false);
-
-    std::vector<std::unique_ptr<Set>> *sets = nullptr;
-    if(loop->mode != Loop::Mode::File){
-        sets = &loop->sets;
-    }else{
-        ui->laCurrentFile->blockSignals(true);
-        ui->laCurrentFile->setText(loop->filePath);
-        ui->laCurrentFile->blockSignals(false);
-        ui->wChooseFile->setHidden(false);
-        ui->wAddSet->setHidden(true);
-        ui->fMove->setHidden(true);
-        ui->pbReload->setEnabled(loop->filePath.size() > 0);
-        ui->laCurrentFile->setText(loop->filePath);
-
-        sets = &loop->fileSets;
-    }
+    std::vector<std::unique_ptr<Set>> *sets = &loop->sets;
+    ui->sbRowId->setMaximum(static_cast<int>(sets->size()));
 
     int idRow = 0;
-    tw->setRowCount(static_cast<int>(sets->size()));       
-    tw->setCurrentCell(0,0);
+    twS->blockSignals(true);
+    twS->clear();
+    twS->setRowCount(static_cast<int>(sets->size()));
+    twS->setHorizontalHeaderLabels({"Name","Occurencies","","",""});
 
     for(const auto &set : *sets){
 
-        auto *item1 = new QTableWidgetItem(set->name);
-        tw->setItem(idRow,0,item1);
+        auto *item1 = new QPushButton(set->name);
+        twS->setCellWidget(idRow,0,item1);
+        connect(item1, &QPushButton::clicked, this, [&,idRow]{
+            update_set_name(RowId{idRow});
+        });
 
-        auto *item2 = new QTableWidgetItem(QString::number(set->occurencies));
-        tw->setItem(idRow++,1,item2);
+        auto *item2 = new QPushButton(QString::number(set->occurencies));
+        twS->setCellWidget(idRow,1,item2);
+        connect(item2, &QPushButton::clicked, this, [&,idRow]{
+            update_set_occurencies(RowId{idRow});
+        });
 
-        if(loop->mode != Loop::Mode::File){
-            item1->setFlags(item1->flags() | Qt::ItemIsEditable);
-            item2->setFlags(item2->flags() | Qt::ItemIsEditable);
-        }
+        auto *item3 = new QPushButton("🡅");
+        item3->setEnabled(idRow > 0);
+        twS->setCellWidget(idRow,2,item3);
+        connect(item3, &QPushButton::clicked, this, [&,idRow]{
+            emit GSignals::get()->move_loop_set_up_signal(m_currentElementId, RowId{idRow});
+        });
+
+        auto *item4 = new QPushButton("🡇");
+        twS->setCellWidget(idRow,3,item4);
+        item4->setEnabled(idRow < twS->rowCount()-1);
+        connect(item4, &QPushButton::clicked, this, [&,idRow]{
+            emit GSignals::get()->move_loop_set_down_signal(m_currentElementId, RowId{idRow});
+        });
+
+        auto *item5 = new QPushButton("✖");
+        twS->setCellWidget(idRow,4,item5);
+        item5->setEnabled(twS->rowCount() > 1);
+        connect(item5, &QPushButton::clicked, this, [&,idRow]{
+            emit GSignals::get()->remove_set_signal(m_currentElementId, RowId{idRow});            
+        });
+
+        idRow++;
     }
-    tw->setHorizontalHeaderLabels({"Name","Occurencies"});
 
 
-    for(int ii = 0; ii < tw->rowCount(); ++ii){
-        if(tw->item(ii,0)->text() == loop->currentSetName){
-            tw->setCurrentCell(ii,currentCol);
-            break;
-        }
-    }
-
-    tw->blockSignals(false);
-
-    // button    
-    int currentRow = tw->currentRow();
-    ui->pbRemove->setEnabled(currentRow >= 0 && tw->rowCount() > 1);
-    ui->pbUp->setEnabled(currentRow > 0);
-    ui->pbDown->setEnabled(currentRow < tw->rowCount()-1 && tw->rowCount() > 1);
-    ui->fMove->setEnabled(loop->mode != Loop::Mode::File);
+    twS->blockSignals(false);
 
     // spinboxes
     ui->sbNbReps->blockSignals(true);
@@ -532,7 +487,7 @@ void ElementViewerW::update_loop_ui(Loop *loop){
     ui->laName->setText(loop->name());
 
     // labels
-    ui->laSetList->setText(QSL("Set List (") % QString::number(tw->rowCount()) % QSL(" elements)"));
+    ui->laSetList->setText(QSL("Set List (") % QString::number(twS->rowCount()) % QSL(" elements)"));
 
     // informations
     ui->teInformations->setText(loop->informations);

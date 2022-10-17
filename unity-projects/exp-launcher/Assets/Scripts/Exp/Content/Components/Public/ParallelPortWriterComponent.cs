@@ -25,6 +25,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Collections;
+using System.Collections.Generic;
 
 // unity
 using UnityEngine;
@@ -45,25 +46,23 @@ namespace Ex{
         [DllImport("inpoutx64.dll", EntryPoint = "DlPortWritePortUlong")]
         private static extern void dl_port_write_port_ulong_x64(uint port, uint Data);
 
-        //private bool m_x32Mode = false;
         private bool m_int16Mode = false;
         private bool m_available = false;
+        private static readonly string m_messageSentSignalStr = "message sent";
+        private List<Tuple<double, double, string>> triggerEvents = null;
 
-        private float m_pulseTime = 1f;
-        private string m_port = "0x378";
-        private static readonly string m_triggerExpTimeSignalStr = "trigger exp time";
-
+        #region ex_functions
         protected override bool initialize() {
 
             m_int16Mode = initC.get<bool>("int16_mode");
 
             add_slot("write", (value) => {
-                write((int)value);
+                write((int)value, currentC.get<string>("port"));
             });
             add_slot("send pulse", (value) => {
-                ExVR.Coroutines().start(send_pulse((int)value));
+                send_pulse((int)value, (float)currentC.get<double>("pulse_time"), currentC.get<string>("port"));
             });
-            add_signal(m_triggerExpTimeSignalStr);
+            add_signal(m_messageSentSignalStr);
 
             try {
                 m_available = is_inpout_driver_opened_x64() != 0;
@@ -76,44 +75,101 @@ namespace Ex{
 
             return true;
         }
-   
-        public IEnumerator send_pulse(int value) {
-            write(value);
-            yield return new WaitForSeconds(m_pulseTime);
-            write(0);
+
+        protected override void start_routine() {
+            triggerEvents = null;
         }
 
-
-        public override void update_from_current_config() {
-            m_pulseTime = (float)currentC.get<double>("pulse_time");
-            m_port      = currentC.get<string>("port");
+        public override List<Tuple<double, double, string>> format_trigger_data_for_global_logger() {
+            var tEvents = triggerEvents;
+            triggerEvents = null;
+            return tEvents;              
         }
 
-        protected override void update_parameter_from_gui(string updatedArgName) {
-            update_from_current_config();
+        #endregion
+
+        #region private_functions
+
+        private IEnumerator reset_pulse(float pulseTime, string port) {
+            yield return new WaitForSeconds(pulseTime);
+            dll_write(0, port);
+        }
+        private void dll_write(int value, string port) {
+
+            if (m_int16Mode) {
+                dl_port_write_port_ushort_x64(Convert.ToUInt16(port, 16), (ushort)value);
+            } else {
+                dl_port_write_port_ulong_x64(Convert.ToUInt32(port, 16), (uint)value);
+            }
         }
 
+        #endregion
 
-        private void write(int value, string port) {
+        #region public_functions
+
+        public double send_pulse(int value, float pulseTime = -1f, string port = "") {
 
             if (!m_available) {
-                return;
-            }
-       
-            if (m_int16Mode) {
-
-                dl_port_write_port_ushort_x64(Convert.ToUInt16(m_port, 16), (ushort)value);
-
-            } else {
-
-                dl_port_write_port_ulong_x64(Convert.ToUInt32(m_port, 16), (uint)value);
+                return -1;
             }
 
-        }
-         public void write(int value) {            
+            if (pulseTime < 0) {
+                pulseTime = (float)currentC.get<double>("pulse_time");
+            }
+
+            if(port.Length == 0) {
+                port = currentC.get<string>("port");
+            }
+
             double expTime = time().ellapsed_exp_ms();
-            write(value, m_port);
-            invoke_signal(m_triggerExpTimeSignalStr, expTime);
+            double routineTime = time().ellapsed_element_ms();
+
+            // send value
+            dll_write(value, port);
+            
+            // schedule a reset value
+            ExVR.Coroutines().start(reset_pulse(pulseTime, port));
+
+            // send trigger time
+            invoke_signal(m_messageSentSignalStr, new TimeAny(expTime, routineTime, value));
+
+            // add trigger
+            if (triggerEvents == null) {
+                triggerEvents = new List<Tuple<double, double, string>>();
+            }
+            triggerEvents.Add(new Tuple<double, double, string>(expTime, routineTime, string.Format("write_pulse {0}", Converter.to_string(value))));
+
+            return expTime;
         }
+
+        public double write(int value, string port = "") {
+
+            if (!m_available) {
+                return -1;
+            }
+
+            if (port.Length == 0) {
+                port = currentC.get<string>("port");
+            }
+
+            double expTime = time().ellapsed_exp_ms();
+            double routineTime = time().ellapsed_element_ms();
+
+            // send value
+            dll_write(value, port);
+
+            // send trigger time
+            invoke_signal(m_messageSentSignalStr, new TimeAny(expTime, routineTime, value));
+
+            // add trigger
+            if(triggerEvents == null) {
+                triggerEvents = new List<Tuple<double, double, string>>();
+            }
+            triggerEvents.Add(new Tuple<double, double, string>(expTime, routineTime, string.Format("write {0}", Converter.to_string(value))));
+
+            return expTime;
+        }
+
+        #endregion
     }
 }

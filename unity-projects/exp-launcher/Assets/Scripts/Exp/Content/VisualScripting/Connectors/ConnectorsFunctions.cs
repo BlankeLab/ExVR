@@ -31,7 +31,7 @@ namespace Ex{
 
         public enum TrigonometryFunction : int { cos, sin, tan, acos, asin, atan, cosh, sinh, tanh };
         public enum DecimalOperator : int { add, sub, multiply, divide, modulo, less, less_equal, superior, superior_equal, equal, different };
-        public enum BinaryOperator : int { and, or, xor, not };
+        public enum BinaryOperator : int { and, or, xor, not};
         public enum StringOperator : int { add, remove, contains, do_not_contains, equals, not_equals, starts_with, ends_with, splits_with };
 
         public static bool is_trigonometry_function(string name) {

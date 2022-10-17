@@ -39,7 +39,9 @@
 #include "connectors/integer_ndm.hpp"
 #include "connectors/real_ndm.hpp"
 #include "connectors/string_ndm.hpp"
+#include "connectors/vector2_ndm.hpp"
 #include "connectors/vector3_ndm.hpp"
+#include "connectors/color_ndm.hpp"
 #include "connectors/transform_ndm.hpp"
 #include "connectors/string_ndm.hpp"
 #include "connectors/id_any_ndm.hpp"
@@ -160,6 +162,7 @@ void DataNodeModels::initialize(){
     r->registerTypeConverter(std::make_pair(AnyData().type(),StringData().type()),TC{FromAnyConverter()});
     r->registerTypeConverter(std::make_pair(AnyData().type(),Vector2Data().type()),TC{FromAnyConverter()});
     r->registerTypeConverter(std::make_pair(AnyData().type(),Vector3Data().type()),TC{FromAnyConverter()});
+    r->registerTypeConverter(std::make_pair(AnyData().type(),ColorData().type()),TC{FromAnyConverter()});
     r->registerTypeConverter(std::make_pair(AnyData().type(),TransformData().type()),TC{FromAnyConverter()});
     r->registerTypeConverter(std::make_pair(AnyData().type(),DecimalData().type()),TC{FromAnyConverter()});
     r->registerTypeConverter(std::make_pair(AnyData().type(),VoidData().type()),TC{FromAnyConverter()});
@@ -176,6 +179,7 @@ void DataNodeModels::initialize(){
     r->registerTypeConverter(std::make_pair(AnyData().type(),PlotData().type()),TC{FromAnyConverter()});
     r->registerTypeConverter(std::make_pair(AnyData().type(),KeyboardButtonEventData().type()),TC{FromAnyConverter()});
     r->registerTypeConverter(std::make_pair(AnyData().type(),MouseButtonEventData().type()),TC{FromAnyConverter()});
+    r->registerTypeConverter(std::make_pair(AnyData().type(),MouseAxisEventData().type()),TC{FromAnyConverter()});
     r->registerTypeConverter(std::make_pair(AnyData().type(),JoypadButtonEventData().type()),TC{FromAnyConverter()});
     r->registerTypeConverter(std::make_pair(AnyData().type(),JoypadAxisEventData().type()),TC{FromAnyConverter()});
     r->registerTypeConverter(std::make_pair(AnyData().type(),GameObjectListData().type()),TC{FromAnyConverter()});
@@ -191,6 +195,9 @@ void DataNodeModels::initialize(){
     // ### mouse button state
     r->registerTypeConverter(std::make_pair(MouseButtonEventData().type(),AnyData().type()),TC{ToAnyConverter()});
     r->registerTypeConverter(std::make_pair(MouseButtonEventData().type(),VoidData().type()),TC{ToVoidConverter()});
+    // ### mouse axis state
+    r->registerTypeConverter(std::make_pair(MouseAxisEventData().type(),AnyData().type()),TC{ToAnyConverter()});
+    r->registerTypeConverter(std::make_pair(MouseAxisEventData().type(),VoidData().type()),TC{ToVoidConverter()});
     // ### joypad button state
     r->registerTypeConverter(std::make_pair(JoypadButtonEventData().type(),AnyData().type()),TC{ToAnyConverter()});
     r->registerTypeConverter(std::make_pair(JoypadButtonEventData().type(),VoidData().type()),TC{ToVoidConverter()});
@@ -217,6 +224,11 @@ void DataNodeModels::initialize(){
     r->registerTypeConverter(std::make_pair(Vector3Data().type(),AnyData().type()),TC{ToAnyConverter()});
     r->registerTypeConverter(std::make_pair(Vector3Data().type(),VoidData().type()),TC{ToVoidConverter()});
     r->registerTypeConverter(std::make_pair(Vector3Data().type(),StringData().type()),TC{Vector3ToStringConverter()});
+    // ### color
+    r->registerTypeConverter(std::make_pair(ColorData().type(),AnyData().type()),TC{ToAnyConverter()});
+    r->registerTypeConverter(std::make_pair(ColorData().type(),VoidData().type()),TC{ToVoidConverter()});
+    r->registerTypeConverter(std::make_pair(ColorData().type(),StringData().type()),TC{ColorToStringConverter()});
+    r->registerTypeConverter(std::make_pair(ColorData().type(),Vector3Data().type()),TC{ColorToVector3Converter()});
     // ### transform
     r->registerTypeConverter(std::make_pair(TransformData().type(),AnyData().type()),TC{ToAnyConverter()});
     r->registerTypeConverter(std::make_pair(TransformData().type(),VoidData().type()),TC{ToVoidConverter()});
@@ -224,6 +236,9 @@ void DataNodeModels::initialize(){
     // ### id any
     r->registerTypeConverter(std::make_pair(IdAnyData().type(),AnyData().type()),TC{ToAnyConverter()});
     r->registerTypeConverter(std::make_pair(IdAnyData().type(),VoidData().type()),TC{ToVoidConverter()});
+    // ### time any
+    r->registerTypeConverter(std::make_pair(TimeAnyData().type(),AnyData().type()),TC{ToAnyConverter()});
+    r->registerTypeConverter(std::make_pair(TimeAnyData().type(),VoidData().type()),TC{ToVoidConverter()});
     // ### string any
     r->registerTypeConverter(std::make_pair(StringAnyData().type(),AnyData().type()),TC{ToAnyConverter()});
     r->registerTypeConverter(std::make_pair(StringAnyData().type(),VoidData().type()),TC{ToVoidConverter()});
@@ -437,8 +452,14 @@ std::unique_ptr<ConnectorNodeDataModel> DataNodeModels::generate_connector_data_
     case T::String:
         connectorDataModel = std::make_unique<StringNodeDataModel>();
         break;
+    case T::Vector2:
+        connectorDataModel = std::make_unique<Vector2NodeDataModel>();
+        break;
     case T::Vector3:
         connectorDataModel = std::make_unique<Vector3NodeDataModel>();
+        break;
+    case T::Color:
+        connectorDataModel = std::make_unique<ColorNodeDataModel>();
         break;
     case T::Random_real:
         connectorDataModel = std::make_unique<RandomRealNodeDataModel>();
@@ -517,6 +538,9 @@ std::unique_ptr<ConnectorNodeDataModel> DataNodeModels::generate_connector_data_
         break;
     case T::Check_mouse_button:
         connectorDataModel = std::make_unique<CheckMouseButtonNodeDataModel>();
+        break;
+    case T::Check_mouse_axis:
+        connectorDataModel = std::make_unique<CheckMouseAxisNodeDataModel>();
         break;
     case T::Start_routine:
         connectorDataModel = std::make_unique<StartRoutineNodeDataModel>();

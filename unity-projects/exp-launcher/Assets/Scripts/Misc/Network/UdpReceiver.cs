@@ -52,7 +52,7 @@ namespace Ex {
         private int m_readSizeBuffer = -1;
 
         // concurrency
-        private ConcurrentQueue<Tuple<double, string>> m_messages = new ConcurrentQueue<Tuple<double, string>>();
+        private ConcurrentQueue<Tuple<double,double, string>> m_messages = new ConcurrentQueue<Tuple<double, double, string>>();
         private volatile bool m_doLoop          = false;
         private volatile bool m_processMessages = false;
         static private volatile int m_counter = 0;
@@ -108,23 +108,23 @@ namespace Ex {
             return m_readingAddress;
         }
 
-        public Tuple<double, string> read_message() {
+        public Tuple<double, double, string> read_message() {
 
-            Tuple<double,string> message;
+            Tuple<double, double, string> message;
             if (m_messages.TryDequeue(out message)) {
                 return message;
             }
             return null;
         }
 
-        public List<Tuple<double,string>> read_all_messages() {
+        public List<Tuple<double, double, string>> read_all_messages() {
 
-            List<Tuple<double, string>> messages = null;
-            Tuple<double, string> message;
+            List<Tuple<double, double, string>> messages = null;
+            Tuple<double, double, string> message;
             int size = m_messages.Count;
             while (m_messages.TryDequeue(out message)) {
                 if (messages == null) {
-                    messages = new List<Tuple<double, string>>(size);
+                    messages = new List<Tuple<double, double, string>>(size);
                 }
                 messages.Add(message);
             }
@@ -161,7 +161,7 @@ namespace Ex {
 
             m_clientIpEndPoint  = null;
             m_initialized       = false;
-            m_messages = new ConcurrentQueue<Tuple<double, string>>();
+            m_messages = new ConcurrentQueue<Tuple<double, double, string>>();
         }
 
 
@@ -178,18 +178,34 @@ namespace Ex {
             byte[] endByte = Encoding.ASCII.GetBytes(new char[] { '\0' });
             while (m_doLoop) {
 
-                // receive a message                
-                bool messageReceived = false;
-                double receivedTime = 0;
-                int count = 0;
-                try {                    
+                // receive a message                                  
+                try {
+                    int count = 0;
                     if (m_readSizeBuffer == -1) {
                         count = m_clientSocket.Receive(m_buffer);
-                    } else {                        
+                    } else {
                         count = m_clientSocket.Receive(m_buffer, 0, m_readSizeBuffer, SocketFlags.None);
                     }
-                    receivedTime = ExVR.Time().ellapsed_exp_ms();
-                    messageReceived = true;
+                    double expTime = ExVR.Time().ellapsed_exp_ms();
+                    double routineTime = ExVR.Time().ellapsed_element_ms();
+
+                    if (m_processMessages) {
+                        int endId = Array.IndexOf(m_buffer, endByte[0]);
+                        if (endId < count) {
+                            count = endId;
+                        }
+
+                        if (count > 0) {
+                            try {
+                                m_messages.Enqueue(new Tuple<double, double, string>(expTime, routineTime, Encoding.UTF8.GetString(m_buffer, 0, count)));
+                            } catch (DecoderFallbackException e) {
+                                UnityEngine.Debug.LogError(string.Format("GetString decoder error: {0}", e.Message));
+                            } catch (ArgumentException e) {
+                                UnityEngine.Debug.LogError(string.Format("GetString argument error: {0}", e.Message));
+                            }
+                        }
+                    }
+
                 } catch (SocketException e) {
                     if (e.SocketErrorCode != SocketError.TimedOut) {
                         UnityEngine.Debug.LogError(string.Format("Receive socket error: [{0}]", e.Message));
@@ -202,29 +218,9 @@ namespace Ex {
                     UnityEngine.Debug.LogError(string.Format("Receive object disposed error: [{0}]", e.Message));
                 } catch (System.Security.SecurityException e) {
                     UnityEngine.Debug.LogError(string.Format("Receive security error: [{0}]", e.Message));
-                } catch(Exception e) {
+                } catch (Exception e) {
                     // TODO: replace abort thread
                     UnityEngine.Debug.LogError(string.Format("Receive error: [{0}]", e.Message));
-                }
-
-                if (messageReceived) {
-
-                    if (m_processMessages) {
-                        int endId = Array.IndexOf(m_buffer, endByte[0]);
-                        if (endId < count) {
-                            count = endId;
-                        }
-
-                        if (count > 0) {
-                            try {
-                                m_messages.Enqueue(new Tuple<double,string>(receivedTime, Encoding.UTF8.GetString(m_buffer, 0, count)));
-                            } catch (DecoderFallbackException e) {
-                                UnityEngine.Debug.LogError(string.Format("GetString decoder error: {0}", e.Message));
-                            } catch (ArgumentException e) {
-                                UnityEngine.Debug.LogError(string.Format("GetString argument error: {0}", e.Message));
-                            }
-                        }
-                    }
                 }
             }
 

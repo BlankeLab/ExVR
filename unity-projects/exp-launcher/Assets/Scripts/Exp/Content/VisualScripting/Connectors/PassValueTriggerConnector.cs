@@ -27,6 +27,7 @@ namespace Ex {
     public class PassValueTriggerConnector : ExConnector{
 
         object input = null;
+        bool passNextValue = false;
 
         protected override bool initialize() {
 
@@ -39,11 +40,18 @@ namespace Ex {
 
         protected override void slot1(object arg) {
             input = arg;
+            if (passNextValue) {
+                invoke_signal(0, input);
+                passNextValue = false;
+            }
         }
 
         protected override void slot2(object nullArg) {
             if (input != null) {
                 invoke_signal(0, input);
+            } else {
+                // pass next value
+                passNextValue = true;
             }
         }
 

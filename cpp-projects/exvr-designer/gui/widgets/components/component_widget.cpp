@@ -51,7 +51,7 @@ ComponentW::ComponentW(Component *component) : key(component->c_key()), type(com
     // frame icon
     // setMinimumHeight(45);
 
-    icon = QIcon(from_view(Component::get_icon_path(type)));
+    icon = QIcon(Component::get_icon_path(type));
 
     m_iconButton = new QPushButton(icon,"");
     m_iconButton->setIconSize(QSize(15,15));
@@ -63,6 +63,7 @@ ComponentW::ComponentW(Component *component) : key(component->c_key()), type(com
     // title
     m_titleLabel = new QLabel(component->name(), this);
     m_titleLabel->setObjectName(QSL("t_") % from_view(Component::get_full_name(type)));
+    m_titleLabel->setStyleSheet("color: #bdbdbd;");
 
     // layout
     auto hLayout = ui::L::HB();
@@ -71,18 +72,14 @@ ComponentW::ComponentW(Component *component) : key(component->c_key()), type(com
     hLayout->addWidget(m_titleLabel);
     hLayout->addStretch();
     auto mW = new QWidget();
+    mW->setObjectName("componentMain");
     mW->setLayout(hLayout);
+    mW->setStyleSheet(QSL("QWidget[objectName=\"componentMain\"] {background-color:#2d2d2d;}"));
 
     auto vLayout = ui::L::VB();
-    vLayout->setContentsMargins(2,0,2,0);
+    vLayout->setContentsMargins(0,0,0,0);
     vLayout->setSpacing(1);
     vLayout->addWidget(mW);
-
-    QWidget *horizontalLineWidget = new QWidget;
-    horizontalLineWidget->setFixedHeight(2);
-    horizontalLineWidget->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    horizontalLineWidget->setStyleSheet(QSL("background-color: #c0c0c0;"));
-    vLayout->addWidget(horizontalLineWidget);
     setLayout(vLayout);
 
     setStyleSheet(componentNeutralStyle);
@@ -92,35 +89,42 @@ ComponentW::ComponentW(Component *component) : key(component->c_key()), type(com
 void ComponentW::update_from_component(Component *component){
     type     = component->type;
     category = component->category;
+
     m_titleLabel->setText(component->name());
 }
 
 void ComponentW::update_style(){
 
+    if(showWindow){
+        m_titleLabel->setStyleSheet("color: #ffffff; font: bold");
+    }else{
+        m_titleLabel->setStyleSheet("color: #bdbdbd;");
+    }
+
     if(mouseHovering){
-        if(showWindow){
-            if(currentStyle != ComponentStyle::hoverShow){
-                setStyleSheet(hoverComponentShowStyle);
-                currentStyle = ComponentStyle::hoverShow;
-            }
-        }else{
+//        if(showWindow){
+//            if(currentStyle != ComponentStyle::hoverShow){
+//                setStyleSheet(hoverComponentShowStyle);
+//                currentStyle = ComponentStyle::hoverShow;
+//            }
+//        }else{
             if(currentStyle != ComponentStyle::hover){
                 setStyleSheet(hoverComponentStyle);
                 currentStyle = ComponentStyle::hover;
             }
-        }
+//        }
     }else{
-        if(showWindow){
-            if(currentStyle != ComponentStyle::show){
-                setStyleSheet(componentShowStyle);
-                currentStyle = ComponentStyle::show;
-            }
-        }else{
+//        if(showWindow){
+//            if(currentStyle != ComponentStyle::show){
+//                setStyleSheet(componentShowStyle);
+//                currentStyle = ComponentStyle::show;
+//            }
+//        }else{
             if(currentStyle != ComponentStyle::neutral){
                 setStyleSheet(componentNeutralStyle);
                 currentStyle = ComponentStyle::neutral;
             }
-        }
+//        }
     }
 }
 
@@ -172,13 +176,15 @@ void ComponentW::mouseDoubleClickEvent(QMouseEvent *event){
 void ComponentW::enterEvent(QEvent *event){
     Q_UNUSED(event)
     mouseHovering = true;
-    emit GSignals::get()->enter_component_signal(key);
+//    emit GSignals::get()->enter_component_signal(key);
+    update_style();
 }
 
 void ComponentW::leaveEvent(QEvent *event){
     Q_UNUSED(event)
     mouseHovering = false;
-    emit GSignals::get()->leave_component_signal(key);
+//    emit GSignals::get()->leave_component_signal(key);
+    update_style();
 }
 
 #include "moc_component_widget.cpp"

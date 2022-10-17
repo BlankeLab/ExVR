@@ -8,21 +8,24 @@ namespace Ex {
         public bool tracked = false;
         public int currentFrame = 0;
 
-        private QualisysRealTime.Unity.RTClient rtClient;
+        private static QualisysRealTime.Unity.RTClient rtClient = null;
 
-        void Start() {
+        public static void init() {
             rtClient = QualisysRealTime.Unity.RTClient.GetInstance();
         }
 
-        void LateUpdate() {
-            
-            // init client
-            if (rtClient == null) {
-                rtClient = QualisysRealTime.Unity.RTClient.GetInstance();
-            }
+        public void update_frame() {
 
+            if (rtClient == null) {
+                return;
+            }
             // get current frame
             currentFrame = rtClient.GetFrame();
+        }
+
+        public void update_body() {
+
+
 
             // reset tracking
             tracked = false;            

@@ -85,6 +85,27 @@ TEST_CASE("Experiment"){
         c->add_config(std::make_unique<Config>("test2", ConfigKey{-1}));
         REQUIRE(!c->rename_config(RowId{0}, "test"));
     }
+
+    SECTION("Routines"){
+
+        exp.add_element(FlowElement::Type::Routine, 0);
+        exp.add_element(FlowElement::Type::Routine, 2);
+        exp.add_element(FlowElement::Type::Isi, 4);
+        exp.add_element(FlowElement::Type::Routine, 6);
+        exp.add_element(FlowElement::Type::Loop, 8);
+        exp.add_element(FlowElement::Type::Routine, 10);
+
+        REQUIRE(exp.get_routine(RowId{0})->key() == exp.elements[1]->key());
+        REQUIRE(exp.get_routine(RowId{1})->key() == exp.elements[3]->key());
+        REQUIRE(exp.get_routine(RowId{2})->key() == exp.elements[7]->key());
+        REQUIRE(exp.get_routine(RowId{3})->key() == exp.elements[11]->key());
+
+        auto names = exp.get_routines_name();
+        REQUIRE(exp.get_routine(RowId{0})->name() == names[0]);
+        REQUIRE(exp.get_routine(RowId{1})->name() == names[1]);
+        REQUIRE(exp.get_routine(RowId{2})->name() == names[2]);
+        REQUIRE(exp.get_routine(RowId{3})->name() == names[3]);
+    }
 }
 
 TEST_CASE("Experiments loading"){

@@ -85,6 +85,7 @@ namespace Ex{
             //texture.filterMode = FilterMode.Trilinear;
             texture.wrapMode = TextureWrapMode.Clamp;
             texture.filterMode = FilterMode.Point;
+
         }
         public override bool read_data() {
 

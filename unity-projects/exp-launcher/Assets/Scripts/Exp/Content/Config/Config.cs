@@ -110,7 +110,7 @@ namespace Ex {
 
         public void get(string argName, ref Color value) {
             if (has(argName)) {
-                value = Converter.to_color((List<object>)args[argName].value);
+                value = Converter.to_color(args[argName].value);
             } else {
                 value = Color.black;
                 log_error(string.Format("Argument {0} of type Color doesn't exist.", argName));
@@ -119,7 +119,7 @@ namespace Ex {
 
         public void get(string argName, ref Vector2 value) {
             if (has(argName)) {
-                value = Converter.to_vector2((List<object>)args[argName].value);
+                value = Converter.to_vector2(args[argName].value);
             } else {
                 value = Vector2.zero;
                 log_error(string.Format("Argument {0} of type Vector2 doesn't exist.", argName));
@@ -128,7 +128,7 @@ namespace Ex {
 
         public void get(string argName, ref Vector3 value) {
             if (has(argName)) {
-                value = Converter.to_vector3((List<object>)args[argName].value);
+                value = Converter.to_vector3(args[argName].value);
             } else {
                 value = Vector3.zero;
                 log_error(string.Format("Argument {0} of type Vector3 doesn't exist.", argName));
@@ -157,19 +157,19 @@ namespace Ex {
 
         public void get_if_exists(string argName, ref Color value) {
             if (has(argName)) {
-                value = Converter.to_color((List<object>)args[argName].value);
+                value = Converter.to_color(args[argName].value);
             }
         }
 
         public void get_if_exists(string argName, ref Vector2 value) {
             if (has(argName)) {
-                value = Converter.to_vector2((List<object>)args[argName].value);
+                value = Converter.to_vector2(args[argName].value);
             }
         }
 
         public void get_if_exists(string argName, ref Vector3 value) {
             if (has(argName)) {
-                value = Converter.to_vector3((List<object>)args[argName].value);
+                value = Converter.to_vector3(args[argName].value);
             }
         }
 
@@ -189,7 +189,8 @@ namespace Ex {
                 log_error(string.Format("Argument {0} of type Color doesn't exist.", argName));
                 return new Color(0f, 0f, 0f);
             }
-            return Converter.to_color((List<object>)args[argName].value);
+
+            return Converter.to_color(args[argName].value);
         }
 
         public Vector2 get_vector2(string argName) {
@@ -198,7 +199,7 @@ namespace Ex {
                 log_error(string.Format("Argument {0} of type Vector2 doesn't exist.", argName));
                 return new Vector2(0f, 0f);
             }
-            return Converter.to_vector2((List<object>)args[argName].value);
+            return Converter.to_vector2(args[argName].value);
         }
 
         public Vector3 get_vector3(string argName) {
@@ -207,7 +208,7 @@ namespace Ex {
                 log_error(string.Format("Argument {0} of type Vector3 doesn't exist.", argName));
                 return new Vector3(0f, 0f, 0f);
             }
-            return Converter.to_vector3((List<object>)args[argName].value);
+            return Converter.to_vector3(args[argName].value);
         }
 
         public Vector3 get_euler_angles(string argName, Converter.AxisOrder order = Converter.AxisOrder.PitchYawRoll) {
@@ -333,6 +334,26 @@ namespace Ex {
             }
             return components;
         }
+
+        public List<ExComponent> get_components_list(string argName){
+
+            List<ExComponent> components = new List<ExComponent>();
+            if (!has(argName)) {
+                log_error(string.Format("Argument {0} of type ComponentsList doesn't exist.", argName));
+                return components;
+            }
+
+            var split = ((List<object>)args[argName].value);
+            foreach (var keyStr in split) {
+                int key = Converter.to_int((string)keyStr);
+                var component = ExVR.Components().get_from_key(key);
+                if (component != null) {
+                    components.Add(component);
+                }
+            }
+            return components;
+        }
+
 
         #endregion
 
@@ -575,17 +596,23 @@ namespace Ex {
             Apply.to_transform(args[argName].value, transform, local, position, rotation, scale);
         }
 
-        public void update_text(string baseArgName, TMPro.TextMeshProUGUI text) {
+        public void update_text(string baseArgName, TMPro.TextMeshProUGUI textMeshPro, string text = null) {
 
             string argName = baseArgName + "_text_resource";
-            if (has(argName)) { // check if contain text input
+            if (has(argName) && text == null){ // check if contain text input
+
+                textMeshPro.richText = get<bool>(baseArgName + "_rich_text");
+
                 string textAlias = get_resource_alias(argName);
                 if (textAlias.Length == 0) {
-                    text.SetText(get<string>(baseArgName + "_text"));
+                    textMeshPro.SetText(get<string>(baseArgName + "_text"));
                 } else {
-                    text.SetText(ExVR.Resources().get_text_file_data(textAlias).content);
-                }
-                text.richText = get<bool>(baseArgName + "_rich_text");
+                    textMeshPro.SetText(ExVR.Resources().get_text_file_data(textAlias).content);
+                }               
+            }
+
+            if (text != null) {
+                textMeshPro.SetText(text);
             }
 
             // set font style
@@ -608,35 +635,28 @@ namespace Ex {
             if (get<bool>(baseArgName + "_under_line")) {
                 fontStyle |= TMPro.FontStyles.Underline;
             }
-            text.fontStyle = fontStyle;
+            textMeshPro.fontStyle = fontStyle;
 
             // set font size
-            text.fontSize = get<float>(baseArgName + "_font_size");
-            text.enableAutoSizing = get<bool>(baseArgName + "_auto_size");
-            text.enableWordWrapping = get<bool>(baseArgName + "_wrap");
+            textMeshPro.fontSize = get<float>(baseArgName + "_font_size");
+            textMeshPro.enableAutoSizing = get<bool>(baseArgName + "_auto_size");
+            textMeshPro.enableWordWrapping = get<bool>(baseArgName + "_wrap");
 
             // alignment
-            text.alignment = ConfigUtility.textAlignment[get<string>(baseArgName + "_alignment")];
+            textMeshPro.alignment = ConfigUtility.textAlignment[get<string>(baseArgName + "_alignment")];
 
-            // face
-            var fc = get_color(baseArgName + "_face_color");
-            if (fc == Color.white) { // bug if face color is white, it's not applied
-                text.faceColor = new Color32(255, 255, 255, 254);
-            } else {
-                text.faceColor = fc;
-            }            
+            // width / spacing
+            textMeshPro.fontMaterial.SetFloat("_OutlineWidth", get<float>(baseArgName + "_outline_width"));
+            textMeshPro.paragraphSpacing = get<float>(baseArgName + "_paragraph_spacing");
+            textMeshPro.lineSpacing = get<float>(baseArgName + "_line_spacing");
+            textMeshPro.wordSpacing = get<float>(baseArgName + "_word_spacing");
+            textMeshPro.characterSpacing = get<float>(baseArgName + "_character_spacing");
 
-            // ouline
-            text.outlineColor = get_color(baseArgName + "_outline_color");
-            text.outlineWidth = get<float>(baseArgName + "_outline_width");
+            // colors
+            textMeshPro.fontMaterial.SetColor("_FaceColor", get_color(baseArgName + "_face_color"));
+            textMeshPro.fontMaterial.SetColor("_OutlineColor ", get_color(baseArgName + "_outline_color"));
 
-            // spacing
-            text.paragraphSpacing = get<float>(baseArgName + "_paragraph_spacing");
-            text.lineSpacing = get<float>(baseArgName + "_line_spacing");
-            text.wordSpacing = get<float>(baseArgName + "_word_spacing");
-            text.characterSpacing = get<float>(baseArgName + "_character_spacing");
-
-            text.UpdateFontAsset();
+            textMeshPro.UpdateFontAsset();
 
             // check if input font exists in list
             // if not do nothing

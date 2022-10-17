@@ -273,9 +273,9 @@ void FlowSequenceO::check_click_on_elements(QPoint clickPos) noexcept{
             if(node->addRoutine->uiElemRect.contains(clickPos)){
                 emit GSignals::get()->add_element_signal(FlowElement::Type::Routine,   flow_position(node));
                 return;
-            }else if(node->addIsi->uiElemRect.contains(clickPos)){
-                emit GSignals::get()->add_element_signal(FlowElement::Type::Isi,       flow_position(node));
-                return;
+//            }else if(node->addIsi->uiElemRect.contains(clickPos)){
+//                emit GSignals::get()->add_element_signal(FlowElement::Type::Isi,       flow_position(node));
+//                return;
             }else if(node->addLoop->uiElemRect.contains(clickPos)){
                 emit GSignals::get()->add_element_signal(FlowElement::Type::Loop,      flow_position(node));
                 return;

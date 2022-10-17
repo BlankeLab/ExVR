@@ -95,6 +95,7 @@ public:
     // embedded widget
     // # text
     void set_embedded_widget_text(const QString &text);
+//    void set_embedded_widget_icon(const QIcon &icon);
     void runtime_value_text();
     void unknow_value_text();
     void error_value_text();

@@ -45,8 +45,6 @@ namespace Ex {
                 transform.localRotation = transformV.rotation;
                 transform.localScale = transformV.scale;
             });
-            // signals
-            add_signal("visibility changed");
 
             // generate 
             landmarkGO = GO.generate_landmark("landmark");
@@ -78,7 +76,6 @@ namespace Ex {
 
         protected override void set_visibility(bool visibility) {
             landmarkGO.SetActive(visibility);
-            invoke_signal("visibility changed", visibility);
         }
 
     }

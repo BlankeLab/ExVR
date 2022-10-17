@@ -36,7 +36,7 @@ namespace Ex{
         private Material m_crossMat = null;
 
         #region ex_functions
-        protected override bool initialize() {
+        protected override bool initialize() {            
             m_backgroundGO = ExVR.GlobalResources().instantiate_prebab("Components/FixationCrossViewer", transform, "Fixation cross");
             m_crossGO       = m_backgroundGO.transform.Find("Cross").gameObject;
             m_backgroundMat = m_backgroundGO.GetComponent<UnityEngine.UI.Image>().material;
@@ -47,7 +47,6 @@ namespace Ex{
         protected override void set_visibility(bool visibility) {
             m_backgroundGO.SetActive(visibility);
         }
-
 
         // use_eye_camera
         protected override void post_update() {

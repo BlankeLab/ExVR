@@ -34,14 +34,11 @@
 
 namespace tool::ex {
 
-struct Routine;
-using RoutineUP = std::unique_ptr<Routine>;
-
 struct Routine : public FlowElement {
 
     Routine(QString n, int id, QString infos = "");
 
-    static RoutineUP copy_with_new_element_id(const Routine &routineToCopy, const QString &newName);
+    static std::unique_ptr<Routine> copy_with_new_element_id(const Routine &routineToCopy, const QString &newName);
 
     void set_as_randomizer(bool randomizer);
 
@@ -72,20 +69,20 @@ struct Routine : public FlowElement {
     QString to_string() const;
 
     bool isARandomizer = false;
-    std_v1<std::unique_ptr<Condition>> conditions;
+    std::vector<std::unique_ptr<Condition>> conditions;
 
 //    std_v1<std::unique_ptr<Condition>> ghostsConditions; // condition that could be restored
 };
 
-static bool operator<(const RoutineUP &l, const RoutineUP &r){
-    if(l->key() == r->key()){
-        return false;
-    }
-    return true;
-}
+//[[maybe_unused]] static bool operator<(const std::unique_ptr<Routine> &l, const std::unique_ptr<Routine> &r){
+//    if(l->key() == r->key()){
+//        return false;
+//    }
+//    return true;
+//}
 
-static bool operator==(const RoutineUP &l, const RoutineUP &r){
-    return !(l < r) && !(r < l);
-}
+//[[maybe_unused]] static bool operator==(const std::unique_ptr<Routine> &l, const std::unique_ptr<Routine> &r){
+//    return !(l < r) && !(r < l);
+//}
 
 }

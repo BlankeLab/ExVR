@@ -143,6 +143,10 @@ void CopyToConditionDialog::update_from_data(ElementKey currentRoutineKey, Condi
     QStringList routinesName;
     for(const auto &routine : routines){
 
+        if(routine->isARandomizer){
+            continue;
+        }
+
         routinesName << routine->name();
 
         auto lwConditions = std::make_unique<ui::ListWidget>();

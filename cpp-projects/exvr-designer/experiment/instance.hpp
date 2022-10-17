@@ -67,6 +67,12 @@ struct Instance {
     QString fileName = "debug-instance";
     size_t idInstance = 0;
     std::vector<InstanceElement> flow;
+
+    // count iterations
+    std::unordered_map<ElementKey, int> routinesIterations;
+    std::unordered_map<ElementKey, std::unordered_map<QString, int>> routinesConditionsIterations;
+    std::unordered_map<ElementKey, int> isisIterations;
+    std::unordered_map<ElementKey, std::unordered_map<QString, int>> isisConditionsIterations;
 };
 
 }

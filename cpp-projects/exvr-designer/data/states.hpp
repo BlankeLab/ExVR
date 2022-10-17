@@ -64,11 +64,11 @@ namespace tool::ex {
     using TExpLauncherState = std::tuple<ExpLauncherState, Description>;
     static constexpr TupleArray<ExpLauncherState::SizeEnum, TExpLauncherState> expLauncherStates = {{
         TExpLauncherState
-        {ExpLauncherState::NotStarted,          "[ExVR-exp] ExVR-exp not launched."sv},
-        {ExpLauncherState::Starting,            "[ExVR-exp] ExVR-exp is starting."sv},
-        {ExpLauncherState::Idle,                "[ExVR-exp] Idle."sv},
-        {ExpLauncherState::LoadingExperiment,   "[ExVR-exp] ExVR-exp is loading an experiment..."sv},
-        {ExpLauncherState::Closing,             "[ExVR-exp] ExVR-exp is closing."sv},
+        {ExpLauncherState::NotStarted,          "[Launcher] <b>Not started.</b>"sv},
+        {ExpLauncherState::Starting,            "[Launcher] <b>Starting...</b>"sv},
+        {ExpLauncherState::Idle,                "[Launcher] <b>Idle.</b>"sv},
+        {ExpLauncherState::LoadingExperiment,   "[Launcher] <b>Experiment is loading...</b>"sv},
+        {ExpLauncherState::Closing,             "[Launcher] <b>Closing...</b>"sv},
     }};
 
     [[maybe_unused]] static Description get_description(ExpLauncherState s) {
@@ -78,10 +78,10 @@ namespace tool::ex {
     using TExpState = std::tuple<ExpState, Description>;
     static constexpr TupleArray<ExpState::SizeEnum, TExpState> expStates = {{
         TExpState
-        {ExpState::NotLoaded,    "[ExVR-exp] <b>No experiment loaded.</b>"sv},
-        {ExpState::Loaded,       "[ExVR-exp] <b>Experiment loaded</b>"sv},
-        {ExpState::Running,      "[ExVR-exp] <b>Experiment is running</b>"sv},
-        {ExpState::Paused,       "[ExVR-exp] <b>Experiment paused</b>"sv},
+        {ExpState::NotLoaded,    "[Exp] <b>Not loaded.</b>"sv},
+        {ExpState::Loaded,       "[Exp] <b>Loaded.</b>"sv},
+        {ExpState::Running,      "[Exp] <b>Running...</b>"sv},
+        {ExpState::Paused,       "[Exp] <b>Paused.</b>"sv},
     }};
 
     [[maybe_unused]] static Description get_description(ExpState s) {

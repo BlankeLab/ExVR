@@ -13,14 +13,5 @@ Name | Type | Description |
 
 &nbsp;
 
-### Output:
-
-&nbsp;
-
-Name | Type | Description |
------| ---- | ----------- |
-**visibility changed** | bool | visibility of the model has been changed |
-
-&nbsp;
 
 

@@ -104,4 +104,22 @@ private:
 
 class LoggerExperimentConfigParametersW : public ConfigParametersW{};
 
+class GlobalLoggerInitConfigParametersW : public ConfigParametersW{
+
+public :
+
+    GlobalLoggerInitConfigParametersW();
+    void insert_widgets() override;
+    void init_and_register_widgets() override;
+    void create_connections() override{}
+    void late_update_ui() override{}
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> m_p = nullptr;
+
+};
+class GlobalLoggerConfigParametersW : public ConfigParametersW{};
 }
+
+

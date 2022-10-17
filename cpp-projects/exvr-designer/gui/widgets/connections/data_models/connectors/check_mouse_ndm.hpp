@@ -45,4 +45,19 @@ public slots:
 public:
     void init_ports_caption() override;
 };
+
+class CheckMouseAxisEmbeddedW : public NodeContainerW<ExComboBoxTextW>{
+    Q_OBJECT
+public:
+    void initialize() override;
+};
+
+class CheckMouseAxisNodeDataModel : public TypedConnectorDataModel<Connector::Type::Check_mouse_axis, CheckMouseAxisEmbeddedW>{
+    Q_OBJECT
+public slots:
+    void compute() override;
+public:
+    void init_ports_caption() override;
+};
+
 }

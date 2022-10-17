@@ -73,7 +73,6 @@ public slots:
     void dropEvent(QDropEvent *event) override;
 
     void update_component_dialog_with_info(ComponentKey componentKey, ConfigKey configKey, QStringView id, QStringView value);
-    void update_style();
     void update_components_to_display();
 
     void toggle_component_parameters_dialog(ComponentKey componentKey);
@@ -99,7 +98,7 @@ private :
     QMenu m_createNewLegacyComponentsSubMenu;
     QMenu m_sortComponentsSubMenu;
 
-    ui::ListWidget m_componentsListW;
+    ui::ListWidget m_componentsListW = QColor(189,189,189);
 
     std::unordered_map<ComponentKey, ComponentsConfigDialogUP> m_dialogsW;
     std::unordered_map<ComponentKey, QStringList> m_configsList;

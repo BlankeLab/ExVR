@@ -32,81 +32,20 @@ using UnityEngine;
 using static Ex.ExComponent;
 
 
-//#if UNITY_EDITOR
-//using UnityEditor;
-//namespace Ex{
-
-//    [CustomEditor(typeof(Components))]
-//    public class ComponentsEditor : Editor{
-
-//        public override bool RequiresConstantRepaint() {
-//            return true;
-//        }
-
-//        public override void OnInspectorGUI() {
-
-//            base.OnInspectorGUI();
-
-//            if (!Application.isPlaying) {
-//                return;
-//            }
-
-//            //EditorGUILayout.LabelField("Current element:");
-//            //var currentElementInfo = ExVR.Schreduler().current_element_info();
-//            //if (currentElementInfo != null) {
-//            //    if (currentElementInfo.type() == FlowElement.FlowElementType.Routine) {
-
-//            //        var routineInfo = (RoutineInfo)currentElementInfo;
-//            //        var routine = (Routine)routineInfo.element;
-//            //        if (routine != null) {
-//            //            EditorGUILayout.LabelField("[Routine] with id " + (currentElementInfo.key()).ToString());
-//            //            EditorGUILayout.ObjectField(routine, typeof(Routine), true);
-
-//            //            var condition = routine.current_condition();
-//            //            if (condition != null) {
-//            //                EditorGUILayout.LabelField("With condition:");
-//            //                EditorGUILayout.ObjectField(condition, typeof(Condition), true);
-//            //            } else {
-//            //                EditorGUILayout.LabelField("...");
-//            //            }
-
-//            //        } else {
-//            //            EditorGUILayout.LabelField("...");
-//            //        }
-//            //    } else {
-
-//            //        var isiInfo = (ISIInfo)currentElementInfo;
-//            //        var isi = (ISI)isiInfo.element;
-//            //        if (isi != null) {
-//            //            EditorGUILayout.LabelField("[ISI] with id " + (currentElementInfo.key()).ToString());
-//            //            EditorGUILayout.ObjectField(isi, typeof(ISI), true);
-//            //        } else {
-//            //            EditorGUILayout.LabelField("...");
-//            //        }
-//            //        //currentCondition = isi.current_condition();
-//            //    }
-//            //} else {
-//            //    EditorGUILayout.LabelField("...");
-//            //}
-//        }
-//    }
-//}
-//#endif
-
 namespace Ex{
 
-    public class ComponentInfo{
-        public ComponentInfo(Category category, Pritority priority, Reserved reserved, bool catchExceptions) {
-            this.category = category;
-            this.priority = priority;
-            this.reserved = reserved;
-            this.catchExceptions = catchExceptions;
-        }
-        public Category category;
-        public Pritority priority;
-        public Reserved reserved;
-        public bool catchExceptions;
-    }
+    //public class ComponentInfo{
+    //    public ComponentInfo(Category category, Priority priority, Reserved reserved, bool catchExceptions) {
+    //        this.category = category;
+    //        this.priority = priority;
+    //        this.reserved = reserved;
+    //        this.catchExceptions = catchExceptions;
+    //    }
+    //    public Category category;
+    //    public Priority priority;
+    //    public Reserved reserved;
+    //    public bool catchExceptions;
+    //}
 
     public class Components : MonoBehaviour{
         
@@ -131,112 +70,6 @@ namespace Ex{
             [Category.Settings] = "[C:Settings]",
             [Category.Cloud] = "[C:Cloud]",
             [Category.Viewer] = "[C:Viewer]"
-        };
-
-        private static ComponentInfo gen_info(Category category, Pritority pritority, Reserved reserved, bool catchExceptions = true) {
-            return new ComponentInfo(category, pritority, reserved, catchExceptions);
-        }
-
-        public static readonly Dictionary<string, ComponentInfo> Names2Info = new Dictionary<string, ComponentInfo> {
-            // audio
-            ["Ex.MicrophoneComponent"] = gen_info(Category.Audio, Pritority.Medium, Reserved.Public),
-            ["Ex.AudioSourceComponent"] = gen_info(Category.Audio, Pritority.Medium, Reserved.Public),
-            ["Ex.AudioListenerComponent"] = gen_info(Category.Audio, Pritority.Medium, Reserved.Public),
-            // avatar
-            ["Ex.HumanoidAvatarComponent"] = gen_info(Category.Avatar, Pritority.Medium, Reserved.Closed),
-            ["Ex.HumanoidControllerComponent"] = gen_info(Category.Avatar, Pritority.Low, Reserved.Closed),
-            // camera
-            ["Ex.CameraTargetComponent"] = gen_info(Category.Camera, Pritority.Low, Reserved.Public),
-            ["Ex.FPPCameraComponent"]   = gen_info(Category.Camera, Pritority.Low, Reserved.Public),
-            ["Ex.CameraTrajectoryComponent"] = gen_info(Category.Camera, Pritority.Low, Reserved.Public),
-            ["Ex.CameraTrajectoryFileComponent"] = gen_info(Category.Camera, Pritority.Low, Reserved.Public),
-            ["Ex.CameraComponent"] = gen_info(Category.Camera, Pritority.Low, Reserved.Public),
-            ["Ex.FPPAvatarCameraComponent"] = gen_info(Category.Camera, Pritority.Low, Reserved.Closed),
-            ["Ex.TPPAvatarCameraComponent"] = gen_info(Category.Camera, Pritority.Low, Reserved.Closed),
-            // cloud
-            ["Ex.CloudComponent"]       = gen_info(Category.Cloud, Pritority.Medium, Reserved.Public),
-            ["Ex.ScanerVideoComponent"] = gen_info(Category.Cloud, Pritority.Medium, Reserved.LNCO),
-            // environment
-            ["Ex.PostProcessComponent"] = gen_info(Category.Environment, Pritority.Hight, Reserved.Public),
-            ["Ex.SkyComponent"]         = gen_info(Category.Environment, Pritority.Hight, Reserved.Public),
-            // environment
-            ["Ex.ConfigComponent"] = gen_info(Category.Flow, Pritority.Hight, Reserved.Public),
-            // input
-            ["Ex.JoypadComponent"] = gen_info(Category.Input, Pritority.Hight, Reserved.Public, false),
-            ["Ex.MouseComponent"] = gen_info(Category.Input, Pritority.Hight, Reserved.Public, false),
-            ["Ex.KeyboardComponent"] = gen_info(Category.Input, Pritority.Hight, Reserved.Public, false),
-            // interaction
-            ["Ex.FlagPoleComponent"] = gen_info(Category.Interaction, Pritority.Medium, Reserved.Public),
-            ["Ex.MarkToCleanComponent"] = gen_info(Category.Interaction, Pritority.Medium, Reserved.Public),
-            ["Ex.TargetToGrabComponent"] = gen_info(Category.Interaction, Pritority.Medium, Reserved.Public),
-            // model
-            ["Ex.CubeComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
-            ["Ex.SphereComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
-            ["Ex.TorusComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
-            ["Ex.LinesComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
-            ["Ex.CylinderComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
-            ["Ex.LandmarkComponent"] = gen_info(Category.Model, Pritority.Medium, Reserved.Public, false),
-            // network
-            ["Ex.UdpReaderComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public, false),
-            ["Ex.UdpWriterComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public, false),
-            ["Ex.SerialPortReaderComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public, false),
-            ["Ex.SerialPortWriterComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public, false),
-            ["Ex.ParallelPortWriterComponent"] = gen_info(Category.Network, Pritority.Hight, Reserved.Public, false),
-            // output
-            ["Ex.LoggerComponent"] = gen_info(Category.Output, Pritority.Hight, Reserved.Public, false),
-            ["Ex.LoggerConditionComponent"] = gen_info(Category.Output, Pritority.Hight, Reserved.Public, false),
-            ["Ex.LoggerColumnsComponent"] = gen_info(Category.Output, Pritority.Hight, Reserved.Public, false),
-            ["Ex.LoggerExperimentComponent"] = gen_info(Category.Output, Pritority.Hight, Reserved.Public, false),
-            // resource
-            ["Ex.ImageResourceComponent"] = gen_info(Category.Resource, Pritority.Hight, Reserved.Public),
-            ["Ex.PlotResourceComponent"] = gen_info(Category.Resource, Pritority.Hight, Reserved.Public),
-            ["Ex.TextResourceComponent"] = gen_info(Category.Resource, Pritority.Hight, Reserved.Public),
-            ["Ex.VideoResourceComponent"] = gen_info(Category.Resource, Pritority.Hight, Reserved.Public),
-            ["Ex.AudioResourceComponent"] = gen_info(Category.Resource, Pritority.Hight, Reserved.Public),
-            ["Ex.DirectoryResourceComponent"] = gen_info(Category.Resource, Pritority.Hight, Reserved.Public),            
-            // scene
-            ["Ex.AssetBundleComponent"] = gen_info(Category.Scene, Pritority.Hight, Reserved.Public),
-            ["Ex.MultiABComponent"] = gen_info(Category.Scene, Pritority.Hight, Reserved.Public),
-            ["Ex.FallingSpheresComponent"] = gen_info(Category.Scene, Pritority.Medium, Reserved.Public),
-            ["Ex.MirrorComponent"] = gen_info(Category.Scene, Pritority.Medium, Reserved.Public),
-            ["Ex.FlashingDotComponent"] = gen_info(Category.Scene, Pritority.Medium, Reserved.Public),
-            ["Ex.MRIComponent"] = gen_info(Category.Scene, Pritority.Medium, Reserved.Public),
-            // script
-            ["Ex.CSharpFunctionComponent"] = gen_info(Category.Script, Pritority.Low, Reserved.Public),
-            ["Ex.CSharpScriptComponent"] = gen_info(Category.Script, Pritority.Low, Reserved.Public),
-            ["Ex.PythonScriptComponent"] = gen_info(Category.Script, Pritority.Medium, Reserved.Public),
-            // tracking
-            ["Ex.SceneScanerComponent"] = gen_info(Category.Tracking, Pritority.Medium, Reserved.LNCO),
-            ["Ex.LeapMotionComponent"] = gen_info(Category.Tracking, Pritority.Hight, Reserved.Public),
-            ["Ex.LeapMotionTrackingComponent"] = gen_info(Category.Tracking, Pritority.Medium, Reserved.Public),
-            ["Ex.LeapMotionArmsDisplayComponent"] = gen_info(Category.Tracking, Pritority.Medium, Reserved.Closed),
-            ["Ex.BiopacComponent"] = gen_info(Category.Tracking, Pritority.Hight, Reserved.Public),
-            ["Ex.TheraTrainerTrackingComponent"] = gen_info(Category.Tracking, Pritority.Medium, Reserved.LNCO),
-            ["Ex.TheraTrainerPlatformComponent"] = gen_info(Category.Tracking, Pritority.Medium, Reserved.LNCO),
-            ["Ex.KinectManagerComponent"] = gen_info(Category.Tracking, Pritority.Hight, Reserved.LNCO),
-            ["Ex.KinectBodyTrackingComponent"] = gen_info(Category.Tracking, Pritority.Hight, Reserved.LNCO),
-            ["Ex.OptitrackComponent"] = gen_info(Category.Tracking, Pritority.Hight, Reserved.Public),
-            ["Ex.AttachObjectToHandComponent"] = gen_info(Category.Tracking, Pritority.Medium, Reserved.Public),
-            ["Ex.QualisysTrackingComponent"] = gen_info(Category.Tracking, Pritority.Hight, Reserved.Public),
-            ["Ex.SoncebozSGComponent"] = gen_info(Category.Tracking, Pritority.Hight, Reserved.LNCO),
-            ["Ex.FOPRobotComponent"] = gen_info(Category.Tracking, Pritority.Hight, Reserved.LNCO),
-            ["Ex.ViveProEyeTrackingComponent"] = gen_info(Category.Tracking, Pritority.Hight, Reserved.Public),            
-            // UI
-            ["Ex.SliderUIComponent"] = gen_info(Category.UI, Pritority.Medium, Reserved.Public),
-            ["Ex.ButtonsUIComponent"] = gen_info(Category.UI, Pritority.Medium, Reserved.Public),            
-            // video
-            ["Ex.VideoFileComponent"] = gen_info(Category.Video, Pritority.Medium, Reserved.Public),
-            ["Ex.VideoFileCameraViewerComponent"] = gen_info(Category.Video, Pritority.Medium, Reserved.Public),
-            ["Ex.WebcamComponent"] = gen_info(Category.Video, Pritority.Medium, Reserved.Public),
-            ["Ex.VideoSaverComponent"] = gen_info(Category.Video, Pritority.Medium, Reserved.Public),
-            ["Ex.VolumetricVideoComponent"] = gen_info(Category.Video, Pritority.Hight, Reserved.LNCO),
-            // viewer
-            ["Ex.FixationCrossViewerComponent"] = gen_info(Category.Viewer, Pritority.Low, Reserved.Public),
-            ["Ex.ImageViewerComponent"] = gen_info(Category.Viewer, Pritority.Low, Reserved.Public),
-            ["Ex.TextViewerComponent"] = gen_info(Category.Viewer, Pritority.Low, Reserved.Public),
-            ["Ex.WebcamViewerComponent"] = gen_info(Category.Viewer, Pritority.Low, Reserved.Public),
-            ["Ex.FovSimulatorComponent"] = gen_info(Category.Viewer, Pritority.Hight, Reserved.Public),
-            ["Ex.BlendFadeViewerComponent"] = gen_info(Category.Viewer, Pritority.Hight, Reserved.Public)
         };
 
         // sort by priority
@@ -274,27 +107,45 @@ namespace Ex{
                 
             }
 
+            // fill global components
+            Condition.sortedGlobalComponents = new Dictionary<int, ExComponent>();
+            foreach (var component in components) {
+                if (component.is_global() && component.priority == Priority.Hight) {
+                    Condition.sortedGlobalComponents[component.key] = component;
+                }
+            }
+            foreach (var component in components) {
+                if (component.is_global() && component.priority == Priority.Medium) {
+                    Condition.sortedGlobalComponents[component.key] = component;
+                }
+            }
+            foreach (var component in components) {
+                if (component.is_global() && component.priority == Priority.Low) {
+                    Condition.sortedGlobalComponents[component.key] = component;
+                }
+            }
+
             // sort components by priority
             sortedComponents.Clear();
-            reverseSortedComponents.Clear();
+            reverseSortedComponents.Clear();            
 
             foreach (var component in components) {
-                if(component.priority == Pritority.Hight) {
+                if(component.priority == Priority.Hight) {
                     sortedComponents.Add(component);
-                } else if (component.priority == Pritority.Low) {
+                } else if (component.priority == Priority.Low) {
                     reverseSortedComponents.Add(component);
                 }
             }
             foreach (var component in components) {
-                if (component.priority == Pritority.Medium) {
+                if (component.priority == Priority.Medium) {
                     sortedComponents.Add(component);
                     reverseSortedComponents.Add(component);
                 } 
             }
             foreach (var component in components) {
-                if (component.priority == Pritority.Low) {
+                if (component.priority == Priority.Low) {
                     sortedComponents.Add(component);
-                } else if (component.priority == Pritority.Hight) {
+                } else if (component.priority == Priority.Hight) {
                     reverseSortedComponents.Add(component);
                 }
             }
@@ -433,6 +284,44 @@ namespace Ex{
             ExVR.ExpLog().components(Function.start_experiment, false);
         }
 
+        public void post_start_experiment() {
+
+            ExVR.ExpLog().components(Function.post_start_experiment, true);
+
+            foreach (var component in sortedComponents) {
+
+                if (component.is_function_defined(Function.post_start_experiment)) {
+                    ExVR.ExpLog().log_and_add_to_stacktrace(component, Function.post_start_experiment, true, true);
+                }
+                component.base_post_start_experiment();
+
+                if (component.is_function_defined(Function.post_start_experiment)) {
+                    ExVR.ExpLog().log_and_add_to_stacktrace(component, Function.post_start_experiment, false, true);
+                }
+            }
+
+            ExVR.ExpLog().components(Function.post_start_experiment, false);
+        }
+
+
+        public void pre_stop_experiment() {
+
+            ExVR.ExpLog().components(Function.pre_stop_experiment, true);
+            foreach (var component in reverseSortedComponents) {
+
+                if (component.is_function_defined(Function.pre_stop_experiment)) {
+                    ExVR.ExpLog().log_and_add_to_stacktrace(component, Function.pre_stop_experiment, true, true, true, true);
+                }
+
+                component.base_pre_stop_experiment();
+
+                if (component.is_function_defined(Function.pre_stop_experiment)) {
+                    ExVR.ExpLog().log_and_add_to_stacktrace(component, Function.pre_stop_experiment, false, true, true, true);
+                }
+            }
+            ExVR.ExpLog().components(Function.pre_stop_experiment, false);
+
+        }
 
         public void stop_experiment() {
 
@@ -457,6 +346,13 @@ namespace Ex{
             }
             ExVR.ExpLog().components(Function.stop_experiment, false);
         }
+
+        public void call_global_update() {
+            foreach(var component in sortedComponents) {
+                component.global_update();
+            }
+        }
+
         public void close(ExComponent componentToClose) {
 
             if (!componentToClose.is_closed()) {
@@ -479,7 +375,9 @@ namespace Ex{
                 component.base_clean();
 
                 // destroy gameobject
-                Destroy(component.gameObject);
+                if (component.gameObject != null) {
+                    Destroy(component.gameObject);
+                }
             }
             ExVR.ExpLog().components(Function.clean, false);
 
@@ -490,6 +388,10 @@ namespace Ex{
         }
 
         public void update_states_from_time(Condition condition, double time) {
+
+            //if(time > condition.duration()) {
+            //    ExVR.Log().error("DURATION 0 CONDITION " + time +" " + condition.duration());
+            //}
 
             // component inside condition
             HashSet<int> componentInsideCondition = new HashSet<int>();
@@ -676,3 +578,65 @@ namespace Ex{
 
     }
 }
+
+
+//#if UNITY_EDITOR
+//using UnityEditor;
+//namespace Ex{
+
+//    [CustomEditor(typeof(Components))]
+//    public class ComponentsEditor : Editor{
+
+//        public override bool RequiresConstantRepaint() {
+//            return true;
+//        }
+
+//        public override void OnInspectorGUI() {
+
+//            base.OnInspectorGUI();
+
+//            if (!Application.isPlaying) {
+//                return;
+//            }
+
+//            //EditorGUILayout.LabelField("Current element:");
+//            //var currentElementInfo = ExVR.Schreduler().current_element_info();
+//            //if (currentElementInfo != null) {
+//            //    if (currentElementInfo.type() == FlowElement.FlowElementType.Routine) {
+
+//            //        var routineInfo = (RoutineInfo)currentElementInfo;
+//            //        var routine = (Routine)routineInfo.element;
+//            //        if (routine != null) {
+//            //            EditorGUILayout.LabelField("[Routine] with id " + (currentElementInfo.key()).ToString());
+//            //            EditorGUILayout.ObjectField(routine, typeof(Routine), true);
+
+//            //            var condition = routine.current_condition();
+//            //            if (condition != null) {
+//            //                EditorGUILayout.LabelField("With condition:");
+//            //                EditorGUILayout.ObjectField(condition, typeof(Condition), true);
+//            //            } else {
+//            //                EditorGUILayout.LabelField("...");
+//            //            }
+
+//            //        } else {
+//            //            EditorGUILayout.LabelField("...");
+//            //        }
+//            //    } else {
+
+//            //        var isiInfo = (ISIInfo)currentElementInfo;
+//            //        var isi = (ISI)isiInfo.element;
+//            //        if (isi != null) {
+//            //            EditorGUILayout.LabelField("[ISI] with id " + (currentElementInfo.key()).ToString());
+//            //            EditorGUILayout.ObjectField(isi, typeof(ISI), true);
+//            //        } else {
+//            //            EditorGUILayout.LabelField("...");
+//            //        }
+//            //        //currentCondition = isi.current_condition();
+//            //    }
+//            //} else {
+//            //    EditorGUILayout.LabelField("...");
+//            //}
+//        }
+//    }
+//}
+//#endif

@@ -55,7 +55,7 @@ class CameraConfigParametersW : public ConfigParametersW{
 
 public :
 
-    ExCheckBoxW enableDebugMouseCameraMovements {"debug_camera"};
+
 
     QButtonGroup group1;
     ExRadioButtonW useEye {"use_eye"};
@@ -71,6 +71,12 @@ public :
     ExVector3dW currentNeutralRotation {"neutral_rotation"};
     ExVector3dW currentEyePosition {"eye_rotation"};
     ExVector3dW currentEyeRotation {"eye_rotation"};
+
+    ExCheckBoxW enableDebugMouseCameraMovements {"debug_camera"};
+    ExFloatSpinBoxW mSpeed {"m_speed"};
+    ExFloatSpinBoxW rxSpeed {"rx_speed"};
+    ExFloatSpinBoxW rySpeed {"ry_speed"};
+    ExFloatSpinBoxW rzSpeed {"rz_speed"};
 
     void insert_widgets() override;
     void init_and_register_widgets() override;

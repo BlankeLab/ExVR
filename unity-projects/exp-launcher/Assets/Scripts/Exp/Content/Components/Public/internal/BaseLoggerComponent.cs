@@ -41,6 +41,10 @@ namespace Ex {
         private System.Collections.Concurrent.ConcurrentQueue<Tuple<List<string>, bool>> m_linesList = new System.Collections.Concurrent.ConcurrentQueue<Tuple<List<string>, bool>>();
         private System.Threading.ReaderWriterLock m_locker = new System.Threading.ReaderWriterLock();
 
+        public bool is_writing() {
+            return !m_linesList.IsEmpty;
+        }
+
         public bool open_file(string filePath) {
 
             bool success = false;
@@ -86,9 +90,9 @@ namespace Ex {
 
                 Tuple<List<string>, bool> lines;
                 if(m_linesList.TryDequeue(out lines)) {
-                    write_to_file(lines);
+                    write_to_file(lines);                    
                 }
-                System.Threading.Thread.Sleep(1);
+                System.Threading.Thread.Sleep(1);                
             }
 
             Tuple<List<string>, bool> lastLines;
@@ -96,7 +100,9 @@ namespace Ex {
                 write_to_file(lastLines);
             }
 
-            m_steamWriter.Close();
+            if (m_steamWriter != null) {
+                m_steamWriter.Close();
+            }
             --counter;
 
             Profiler.EndThreadProfiling();
@@ -109,7 +115,7 @@ namespace Ex {
                 m_locker.AcquireWriterLock(1000);
                 try {
                     foreach (var line in lines.Item1) {
-                        if (lines.Item2) {
+                        if (lines.Item2) {                            
                             m_steamWriter.WriteLine(line);
                         } else {
                             m_steamWriter.Write(line);
@@ -125,6 +131,133 @@ namespace Ex {
         }
     }
 
+    public class FileLogger {
+
+        private string m_fileFullPath;
+        private WritingFileThread m_writingJob = null;
+        private bool m_canWrite = false;
+
+        public void start_logging() { 
+            m_writingJob = new WritingFileThread();
+            m_writingJob.doLoop = true;
+            m_writingJob.start();
+        }
+
+        public bool open_file(string filePath) {
+
+            if (m_writingJob == null) {
+                ExVR.Log().error("Writing thread not started.");
+                return false;
+            }
+
+            m_fileFullPath = filePath;
+            if (!m_writingJob.open_file(m_fileFullPath)) {
+                ExVR.Log().error(string.Format("Cannot open stream writer with path [{0}].", m_fileFullPath));
+                m_canWrite = false;
+                return false;
+            } else {
+                m_canWrite = true;
+                return true;
+            }
+        }
+
+        public void stop_logging() {
+
+            if (m_writingJob == null) {
+                return;
+            }
+
+            m_canWrite = false;        
+            m_writingJob.doLoop = false;
+            if (!m_writingJob.join(100)) {
+                ExVR.Log().error(string.Format("Stop writing thread timeout."));
+            }
+            m_writingJob = null;
+           
+        }
+        public static bool create_file(string fileFullPath, string initLine, bool dontWriteIfExists, bool addToEndIfExists) {
+
+            // check file existence
+            bool exists = File.Exists(fileFullPath);
+            if (exists && dontWriteIfExists) {
+                ExVR.Log().error(string.Format("File {0} already exists, change writing settings or delete file.", fileFullPath));
+                return false;
+            }
+
+            // create empty file if necessary
+            if (!exists) { // doesn't exist
+                try {
+                    File.Create(fileFullPath).Dispose();
+                } catch (Exception ex) {
+                    ExVR.Log().error(string.Format("Cannot create file {0}, error {1}", fileFullPath, ex.Message));
+                    return false;
+                }
+
+                if (initLine.Length > 0) {
+                    try {
+                        File.AppendAllText(fileFullPath, initLine, System.Text.Encoding.UTF8);
+                    } catch (Exception ex) {
+                        ExVR.Log().error(string.Format("Cannot add to text to file {0}, error {1}", fileFullPath, ex.Message));
+                        return false;
+                    }
+                }
+
+            } else if (addToEndIfExists) {  // exists, append
+
+                if (initLine.Length > 0) {
+                    try {
+                        File.AppendAllText(fileFullPath, initLine, System.Text.Encoding.UTF8);
+                    } catch (Exception ex) {
+                        ExVR.Log().error(string.Format("Cannot add to text to file {0}, error {1}", fileFullPath, ex.Message));
+                        return false;
+                    }
+                }
+
+            } else { // exists, don't append
+                try {
+                    File.WriteAllText(fileFullPath, initLine, System.Text.Encoding.UTF8);
+                } catch (Exception ex) {
+                    ExVR.Log().error(string.Format("Cannot reset file {0}, error {1}", fileFullPath, ex.Message));
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public void write_lines(List<string> values) {
+
+            if (!m_canWrite || values == null) {
+                return;
+            }
+
+            if (values.Count > 0) {
+                m_writingJob.add_lines(values);
+            }
+        }
+
+        public void write(object value, bool line = true) {
+
+            if (!m_canWrite || value == null) {
+                return;
+            }
+
+            if (line) {
+                m_writingJob.add_line(Converter.to_string(value));
+            } else {
+                m_writingJob.add_text(Converter.to_string(value));
+            }
+        }
+
+        public bool is_writing() {
+            return m_writingJob.is_writing();
+        }
+
+        public string file_path() {
+            return m_fileFullPath;
+        }
+    }
+
     public class BaseLoggerComponent : ExComponent {
 
         // parameters
@@ -132,16 +265,14 @@ namespace Ex {
         protected string m_directoryPath;
         protected string m_baseFileName;
         protected string m_fileExtension;
-        protected string m_fileFullPath;
 
-        protected bool m_canWrite = false;
-
-
-        protected WritingFileThread writingJob = null;
+        protected FileLogger m_fileLogger = null;
 
         #region ex_functions
 
         protected override void start_experiment() {
+
+            m_fileLogger = new FileLogger();
 
             string fileName = generate_file_name();
             if (fileName.Length == 0) {
@@ -149,31 +280,21 @@ namespace Ex {
                 return;
             }
 
-            if (!create_file(m_fileFullPath = string.Format("{0}/{1}", m_directoryPath, fileName))) {
+            string fullPath = string.Format("{0}/{1}", m_directoryPath, fileName);
+            if (!FileLogger.create_file(
+                    fullPath,
+                    "",
+                    initC.get<bool>("dont_write_if_file_exists"),
+                    initC.get<bool>("add_to_end_if_file_exists"))){
                 return;
             }
 
-            writingJob = new WritingFileThread();
-            writingJob.doLoop = true;
-
-            if (!writingJob.open_file(m_fileFullPath)) {                
-                log_error(string.Format("Cannot open stream writer with path [{0}].", m_fileFullPath));
-                return;
-            }
-            writingJob.start();
-            m_canWrite = true;
+            m_fileLogger.start_logging();
+            m_fileLogger.open_file(fullPath);
         }
 
         protected override void stop_experiment() {
-
-            m_canWrite        = false;
-            if (writingJob != null) {
-                writingJob.doLoop = false;
-                if (!writingJob.join(100)) {
-                    log_error(string.Format("Stop writing thread timeout."));
-                }
-                writingJob = null;
-            }
+            m_fileLogger.stop_logging();
         }
 
         #endregion
@@ -199,67 +320,20 @@ namespace Ex {
             return "";
         }
 
-        protected bool create_file(string fileFullPath, string initLine = "") {
-
-            // check file existence
-            bool exists = File.Exists(fileFullPath);
-            if (exists && initC.get<bool>("dont_write_if_file_exists")) {
-                log_error(string.Format("File {0} already exists, change writing settings or delete file.", fileFullPath));
-                return false;
-            }
-
-            // create empty file if necessary
-            if (!exists) { // doesn't exist
-                try {
-                    File.Create(fileFullPath).Dispose();
-                } catch (Exception ex) {
-                    log_error(string.Format("Cannot create file {0}, error {1}", fileFullPath, ex.Message));
-                    return false;
-                }
-
-                if (initLine.Length > 0) {
-                    try {
-                        File.AppendAllText(fileFullPath, initLine, System.Text.Encoding.UTF8);
-                    } catch (Exception ex) {
-                        log_error(string.Format("Cannot add to text to file {0}, error {1}", fileFullPath, ex.Message));
-                        return false;
-                    }
-                }
-
-            } else if (initC.get<bool>("add_to_end_if_file_exists")) {  // exists, append
-
-                if (initLine.Length > 0) {
-                    try {
-                        File.AppendAllText(fileFullPath, initLine, System.Text.Encoding.UTF8);
-                    } catch (Exception ex) {
-                        log_error(string.Format("Cannot add to text to file {0}, error {1}", fileFullPath, ex.Message));
-                        return false;
-                    }
-                }  
-
-            } else { // exists, don't append
-                try {
-                    File.WriteAllText(fileFullPath, initLine, System.Text.Encoding.UTF8);
-                } catch (Exception ex) {
-                    log_error(string.Format("Cannot reset file {0}, error {1}", fileFullPath, ex.Message));
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-
         #endregion
 
         #region public_functions
+
+        public bool is_writing() {
+            return m_fileLogger.is_writing();
+        }
 
         public string parent_directory_path() {
             return m_directoryPath;
         }
 
         public string file_path() {
-            return m_fileFullPath;
+            return m_fileLogger.file_path();
         }
 
         public string file_extension() {
@@ -267,27 +341,11 @@ namespace Ex {
         }
 
         public void write_lines(List<string> values) {
-
-            if (!m_canWrite || values == null) {
-                return;
-            }
-
-            if (values.Count > 0) {
-                writingJob.add_lines(values);
-            }
+            m_fileLogger.write_lines(values);
         }
 
         public void write(object value, bool line = true) {
-
-            if (!m_canWrite || value == null) {
-                return;
-            }
-
-            if (line) {
-                writingJob.add_line(Converter.to_string(value));
-            } else {
-                writingJob.add_text(Converter.to_string(value));
-            }
+            m_fileLogger.write(value, line);
         }
 
         #endregion

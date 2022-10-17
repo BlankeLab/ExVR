@@ -29,7 +29,7 @@ using namespace tool::ex;
 
 NodeFlowElementO::NodeFlowElementO(NodeFlow *node) : FlowElementO(node){
     addRoutine = std::make_unique<AddButtonO>(FlowElement::Type::Routine);
-    addIsi     = std::make_unique<AddButtonO>(FlowElement::Type::Isi);
+//    addIsi     = std::make_unique<AddButtonO>(FlowElement::Type::Isi);
     addLoop    = std::make_unique<AddButtonO>(FlowElement::Type::Loop);
 }
 
@@ -45,7 +45,7 @@ void NodeFlowElementO::adapt_size_from_name(QFontMetrics fontMetrics){
     uiAreaRect = QRectF(QPointF(0.,0.), QSizeF(areaWidth, areaHeight));
 
     addRoutine->adapt_size_from_name(fontMetrics);
-    addIsi->adapt_size_from_name(fontMetrics);
+//    addIsi->adapt_size_from_name(fontMetrics);
     addLoop->adapt_size_from_name(fontMetrics);
 }
 
@@ -73,7 +73,7 @@ void NodeFlowElementO::compute_position(QPointF topLeft, int loopMaxDeepLevel){
     qreal posXButtons = uiElemRect.center().x()-0.5*widthButton;
     addRoutine->uiElemRect = QRectF(QPointF(posXButtons, uiAreaRect.y() + areaHeight + heightOffset), QSizeF(widthButton, heightButtons));
     addLoop->uiElemRect    = QRectF(QPointF(posXButtons, uiAreaRect.y() + areaHeight + heightButtons + 2*heightOffset), QSizeF(widthButton, heightButtons));
-    addIsi->uiElemRect     = QRectF(QPointF(posXButtons, uiAreaRect.y() + areaHeight + 2*heightButtons + 3*heightOffset), QSizeF(widthButton, heightButtons));
+//    addIsi->uiElemRect     = QRectF(QPointF(posXButtons, uiAreaRect.y() + areaHeight + 2*heightButtons + 3*heightOffset), QSizeF(widthButton, heightButtons));
 }
 
 void NodeFlowElementO::draw_add_buttons(QPainter &painter, qreal zoomLevel){
@@ -83,8 +83,9 @@ void NodeFlowElementO::draw_add_buttons(QPainter &painter, qreal zoomLevel){
     pen.setWidthF(zoomLevel*1.1);
     painter.setPen(pen);
 
-    QLineF line(addIsi->uiElemRect.center(), QPointF(uiElemRect.center().x(),  uiElemRect.bottom()));
-    painter.drawLine(line);
+//    QLineF line(addIsi->uiElemRect.center(), QPointF(uiElemRect.center().x(),  uiElemRect.bottom()));
+    QLineF line(addLoop->uiElemRect.center(), QPointF(uiElemRect.center().x(),  uiElemRect.bottom()));
+    painter.drawLine(line);    
 
     pen.setColor(display::Colors::flowElements.at(FlowElement::Type::Routine).selectedLineBoxColor);
     painter.setPen(pen);
@@ -96,10 +97,10 @@ void NodeFlowElementO::draw_add_buttons(QPainter &painter, qreal zoomLevel){
     painter.setBrush(display::Colors::flowElements.at(FlowElement::Type::Loop).selectedFillBoxColor);
     painter.drawRoundedRect(addLoop->uiElemRect, zoomLevel*4.,zoomLevel*4., Qt::AbsoluteSize);
 
-    pen.setColor(display::Colors::flowElements.at(FlowElement::Type::Isi).selectedLineBoxColor);
-    painter.setPen(pen);
-    painter.setBrush(display::Colors::flowElements.at(FlowElement::Type::Isi).selectedFillBoxColor);
-    painter.drawRoundedRect(addIsi->uiElemRect, zoomLevel*4.,zoomLevel*4., Qt::AbsoluteSize);
+//    pen.setColor(display::Colors::flowElements.at(FlowElement::Type::Isi).selectedLineBoxColor);
+//    painter.setPen(pen);
+//    painter.setBrush(display::Colors::flowElements.at(FlowElement::Type::Isi).selectedFillBoxColor);
+//    painter.drawRoundedRect(addIsi->uiElemRect, zoomLevel*4.,zoomLevel*4., Qt::AbsoluteSize);
 
     pen.setColor(display::Colors::flowElements.at(FlowElement::Type::Routine).selectedTextColor);
     painter.setPen(pen);
@@ -109,7 +110,7 @@ void NodeFlowElementO::draw_add_buttons(QPainter &painter, qreal zoomLevel){
     painter.setPen(pen);
     painter.drawText(addLoop->uiElemRect,       Qt::AlignCenter, "loop");
 
-    pen.setColor(display::Colors::flowElements.at(FlowElement::Type::Isi).selectedTextColor);
-    painter.setPen(pen);
-    painter.drawText(addIsi->uiElemRect,        Qt::AlignCenter, "ISI");
+//    pen.setColor(display::Colors::flowElements.at(FlowElement::Type::Isi).selectedTextColor);
+//    painter.setPen(pen);
+//    painter.drawText(addIsi->uiElemRect,        Qt::AlignCenter, "ISI");
 }

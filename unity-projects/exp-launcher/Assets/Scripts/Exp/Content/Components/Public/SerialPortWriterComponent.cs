@@ -46,7 +46,7 @@ namespace Ex{
 
         // concurrency
         private ConcurrentQueue<Tuple<bool, object>> m_messages = new ConcurrentQueue<Tuple<bool, object>>();
-        public ConcurrentQueue<double> triggerTimes = new ConcurrentQueue<double>();
+        public ConcurrentQueue<Tuple<double, double, string>> triggersSent = new ConcurrentQueue<Tuple<double, double, string>>();
 
         public volatile bool doLoop = false;
         static private volatile int m_counter = 0;        
@@ -110,10 +110,12 @@ namespace Ex{
                     if (messageToSend.Item1) { // send bytes
                         
                         var buffer = (byte[])messageToSend.Item2;
-                        try {
-                            var time = ExVR.Time().ellapsed_exp_ms();
+                        try {                  
                             m_port.Write(buffer, 0, buffer.Length);
-                            triggerTimes.Enqueue(time);
+                            var expTime = ExVR.Time().ellapsed_exp_ms();
+                            var routineTime = ExVR.Time().ellapsed_element_ms();      
+                            triggersSent.Enqueue(new Tuple<double, double, string>(expTime, routineTime,                                 
+                                string.Format("send_bytes [{0}]", BitConverter.ToString(buffer))));                            
                         } catch (ArgumentNullException e) {
                             ExVR.Log().error(string.Format("Write bytes ArgumentNullException::error: [{0}]", e.Message));
                         } catch (InvalidOperationException e) {
@@ -128,9 +130,10 @@ namespace Ex{
 
                         var message = (string)messageToSend.Item2;
                         try {
-                            var time = ExVR.Time().ellapsed_exp_ms();
                             m_port.Write(message);
-                            triggerTimes.Enqueue(time);
+                            var expTime = ExVR.Time().ellapsed_exp_ms();
+                            var routineTime = ExVR.Time().ellapsed_element_ms();
+                            triggersSent.Enqueue(new Tuple<double, double, string>(expTime, routineTime, string.Format("send_text [{0}]", message)));
                         } catch (ArgumentNullException e) {
                             ExVR.Log().error(string.Format("Write string ArgumentNullException::error: [{0}]", e.Message));
                         } catch (InvalidOperationException e) {
@@ -152,7 +155,9 @@ namespace Ex{
         private string m_message = "";
         private List<byte> m_messageBytes = null;
         private SerialPortWriterJob m_serialWriterT = null;
-        static private readonly string m_triggerExpTimeSignalStr = "trigger exp time";
+        static private readonly string m_messageSentSignalStr = "message sent";
+
+        private List<Tuple<double, double, string>> m_triggerEvents = null;
 
         #region ex_functions
         protected override bool initialize() {
@@ -160,8 +165,8 @@ namespace Ex{
             add_slot("send byte pulse", (value) => {
                 send_byte_pulse((int)value);
             });
-            add_slot("write byte", (value) => {
-                write_byte((byte)value);
+            add_slot("write byte", (value) => {                
+                write_byte(Converter.to_byte(value));
             });
             add_slot("write message", (value) => {
                 write_str((string)value);
@@ -169,7 +174,7 @@ namespace Ex{
             add_slot("write line message", (value) => {
                 write_line_str((string)value);
             });
-            add_signal(m_triggerExpTimeSignalStr);
+            add_signal(m_messageSentSignalStr);
 
             m_serialWriterT = new SerialPortWriterJob();
             if (!m_serialWriterT.initialize(initC.get<string>("port_to_write"), initC.get<int>("baud_rate"))) {
@@ -183,41 +188,48 @@ namespace Ex{
 
         protected override void start_routine() {
 
+            m_triggerEvents = null;
             if (currentC.get<bool>("send_new_routine")){
                 write();
             }
         }
 
         protected override void set_update_state(bool doUpdate) {
+
+            if(currentC == null) {
+                return;
+            }
+
             if (doUpdate && currentC.get<bool>("send_new_update_block")) {
                 write();
-            }else if (!doUpdate && currentC.get<bool>("send_end_update_block")){
+            }else if (!doUpdate && currentC.get<bool>("send_end_update_block")) {
                 write();
             }            
         }
 
         protected override void update() {
+
+            if (m_serialWriterT == null) {
+                return;
+            }
+
             if (currentC.get<bool>("send_every_frame")) {
                 write();
             }
 
-            if (m_serialWriterT != null) {
-
-                double triggerTime;
-                List<double> triggerTimes = null;
-                while(m_serialWriterT.triggerTimes.TryDequeue(out triggerTime)) {
-                    if(triggerTimes == null) {
-                        triggerTimes = new List<double>();
-                    }
-                    triggerTimes.Add(triggerTime);
+            Tuple<double,double,string> triggerSent;
+            while(m_serialWriterT.triggersSent.TryDequeue(out triggerSent)) {
+                if(m_triggerEvents == null) {
+                    m_triggerEvents = new List<Tuple<double, double, string>>();
                 }
-
-                if (triggerTimes != null) {
-                    foreach (var time in triggerTimes) {
-                        invoke_signal(m_triggerExpTimeSignalStr, time);
-                    }
-                }
+                m_triggerEvents.Add(triggerSent);
             }
+
+            if (m_triggerEvents != null) {
+                foreach (var time in m_triggerEvents) {
+                    invoke_signal(m_messageSentSignalStr, new TimeAny(time.Item1, time.Item2, time.Item3));
+                }
+            }            
         }
 
         public override void update_from_current_config() {
@@ -225,7 +237,7 @@ namespace Ex{
             m_message = currentC.get<string>("message");
             m_messageBytes = new List<byte>();
 
-            if (currentC.get<bool>("bits_mode")) {
+            if (currentC.get<bool>("bits_mode") || currentC.get<bool>("bits_pulse_mode")) {
                 string m = m_message.Replace('\t', ' ');
                 m = m.Replace('\n', ' ');
                 var splits = m.Split(' ');
@@ -248,7 +260,7 @@ namespace Ex{
                         m_messageBytes.Add(convert_bool_array_to_byte(newByte.ToArray()));
                     }
                 }
-            } else if (currentC.get<bool>("int_mode")) {
+            } else if (currentC.get<bool>("int_mode") || currentC.get<bool>("int_pulse_mode")) {
                 string m = m_message.Replace('\t', ' ');
                 m = m.Replace('\n', ' ');
                 var splits = m.Split(' ');
@@ -266,6 +278,12 @@ namespace Ex{
 
         protected override void update_parameter_from_gui(string updatedArgName) {
             update_from_current_config();
+        }
+
+        public override List<Tuple<double, double, string>> format_trigger_data_for_global_logger() {
+            var tEvents = m_triggerEvents;
+            m_triggerEvents = null;
+            return tEvents;
         }
 
         protected override void clean() {
@@ -302,15 +320,24 @@ namespace Ex{
         private void write() {
             if (currentC.get<bool>("bits_mode")) {
                 write_bytes(m_messageBytes.ToArray());
-            } else if (currentC.get<bool>("int_mode")){
+            } else if (currentC.get<bool>("int_mode")) {
                 write_bytes(m_messageBytes.ToArray());
-            } else {
+            } else if (currentC.get<bool>("string_mode")) {
                 write_line_str(m_message);
+            } else if (currentC.get<bool>("bits_pulse_mode")) {
+                send_bytes_pulse(m_messageBytes.ToArray());
+            } else if (currentC.get<bool>("int_pulse_mode")) {
+                send_bytes_pulse(m_messageBytes.ToArray());
             }
         }
 
         private IEnumerator send_pulse(byte value) {
             write_byte(value);
+            yield return new WaitForSeconds((float)currentC.get<double>("pulse_time"));
+            write_byte(0);
+        }
+        private IEnumerator send_pulse(byte[] value) {
+            write_bytes(value);
             yield return new WaitForSeconds((float)currentC.get<double>("pulse_time"));
             write_byte(0);
         }
@@ -325,10 +352,14 @@ namespace Ex{
             if (value > 255) {
                 value = 255;
             }
-            send_byte_pulse((byte)value);
+            ExVR.Coroutines().start(send_pulse((byte)value));
         }
 
         public void send_byte_pulse(byte value) {
+            ExVR.Coroutines().start(send_pulse(value));
+        }
+
+        public void send_bytes_pulse(byte[] value) {
             ExVR.Coroutines().start(send_pulse(value));
         }
 

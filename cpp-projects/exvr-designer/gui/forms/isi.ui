@@ -275,7 +275,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QTextEdit" name="teInformations"/>
+    <widget class="QTextEdit" name="teInformations">
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

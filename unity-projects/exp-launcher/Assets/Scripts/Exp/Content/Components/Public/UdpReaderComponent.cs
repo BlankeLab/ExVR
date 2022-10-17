@@ -27,12 +27,12 @@ namespace Ex {
     public class UdpReaderComponent : ExComponent{
 
         private UdpReceiver m_udpReceiver = null;
-        private static readonly string m_messageReceivedSignalStr = "message";
+        private static readonly string m_messageReadSignalStr = "message read";
 
         protected override bool initialize() {
 
             // signals
-            add_signal(m_messageReceivedSignalStr);
+            add_signal(m_messageReadSignalStr);
 
             bool ipv6 = false; // initC.get<bool>("ipv6");
             var ipAddresses = NetworkInfo.get_ip_addresses(initC.get<string>("reading_address"), ipv6);
@@ -52,9 +52,12 @@ namespace Ex {
         protected override void update() {
 
             var messages = m_udpReceiver.read_all_messages();
-            if(messages != null) {
-                foreach(var message in messages) {
-                    invoke_signal(m_messageReceivedSignalStr, new TimeAny(message.Item1, message.Item2));
+
+            if (is_updating()) {
+                if (messages != null) {
+                    foreach (var message in messages) {
+                        invoke_signal(m_messageReadSignalStr, new TimeAny(message.Item1, message.Item2, message.Item3));
+                    }
                 }
             }
         }

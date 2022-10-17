@@ -71,7 +71,10 @@ void ButtonsUiConfigParametersW::insert_widgets(){
         tW->setLayout(tL);
         tL->setContentsMargins(2,2,2,2);
 
-        tL->addWidget(ui::F::gen(ui::L::VB(), {ui::W::txt("Text for each button:"),  m_p->buttonsText()}, LStretch{false}, LMargins{true}, QFrame::NoFrame));
+        tL->addWidget(ui::F::gen(ui::L::VB(), {
+            ui::W::txt("Text for each button:"),
+            ui::W::txt("Use '_' to separate two buttons horizontally or ' ' to add a space between them.\nReplace button name by #image_alias for using a resource image instead of a text."),
+            m_p->buttonsText()}, LStretch{false}, LMargins{true}, QFrame::NoFrame));
 
         tL->addWidget(ui::F::gen(ui::L::HB(), {ui::W::txt("When routine starts")}, LStretch{true}, LMargins{true}, QFrame::NoFrame));
         tL->addWidget(ui::F::gen(ui::L::HB(), {m_p->updateId(),  m_p->id(), m_p->randomizeId(), m_p->noUpdateId()}, LStretch{true}, LMargins{true}, QFrame::NoFrame));

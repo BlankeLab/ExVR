@@ -29,7 +29,15 @@ using namespace tool::ex;
 
 void StartRoutineNodeDataModel::compute(){
     set_valid_state();
-    propagate_default_runtime({std::make_shared<StringData>(""),std::make_shared<StringData>(""), std::make_shared<IntData>(0), std::make_shared<IntData>(0)});
+    propagate_default_runtime(
+        {
+            std::make_shared<StringData>(""),
+            std::make_shared<StringData>(""),
+            std::make_shared<IntData>(0),
+            std::make_shared<IntData>(0),
+            std::make_shared<RealData>(0)
+        }
+    );
 }
 
 void StartRoutineNodeDataModel::init_ports_caption(){
@@ -43,7 +51,12 @@ void StartRoutineNodeDataModel::init_ports_caption(){
 
 void StopRoutineNodeDataModel::compute(){
     set_valid_state();
-    propagate_default_runtime({std::make_shared<StringData>(""),std::make_shared<StringData>("")});
+    propagate_default_runtime(
+        {
+            std::make_shared<StringData>(""),
+            std::make_shared<StringData>("")
+        }
+    );
 }
 
 void StopRoutineNodeDataModel::init_ports_caption(){

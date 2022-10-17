@@ -22,8 +22,6 @@
 ** SOFTWARE.                                                                      **
 ************************************************************************************/
 
-// system
-using System.Collections.Generic;
 
 namespace Ex {
 
@@ -35,7 +33,7 @@ namespace Ex {
         protected override bool initialize() {
 
             routine = ExVR.Routines().get(m_config.get<string>(valueStr), false);
-
+            
             add_signals(1);
             add_slot(0, (arg) => { base_slot1(arg); });
 

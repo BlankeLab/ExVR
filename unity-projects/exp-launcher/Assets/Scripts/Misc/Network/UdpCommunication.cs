@@ -134,14 +134,14 @@ namespace Ex{
             return -1;
         }
 
-        public Tuple<double, string> read_message() {
+        public Tuple<double, double, string> read_message() {
             if (receiver_initialized()) {
                 return m_receiver.read_message();
             }
             return null;
         }
 
-        public List<Tuple<double, string>> read_all_messages() {
+        public List<Tuple<double, double, string>> read_all_messages() {
             if (receiver_initialized()) {
                 return m_receiver.read_all_messages();
             }

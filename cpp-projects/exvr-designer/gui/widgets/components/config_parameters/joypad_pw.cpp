@@ -194,15 +194,6 @@ void JoypadInitConfigParametersW::update_with_info(QStringView id, QStringView v
 
     }else if(id == QSL("buttons_state_info")){
 
-        std::vector<input::Joypad::Button> buttons;
-        if(value.length() > 0){
-            for(const auto &split : value.split(',')){
-                auto button = input::Joypad::get_button(split.toInt());
-                if(button.has_value()){
-                    buttons.emplace_back(button.value());
-                }
-            }
-        }
 
         for(auto &buttonUI : m_p->buttonsP1){
             buttonUI.second->update(false);
@@ -211,12 +202,21 @@ void JoypadInitConfigParametersW::update_with_info(QStringView id, QStringView v
             buttonUI.second->update(false);
         }
 
-        for(const auto &button : buttons){
+        for(auto split : value.split('%')){
 
-            if(input::Joypad::get_player(button) == 1){
-                m_p->buttonsP1[button]->update(true);
-            }else{
-                m_p->buttonsP2[button]->update(true);
+            if(split.length() == 0){
+                break;
+            }
+
+            const auto subSplit   = split.split(',');
+            auto button           = input::Joypad::get_button(subSplit[0].toInt());
+            if(button.has_value()){
+                const auto state      = subSplit[1].toString() == "1";
+                if(input::Joypad::get_player(button.value()) == 1){
+                    m_p->buttonsP1[button.value()]->update(state);
+                }else{
+                    m_p->buttonsP2[button.value()]->update(state);
+                }
             }
         }
 

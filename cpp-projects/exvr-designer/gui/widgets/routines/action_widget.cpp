@@ -46,9 +46,9 @@ using namespace tool::ex;
 ActionW::ActionW(ElementKey routineKey, ConditionKey conditionKey, Action *action) :
       m_routineKey(routineKey), m_conditionKey(conditionKey), m_actionKey(ActionKey{action->key()}){
 
-    m_ui.setupUi(this);    
+    m_ui.setupUi(this);
 
-    auto icon = QIcon(from_view(Component::get_icon_path(action->component->type)));
+    auto icon = QIcon(Component::get_icon_path(action->component->type));
     m_ui.tbIcon->setIconSize(QSize(70,70));
     m_ui.tbIcon->setIcon(icon);
 

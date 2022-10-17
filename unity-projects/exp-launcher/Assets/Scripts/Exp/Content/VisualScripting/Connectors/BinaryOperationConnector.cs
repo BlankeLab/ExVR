@@ -41,7 +41,7 @@ namespace Ex {
             return true;
         }
 
-        protected override void slot1(object arg) {
+        protected override void slot1(object arg) {            
             input0 = arg;
             send_output();
         }

@@ -27,70 +27,22 @@ using UnityEngine;
 
 namespace Ex{
 
-    public class TorusComponent : ExComponent{
+    public class TorusComponent : ModelComponent{
 
-        private MeshRenderer mr = null;
-        private MeshFilter mf = null;
-        private Material m = null;
-
-        protected override bool initialize() {
-
-            // slots
-            add_slot("visibility", (visibility) => { set_visibility((bool)visibility); });
-            add_slot("position", (position) => { transform.localPosition = (Vector3)position; });
-            add_slot("rotation", (rotation) => { transform.localEulerAngles = (Vector3)rotation; });
-            add_slot("scale", (scale) => { transform.localScale = (Vector3)scale; });
-            add_slot("transform", (value) => {
-                var transformV = (TransformValue)value;
-                transform.localPosition = transformV.position;
-                transform.localRotation = transformV.rotation;
-                transform.localScale = transformV.scale;
-            });
-            // signals
-            add_signal("visibility changed");
-
-            // generate 
-            // # mesh renderer
-            mr = gameObject.AddComponent<MeshRenderer>();
-            if (initC.get<bool>("transparent")) {
-                mr.material = (m = ExVR.GlobalResources().instantiate_default_transparent_mat());
-            } else {
-                mr.material = (m = ExVR.GlobalResources().instantiate_default_mat());
-            }
-            mr.enabled  = false;
-            // # mesh filter
-            mf = gameObject.AddComponent<MeshFilter>();
+        #region private_functions
+        protected override void generate_mesh() {
             mf.mesh = Ex.PrimitivesMesh.TorusBuilder.generate(
-                initC.get<float>("outer_radius"), 
+                initC.get<float>("outer_radius"),
                 initC.get<float>("inner_radius"),
-                initC.get<int>("sides_count"), 
+                initC.get<int>("sides_count"),
                 initC.get<int>("rings_count")
             );
-            return true;
         }
 
-        protected override void start_experiment() {
-            if (!initC.get<bool>("init_transform_do_not_apply")) {
-                initC.update_transform("init_transform", transform, true);
-            }
-        }
-        public override void update_from_current_config() {
-            if (!currentC.get<bool>("transform_do_not_apply")) {
-                currentC.update_transform("transform", transform, true);
-            }
-            m.SetColor("_Color", currentC.get_color("color"));
-            m.SetFloat("_Metallic", currentC.get<float>("metallic"));
-            m.SetFloat("_Glossiness", currentC.get<float>("smoothness"));
+        protected override void generate_collider() {
+            c = gameObject.AddComponent<CapsuleCollider>();
         }
 
-        protected override void update_parameter_from_gui(string updatedArgName) {
-            update_from_current_config();
-        }
-
-        protected override void set_visibility(bool visibility) {
-            mr.enabled = visibility;
-            invoke_signal("visibility changed", visibility);
-        }
-
+        #endregion  
     }
 }

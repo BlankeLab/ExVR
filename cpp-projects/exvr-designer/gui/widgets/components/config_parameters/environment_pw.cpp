@@ -25,6 +25,7 @@
 #include "environment_pw.hpp"
 
 // qt-utility
+#include "gui/ex_widgets/ex_vector2d_w.hpp"
 #include "gui/ex_widgets/ex_vector3d_w.hpp"
 #include "gui/ex_widgets/ex_float_spin_box_w.hpp"
 #include "gui/ex_widgets/ex_select_color_w.hpp"
@@ -38,6 +39,37 @@
 using namespace tool::ex;
 
 struct PostProcessConfigParametersW::Impl{
+
+    ExCheckBoxW cgEnable{"cg_enable"}; // false
+    ExCheckBoxW cgWbTemperatureEnable{"cg_wb_temp_enable"}; // false
+    ExSliderFloatW cgWbTemperature{"cg_wb_temp"}; // -100 - 0 100
+    ExCheckBoxW cgWbTintEnable{"cg_wb_tint_enable"}; // false
+    ExSliderFloatW cgWbTint{"cg_wb_tint"}; // -100 - 0 100
+    ExCheckBoxW cgTonePostExposureEnable{"cg_tone_post_exposure_enable"}; // false
+    ExSliderFloatW cgTonePostExposure{"cg_tone_post_exposure"}; // -10 0 10
+    ExCheckBoxW cgToneColorFilterEnable{"cg_tone_color_filter_enable"}; // false
+    ExSelectColorW cgToneColorFilter{"cg_tone_color_filter"}; // white
+    ExCheckBoxW cgToneHueShiftEnable{"cg_tone_hue_shift_enable"}; // false
+    ExSliderIntegerW cgToneHueShift{"cg_tone_hue_shift"}; // -180 0 180
+    ExCheckBoxW cgToneSaturationEnable{"cg_tone_saturation_enable"}; // false
+    ExSliderIntegerW cgToneSaturation{"cg_tone_saturation"}; // -100 0 100
+    ExCheckBoxW cgToneContrastEnable{"cg_tone_contrast_enable"}; // false
+    ExSliderIntegerW cgToneContrast{"cg_tone_contrast"}; // -100 0 100
+
+    ExCheckBoxW vEnable{"v_enable"}; // false
+    ExCheckBoxW vColorEnable{"v_color_enable"}; // false
+    ExSelectColorW vColor{"v_color"}; // black
+    ExCheckBoxW vCenterEnable{"v_center_enable"}; // false
+    ExVector2dW vCenter{"v_center"}; // 0.5 0.5
+    ExCheckBoxW vIntensityEnable{"v_intensity_enable"}; // false
+    ExSliderFloatW vIntensity{"v_intensity"}; // 0 0.5 1
+    ExCheckBoxW vSmoothnessEnable{"v_smoothness_enable"}; // false
+    ExSliderFloatW vSmoothness{"v_smoothness"}; // 0 0.5 1
+    ExCheckBoxW vRoundnessEnable{"v_roundness_enable"}; // false
+    ExSliderFloatW vRoundness{"v_roundness"}; // 0 0.5 1
+    ExCheckBoxW vRoundedEnable{"v_rounded_enable"}; // false
+    ExCheckBoxW vRounded{"v_rounded"}; // false
+
     ExCheckBoxW aoEnable{"ao_enable"}; // true
     ExCheckBoxW aoIntensityEnable{"ao_intensity_enable"}; // true
     ExSliderFloatW aoIntensity{"ao_intensity"}; // 0 - 1.58 - 4
@@ -47,6 +79,8 @@ struct PostProcessConfigParametersW::Impl{
     ExSelectColorW aoColor{"ao_color"}; // black
 
     QTabWidget *effectsTab = nullptr;
+    QWidget *cgW = nullptr;
+    QWidget *vW = nullptr;
     QWidget *aoW = nullptr;
 };
 
@@ -56,24 +90,86 @@ PostProcessConfigParametersW::PostProcessConfigParametersW() :  ConfigParameters
 void PostProcessConfigParametersW::insert_widgets(){
 
     add_widget(m_p->effectsTab = new QTabWidget());
-    m_p->effectsTab->addTab(m_p->aoW = new QWidget(), "Ambient Occlusion");
 
+    m_p->effectsTab->addTab(m_p->cgW = new QWidget(), "Color grading");
+    auto cgL = ui::L::VB();
+    m_p->cgW->setLayout(cgL);
+    cgL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->cgEnable(),10}} , 0, LMarginsD{0,0,0,0,2}));
+    cgL->addWidget(ui::F::gen_frame(ui::L::HB(), {{ui::W::txt("White balance"),1}} , 0, LMarginsD{0,0,0,0,2}));
+    cgL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->cgWbTemperatureEnable(),1}, {m_p->cgWbTemperature(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    cgL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->cgWbTintEnable(),1}, {m_p->cgWbTint(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    cgL->addWidget(ui::F::gen_frame(ui::L::HB(), {{ui::W::txt("Tone"),1}} , 0, LMarginsD{0,0,0,0,2}));
+    cgL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->cgTonePostExposureEnable(),1}, {m_p->cgTonePostExposure(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    cgL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->cgToneColorFilterEnable(),1}, {m_p->cgToneColorFilter(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    cgL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->cgToneHueShiftEnable(),1}, {m_p->cgToneHueShift(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    cgL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->cgToneSaturationEnable(),1}, {m_p->cgToneSaturation(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    cgL->addStretch();
+
+    m_p->effectsTab->addTab(m_p->vW = new QWidget(), "Vignette");
+    auto vL = ui::L::VB();
+    m_p->vW->setLayout(vL);
+    vL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->vEnable(),10}} , 0, LMarginsD{0,0,0,0,2}));
+    vL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->vColorEnable(),1}, {m_p->vColor(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    vL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->vCenterEnable(),1}, {m_p->vCenter(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    vL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->vIntensityEnable(),1}, {m_p->vIntensity(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    vL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->vSmoothnessEnable(),1}, {m_p->vSmoothness(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    vL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->vRoundnessEnable(),1}, {m_p->vRoundness(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    vL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->vRoundedEnable(),1}, {m_p->vRounded(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    vL->addStretch();
+
+    m_p->effectsTab->addTab(m_p->aoW = new QWidget(), "Ambient Occlusion");
     auto aoL = ui::L::VB();
     m_p->aoW->setLayout(aoL);
-
     aoL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->aoEnable(),10}} , 0, LMarginsD{0,0,0,0,2}));
     aoL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->aoIntensityEnable(),1}, {m_p->aoIntensity(),30}} , 0, LMarginsD{0,0,0,0,2}));
     aoL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->aoThicknessEnable(),1}, {m_p->aoThickness(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    aoL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->aoColorEnable(),1}, {m_p->aoColor(),30}} , 0, LMarginsD{0,0,0,0,2}));
     aoL->addStretch();
     no_end_stretch();
 }
 
 void PostProcessConfigParametersW::init_and_register_widgets(){
+
+    // CG
+    add_input_ui(m_p->cgEnable.init_widget("Enable", true));
+    add_input_ui(m_p->cgWbTemperatureEnable.init_widget("Temperature", false));
+    add_input_ui(m_p->cgWbTemperature.init_widget("", MinR{-100.}, ValR{0.}, MaxR{100.}, StepR{0.1}));
+    add_input_ui(m_p->cgWbTintEnable.init_widget("Tint", false));
+    add_input_ui(m_p->cgWbTint.init_widget("", MinR{-100.}, ValR{0.}, MaxR{100.}, StepR{0.1}));
+    add_input_ui(m_p->cgTonePostExposureEnable.init_widget("Exposure", false));
+    add_input_ui(m_p->cgTonePostExposure.init_widget("", MinR{-10.}, ValR{0.}, MaxR{10.}, StepR{0.1}));
+    add_input_ui(m_p->cgToneColorFilterEnable.init_widget("Color filter", false));
+    add_input_ui(m_p->cgToneColorFilter.init_widget("", Qt::white));
+    add_input_ui(m_p->cgToneHueShiftEnable.init_widget("Hue shift", false));
+    add_input_ui(m_p->cgToneHueShift.init_widget("", MinI{-180}, ValI{0}, MaxI{180}, StepI{1}));
+    add_input_ui(m_p->cgToneSaturationEnable.init_widget("Saturation", false));
+    add_input_ui(m_p->cgToneSaturation.init_widget("", MinI{-100}, ValI{0}, MaxI{100}, StepI{1}));
+    add_input_ui(m_p->cgToneContrastEnable.init_widget("Contrast", false));
+    add_input_ui(m_p->cgToneContrast.init_widget("", MinI{-100}, ValI{0}, MaxI{100}, StepI{1}));
+
+    // V
+    add_input_ui(m_p->vEnable.init_widget("Enable", true));
+    add_input_ui(m_p->vColorEnable.init_widget("Color", false));
+    add_input_ui(m_p->vColor.init_widget("", Qt::black));
+    add_input_ui(m_p->vCenterEnable.init_widget("Center", false));
+    add_input_ui(m_p->vCenter.init_widget("", Vector2dSettings{{MinR{-1.}, ValR{0.5}, MaxR{1.}, StepR{0.01}, 2},{MinR{-1.}, ValR{0.5}, MaxR{1.}, StepR{0.01}, 2}}));
+    add_input_ui(m_p->vIntensityEnable.init_widget("Intensity", false));
+    add_input_ui(m_p->vIntensity.init_widget("", MinR{0.}, ValR{0.5}, MaxR{1.}, StepR{0.1}));
+    add_input_ui(m_p->vSmoothnessEnable.init_widget("Smoothness", false));
+    add_input_ui(m_p->vSmoothness.init_widget("", MinR{0.}, ValR{0.5}, MaxR{1.}, StepR{0.1}));
+    add_input_ui(m_p->vRoundnessEnable.init_widget("Roundness", false));
+    add_input_ui(m_p->vRoundness.init_widget("", MinR{0.}, ValR{0.5}, MaxR{1.}, StepR{0.1}));
+    add_input_ui(m_p->vRoundedEnable.init_widget("Rounded", false));
+    add_input_ui(m_p->vRounded.init_widget("", false));
+
+    // AO
     add_input_ui(m_p->aoEnable.init_widget("Enable", true));
     add_input_ui(m_p->aoIntensityEnable.init_widget("Intensity", true));
     add_input_ui(m_p->aoIntensity.init_widget("", MinR{0.}, ValR{1.58}, MaxR{4.}, StepR{0.01}));
     add_input_ui(m_p->aoThicknessEnable.init_widget("Thickness", true));
     add_input_ui(m_p->aoThickness.init_widget("", MinR{1.}, ValR{1.96}, MaxR{10.}, StepR{0.01}));
+    add_input_ui(m_p->aoColorEnable.init_widget("Color", true));
+    add_input_ui(m_p->aoColor.init_widget("", Qt::black));
 }
 
 

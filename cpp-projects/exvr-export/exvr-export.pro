@@ -107,9 +107,11 @@ LIBS +=  \
 HEADERS += \
     # ex_components
     ex_components/ex_component_export.hpp \
-    ex_components/python_script_component_export.hpp \
-    ex_components/video_saver_component_export.hpp \
     # ex_resources
+    ex_components/python_script_ex_component.hpp \
+    ex_components/python_script_ex_component_export.hpp \
+    ex_components/video_saver_ex_component.hpp \
+    ex_components/video_saver_ex_component_export.hpp \
     ex_element_export.hpp \
     ex_experiment_export.hpp \
     ex_resources/ex_resource_export.hpp \
@@ -117,9 +119,11 @@ HEADERS += \
 SOURCES += \
     # ex_components
     ex_components/ex_component_export.cpp \
-    ex_components/python_script_component_export.cpp \
-    ex_components/video_saver_component_export.cpp \
     # ex_resources
+    ex_components/python_script_ex_component.cpp \
+    ex_components/python_script_ex_component_export.cpp \
+    ex_components/video_saver_ex_component.cpp \
+    ex_components/video_saver_ex_component_export.cpp \
     ex_element_export.cpp \
     ex_experiment_export.cpp \
     ex_resources/ex_resource_export.cpp \

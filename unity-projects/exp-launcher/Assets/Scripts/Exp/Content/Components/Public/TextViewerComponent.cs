@@ -22,9 +22,6 @@
 ** SOFTWARE.                                                                      **
 ************************************************************************************/
 
-// system
-using System.Collections.Generic;
-
 // unity
 using UnityEngine;
 
@@ -35,36 +32,56 @@ namespace Ex{
 
     public class TextViewerComponent : CanvasWorldSpaceComponent{
 
+        private GameObject m_tvGO = null;
 
+        private GameObject m_panelGO = null;
+        private RectTransform m_panelRectTr = null;
         private GameObject m_textGO = null;
+        private RectTransform m_textRectTr = null;
         private TextMeshProUGUI m_text = null;
 
+        #region ex_functions
         protected override bool initialize() {
 
             // init slots
             add_slot("set text", (text) => {
                 set_text((string)text);
             });
+            add_slot("set color", (color) => {
+                set_color((Color)color);
+            });
 
             // init gameObject
-            m_textGO = ExVR.GlobalResources().instantiate_prebab("Components/TextViewer", transform);
-            m_textGO.name = "TextRect";
-            m_textGO.GetComponent<UnityEngine.UI.Image>().material = ExVR.GlobalResources().instantiate_unlit_transparent_color_mat();
-            m_text    = m_textGO.transform.Find("Text (TMP)").GetComponent<TMPro.TextMeshProUGUI>();
+            m_tvGO = ExVR.GlobalResources().instantiate_prebab("Components/TextViewer", transform);            
+            m_tvGO.name = "TextRect";            
+
+            m_panelGO = m_tvGO.transform.Find("Panel").gameObject;
+            m_panelGO.GetComponent<UnityEngine.UI.Image>().material = ExVR.GlobalResources().instantiate_unlit_transparent_color_mat();
+            m_panelRectTr = m_panelGO.GetComponent<RectTransform>();
+
+            m_textGO = m_tvGO.transform.Find("Text (TMP)").gameObject;
+            m_text   = m_textGO.GetComponent<TMPro.TextMeshProUGUI>();
+            m_textRectTr = m_textGO.GetComponent<RectTransform>();
+
 
             return m_textGO != null;
         }
 
         protected override void set_visibility(bool visibility) {
-            m_textGO.SetActive(visibility);
+            m_tvGO.SetActive(visibility);
         }
 
         public override void update_from_current_config() {
+
+            // container
             resize_container();
-            update_text();
+            // background
+            m_panelGO.GetComponent<UnityEngine.UI.Image>().material.SetColor("_Color", currentC.get_color("background_color"));
+            // text
+            currentC.update_text("t", m_text);
         }
 
-        protected override void update_parameter_from_gui(string updatedArgName) {
+        protected override void update_parameter_from_gui(string updatedArgName) {            
             update_from_current_config();
         }
 
@@ -73,51 +90,74 @@ namespace Ex{
             resize_container();
         }
 
+        #endregion
+
+        #region public_functions
         public void resize_container() {
 
             m_textGO.transform.position = Vector3.zero;
             m_textGO.transform.rotation = Quaternion.identity;
 
-            var rTr = m_textGO.GetComponent<RectTransform>();
-            rTr.pivot = new Vector2(0.5f, 0.5f);
+            m_panelRectTr.pivot = new Vector2(0.5f, 0.5f);
+            m_textRectTr.pivot = new Vector2(0.5f, 0.5f);
 
             if (currentC.get<bool>("use_eye_camera")) {
 
                 // move to head
                 Transform camTr = ExVR.Display().cameras().get_eye_camera_transform();
-                rTr.pivot = currentC.get_vector2("pivot");
-                rTr.rotation = camTr.rotation * Quaternion.Euler(currentC.get_vector3("rotation"));
-                rTr.position = camTr.position + camTr.forward * currentC.get<float>("distance");
+                m_panelRectTr.pivot = currentC.get_vector2("pivot");
+                m_panelRectTr.rotation = camTr.rotation * Quaternion.Euler(currentC.get_vector3("rotation"));
+                m_panelRectTr.position = camTr.position + camTr.forward * currentC.get<float>("distance");
+
+                m_textRectTr.pivot = m_panelRectTr.pivot;
+                m_textRectTr.rotation = m_panelRectTr.rotation;
+                m_textRectTr.position = m_panelRectTr.position;
 
             } else {
-                rTr.localPosition = currentC.get_vector3("position");
-                rTr.localEulerAngles = currentC.get_vector3("rotation");
+                m_panelRectTr.localPosition = currentC.get_vector3("position");
+                m_panelRectTr.localEulerAngles = currentC.get_vector3("rotation");
+
+                m_textRectTr.localPosition = m_panelRectTr.localPosition;
+                m_textRectTr.localEulerAngles = m_panelRectTr.localEulerAngles;
             }
 
-            rTr.sizeDelta = new Vector2(currentC.get<int>("width"), currentC.get<int>("height"));
+            m_panelRectTr.sizeDelta = new Vector2(currentC.get<int>("width"), currentC.get<int>("height"));
+            m_textRectTr.sizeDelta = m_panelRectTr.sizeDelta;
 
             var sf = currentC.get<float>("scale_factor")*0.01f;
-            rTr.localScale = new Vector3(
+            m_panelRectTr.localScale = new Vector3(
                 sf, sf, sf
             );
-
-            rTr = m_text.GetComponent<RectTransform>();
-            rTr.sizeDelta = new Vector2(currentC.get<int>("width"), currentC.get<int>("height"));
+            m_textRectTr.localScale = m_panelRectTr.localScale*0.9f;
         }
 
         public void set_text(string text) {
-            currentC.set<string>("t_text", text);
-            update_text();
-        }
-
-        public void update_text() {
-
-            // background
-            m_textGO.GetComponent<UnityEngine.UI.Image>().material.color = currentC.get_color("background_color");
-
-            // text
+            currentC.set("t_text", text);
             currentC.update_text("t", m_text);
         }
+
+        public void set_color(Color color) {
+            currentC.set("t_face_color", color);
+            currentC.set("t_outline_color", color);
+            currentC.update_text("t", m_text);
+        }
+
+        public void set_pivot(Vector2 pivot) {
+            currentC.set_vector2("pivot", pivot);
+        }
+
+        public void set_scale_factor(float factor) {
+            currentC.set("scale_factor", factor);
+
+        }
+
+        public void set_size(Vector2 size) {
+            currentC.set("width", size.x);
+            currentC.set("height", size.y);
+        }
+
+
+        #endregion
     }
 }
 

@@ -33,7 +33,6 @@
         <file alias="Choices">icons/Choices.png</file>
         <file alias="Dice">icons/Dice.png</file>
         <file alias="Dices">icons/Dices.png</file>
-        <file alias="Dices2">icons/Dices2.png</file>
         <file alias="Falling_spheres">icons/Falling_spheres.png</file>
         <file alias="Hand">icons/Hand.png</file>
         <file alias="Image_camera">icons/Image_camera.png</file>
@@ -104,6 +103,8 @@
         <file alias="Landmark">icons/Landmark.png</file>
         <file alias="Parallel_port">icons/Parallel_port.png</file>
         <file alias="Flag_pole">icons/FlagPole.png</file>
+        <file alias="Post_process">icons/color-circle.png</file>
+        <file alias="Plane">icons/Plane.png</file>
     </qresource>
     <qresource prefix="/">
         <file alias="DefaultStyle">nodes/DefaultStyle.json</file>

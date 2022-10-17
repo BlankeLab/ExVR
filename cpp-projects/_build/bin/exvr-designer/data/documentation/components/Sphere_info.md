@@ -12,7 +12,9 @@ Parameters:
 ------------
 
 &nbsp;
-### Initialization:
+### Initialization config: 
+
+&nbsp;
 
 Name | Id | Type | Description |
 -----| ---| ---- | ----------- |
@@ -20,14 +22,21 @@ Name | Id | Type | Description |
 **Long nb triangles**| "nb_log" | int | number of triangles for the longitude |
 **Lat nb triangles**| "nb_lat" | int | number of triangles for the latitude |
 **Is tranparent?**| "tranparent" | boolean | if true, the alpha channel of the color will be used for sepcifying the transparency of the model|
+**Init transform**| "init_transform" | Transform | Init transform to be applied|
+**Do not apply**| "init_transform_do_not_apply" | boolean | If checked, the init transform will not be applied|
+
+
+&nbsp;
+&nbsp;
+
+### Condition config:
 
 &nbsp;
 
-### Condition:
-
 Name | Id | Type | Description |
 -----| ---| ---- | ----------- |
-**Transform**| "transform" | Transform | model transform |
+**Transform**| "transform" | Transform | Config transform to be applied|
+**Do not apply**| "transform_do_not_apply" | boolean | If checked, the config transform will not be applied|
 **Color**| "color" | Color | model material color| 
 **Metallic**| "metallic" | float | model material metallic value |
 **Smoothness**| "smoothness" | float | model material smoothness value|

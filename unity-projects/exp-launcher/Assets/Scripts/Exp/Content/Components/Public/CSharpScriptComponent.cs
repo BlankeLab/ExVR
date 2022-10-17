@@ -38,7 +38,6 @@ namespace Ex{
         }
 
 
-
         // once per loading
         protected override bool initialize() {
 
@@ -68,6 +67,8 @@ namespace Ex{
             functionsDefined[Function.clean] = (runtimeType.GetMethod("clean", flagPublic).DeclaringType == runtimeType);
 
             functionsDefined[Function.start_experiment] = (runtimeType.GetMethod("start_experiment", flagPublic).DeclaringType == runtimeType);
+            functionsDefined[Function.post_start_experiment] = (runtimeType.GetMethod("post_start_experiment", flagPublic).DeclaringType == runtimeType);            
+            functionsDefined[Function.pre_stop_experiment] = (runtimeType.GetMethod("pre_stop_experiment", flagPublic).DeclaringType == runtimeType);
             functionsDefined[Function.stop_experiment] = (runtimeType.GetMethod("stop_experiment", flagPublic).DeclaringType == runtimeType);
 
             functionsDefined[Function.set_current_config] = (runtimeType.GetMethod("set_current_config", flagPublic).DeclaringType == runtimeType);
@@ -77,10 +78,11 @@ namespace Ex{
             functionsDefined[Function.post_start_routine] = (runtimeType.GetMethod("post_start_routine", flagPublic).DeclaringType == runtimeType);
             functionsDefined[Function.stop_routine] = (runtimeType.GetMethod("stop_routine", flagPublic).DeclaringType == runtimeType);
 
-            functionsDefined[Function.on_gui] = (runtimeType.GetMethod("on_gui", flagPublic).DeclaringType == runtimeType);
             functionsDefined[Function.pre_update] = (runtimeType.GetMethod("pre_update", flagPublic).DeclaringType == runtimeType);
             functionsDefined[Function.update] = (runtimeType.GetMethod("update", flagPublic).DeclaringType == runtimeType);
             functionsDefined[Function.post_update] = (runtimeType.GetMethod("post_update", flagPublic).DeclaringType == runtimeType);
+            functionsDefined[Function.on_gui] = (runtimeType.GetMethod("on_gui", flagPublic).DeclaringType == runtimeType);
+            functionsDefined[Function.end_of_frame] = (runtimeType.GetMethod("end_of_frame", flagPublic).DeclaringType == runtimeType);
 
             functionsDefined[Function.set_update_state] = (runtimeType.GetMethod("set_update_state", flagPublic).DeclaringType == runtimeType);
             functionsDefined[Function.set_visibility] = (runtimeType.GetMethod("set_visibility", flagPublic).DeclaringType == runtimeType);
@@ -176,6 +178,8 @@ namespace Ex{
 
         // once per experiment
         protected override void start_experiment() {compiledComponent.start_experiment();}
+        protected override void post_start_experiment() { compiledComponent.post_start_experiment(); }
+        protected override void pre_stop_experiment() { compiledComponent.pre_stop_experiment(); }
         protected override void stop_experiment() {compiledComponent.stop_experiment();}
 
         // once per routine
@@ -187,10 +191,11 @@ namespace Ex{
         protected override void stop_routine() { compiledComponent.stop_routine(); }
 
         // every frame or more
-        protected override void on_gui() { compiledComponent.on_gui(); }
         protected override void pre_update() {compiledComponent.pre_update();}
         protected override void update() {compiledComponent.update();}
         protected override void post_update() {compiledComponent.post_update();}
+        protected override void on_gui() { compiledComponent.on_gui(); }
+        protected override void end_of_frame() { compiledComponent.end_of_frame(); }
 
         // several times per routine
         protected override void set_visibility(bool visibility) {compiledComponent.set_visibility(visibility);}

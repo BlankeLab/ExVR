@@ -77,8 +77,8 @@
 #include "config_parameters/cloud_pw.hpp"
 #include "config_parameters/scaner_video_pw.hpp"
 #include "config_parameters/humanoid_controller_pw.hpp"
-#include "config_parameters/kinect_manager_pw.hpp"
-#include "config_parameters/kinect_body_tracking_pw.hpp"
+#include "config_parameters/k2_manager_pw.hpp"
+#include "config_parameters/k2_body_tracking_pw.hpp"
 #include "config_parameters/plot_resource_pw.hpp"
 #include "config_parameters/qualisys_tracking_pw.hpp"
 #include "config_parameters/mri_pw.hpp"
@@ -94,6 +94,7 @@
 #include "config_parameters/tpp_avatar_camera_pw.hpp"
 #include "config_parameters/volumetric_video_pw.hpp"
 #include "config_parameters/buttons_ui_pw.hpp"
+#include "config_parameters/k4_manager_pw.hpp"
 
 using namespace tool::ex;
 
@@ -201,17 +202,19 @@ ConfigParametersW *ConfigW::generate_parameters(Component::Type type, bool initC
         return gen_params_w<TargetToGrabInitConfigParametersW,TargetToGrabConfigParametersW>(initConfig);
     // ############################# Model
     case CT::Cube:
-        return gen_params_w<CubeInitConfigParametersW,CubeConfigParametersW>(initConfig);
+        return gen_params_w<CubeInitConfigParametersW,ModelConfigParametersW>(initConfig);
     case CT::Cylinder:
-        return gen_params_w<CylinderInitConfigParametersW,CylinderConfigParametersW>(initConfig);
+        return gen_params_w<CylinderInitConfigParametersW,ModelConfigParametersW>(initConfig);
     case CT::Landmark:
         return gen_params_w<LandmarkInitConfigParametersW,LandmarkConfigParametersW>(initConfig);
     case CT::Lines:
         return gen_params_w<LinesInitConfigParametersW,LinesConfigParametersW>(initConfig);
+    case CT::Plane:
+        return gen_params_w<PlaneInitConfigParametersW,ModelConfigParametersW>(initConfig);
     case CT::Sphere:
-        return gen_params_w<SphereInitConfigParametersW,SphereConfigParametersW>(initConfig);
+        return gen_params_w<SphereInitConfigParametersW,ModelConfigParametersW>(initConfig);
     case CT::Torus:
-        return gen_params_w<TorusInitConfigParametersW,TorusConfigParametersW>(initConfig);
+        return gen_params_w<TorusInitConfigParametersW,ModelConfigParametersW>(initConfig);
     // ############################# Network
     case CT::Parallel_port_writer:
         return gen_params_w<ParallelPortWriterInitConfigParametersW,ParallelPortWriterConfigParametersW>(initConfig);
@@ -224,6 +227,8 @@ ConfigParametersW *ConfigW::generate_parameters(Component::Type type, bool initC
     case CT::Udp_writer:
         return gen_params_w<UdpWriterInitConfigParametersW,UdpWriterConfigParametersW>(initConfig);
     // ############################# Output
+    case CT::Global_logger:
+        return gen_params_w<GlobalLoggerInitConfigParametersW,GlobalLoggerConfigParametersW>(initConfig);
     case CT::Logger:
         return gen_params_w<LoggerInitConfigParametersW,LoggerConfigParametersW>(initConfig);
     case CT::LoggerColumns:
@@ -270,10 +275,12 @@ ConfigParametersW *ConfigW::generate_parameters(Component::Type type, bool initC
         return gen_params_w<FopRobotInitConfigParametersW,FopRobotConfigParametersW>(initConfig);
     case CT::Qualisys:
         return gen_params_w<QualisysTrackingInitConfigParametersW,QualisysTrackingConfigParametersW>(initConfig);
-    case CT::Kinect_manager:
-        return gen_params_w<KinectManagerInitConfigParametersW,KinectManagerConfigParametersW>(initConfig);
-    case CT::Kinect_body_tracking:
-        return gen_params_w<KinectBodyTrackingInitConfigParametersW,KinectBodyTrackingConfigParametersW>(initConfig);
+    case CT::K2_manager:
+        return gen_params_w<K2ManagerInitConfigParametersW,K2ManagerConfigParametersW>(initConfig);
+    case CT::K2_body_tracking:
+        return gen_params_w<K2BodyTrackingInitConfigParametersW,K2BodyTrackingConfigParametersW>(initConfig);
+    case CT::K4_manager:
+        return gen_params_w<K4ManagerInitConfigParametersW,K4ManagerConfigParametersW>(initConfig);
     case CT::Leap_motion:
         return gen_params_w<LeapMotionInitConfigParametersW,LeapMotionConfigParametersW>(initConfig);
     case CT::Leap_motion_arms_display:

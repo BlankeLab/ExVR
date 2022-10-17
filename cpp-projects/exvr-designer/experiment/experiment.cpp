@@ -106,33 +106,42 @@ auto Experiment::get_elements() const -> std::vector<FlowElement*>{
     return children;
 }
 
-//auto Experiment::get_elements_from_type(FlowElement::Type type) const -> std::vector<FlowElement*>{
+auto Experiment::get_elements_of_type(FlowElement::Type type) const{
+    return elements | std::ranges::views::filter([type](const auto &element) {
+        return element->type() == type;
+    });
+}
 
 
-////    auto elementsFromType = elements | std::ranges::views::filter([type](const auto &element) {
-////        return element->type() == type;
-////    });
-////    return elementsFromType;
-//    std::vector<FlowElement*> children;
-//    for(const auto &elem : elements){
-//        if(elem->type() == type){
-//            children.push_back(elem.get());
-//        }
-//    }
-//    return children;
-//}
 
 auto Experiment::get_routine(ElementKey routineKey) const -> Routine*{
-
     if(auto elementFound = std::find_if(elements.begin(), elements.end(), [routineKey](const auto &element){
             return element->key() == routineKey.v && element->is_routine();
         }); elementFound != elements.end()){
-
         return dynamic_cast<Routine*>(elementFound->get());
     }
-
-//    QtLogger::error(QSL("[EXP] Routine with key ") % QString::number(routineKey.v) % QSL(" not found."));
     return nullptr;
+}
+
+auto Experiment::get_routine(RowId id) const -> Routine*{
+    auto routines = get_elements_of_type(FlowElement::Type::Routine);
+    if(id.v < std::ranges::distance(routines)){
+        auto routinesIt = routines.begin();
+        std::ranges::advance(routinesIt, id.v);
+        return dynamic_cast<Routine*>(routinesIt->get());
+    }
+    return nullptr;
+}
+
+auto Experiment::get_routines_name() const -> std::vector<QStringView>{
+
+    auto routinesV = get_elements_of_type(FlowElement::Type::Routine);
+    std::vector<QStringView> names;
+    names.reserve(std::ranges::distance(routinesV));
+    for(auto it = routinesV.begin(); it != routinesV.end(); ++it){
+        names.push_back(it->get()->name());
+    }
+    return names;
 }
 
 
@@ -257,9 +266,9 @@ void Experiment::select_element_from_ptr(FlowElement *element, bool updateSignal
 void Experiment::add_element(FlowElement::Type type, size_t index){
 
 
-    auto typeElements = get_elements_from_type(type);
-    switch (type) {{
-    case FlowElement::Type::Routine:
+    auto typeElements = get_elements_of_type(type);
+    switch (type) {
+    case FlowElement::Type::Routine:{
 
             QString name;
             size_t offset = 1;
@@ -281,9 +290,9 @@ void Experiment::add_element(FlowElement::Type type, size_t index){
 
             elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 1), std::move(routine));
             elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
-            select_element(ElementKey{routinePtr->key()}, false);
-    }break;{
-    case FlowElement::Type::Isi:
+            select_element(routinePtr->e_key(), false);
+    }break;
+    case FlowElement::Type::Isi:{
 
             QString name;
             size_t offset = 1;
@@ -305,9 +314,9 @@ void Experiment::add_element(FlowElement::Type type, size_t index){
             auto isiPtr = isi.get();
             elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 1), std::move(isi));
             elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
-            select_element(ElementKey{isiPtr->key()}, false);
-    }break;{
-    case FlowElement::Type::Loop:
+            select_element(isiPtr->e_key(), false);
+    }break;
+    case FlowElement::Type::Loop:{
 
             QString name;
             size_t offset = 1;
@@ -337,7 +346,7 @@ void Experiment::add_element(FlowElement::Type type, size_t index){
             elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
             elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 3), std::move(end));
             elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 4), std::make_unique<NodeFlow>());
-            select_element(ElementKey{loopPtr->key()}, false);
+            select_element(loopPtr->e_key(), false);
     }break;
     default:
         return;
@@ -349,7 +358,13 @@ void Experiment::add_element(FlowElement::Type type, size_t index){
     add_to_update_flag(UpdateFlow | UpdateSelection | UpdateRoutines);
 }
 
-void Experiment::remove_element(FlowElement *elemToDelete){
+void Experiment::remove_element(FlowElement *elemToDelete, bool updateConditions){
+
+    if(selectedElement != nullptr){
+        if(selectedElement->key() == elemToDelete->key()){
+            selectedElement = nullptr;
+        }
+    }
 
     if(elemToDelete->type() == FlowElement::Type::LoopStart || elemToDelete->type() == FlowElement::Type::LoopEnd){
         elemToDelete = dynamic_cast<LoopNode*>(elemToDelete)->loop;
@@ -381,17 +396,130 @@ void Experiment::remove_element(FlowElement *elemToDelete){
         remove_elements_not_in_flow();
     }
 
-    compute_loops_levels();
-    update_conditions();
-    selectedElement = nullptr;
+    if(updateConditions){
+        compute_loops_levels();
+        update_conditions();
+    }
 
     add_to_update_flag(UpdateFlow | UpdateSelection | UpdateRoutines);
 }
 
 void Experiment::remove_element_of_key(ElementKey elementKey){
-
     if(auto element = get_element(elementKey); element != nullptr){
         remove_element(element);
+    }
+}
+
+void Experiment::remove_everything_before_element_of_key(ElementKey elementKey){
+
+    if(auto firstNewElement = get_element(elementKey); firstNewElement != nullptr){
+
+        std::vector<ElementKey> elementsToRemove;
+        std::vector<ElementKey> loopsToRemove;
+        for(const auto &element : elements){
+
+            if(element->type() == FlowElement::Type::Node){
+                continue;
+            }
+
+            if(element->key() != firstNewElement->key()){
+
+                if(element->type() == FlowElement::Type::Routine || element->type() == FlowElement::Type::Isi){
+                    elementsToRemove.push_back(element->e_key());
+                }else if(element->type() == FlowElement::Type::LoopStart || element->type() == FlowElement::Type::LoopEnd){
+                    loopsToRemove.push_back(element->e_key());
+                }
+            }else{
+                break;
+            }
+        }
+
+        if(elementsToRemove.size() == 0){
+            return;
+        }
+
+        QMessageBox validateBox;
+        validateBox.setWindowTitle("Remove everything before selected element");
+        validateBox.setText(QString("This action will remove several elements from the flow, do you want to continue?"));
+        validateBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        validateBox.setDefaultButton(QMessageBox::Cancel);
+        switch (validateBox.exec()) {
+        case QMessageBox::Ok:
+            for (ElementKey eKey : std::ranges::reverse_view(elementsToRemove)){
+                if(auto element = get_element(eKey, false); element != nullptr){
+                    remove_element(element, false);
+                }
+            }
+            for (ElementKey eKey : std::ranges::reverse_view(loopsToRemove)){
+                if(auto element = get_element(eKey, false); element != nullptr){
+                    remove_element(element, false);
+                }
+            }
+            compute_loops_levels();
+            update_conditions();
+            add_to_update_flag(UpdateFlow | UpdateSelection | UpdateRoutines);
+            return;
+        default:
+            return;
+        }
+    }
+}
+
+void Experiment::remove_everything_after_element_of_key(ElementKey elementKey){
+
+    if(auto firstNewElement = get_element(elementKey); firstNewElement != nullptr){
+
+        std::vector<ElementKey> elementsToRemove;
+        std::vector<ElementKey> loopsToRemove;
+        bool found = false;
+        for(const auto &element : elements){
+
+            if(element->type() == FlowElement::Type::Node){
+                continue;
+            }
+
+            if(element->key() == firstNewElement->key()){
+                found = true;
+                continue;
+            }
+
+            if(found){
+                if(element->type() == FlowElement::Type::Routine || element->type() == FlowElement::Type::Isi){
+                    elementsToRemove.push_back(element->e_key());
+                }else if(element->type() == FlowElement::Type::LoopStart || element->type() == FlowElement::Type::LoopEnd){
+                    loopsToRemove.push_back(element->e_key());
+                }
+            }
+        }
+
+        if(elementsToRemove.size() == 0){
+            return;
+        }
+
+        QMessageBox validateBox;
+        validateBox.setWindowTitle("Remove everything after selected element");
+        validateBox.setText(QString("This action will remove several elements from the flow, do you want to continue?"));
+        validateBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        validateBox.setDefaultButton(QMessageBox::Cancel);
+        switch (validateBox.exec()) {
+        case QMessageBox::Ok:
+            for (ElementKey eKey : std::ranges::reverse_view(elementsToRemove)){
+                if(auto element = get_element(eKey, false); element != nullptr){
+                    remove_element(element, false);
+                }
+            }
+            for (ElementKey eKey : std::ranges::reverse_view(loopsToRemove)){
+                if(auto element = get_element(eKey, false); element != nullptr){
+                    remove_element(element, false);
+                }
+            }
+            compute_loops_levels();
+            update_conditions();
+            add_to_update_flag(UpdateFlow | UpdateSelection | UpdateRoutines);
+            return;
+        default:
+            return;
+        }
     }
 }
 
@@ -681,7 +809,7 @@ void Experiment::move_routine_condition_down(ElementKey routineKey, RowId id){
 
     if(auto routine = get_routine(routineKey); routine != nullptr){
         routine->move_condition_down(id);
-        add_to_update_flag(UpdateRoutines);
+        add_to_update_flag(UpdateRoutines | UpdateSelection);
     }
 }
 
@@ -689,7 +817,7 @@ void Experiment::move_routine_condition_up(ElementKey routineKey, RowId id){
 
     if(auto routine = get_routine(routineKey); routine != nullptr){
         routine->move_condition_up(id);
-        add_to_update_flag(UpdateRoutines);
+        add_to_update_flag(UpdateRoutines | UpdateSelection);
     }
 }
 
@@ -1125,7 +1253,7 @@ void Experiment::add_action_to_all_conditions(ElementKey routineKey, ComponentKe
 
     auto component = compM.get_component(componentKey);
     if(component == nullptr){
-        QtLogger::error(QSL("Cannot add action to all conditions.)"));
+        QtLogger::error(QSL("[Experiment::add_action_to_all_conditions] Cannot add action.)"));
         return;
     }
 
@@ -1153,7 +1281,7 @@ void Experiment::add_action_to_all_routines_conditions(ComponentKey componentKey
 
     auto component = compM.get_component(componentKey);
     if(component == nullptr){
-        QtLogger::error(QSL("Cannot add action to all routines conditions.)"));
+        QtLogger::error(QSL("[Experiment::add_action_to_all_routines_conditions] Cannot add action to all routines conditions.)"));
         return;
     }
 
@@ -1446,37 +1574,22 @@ void Experiment::select_action_config(ElementKey routineKey, ConditionKey condit
     }
 }
 
-void Experiment::select_loop_set(ElementKey loopKey, QString setName){
-
-    if(auto loop = get_loop(loopKey); loop != nullptr){
-        if(setName != loop->currentSetName){
-            loop->currentSetName = setName;
-            add_to_update_flag(UpdateSelection | UpdateFlow | UpdateRoutines);
-        }
-    }
-}
-
 void Experiment::add_loop_sets(ElementKey loopKey, QString sets, RowId id){
 
     if(auto loop = get_loop(loopKey); loop != nullptr){
-        if(loop->is_file_mode()){
-            QtLogger::error(QSL("[EXP] Cannot add new set when file mode is used."));
+
+        if(loop->is_default()){
+            loop->set_sets(sets.split("\n"));
         }else{
-
-            if(loop->is_default()){
-                loop->set_sets(sets.split("\n"));
-            }else{
-                loop->add_sets(sets.split("\n"), id);
-            }
-
-            update_conditions();
-            add_to_update_flag(UpdateSelection | UpdateFlow | UpdateRoutines);
+            loop->add_sets(sets.split("\n"), id);
         }
+
+        update_conditions();
+        add_to_update_flag(UpdateSelection | UpdateFlow | UpdateRoutines);
     }
 }
 
 void Experiment::modify_loop_set_name(ElementKey loopKey, QString setName, RowId id){
-
     if(auto loop = get_loop(loopKey); loop != nullptr){        
         if(loop->modify_set_name(setName,id)){
             update_conditions();
@@ -1486,13 +1599,8 @@ void Experiment::modify_loop_set_name(ElementKey loopKey, QString setName, RowId
 }
 
 void Experiment::modify_loop_set_occurrencies_nb(ElementKey loopKey, int setOccuranciesNb, RowId id){
-
     if(auto loop = get_loop(loopKey); loop != nullptr){
-        if(loop->is_file_mode()){
-            QtLogger::error(QSL("[EXP] Cannot modify loop set when file mode is used."));
-        }else{
-            loop->modify_set_occurencies_nb(setOccuranciesNb, id);            
-        }
+        loop->modify_set_occurencies_nb(setOccuranciesNb, id);
         add_to_update_flag(UpdateSelection);
     }else{
         QtLogger::error(QSL("[Experiment::modify_loop_set_occurrencies_nb] Cannot get loop from key [") % QString::number(loopKey.v) % QSL("]"));
@@ -1500,7 +1608,6 @@ void Experiment::modify_loop_set_occurrencies_nb(ElementKey loopKey, int setOccu
 }
 
 void Experiment::modify_loop_type(ElementKey loopKey, Loop::Mode mode){
-
     if(auto loop = get_loop(loopKey); loop != nullptr){
         loop->set_loop_type(mode);
         update_conditions();
@@ -1509,7 +1616,6 @@ void Experiment::modify_loop_type(ElementKey loopKey, Loop::Mode mode){
 }
 
 void Experiment::modify_loop_nb_reps(ElementKey loopKey, int nbReps){
-
     if(auto loop = get_loop(loopKey); loop != nullptr){
         loop->set_nb_reps(to_unsigned(nbReps));
     }
@@ -1529,67 +1635,44 @@ void Experiment::modify_loop_no_following_value(ElementKey loopKey, bool state){
 }
 
 void Experiment::remove_set(ElementKey loopKey, RowId id){
-
     if(auto loop = get_loop(loopKey); loop != nullptr){
-        if(loop->is_file_mode()){
-            QtLogger::error(QSL("[EXP] Cannot remove loop set when file mode is used."));
-        }else{
-
-            loop->remove_set(id);
-            update_conditions();
-        }
+        loop->remove_set(id);
+        update_conditions();
         add_to_update_flag(UpdateRoutines | UpdateSelection | UpdateFlow);
     }
 }
 
 void Experiment::sort_loop_sets_lexico(ElementKey loopKey){
-
     if(auto loop = get_loop(loopKey); loop != nullptr){
-        if(loop->is_file_mode()){
-            QtLogger::error(QSL("[EXP] Cannot sort loop set when file mode is used."));
-        }else{
-            loop->sort_sets_lexico();
-            update_conditions();
-            add_to_update_flag(UpdateRoutines | UpdateSelection | UpdateFlow);
-        }
+        loop->sort_sets_lexico();
+        update_conditions();
+        add_to_update_flag(UpdateRoutines | UpdateSelection | UpdateFlow);
     }
 }
 
 void Experiment::sort_loop_sets_num(ElementKey loopKey){
     if(auto loop = get_loop(loopKey); loop != nullptr){
-        if(loop->is_file_mode()){
-            QtLogger::error(QSL("[EXP] Cannot sort loop set when file mode is used."));
-        }else{
-            loop->sort_sets_num();
-            update_conditions();
-            add_to_update_flag(UpdateRoutines | UpdateSelection | UpdateFlow);
-        }
+        loop->sort_sets_num();
+        update_conditions();
+        add_to_update_flag(UpdateRoutines | UpdateSelection | UpdateFlow);
     }
 }
 
 void Experiment::move_loop_set_up(ElementKey loopKey, RowId id){
 
     if(auto loop = get_loop(loopKey); loop != nullptr){
-        if(loop->is_file_mode()){
-            QtLogger::error(QSL("[EXP] Cannot move loop set when file mode is used."));
-        }else{
-            loop->move_set_up(id);
-            update_conditions();
-            add_to_update_flag(UpdateRoutines | UpdateSelection | UpdateFlow);
-        }
+        loop->move_set_up(id);
+        update_conditions();
+        add_to_update_flag(UpdateRoutines | UpdateSelection | UpdateFlow);
     }
 }
 
 void Experiment::move_loop_set_down(ElementKey loopKey, RowId id){
 
     if(auto loop = get_loop(loopKey); loop != nullptr){
-        if(loop->is_file_mode()){
-            QtLogger::error(QSL("[EXP] Cannot move loop set when file mode is used."));
-        }else{
-            loop->move_set_down(id);
-            update_conditions();
-            add_to_update_flag(UpdateRoutines | UpdateSelection | UpdateFlow);
-        }
+        loop->move_set_down(id);
+        update_conditions();
+        add_to_update_flag(UpdateRoutines | UpdateSelection | UpdateFlow);
     }
 }
 
@@ -1601,21 +1684,6 @@ void Experiment::load_loop_sets_file(ElementKey loopKey, QString path){
             add_to_update_flag(UpdateRoutines | UpdateSelection | UpdateFlow);
         }else{
             QtLogger::error(QSL("[EXP] Cannot load loops set file with path: ") % path);
-        }
-    }
-}
-
-void Experiment::reload_loop_sets_file(ElementKey loopKey){
-
-    if(auto loop = get_loop(loopKey); loop != nullptr){
-        if(loop->filePath.length() == 0){
-            return;
-        }
-        if(loop->load_file(loop->filePath)){
-            update_conditions();
-            add_to_update_flag(UpdateRoutines | UpdateSelection | UpdateFlow);
-        }else{
-            QtLogger::error(QSL("[EXP] Cannot reload loops set file with path: ") % loop->filePath);
         }
     }
 }
@@ -1801,23 +1869,14 @@ void Experiment::update_conditions(){
         for(const auto& insideLoop : routine->insideLoops){
 
             auto loop = dynamic_cast<Loop*>(insideLoop);
-            if(loop->is_file_mode()){
 
-                std::vector<QString> loopFileSetsId;
-                loopFileSetsId.reserve(loop->fileSets.size());
-                for(const auto &s : loop->fileSets){
-                    loopFileSetsId.push_back(QString::number(s->key()));
-                }
-                setsId.push_back(std::move(loopFileSetsId));
-            }else{
-
-                std::vector<QString> loopSetsId;
-                loopSetsId.reserve(loop->sets.size());
-                for(const auto &s : loop->sets){
-                    loopSetsId.push_back(QString::number(s->key()));
-                }
-                setsId.push_back(std::move(loopSetsId));
+            std::vector<QString> loopSetsId;
+            loopSetsId.reserve(loop->sets.size());
+            for(const auto &s : loop->sets){
+                loopSetsId.push_back(QString::number(s->key()));
             }
+            setsId.push_back(std::move(loopSetsId));
+
         }
 
         // mix new conditions keys
@@ -2307,6 +2366,9 @@ void Experiment::new_experiment(){
     elements.push_back(std::make_unique<NodeFlow>()); // init with one node
     compute_loops_levels();
     update_conditions();
+
+    add_new_component(Component::Type::Global_logger, RowId{0});
+
     add_to_update_flag(UpdateAll | ResetUI);
 }
 
@@ -2402,7 +2464,7 @@ void Experiment::update_exp_state(ExpState state, QStringView infos){
                 }
 
                 if(auto condition = routine->get_condition(conditionKey); condition != nullptr){
-                    states.currentTypeSpecificInfo = condition->name;
+                    states.currentTypeSpecificInfo = clamp(condition->name, 15);
                     if(condition->key() != states.currentConditionKey){
                         states.currentConditionKey = condition->key();
                         updateCurrentCondition = true;

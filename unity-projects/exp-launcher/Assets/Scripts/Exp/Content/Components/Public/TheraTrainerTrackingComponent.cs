@@ -63,7 +63,7 @@ namespace Ex{
                 return;
             }
 
-            var message = messages[messages.Count - 1].Item2;
+            var message = messages[messages.Count - 1].Item3;
             message = message.Replace(",", ".");
             if (message.Length > 0) {
                 var split = message.Split('_');

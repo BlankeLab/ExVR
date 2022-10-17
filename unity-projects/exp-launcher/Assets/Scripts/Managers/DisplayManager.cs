@@ -59,8 +59,14 @@ namespace Ex{
         // debug
         public GameObject debugVrHmd = null;
 
+        private DisplayMode m_mode = DisplayMode.Flat;
+
         public CamerasManager cameras() {
             return camerasManager;
+        }
+
+        public DisplayMode current_mode() {
+            return m_mode;
         }
 
         public void initialize() {
@@ -69,7 +75,7 @@ namespace Ex{
 
             postProcessingVolume = transform.Find("PostProcessVolume").GetComponent<PostProcessVolume>();
 
-            switch (ExVR.GuiSettings().displayMode) {
+            switch (ExVR.Display().current_mode()) {
                 case DisplayMode.OpenVR:
                     set_openvr_parameters();
                     break;
@@ -97,15 +103,17 @@ namespace Ex{
 
         public void change_display_mode(DisplayMode mode) {
 
-            if (UnityEngine.XR.XRSettings.loadedDeviceName == "None" && (mode == DisplayMode.Flat || mode == DisplayMode.FlatStereo)) {
+            m_mode = mode;
+
+            if (UnityEngine.XR.XRSettings.loadedDeviceName == "None" && (m_mode == DisplayMode.Flat || m_mode == DisplayMode.FlatStereo)) {
                 return;
             }
 
-            if (UnityEngine.XR.XRSettings.loadedDeviceName == "OpenVR" && mode == DisplayMode.OpenVR) {
+            if (UnityEngine.XR.XRSettings.loadedDeviceName == "OpenVR" && m_mode == DisplayMode.OpenVR) {
                 return;
             }
 
-            switch (mode) {
+            switch (m_mode) {
                 case DisplayMode.OpenVR:
                     set_openvr();
                     break;

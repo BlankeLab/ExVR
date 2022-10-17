@@ -59,6 +59,9 @@ struct SerialPortWriterConfigParametersW::Impl{
     ExRadioButtonW rbBitsMessage{"bits_mode"};
     ExRadioButtonW rbIntMessage{"int_mode"};
     ExRadioButtonW rbStringMessage{"string_mode"};
+    ExRadioButtonW rbBitsPulseMessage{"bits_pulse_mode"};
+    ExRadioButtonW rbIntPulseMessage{"int_pulse_mode"};
+
 
     ExTextEditW teMessage{"message"};
     ExCheckBoxW cbSendWhendRoutineStarts{"send_new_routine"};
@@ -83,7 +86,7 @@ void SerialPortWriterConfigParametersW::insert_widgets(){
     );
     add_widget(ui::F::gen(ui::L::HB(),{ui::W::txt("Pulse time:"), m_p->pulseTime()}, LStretch{true}, LMargins{false},QFrame::NoFrame));
     add_widget(ui::W::horizontal_line());
-    add_widget(ui::F::gen(ui::L::VB(), {m_p->rbBitsMessage(), m_p->rbIntMessage(), m_p->rbStringMessage()}, LStretch{true}, LMargins{false}));
+    add_widget(ui::F::gen(ui::L::VB(), {m_p->rbBitsMessage(), m_p->rbIntMessage(), m_p->rbStringMessage(), m_p->rbBitsPulseMessage(), m_p->rbIntPulseMessage()}, LStretch{true}, LMargins{false}));
     add_widget(ui::F::gen(ui::L::VB(), {ui::W::txt("Message to sent:"),  m_p->teMessage()}, LStretch{false}, LMargins{false}));
 
     set_stretch(0,1);
@@ -99,14 +102,16 @@ void SerialPortWriterConfigParametersW::init_and_register_widgets(){
 
     add_inputs_ui(
         ExRadioButtonW::init_group_widgets(m_p->group1,
-        {&m_p->rbBitsMessage, &m_p->rbIntMessage, &m_p->rbStringMessage},
+        {&m_p->rbBitsMessage, &m_p->rbIntMessage, &m_p->rbStringMessage, &m_p->rbBitsPulseMessage, &m_p->rbIntPulseMessage},
         {
             "Bits message (ex: 0101_0100 0101_0110...)",
             "Integers message (ex: 254 13 0 255...)",
-            "String message (ex: blabla...)"
+            "String message (ex: blabla...)",
+            "Bits message pulse (ex: 0101_0100 0101_0110...)",
+            "Integers message pulse (ex: 254 13 0 255...)",
         },
         {
-            false, false, true}
+            false, false, false, false, true}
         )
     );
 

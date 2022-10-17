@@ -11,16 +11,3 @@ Name | Type | Description |
 **scale** | vec3 | set the scale of the model |
 **transform** | transfo | Update the transform of the model |
 
-&nbsp;
-
-### Output:
-
-&nbsp;
-
-Name | Type | Description |
------| ---- | ----------- |
-**visibility changed** | bool | visibility of the model has been changed |
-
-&nbsp;
-
-

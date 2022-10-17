@@ -27,11 +27,6 @@
 TOOLBOX_REPOSITORY_DIR = $$EXVR_REPOSITORY_DIR"/toolbox"
 include(../toolbox/cpp-projects/tb-projects.pri)
 
-# lib
-## exvr-components
-#EXVR_COMPONENTS_TARGET   = "app" # debug
-EXVR_COMPONENTS_TARGET   = "lib"
-
 # dll
 ## exvr-export
 #EXVR_EXPORT_TARGET       = "app" # debug
@@ -44,7 +39,6 @@ EXVR_TEST_TARGET        = "app"
 
 # projects list
 EXVR_CPP_PROJECTS +=\
-    EXVR_COMPONENTS:exvr-components:exvr-componentsd \
     EXVR_EXPORT:exvr-export:exvr-exportd \
     EXVR_DESIGNER:exvr-designer:exvr-designerd \
     EXVR_TEST:exvr-test:exvr-testd \

@@ -48,6 +48,14 @@ namespace tool::ex{
         XmlIoManager(Experiment *experiment) : m_experiment(experiment){
         }
 
+
+        void force_no_duration(){
+            m_debugNoDuration = true;
+        }
+        void cancel_no_duration(){
+            m_debugNoDuration = false;
+        }
+
     private :
 
         bool check_start_node(QString nodeName);
@@ -238,7 +246,7 @@ namespace tool::ex{
         bool                read_components();
         std::unique_ptr<Resource> read_resource();
 
-        RoutineUP           read_routine();
+        std::unique_ptr<Routine> read_routine();
         std::tuple<std::unique_ptr<LoopNode>, std::unique_ptr<Loop>, std::unique_ptr<LoopNode>> read_loop();
         std::unique_ptr<Set> read_set();
         IsiUP               read_isi();
@@ -255,13 +263,15 @@ namespace tool::ex{
 
         void check_read_elements();
 
+
     private:
 
+        bool m_debugNoDuration = false;
         Experiment *m_experiment = nullptr;
         std::unique_ptr<QXmlStreamReader> r = nullptr;
         std::unique_ptr<QXmlStreamWriter> w = nullptr;
 
-        std_v1<RoutineUP>  readXmlRoutines;
+        std_v1<std::unique_ptr<Routine>>  readXmlRoutines;
         std_v1<IsiUP>      readXmlISIs;
         std_v1<std::unique_ptr<LoopNode>> readXmlStartLoops;
         std_v1<std::unique_ptr<LoopNode>> readXmlEndLoops;

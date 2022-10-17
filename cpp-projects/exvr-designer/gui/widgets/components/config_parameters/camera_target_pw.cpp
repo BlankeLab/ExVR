@@ -56,6 +56,10 @@ struct CameraTargetConfigParametersW::Impl{
     ExRadioButtonW useNeutralCamera {"use_neutral"};
     ExRadioButtonW useEyeCamera{"use_eye"};
 
+    QButtonGroup   modeButtonGroup;
+    ExRadioButtonW initSourceOnce {"init_source_once"};
+    ExRadioButtonW updateSourceEachFrame{"update_source_each_frame"};
+
     // # move to target
     ExLineEditW componentName{"target_component"};
     QButtonGroup   buttonGroup3;
@@ -87,6 +91,7 @@ void CameraTargetConfigParametersW::insert_widgets(){
     add_widget(ui::W::txt("<b>Camera</b>"));
     add_widget(ui::F::gen(ui::L::HB(), {m_p->useNeutralCamera(), m_p->useEyeCamera()}, LStretch{true}, LMargins{false},QFrame::NoFrame));
     add_widget(ui::F::gen(ui::L::HB(), {m_p->pitch(), m_p->yaw(), m_p->roll()},LStretch{true}, LMargins{false},QFrame::NoFrame));
+    add_widget(ui::F::gen(ui::L::HB(), {m_p->initSourceOnce(), m_p->updateSourceEachFrame()}, LStretch{true}, LMargins{false}));
 
     add_widget(ui::W::txt("<b>Progress</b>"));
     add_widget(ui::F::gen(ui::L::HB(), {m_p->usingTime(), ui::W::txt("Movement duration: "), m_p->duration()}, LStretch{true}, LMargins{false},QFrame::NoFrame));
@@ -117,6 +122,7 @@ void CameraTargetConfigParametersW::init_and_register_widgets(){
     add_input_ui(m_p->yaw.init_widget("Use yaw", true));
     add_input_ui(m_p->roll.init_widget("use roll", false));
 
+
     // actions
     add_inputs_ui(
         ExRadioButtonW::init_group_widgets(m_p->buttonGroup1,
@@ -131,6 +137,19 @@ void CameraTargetConfigParametersW::init_and_register_widgets(){
     );
     add_input_ui(m_p->teleport.init_widget("Teleport", false));
     add_input_ui(m_p->doNotSaveTraj.init_widget("Do not save trajectory", false));
+
+
+    // source
+    add_inputs_ui(
+        ExRadioButtonW::init_group_widgets(m_p->modeButtonGroup,
+            {&m_p->initSourceOnce, &m_p->updateSourceEachFrame},
+            {
+                "Init from source once",
+                "Keep updating from source each frame"
+            },
+            {true, false}
+        )
+    );
 
     add_inputs_ui(
         ExRadioButtonW::init_group_widgets(m_p->buttonGroup3,

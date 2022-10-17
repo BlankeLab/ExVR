@@ -125,4 +125,88 @@ void CheckMouseButtonNodeDataModel::init_ports_caption(){
 }
 
 
+
+
+void CheckMouseAxisEmbeddedW::initialize(){
+
+    // init widget
+    QStringList items;
+    for(const auto &axisName : input::Mouse::axes.tuple_column<1>()){
+        items << from_view(axisName);
+    }
+    w->init_widget(items);
+
+    // set widget connections
+    connect(w.get(), &ExComboBoxTextW::ui_change_signal, this, [=]{
+        auto axis = input::Mouse::get_axis(w->w->currentText().toStdString());
+        if(axis.has_value()){
+            emit update_internal_data_signal({0}, {std::make_shared<IntData>(static_cast<int>(axis.value()))});
+            emit compute_data_signal();
+        }
+    });
+
+    // add widget to ui
+    add_row_in_dialog(QSL("Joypad axis: "), w->w.get());
+}
+
+void CheckMouseAxisNodeDataModel::compute(){
+
+    if(check_infinity_loop()){
+        return;
+    }
+
+    auto inputs = get_inputs();
+
+    // no inputs
+    if(!has_inputs(inputs)){
+        set_embedded_widget_text(embedded_w()->w->w->currentText());
+        set_invalid_state(QSL("Missing 1 entree."));
+        return;
+    }
+
+    // runtime inputs
+    if(check_if_runtime_inputs(inputs)){
+        propagate_default_runtime(
+            {
+                std::make_shared<FloatData>(),
+                std::make_shared<RealData>()
+            });
+        set_embedded_widget_text(embedded_w()->w->w->currentText());
+        return;
+    }
+
+    // cast
+    auto data = dcast<MouseAxisEventData>(inputs[0]);
+    if(!data){
+        set_invalid_cast();
+        return;
+    }
+
+    auto interD = dcast<MouseAxisEventData>(interData[0]);
+    if(data->value().code == interD->value().code){
+
+        // propagate
+        float value    = data->value().value;
+
+        propagate_data(
+            embedded_w()->w->w->currentText(),
+            {
+                std::make_shared<FloatData>(value),
+                std::make_shared<RealData>(0)
+            } );
+
+    }else{
+        set_embedded_widget_text(embedded_w()->w->w->currentText());
+    }
+}
+
+void CheckMouseAxisNodeDataModel::init_ports_caption(){
+    const auto io = Connector::get_io(m_type);
+    for(size_t ii = 0; ii < io.inNb; ++ii){
+        inPortsInfo[ii].caption = QSL("in (") % get_name(io.inTypes[ii]) % QSL(")");
+    }
+    outPortsInfo[0].caption = QSL("[0-1] (") % get_name(io.outTypes[0]) % QSL(")");
+    outPortsInfo[1].caption = QSL("trigger exp time ms (") % get_name(io.outTypes[1]) % QSL(")");
+}
+
 #include "moc_check_mouse_ndm.cpp"

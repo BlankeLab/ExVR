@@ -27,7 +27,96 @@
 // base
 #include "input/keyboard.hpp"
 
+// qt-utility
+#include "qt_logger.hpp"
+
 using namespace tool::ex;
+
+
+ExKeyboardButtonTrigger::ExKeyboardButtonTrigger(QString name) : ExItemW<QWidget>(UiType::KeyboardButtonTrigger, name){
+    connect(&timeMode, &ExComboBoxTextW::ui_change_signal, this, &ExKeyboardButtonTrigger::ui_change_signal);
+    connect(&keys,     &ExComboBoxTextW::ui_change_signal, this, &ExKeyboardButtonTrigger::ui_change_signal);
+}
+
+ExKeyboardButtonTrigger *ExKeyboardButtonTrigger::init_widget(bool enabled){
+
+    QStringList items;
+    for(const auto &keyName : input::Keyboard::buttons.tuple_column<1>()){
+        items << from_view(keyName);
+    }
+    keys.init_widget(items, Index{0}, enabled);
+
+    timeMode.init_widget({"Time since exp", "Time since routine"}, Index{0}, enabled);
+
+    auto l = ui::L::VB();
+    l->setContentsMargins(1,1,1,1);
+    w->setLayout(l);
+
+    l->setContentsMargins(1,1,1,1);
+    l->addWidget(ui::W::txt("Key to check: "));
+    l->addWidget(keys());
+
+    l->addWidget(ui::W::txt("Time mode: "));
+    l->addWidget(timeMode());
+
+    return this;
+}
+
+void ExKeyboardButtonTrigger::update_from_arg(const Arg &arg){
+
+    ExItemW::update_from_arg(arg);
+
+    if(arg.dimensions_nb() == 0){
+        // old format
+        keys.update_from_arg(arg);
+    }else{
+        auto args = arg.split_value_to_atoms_args();
+        if(args.size() == 2){
+            keys.update_from_arg(args[0]);
+            timeMode.update_from_arg(args[1]);
+        }else{
+            QtLogger::error("ExKeyboardButtonTrigger::Invalid arg.");
+        }
+    }
+}
+
+Arg ExKeyboardButtonTrigger::convert_to_arg() const{
+
+    auto arg = ExItemW::convert_to_arg();
+    arg.init_from(
+        {
+            keys.convert_to_arg().value(),
+            timeMode.convert_to_arg().value(),
+        },
+        "%"
+    );
+
+    return arg;
+}
+
+
+void ExKeyboardButtonTriggerEmbeddedW::initialize(){
+
+    w->init_widget();
+
+    // set widget connections
+    connect(w.get(), &ExKeyboardButtonTrigger::ui_change_signal, this, [=]{
+        auto button = input::Keyboard::get_button(w->keys.w->currentText().toStdString());
+        if(button.has_value()){
+            auto v1 = std::make_shared<IntData>(static_cast<int>(button.value()));
+            emit update_internal_data_signal({0}, {v1});
+            emit compute_data_signal();
+        }
+    });
+
+    // add widget to ui
+    add_row_in_dialog("", w->w.get());
+}
+
+QString ExKeyboardButtonTriggerEmbeddedW::button(){
+    return w->keys.w->currentText();
+}
+
 
 void KeyboardButtonEmbeddedW::initialize(){
 
@@ -58,11 +147,17 @@ void CheckKeyboardButtonNodeDataModel::compute(){
         return;
     }
 
+    if(embedded_w()->w->timeMode.w->currentIndex() == 0){
+        m_caption = from_view(Connector::get_caption(m_type)) % QSL(" (Exp time)");
+    }else{
+        m_caption = from_view(Connector::get_caption(m_type)) % QSL(" (Routine time)");
+    }
+
     auto inputs = get_inputs();
 
     // no inputs
     if(!has_inputs(inputs)){
-        set_embedded_widget_text(embedded_w()->w->w->currentText());
+        set_embedded_widget_text(embedded_w()->button());
         set_invalid_state(QSL("Missing 1 entree."));
         return;
     }
@@ -75,7 +170,7 @@ void CheckKeyboardButtonNodeDataModel::compute(){
                 std::make_shared<RealData>(),
                 std::make_shared<RealData>()
             });
-        set_embedded_widget_text(embedded_w()->w->w->currentText());
+        set_embedded_widget_text(embedded_w()->button());
         return;
     }
 
@@ -109,9 +204,9 @@ void CheckKeyboardButtonNodeDataModel::compute(){
             outputs.emplace_back(std::make_shared<RealData>());
         }
 
-        propagate_data(embedded_w()->w->w->currentText(), std::move(outputs), std::move(indices));
+        propagate_data(embedded_w()->button(), std::move(outputs), std::move(indices));
     }else{
-        set_embedded_widget_text(embedded_w()->w->w->currentText());
+        set_embedded_widget_text(embedded_w()->button());
     }
 }
 
@@ -175,6 +270,8 @@ void FilterKeyboardButtonNodeDataModel::init_ports_caption(){
         outPortsInfo[ii].caption = QSL("out (") % get_name(io.outTypes[ii]) % QSL(")");
     }
 }
+
+
 
 
 #include "moc_keyboard_ndm.cpp"

@@ -69,7 +69,11 @@ namespace Ex {
                 var value = new DecimalValue();
                 DecimalValue.apply_function(input0, input1, value, ope);
                 send_connector_infos_to_gui(Converter.to_string(value, "G4"));
-                invoke_signal(0, value);
+                if (value.has_bool_value()) {
+                    invoke_signal(0, value.to_bool());
+                } else {
+                    invoke_signal(0, value);
+                }                
             }
         }
 

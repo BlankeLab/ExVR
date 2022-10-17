@@ -1,0 +1,24 @@
+
+obx-hexa (Estelle, Hsin)
+	pps (almost done)
+	cong-incong (almost done)
+spact (Mariana)
+	main & recog done (passing subjects on hold)
+	grid_skin done (testing)
+
+fop-eye-tracking (Martyna)
+	done
+
+fbi-navigation (Emanuela)
+	Standford navigation is ready and running. They would like to implement a 'passive condition' but for now Olaf said it's not a priority
+	Stanford FBI navigation is working, but not sure when/if they will run it
+	Spatial Navigation in WVU with fMRI is working and running 
+
+breathing-biopac (Sophie)
+	passing subjects
+
+autobio-memory-bsc (Juliette)
+	passing subjects
+
+memory-mri  (Nathalie)
+	working on new assets (dopped on Arthur)

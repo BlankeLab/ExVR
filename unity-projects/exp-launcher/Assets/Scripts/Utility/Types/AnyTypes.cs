@@ -53,12 +53,14 @@ namespace Ex {
     public class TimeAny {
 
         public TimeAny() { }
-        public TimeAny(double time, object value) {
-            this.time  = time;
+        public TimeAny(double expTime, double routineTIme, object value) {
+            this.expTime  = expTime;
+            this.routineTime = routineTIme;
             this.value = value;
         }
 
-        public double time = 0;
+        public double expTime = 0;
+        public double routineTime = 0;
         public object value = null;
     }
 }

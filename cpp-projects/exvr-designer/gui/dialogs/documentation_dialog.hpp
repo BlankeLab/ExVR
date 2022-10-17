@@ -50,6 +50,7 @@ enum class DocSection {
     UiFlowCreation,
     UiElementSelection,
     UiComponentsList,
+    UiConnectorsList,
     UiRoutinesConditions,
     UiResourcesManager,
     UiRandomization,
@@ -79,35 +80,41 @@ using TDocSection = std::tuple<
     DocSection,                                 Id, UiDocType,              MarkdownFile,                              SectionName>;
 static constexpr TupleArray<DocSection::SizeEnum, TDocSection> sections = {{
     TDocSection
-    {DocSection::General,                       0,  UiDocType::TextBrowser, "doc_general.md"sv,                        "General"sv,                        },
+    {DocSection::General,                       0,  UiDocType::TextBrowser, "doc_general.md"sv,                        "Index"sv,                          },
     {DocSection::UiFlowCreation,                1,  UiDocType::TextBrowser, "doc_ui_flow_creation.md"sv,               "[UI] Flow creation"sv,             },
     {DocSection::UiElementSelection,            2,  UiDocType::TextBrowser, "doc_ui_element_selection.md"sv,           "[UI] Element selection"sv,         },
     {DocSection::UiComponentsList,              3,  UiDocType::TextBrowser, "doc_ui_component_list.md"sv,              "[UI] Components list"sv,           },
-    {DocSection::UiRoutinesConditions,          4,  UiDocType::TextBrowser, "doc_ui_routines_conditions.md"sv,         "[UI] Routines conditions"sv,       },
-    {DocSection::UiResourcesManager,            5,  UiDocType::TextBrowser, "doc_ui_resources_manager.md"sv,           "[UI] Resources manager"sv,         },
-    {DocSection::UiRandomization,               6,  UiDocType::TextBrowser, "doc_ui_randomization.md"sv,               "[UI] Randomization"sv,             },
-    {DocSection::UiToobar,                      7,  UiDocType::TextBrowser, "doc_ui_toolboar.md"sv,                    "[UI] Toolbar"sv,                   },
-    {DocSection::UiLogs,                        8,  UiDocType::TextBrowser, "doc_ui_logs.md"sv,                        "[UI] Logs"sv,                      },
-    {DocSection::UiSettings,                    9,  UiDocType::TextBrowser, "doc_ui_settings.md"sv,                    "[UI] Settings"sv,                  },
-    {DocSection::ContentComponentsDescription,  10, UiDocType::Widget,      "components"sv,                            "[Content] Components description"sv},
-    {DocSection::ContentConnectorsDescription,  11, UiDocType::Widget,      "connectors"sv,                            "[Content] Connectors description"sv},
-    {DocSection::ContentScripting,              12, UiDocType::TextBrowser, "doc_content_scripting.md"sv,              "[Content] Scripting"sv,            },
-    {DocSection::ContentVisualScripting,        13, UiDocType::TextBrowser, "doc_content_visual_scripting.md"sv,       "[Content] Visual scripting"sv,     },
-    {DocSection::ContentExpLauncher,            14, UiDocType::TextBrowser, "doc_content_exp_launcher.md"sv,           "[Content] Exp-launcher"sv,         },
-    {DocSection::ContentSamples,                15, UiDocType::TextBrowser, "doc_content_samples.md"sv,                "[Content] Samples"sv,              },
+    {DocSection::UiConnectorsList,              4,  UiDocType::TextBrowser, "doc_ui_connectors_list.md"sv,             "[UI] Connectors list"sv,           },
+    {DocSection::UiRoutinesConditions,          5,  UiDocType::TextBrowser, "doc_ui_routines_conditions.md"sv,         "[UI] Routines conditions"sv,       },
+    {DocSection::UiResourcesManager,            6,  UiDocType::TextBrowser, "doc_ui_resources_manager.md"sv,           "[UI] Resources manager"sv,         },
+    {DocSection::UiRandomization,               7,  UiDocType::TextBrowser, "doc_ui_randomization.md"sv,               "[UI] Randomization"sv,             },
+    {DocSection::UiToobar,                      8,  UiDocType::TextBrowser, "doc_ui_toolboar.md"sv,                    "[UI] Toolbar"sv,                   },
+    {DocSection::UiLogs,                        9,  UiDocType::TextBrowser, "doc_ui_logs.md"sv,                        "[UI] Logs"sv,                      },
+    {DocSection::UiSettings,                    10, UiDocType::TextBrowser, "doc_ui_settings.md"sv,                    "[UI] Settings"sv,                  },
+    {DocSection::ContentComponentsDescription,  11, UiDocType::Widget,      "components"sv,                            "[Content] Components description"sv},
+    {DocSection::ContentConnectorsDescription,  12, UiDocType::Widget,      "connectors"sv,                            "[Content] Connectors description"sv},
+    {DocSection::ContentScripting,              13, UiDocType::TextBrowser, "doc_content_scripting.md"sv,              "[Content] Scripting"sv,            },
+    {DocSection::ContentVisualScripting,        14, UiDocType::TextBrowser, "doc_content_visual_scripting.md"sv,       "[Content] Visual scripting"sv,     },
+    {DocSection::ContentExpLauncher,            15, UiDocType::TextBrowser, "doc_content_exp_launcher.md"sv,           "[Content] Exp-launcher"sv,         },
+    {DocSection::ContentSamples,                16, UiDocType::TextBrowser, "doc_content_samples.md"sv,                "[Content] Samples"sv,              },
 }};
 
-static auto all_sections() {
+[[maybe_unused]] static auto all_sections() {
     return sections.tuple_column<0>();
 }
 
-static auto all_sections_names() {
+[[maybe_unused]] static auto all_sections_names() {
     return sections.tuple_column<4>();
 }
 
 [[maybe_unused]] static std::optional<DocSection> get_doc_section(Id id) {
     return sections.optional_at<1,0>(id);
 }
+
+[[maybe_unused]] static std::optional<DocSection> get_doc_section(MarkdownFile mdf) {
+    return sections.optional_at<3,0>(mdf);
+}
+
 
 [[maybe_unused]] static Id section_id(DocSection ds) {
     return sections.at<0,1>(ds);
@@ -134,6 +141,10 @@ public:
 
     void set_current_row(const QString &txt);
 
+    void reload(){
+
+    }
+
     QLabel *laTitle  = nullptr;
     QListWidget *lwContent = nullptr;
 };
@@ -158,7 +169,7 @@ public slots:
     void show_window();    
     void show_components_section(Component::Type type, bool resetWindow);
     void show_connectors_section(Connector::Type type, bool resetWindow);
-    void show_section(DocSection section, bool resetWindow);
+    void show_section(tool::ex::DocSection section, bool resetWindow);
 
 private slots:
 
@@ -173,6 +184,12 @@ private slots:
 
 private:
 
+    void reload_sub_section_markdown_file(DocSection section, bool forceReload);
+    void reload_info_file(const QString &infoFilePath);
+    void reload_connections_file(const QString &connectionsFilePath);
+    void reload_csharp_markdown_file(const QString &csFilePath);
+
+
     bool m_lncoComponents = false;
 
     DocSection currentSection = DocSection::General;
@@ -181,6 +198,13 @@ private:
     SectionW *documentationsCategoriesW = nullptr;
     // sub categories
     std::unordered_map<DocSection, QWidget*> sectionsWidgets;
+    std::unordered_map<DocSection, QString> sectionsDocContent;
+
+    // buttons
+    QPushButton *genPb = nullptr;
+    QPushButton *openPb = nullptr;
+    QPushButton *reloadPb = nullptr;
+    QString currentDocPath = "";
 
     // components    
     SectionW *componentsCategoriesSectionW = nullptr;

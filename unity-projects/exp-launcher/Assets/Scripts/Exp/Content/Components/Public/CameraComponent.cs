@@ -162,22 +162,23 @@ namespace Ex{
             float scroll        = UnityEngine.Input.GetAxis(mouseScrollWheel);
 
             // apply movments to camera
-            float rxSpeed = 2f;
-            float rySpeed = 2f;
-            float rzSpeed = 2f;
+            float rxSpeed = currentC.get<float>("rx_speed");
+            float rySpeed = currentC.get<float>("ry_speed");
+            float rzSpeed = currentC.get<float>("rz_speed");
+            float mSpeed  = currentC.get<float>("m_speed");
 
             // mouse scrolling
             if (scroll > 0f) { // forward
                 if (useNeutral) {
-                    CameraUtility.move_calibration_forward(0.02f);
+                    CameraUtility.move_calibration_forward(mSpeed * 0.02f);
                 } else {
-                    CameraUtility.move_eye_camera_forward(0.02f);
+                    CameraUtility.move_eye_camera_forward(mSpeed * 0.02f);
                 }
             } else if (scroll < 0f) { // backward
                 if (useNeutral) {
-                    CameraUtility.move_calibration_backward(0.02f);
+                    CameraUtility.move_calibration_backward(mSpeed * 0.02f);
                 } else {
-                    CameraUtility.move_eye_camera_backward(0.02f);
+                    CameraUtility.move_eye_camera_backward(mSpeed * 0.02f);
                 }
             }
 

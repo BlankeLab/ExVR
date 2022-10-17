@@ -29,10 +29,9 @@ using namespace tool::ex;
 Routine::Routine(QString n, int id, QString infos) : FlowElement(Type::Routine, n, id, infos){
 }
 
-RoutineUP Routine::copy_with_new_element_id(const Routine &routineToCopy, const QString &newName){
+std::unique_ptr<Routine> Routine::copy_with_new_element_id(const Routine &routineToCopy, const QString &newName){
 
-    RoutineUP routine = std::make_unique<Routine>(newName, -1, routineToCopy.informations);
-
+    auto routine = std::make_unique<Routine>(newName, -1, routineToCopy.informations);
     routine->isARandomizer = routineToCopy.isARandomizer;
     routine->conditions.reserve(routineToCopy.conditions.size());
     for(const auto &conditionToCopy : routineToCopy.conditions){

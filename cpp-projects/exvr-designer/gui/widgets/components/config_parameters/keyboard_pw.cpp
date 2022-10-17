@@ -31,6 +31,8 @@
 #include "gui/ex_widgets/ex_line_edit_w.hpp"
 #include "gui/ex_widgets/ex_combo_box_text_w.hpp"
 #include "gui/ex_widgets/ex_spin_box_w.hpp"
+#include "gui/ex_widgets/ex_checkbox_w.hpp"
+#include "gui/ex_widgets/ex_text_edit_w.hpp"
 
 using namespace tool::ex;
 
@@ -39,6 +41,8 @@ struct KeyboardInitConfigParametersW::Impl{
     ExLineEditW code;
     ExSpinBoxW value;
     ExLineEditW lastKeys;
+    ExCheckBoxW filter{"filter"};
+    ExTextEditW keysToFilter{"keys_to_filter"};
 };
 
 KeyboardInitConfigParametersW::KeyboardInitConfigParametersW() :  ConfigParametersW(), m_p(std::make_unique<Impl>()){
@@ -52,11 +56,17 @@ void KeyboardInitConfigParametersW::insert_widgets(){
     }
     m_p->keys.w->addItems(keysList);
 
-    auto l2 = ui::F::gen(ui::L::HB(), {ui::W::txt("Keyboard buttons names:"), m_p->keys()}, LStretch{true}, LMargins{true}, QFrame::NoFrame);
-    auto l3 = ui::F::gen(ui::L::HB(), {ui::W::txt("C# key code:"), m_p->code()}, LStretch{false}, LMargins{true}, QFrame::NoFrame);
-    auto l4 = ui::F::gen(ui::L::HB(), {ui::W::txt("Value:"), m_p->value()}, LStretch{true}, LMargins{true}, QFrame::NoFrame);
-    auto l5 = ui::F::gen(ui::L::VB(), {ui::W::txt("Last buttons pressed:"), m_p->lastKeys()}, LStretch{true}, LMargins{true}, QFrame::NoFrame);
-    add_widget(ui::F::gen(ui::L::VB(), {l2,l3,l4,l5}, LStretch{false}, LMargins{false}, QFrame::NoFrame));
+    auto l1 = ui::F::gen(ui::L::HB(), {ui::W::txt("Keyboard buttons names:"), m_p->keys()}, LStretch{false}, LMargins{true}, QFrame::NoFrame);
+    auto l2 = ui::F::gen(ui::L::HB(), {ui::W::txt("C# key code:"), m_p->code()}, LStretch{false}, LMargins{true}, QFrame::NoFrame);
+    auto l3 = ui::F::gen(ui::L::HB(), {ui::W::txt("Value:"), m_p->value()}, LStretch{false}, LMargins{true}, QFrame::NoFrame);
+    auto l4 = ui::F::gen(ui::L::VB(), {ui::W::txt("Last buttons pressed:"), m_p->lastKeys()}, LStretch{false}, LMargins{true}, QFrame::NoFrame);
+    auto l5 = ui::F::gen(ui::L::VB(), {m_p->filter(), ui::W::txt("Keys to filter (one per line, use C# key code or button name, ex: \"KeyCode.A\# or \"A\"):"), m_p->keysToFilter()}, LStretch{false}, LMargins{true}, QFrame::NoFrame);
+
+    add_widget(ui::F::gen(ui::L::VB(), {ui::W::txt("<b>Keys infos</b>"),l1,l2,l3}, LStretch{false}, LMargins{true}, QFrame::Box));
+    add_widget(ui::F::gen(ui::L::VB(), {ui::W::txt("<b>Runtime</b>"),l4}, LStretch{false}, LMargins{true}, QFrame::Box));
+    add_widget(ui::F::gen(ui::L::VB(), {ui::W::txt("<b>Settings</b>"),l5}, LStretch{false}, LMargins{true}, QFrame::Box));
+
+    no_end_stretch();
 }
 
 void KeyboardInitConfigParametersW::init_and_register_widgets(){
@@ -64,6 +74,9 @@ void KeyboardInitConfigParametersW::init_and_register_widgets(){
     m_p->value.w->setReadOnly(true);
     m_p->value.w->setMaximum(1000);
     m_p->lastKeys.w->setReadOnly(true);
+
+    add_input_ui(m_p->filter.init_widget("Filter only specific keys", false));
+    add_input_ui(m_p->keysToFilter.init_widget("", Qt::TextFormat::PlainText));
 }
 
 void KeyboardInitConfigParametersW::create_connections(){

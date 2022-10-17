@@ -239,7 +239,7 @@ void SliderUiConfigParametersW::init_and_register_widgets(){
         )
     );
 
-    add_input_ui(m_p->displaySteps.init_widget("Display steps", false));
+    add_input_ui(m_p->displaySteps.init_widget("Display steps", false, false));
 
     add_input_ui(m_p->sliderText1.init_widget("Slider txt1"));
     add_input_ui(m_p->sliderText2.init_widget("Slider txt2"));

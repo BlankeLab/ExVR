@@ -43,6 +43,7 @@ using QtNodes::NodeDataType;
 #include "utility/math.hpp"
 #include "utility/vector.hpp"
 #include "geometry/point2.hpp"
+#include "geometry/point4.hpp"
 
 // qt-utility
 #include "qt_convertors.hpp"
@@ -133,7 +134,8 @@ struct StringAny{
     std::shared_ptr<NodeData> data;
 };
 struct TimeAny{
-    qreal time;
+    qreal expTime;
+    qreal routineTime;
     std::shared_ptr<NodeData> data;
 };
 
@@ -149,6 +151,11 @@ struct MouseButtonState{
     bool pressed;
     bool firstFrameDown;
     bool firstFrameUp;
+};
+
+struct MouseAxisState{
+    input::Mouse::Axis code;
+    float value;
 };
 
 struct JoypadButtonState{
@@ -189,9 +196,6 @@ private:
     StringAny m_value;
 };
 
-
-
-
 using CNT                       = ConnectionNode::Type;
 using IdAnyData                 = TypeNodeData<CNT::id_any_t, IdAny>;
 using StringAnyData             = TypeNodeData<CNT::string_any_t, StringAny>;
@@ -203,13 +207,15 @@ using RealData                  = TypeNodeData<CNT::real_t, double>;
 using StringData                = TypeNodeData<CNT::string_t, QString>;
 using DecimalListData           = TypeNodeData<CNT::decimal_list_t, DecimalList>;
 using RealListData              = TypeNodeData<CNT::real_list_t, RealList>;
-using Vector2Data               = TypeNodeData<CNT::vector2_t, geo::Pt2<float>>;
-using Vector3Data               = TypeNodeData<CNT::vector3_t, geo::Pt3<float>>;
+using Vector2Data               = TypeNodeData<CNT::vector2_t, geo::Vec2<float>>;
+using Vector3Data               = TypeNodeData<CNT::vector3_t, geo::Vec3<float>>;
+using ColorData                 = TypeNodeData<CNT::color_t, QColor>;
 using TransformData             = TypeNodeData<CNT::transform_t, Transform>;
 using KeyboardButtonEventData   = TypeNodeData<CNT::keyboard_button_event_t, KeyboardButtonState>;
 using JoypadButtonEventData     = TypeNodeData<CNT::joypad_button_event_t, JoypadButtonState>;
 using JoypadAxisEventData       = TypeNodeData<CNT::joypad_axis_event_t, JoypadAxisState>;
 using MouseButtonEventData      = TypeNodeData<CNT::mouse_button_event_t, MouseButtonState>;
+using MouseAxisEventData        = TypeNodeData<CNT::mouse_axis_event_t, MouseAxisState>;
 
 
 using VoidData                  = TypeNodeData<CNT::void_t, VoidV>;

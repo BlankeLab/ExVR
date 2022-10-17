@@ -48,6 +48,20 @@ namespace Ex{
             return go;
         }
 
+        static public GameObject init_local_transform(GameObject go, Vector3 position, Quaternion rotation, Vector3 scale) {
+            go.transform.localPosition = position;
+            go.transform.localRotation = rotation;
+            go.transform.localScale = scale;
+            return go;
+        }
+
+        static public GameObject init_transform(GameObject go, Vector3 position, Quaternion rotation, Vector3 scale) {
+            go.transform.position = position;
+            go.transform.rotation = rotation;
+            go.transform.localScale = scale;
+            return go;
+        }
+
         static public GameObject init_local_transform(GameObject go, Vector3 position, Vector3 eulerRotation, Vector3 scale) {
             go.transform.localPosition = position;
             go.transform.localEulerAngles = eulerRotation;
@@ -94,11 +108,10 @@ namespace Ex{
             }
 
             var go = new GameObject(name, components);
-            init_local_transform(go, new Vector3(0, 0, 0), new Vector3(0, 0, 0), new Vector3(1, 1, 1));
-
             if (parent != null) {
                 go.transform.SetParent(parent);
             }
+            init_local_transform(go, Vector3.zero, Vector3.zero, Vector3.one);
 
             go.SetActive(active);
             go.layer = layer;

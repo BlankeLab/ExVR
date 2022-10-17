@@ -49,7 +49,7 @@ namespace Ex{
             ["any:list_string"] = input => { return Converter.to_string_list(input); },
             ["any:lm_frame"] = input => { return (Leap.Frame)input; },
             ["any:lm_hands_frame"] = input => { return (LeapMotionFrame)input; },
-            ["any:kinect_body"] = input => { return (KinectBodyData)input; },
+            ["any:kinect_body"] = input => { return (K2BodyData)input; },
             ["any:image"] = input => { return (ImageContainer)input; },
             ["any:real_list"] = input => { return Converter.to_double_list(input); },
             ["any:keyboard_button"] = input => { return (Input.KeyboardButtonEvent)input; },
@@ -144,6 +144,11 @@ namespace Ex{
             ["vector3:any"] = input => { return input; },
             ["vector3:trigger"] = input => { return null; },
             ["vector3:string"] = input => { return Converter.to_string((Vector3)input); },
+            // # from color
+            ["color:any"] = input => { return input; },
+            ["color:trigger"] = input => { return null; },
+            ["color:string"] = input => { return Converter.to_string((Color)input); },
+            ["color:vector3"] = input => { return Converter.to_vector3((Color)input); },
             // # from transform
             ["transform:any"] = input => { return input; },
             ["transform:trigger"] = input => { return null; },
@@ -151,6 +156,9 @@ namespace Ex{
             // # from id any
             ["id_any:any"] = input => { return input; },
             ["id_any:trigger"] = input => { return null; },
+            // # from id any
+            ["time_any:any"] = input => { return input; },
+            ["time_any:trigger"] = input => { return null; },
             // # from string any
             ["string_any:any"] = input => { return input; },
             ["string_any:trigger"] = input => { return null; },

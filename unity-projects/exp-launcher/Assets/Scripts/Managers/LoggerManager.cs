@@ -52,13 +52,15 @@ namespace Ex {
 
     public class ComponentsManagerTrace : Trace{
         public ComponentsManagerTrace(ExComponent component, ExComponent.Function function, bool start) {
-            this.component  = component;
+            name  = component.component_name();
+            key   = component.key;
             this.function   = function;
             this.start      = start;
         }
 
         public bool start = false;
-        public ExComponent component = null;
+        public string name = "";
+        public int key;
         public ExComponent.Function function = ExComponent.Function.undefined;
     }
 
@@ -432,18 +434,20 @@ namespace Ex {
                 } else if (trace is ComponentsManagerTrace componentsManagerTrace) {
 
                     if (trace.message != null) {
-                        add(string.Format("\t\t-> function [{0}][{1}] of component [{2}] with stack id ({3}) with message [4]",
+                        add(string.Format("\t\t-> function [{0}][{1}] of component [{2}:{3}] with stack id ({4}) with message [5]",
                             componentsManagerTrace.function,
                             componentsManagerTrace.start ? "start" : "end",
-                            componentsManagerTrace.component.name,
+                            componentsManagerTrace.name,
+                            componentsManagerTrace.key,
                             ii,
                             componentsManagerTrace.message
                         ), false, false, false);
                     } else {
-                        add(string.Format("\t\t-> function [{0}][{1}] of component [{2}] with stack id ({3})",
+                        add(string.Format("\t\t-> function [{0}][{1}] of component [{2}:{3}] with stack id ({4})",
                             componentsManagerTrace.function,
                             componentsManagerTrace.start ? "start" : "end",
-                            componentsManagerTrace.component.name,
+                            componentsManagerTrace.name,
+                            componentsManagerTrace.key,
                             ii
                         ), false, false, false);
                     }

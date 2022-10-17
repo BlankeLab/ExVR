@@ -33,7 +33,7 @@
 extern "C"{
 
     DECL_EXPORT void set_exp_ex_element(tool::ex::ExElement *e, tool::ex::ExExperiment *exp);
-    DECL_EXPORT int contains_ex_element(tool::ex::ExElement*e, int containerId, const char* paramName);
+    DECL_EXPORT int contains_ex_element(tool::ex::ExElement *e, int containerId, const char* paramName);
 
     DECL_EXPORT int get_parameter_int_ex_element(tool::ex::ExElement*e, int containerId, const char* paramName);
     DECL_EXPORT float get_parameter_float_ex_element(tool::ex::ExElement*e, int containerId, const char* paramName);

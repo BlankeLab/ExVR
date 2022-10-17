@@ -47,31 +47,36 @@ ComponentsManagerW::ComponentsManagerW(bool lncoComponents) :
 
     auto w1 = new QWidget();
     w1->setLayout(new QVBoxLayout());
+    w1->layout()->setContentsMargins(0,0,0,0);
+    w1->setObjectName("componentsMain");
+    w1->setStyleSheet(QSL("QWidget[objectName=\"componentsMain\"] {background-color:#2d2d2d;}"));
+    layout()->addWidget(w1);
 
-    auto l = ui::L::HB();
+    auto w2 = new QWidget();
+    w2->setLayout(new QVBoxLayout());
+    w2->layout()->addWidget(&m_componentsListW);
+    w2->layout()->setContentsMargins(0,0,0,0);
 
     LStretchD s;
     s.spacerStretch = 0;
     s.elementsStretch = {1,20};
-    w1->layout()->addWidget(ui::F::gen_frame(l, {ui::W::txt(QSL("Categories filter: ")), &m_cbComponentsToDisplay}, s));
-    w1->layout()->setContentsMargins(0,0,0,0);
-    auto w2 = new QWidget();
-    w2->setLayout(new QVBoxLayout());
-    w2->layout()->addWidget(ui::W::txt(QSL("[Right click below to add or modify components]")));
-    w2->layout()->addWidget(&m_componentsListW);
-    w2->layout()->setContentsMargins(0,0,0,0);
-    w1->layout()->addWidget(w2);
 
-//    QScrollArea { background: transparent; }
-//    QScrollArea > QWidget > QWidget { background: transparent; }
-//    QScrollArea > QWidget > QScrollBar { background: palette(base); }
-//    m_componentsListW.setStyleSheet("QScrollArea > QWidget > QWidget{ background: red; }");
-    layout()->addWidget(w1);
+    auto cTxt = ui::W::txt(QSL("Categories to display: "));
+    cTxt->setStyleSheet("color:#c0c0c0; font: 12px;");
+    w1->layout()->addWidget(ui::F::gen_frame( ui::L::HB(), {cTxt, &m_cbComponentsToDisplay}, s));
+
+    auto rcTxt = ui::W::txt(tr(" ↓ Right click below ↓ "));
+    rcTxt->setStyleSheet("color:#c0c0c0; font: 12px");
+    rcTxt->setAlignment(Qt::AlignCenter);
+    w1->layout()->addWidget(rcTxt);
+    w1->layout()->addWidget(w2);
 
     m_cbComponentsToDisplay.addItem(QSL("All"));
     for(const auto &category : Component::all_categories_name()){
         m_cbComponentsToDisplay.addItem(from_view(category));
     }
+
+    m_componentsListW.set_margins(0,2,0,2,2);
 
     // connections
     this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -82,8 +87,6 @@ ComponentsManagerW::ComponentsManagerW(bool lncoComponents) :
     });
 
     initialize_menues();
-
-
 }
 
 ComponentConfigDialog *ComponentsManagerW::component_dialog(ComponentKey componentKey){
@@ -157,8 +160,10 @@ void ComponentsManagerW::update_from_components_manager(ComponentsManager *compM
                 // dialog
                 auto configDialog = std::make_unique<ComponentConfigDialog>(this, component);
                 connect(configDialog.get(), &ComponentConfigDialog::finished, this, [=](){
-                    component_widget(componentKey)->showWindow = false;
-                    update_style();
+                    if(auto compoW = component_widget(componentKey); compoW != nullptr){
+                        compoW->showWindow = false;
+                        compoW->update_style();
+                    }
                 });
                 m_dialogsW[componentKey] = std::move(configDialog);
             Bench::stop();
@@ -201,9 +206,6 @@ void ComponentsManagerW::update_from_components_manager(ComponentsManager *compM
         Bench::stop();
     }
 
-    Bench::start("[CM: Update style]"sv, false);
-        update_style();
-    Bench::stop();
 
     Bench::start("[CM: Update display]"sv, false);
         update_components_to_display();
@@ -221,15 +223,15 @@ void ComponentsManagerW::toggle_component_selection(ComponentKey componentKey){
 
     auto componentW = component_widget(componentKey);
     if(componentW){
-        auto paramsD = component_dialog(componentKey);
-        if(paramsD->isVisible()){
-            paramsD->show();
-            paramsD->activateWindow();
-            paramsD->raise();
+        if(auto paramsD = component_dialog(componentKey); paramsD != nullptr){
+            if(paramsD->isVisible()){
+                paramsD->show();
+                paramsD->activateWindow();
+                paramsD->raise();
+            }
+            componentW->update_style();
         }
     }
-
-    update_style();
 }
 
 void ComponentsManagerW::initialize_menues(){
@@ -311,7 +313,7 @@ void ComponentsManagerW::initialize_menues(){
             for(const auto &componentT : componentsT[category]){
 
                 QAction *action = new QAction();
-                action->setIcon(QIcon(from_view(Component::get_icon_path(componentT))));
+                action->setIcon(QIcon(Component::get_icon_path(componentT)));
                 action->setText(from_view(Component::get_full_name(componentT)));
                 typesMenu->addAction(action);
 
@@ -331,26 +333,19 @@ void ComponentsManagerW::initialize_menues(){
 
 void ComponentsManagerW::toggle_component_parameters_dialog(ComponentKey componentKey){
 
-
-    auto paramsD = component_dialog(componentKey);
-    if(paramsD){
-        if(!paramsD->isVisible()){
-            paramsD->show();
-            component_widget(componentKey)->showWindow = true;
-        }else{
-            paramsD->hide();
-            component_widget(componentKey)->showWindow = false;
+    if(auto compoW = component_widget(componentKey); compoW != nullptr){
+        if(auto paramsD = component_dialog(componentKey); paramsD != nullptr){
+            if(paramsD){
+                if(!paramsD->isVisible()){
+                    paramsD->show();
+                    component_widget(componentKey)->showWindow = true;
+                }else{
+                    paramsD->hide();
+                    component_widget(componentKey)->showWindow = false;
+                }
+            }
+            compoW->update_style();
         }
-    }
-
-    update_style();
-}
-
-void ComponentsManagerW::update_style(){
-
-    for(int ii = 0; ii < m_componentsListW.count(); ++ii){
-        auto componentW = qobject_cast<ComponentW*>(m_componentsListW.widget_at(ii));
-        componentW->update_style();
     }
 }
 
@@ -454,7 +449,10 @@ void ComponentsManagerW::show_howering_component_custom_menu(QPoint pos, Compone
             paramsD->show();
             paramsD->raise();
             component_widget(componentKey)->showWindow = true;
-            update_style();
+
+            if(auto compoW = component_widget(componentKey); compoW != nullptr){
+                compoW->update_style();
+            }
         }
     });
     contextMenu.addAction(editA);

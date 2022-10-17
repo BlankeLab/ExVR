@@ -111,6 +111,19 @@ void FlowDiagramW::contextMenuEvent(QContextMenuEvent *event) {
                     emit GSignals::get()->remove_element_signal(key);
                 });
                 menu.addAction(removeElementA);
+
+
+                auto removeEverythingBeforeA = new QAction(QSL("Remove everything before..."));
+                connect(removeEverythingBeforeA, &QAction::triggered, this, [=](){
+                    emit GSignals::get()->remove_everything_before_signal(key);
+                });
+                menu.addAction(removeEverythingBeforeA);
+
+                auto removeEverythingAfterA = new QAction(QSL("Remove everything after..."));
+                connect(removeEverythingAfterA, &QAction::triggered, this, [=](){
+                    emit GSignals::get()->remove_everything_after_signal(key);
+                });
+                menu.addAction(removeEverythingAfterA);
             }
 
             if(isRoutine || isIsi){

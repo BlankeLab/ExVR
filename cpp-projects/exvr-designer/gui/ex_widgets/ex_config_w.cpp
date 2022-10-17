@@ -40,10 +40,10 @@ ExConfigW::ExConfigW(QString name) : ExItemW<QFrame>(UiType::Component_config, n
 
     l->addWidget(m_routineTitle = new QLabel("Routine:"));
     l->addWidget(m_routineName = new QLineEdit());
-//    l->addWidget(m_routineNames = new QComboBox());
+
     l->addWidget(m_conditionTitle = new QLabel("Condition:"));
     l->addWidget(m_conditionName = new QLineEdit());
-//    l->addWidget(m_conditionNames = new QComboBox());
+
     l->addWidget(m_componentTitle = new QLabel("Component:"));
     l->addWidget(m_componentNames = new QComboBox());    
     l->addWidget(m_configTitle = new QLabel("Config:"));

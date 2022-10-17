@@ -27,7 +27,6 @@ using System.Collections.Generic;
 
 // unity
 using UnityEngine;
-using UnityRawInput;
 
 namespace Ex.Input {
 
@@ -169,16 +168,54 @@ namespace Ex.Input {
 
     public class KeyboardButtonEvent {
 
-        public KeyboardButtonEvent(KeyCode code, Button.State state = Button.State.None, double triggeredExperimentTime = 0.0, double triggeredElementTime = 0.0, double lastTimeDown = -1.0) {
-            this.code                       = code;
-            this.state                      = state;
-            this.triggeredExperimentTime    = triggeredExperimentTime;
-            this.triggeredElementTime       = triggeredElementTime;
-            this.lastTimeDown               = lastTimeDown;
+        public KeyboardButtonEvent(KeyCode code, Button.State state = Button.State.None, double triggeredExperimentTime = 0.0,
+            double triggeredElementTime = 0.0, double lastTimeDown = -1.0, Button.State previousState = Button.State.None,
+            bool sendInfos = false) {
+            this.code = code;
+            this.state = state;
+            this.triggeredExperimentTime = triggeredExperimentTime;
+            this.triggeredElementTime = triggeredElementTime;
+            this.lastTimeDown = lastTimeDown;
+            this.previousState = previousState;
+        }
+
+        public void update(bool pressed, long currentExpTicks, long currentElementTicks) {
+
+            previousState = state;
+            if (state == Button.State.None) {
+                if (pressed) {
+                    state = Button.State.Down;
+                    lastTimeDown = currentExpTicks * 0.0001;
+                }
+            } else if (state == Button.State.Down) {
+                if (pressed) {
+                    state = Button.State.Pressed;
+                } else {
+                    state = Button.State.Up;
+                    lastTimeDown = -1.0;
+                }
+
+            } else if (state == Button.State.Pressed) {
+                if (!pressed) {
+                    state = Button.State.Up;
+                }
+            } else if (state == Button.State.Up) {
+                if (pressed) {
+                    state = Button.State.Down;
+                } else {
+                    state = Button.State.None;
+                }
+            }
+
+            if (state != Button.State.None) {
+                triggeredExperimentTime = currentExpTicks * 0.0001;
+                triggeredElementTime = currentElementTicks * 0.0001;                
+            } 
         }
 
         public void update(bool pressed, double currentExpTime, double currentElementTime) {
 
+            previousState = state;
             if (state == Button.State.None) {
                 if (pressed) {
                     state        = Button.State.Down;
@@ -207,11 +244,23 @@ namespace Ex.Input {
             if (state != Button.State.None) {
                 triggeredExperimentTime = currentExpTime;
                 triggeredElementTime    = currentElementTime;
+            } 
+        }
+
+        public void update(KeyboardButtonEvent kEvent) {
+            if(kEvent.triggeredExperimentTime > triggeredExperimentTime) {
+                this.code = kEvent.code;
+                this.state = kEvent.state;
+                this.triggeredExperimentTime = kEvent.triggeredExperimentTime;
+                this.triggeredElementTime = kEvent.triggeredElementTime;
+                this.lastTimeDown = kEvent.lastTimeDown;
+                this.previousState = kEvent.previousState;
             }
         }
 
         public KeyboardButtonEvent copy() {
-            return new KeyboardButtonEvent(code, state, triggeredExperimentTime, triggeredElementTime, lastTimeDown);
+            return new KeyboardButtonEvent(code, state, triggeredExperimentTime, 
+                triggeredElementTime, lastTimeDown, previousState);
         }
 
         public bool is_pressed() {
@@ -226,9 +275,10 @@ namespace Ex.Input {
         }
 
         public KeyCode code;
-        public Button.State state;
-        public double triggeredExperimentTime;
-        public double triggeredElementTime;
+        public Button.State state = Button.State.None;
+        public Button.State previousState = Button.State.None;
+        public double triggeredExperimentTime = 0.0;
+        public double triggeredElementTime = 0.0;
         public double lastTimeDown = 0.0;
     }
 }

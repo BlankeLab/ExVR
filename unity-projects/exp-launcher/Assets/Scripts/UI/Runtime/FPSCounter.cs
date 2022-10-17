@@ -35,13 +35,15 @@ namespace Ex {
 
     public class FPSCounter : MonoBehaviour {
 
-        TMPro.TextMeshProUGUI text = null;
-        Queue<Tuple<long, float>> lastValues = new Queue<Tuple<long, float>>();
-        Stopwatch sw = new Stopwatch();
+        private TMPro.TextMeshProUGUI text = null;
+        private Queue<Tuple<long, float>> lastValues = new Queue<Tuple<long, float>>();
+        private Stopwatch sw = new Stopwatch();
 
         private Color32 veryLow = Color.red;
         private Color32 low     = Color.yellow;
         private Color32 ok      = Color.green;
+
+        public static float framerate = 0f;
 
         private void Start() {
             text = GetComponent<TMPro.TextMeshProUGUI>();
@@ -50,7 +52,7 @@ namespace Ex {
         private void Update() {
 
             var currentTime = sw.ElapsedMilliseconds;
-            float fps = 1f / Time.unscaledDeltaTime;
+            float fps = 1f / Time.deltaTime;
 
             lastValues.Enqueue(new Tuple<long, float>(currentTime, fps));
             bool removeFirst = (currentTime - lastValues.Peek().Item1) > 1000;
@@ -60,18 +62,18 @@ namespace Ex {
                 removeFirst = (currentTime - lastValues.Peek().Item1) > 1000;
             }
 
-            float total = 0f;
+            framerate = 0f;
             foreach (var value in lastValues) {
-                total += value.Item2;
+                framerate += value.Item2;
             }
-            total /= lastValues.Count;
+            framerate /= lastValues.Count;
 
             int currenRate = Screen.currentResolution.refreshRate;
-            text.SetText(Converter.to_string(total, total < 100 ? "00.0" : "000."));
-            if (total > currenRate * 0.95f) {
+            text.SetText(Converter.to_string(framerate, framerate < 100 ? "00.0" : "000."));
+            if (framerate > currenRate * 0.95f) {
                 text.faceColor = ok;
                 text.outlineColor = ok;
-            } else if (total > currenRate * 0.8f) {
+            } else if (framerate > currenRate * 0.8f) {
                 text.faceColor = low;
                 text.outlineColor = low;
             } else {

@@ -163,6 +163,8 @@ namespace Ex {
 
         // once per experiment
         public virtual void start_experiment() { }
+        public virtual void post_start_experiment() { }        
+        public virtual void pre_stop_experiment() { }
         public virtual void stop_experiment() { }
 
         // once per routine
@@ -180,11 +182,12 @@ namespace Ex {
         public virtual void play() { }
         public virtual void pause() { }
 
-        // every frame or more
-        public virtual void on_gui() { }
+        // every frame or more        
         public virtual void pre_update() { }
         public virtual void update() { }
         public virtual void post_update() { }
+        public virtual void on_gui() { }
+        public virtual void end_of_frame() { }        
 
         // from gui
         public virtual void action_from_gui(bool initConfig, string action) { }

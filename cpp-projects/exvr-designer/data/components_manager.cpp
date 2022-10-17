@@ -223,7 +223,7 @@ void ComponentsManager::insert_copy_of_component(Component *component, std::vect
 bool ComponentsManager::insert_new_component(Component::Type type, RowId id){
 
     if(Component::get_unicity(type) && count(type) > 0){
-        QtLogger::error(QSL("[ComponentsManager::insert_new_component] Unique component already inside experiment."));
+        QtLogger::error(QSL("[ComponentsManager::insert_new_component] Component of type [") % from_view(Component::get_type_name(type)) % QSL("] can only be included once per experiment."));
         return false;
     }
 
@@ -302,6 +302,21 @@ std::vector<Component *> ComponentsManager::get_components(Component::Type type)
     componentsPtr.reserve(count(type));
     for(auto component : m_componentsPerType.at(type)){
         componentsPtr.push_back(component.second);
+    }
+    return componentsPtr;
+}
+
+std::vector<Component *> ComponentsManager::get_components(Component::Category category, bool canBeLogged) const{
+    std::vector<Component*> componentsPtr;
+    componentsPtr.reserve(count(category));
+    for(auto component : m_componentsPerCategory.at(category)){
+        if(canBeLogged){
+            if(Component::has_frame_logging(component.second->type) || Component::has_trigger_logging(component.second->type)){
+                componentsPtr.push_back(component.second);
+            }
+        }else{
+            componentsPtr.push_back(component.second);
+        }
     }
     return componentsPtr;
 }

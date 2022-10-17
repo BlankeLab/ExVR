@@ -35,12 +35,12 @@ struct ConnectionNode{
 
     enum class Type : int{
         boolean_t, integer_t,float_t, real_t, decimal_t, string_t,
-        vector2_t, vector3_t, transform_t,
+        vector2_t, vector3_t, transform_t, color_t,
         string_list_t, decimal_list_t, real_list_t, gameobject_list_t,
         any_t, void_t,
         id_any_t, string_any_t, time_any_t,
         lm_frame_t, lm_hands_frame_t, image_t, plot_t, variant_t, kinect_body_t, component_out_data_t,
-        keyboard_button_event_t, joypad_button_event_t, joypad_axis_event_t, mouse_button_event_t,
+        keyboard_button_event_t, joypad_button_event_t, joypad_axis_event_t, mouse_button_event_t, mouse_axis_event_t,
         SizeEnum};
 
     using T = Type;
@@ -56,6 +56,7 @@ struct ConnectionNode{
         {T::string_t,                   "string"sv,                "str"sv },
         {T::vector2_t,                  "vector2"sv,               "vec2"sv },
         {T::vector3_t,                  "vector3"sv,               "vec3"sv },
+        {T::color_t,                    "color"sv,                 "color"sv },
         {T::transform_t,                "transform"sv,             "transfo"sv },
         {T::string_list_t,              "string_list"sv,           "str list"sv },
         {T::decimal_list_t,             "decimal_list"sv,          "dec list"sv },
@@ -75,7 +76,8 @@ struct ConnectionNode{
         {T::keyboard_button_event_t,    "keyboard_button"sv,       "k. button"sv},
         {T::joypad_button_event_t,      "joypad_button"sv,         "j. button."sv},
         {T::joypad_axis_event_t,        "joypad_axis"sv,           "j. axis."sv},
-        {T::mouse_button_event_t,       "mouse_button"sv,          "m. button."sv}
+        {T::mouse_button_event_t,       "mouse_button"sv,          "m. button."sv},
+        {T::mouse_axis_event_t,         "mouse_axis"sv,            "m. axis."sv},
     }};
 
     static Type get_type_from_name(std::string_view name) {

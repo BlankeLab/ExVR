@@ -54,7 +54,7 @@ void SceneScanerInitConfigParametersW::insert_widgets(){
 }
 
 void SceneScanerInitConfigParametersW::init_and_register_widgets(){
-    add_input_ui(m_p->kinectManager.init_widget(Component::Type::Kinect_manager, "Kinect manager component: "));
+    add_input_ui(m_p->kinectManager.init_widget(Component::Type::K2_manager, "Kinect manager component: "));
 }
 
 

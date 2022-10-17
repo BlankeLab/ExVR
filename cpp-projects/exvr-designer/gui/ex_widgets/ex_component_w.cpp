@@ -67,7 +67,7 @@ ExComponentW *ExComponentW::init_widget(tool::ex::Component::Type componentType,
     m_title->setText(title);
 
     m_icon->setText("");
-    m_icon->setIcon(QIcon(from_view(Component::get_icon_path(m_componentType.value()))));
+    m_icon->setIcon(QIcon(Component::get_icon_path(m_componentType.value())));
     m_icon->setIconSize(QSize(30,30));
     m_icon->setMinimumWidth(35);
 
@@ -84,7 +84,7 @@ void ExComponentW::update_from_arg(const Arg &arg){
     if(arg.generator.has_value()){
         if(auto type = Component::get_type_from_name(arg.generator->info.value().toStdString()); type.has_value()){
             m_componentType = type;
-            m_icon->setIcon(QIcon(from_view(Component::get_icon_path(m_componentType.value()))));
+            m_icon->setIcon(QIcon(Component::get_icon_path(m_componentType.value())));
             m_title->setText(arg.generator->info.value());
         }
     }

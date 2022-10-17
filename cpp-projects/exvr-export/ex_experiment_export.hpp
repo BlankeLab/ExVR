@@ -71,6 +71,9 @@ extern "C"{
 
     DECL_EXPORT void test_call_backs_ex_experiment(tool::ex::ExExperiment *e);
 
+    DECL_EXPORT tool::Logger *get_logger_ptr_ex_experiment(tool::ex::ExExperiment *e);
+    DECL_EXPORT void test_log_ex_experiment(tool::Logger *logger);
+
 
 //    DECL_EXPORT void convert_to_chars(double *);
 }

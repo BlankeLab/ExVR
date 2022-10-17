@@ -63,6 +63,7 @@ namespace Ex {
 
         private Condition m_condition = null;
         private int m_conditionIteration;
+        private string m_fullName;
 
         public RoutineInfo(Routine routine, Condition condition, Interval interval, int order, int elementIteration, int conditionIteration) {
             m_element = routine;
@@ -71,6 +72,7 @@ namespace Ex {
             m_order = order;
             m_elementIteration = elementIteration;
             m_conditionIteration = conditionIteration;
+            m_fullName = string.Format("R:{0} C:{1}", routine.name, condition.name);
         }
 
         public Condition condition() {
@@ -79,6 +81,9 @@ namespace Ex {
 
         public int condition_iteration() {
             return m_conditionIteration;
+        }
+        public string full_name() {
+            return m_fullName;
         }
     }
     public class ISIInfo : FlowElementInfo{

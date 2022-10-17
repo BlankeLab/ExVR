@@ -23,6 +23,7 @@
 ************************************************************************************/
 
 // unity
+using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
 namespace Ex {
@@ -35,13 +36,34 @@ namespace Ex {
 
             return true;
         }
-
+   
         public override void update_from_current_config() {
             var ppvp = ExVR.Display().postProcessingVolume.profile;
+
+            var cg = ppvp.GetSetting<ColorGrading>();
+            cg.active               = currentC.get<bool>("cg_enable");
+            cg.temperature.value    = currentC.get<bool>("cg_wb_temp_enable") ? currentC.get<float>("cg_wb_temp") : 0f;
+            cg.tint.value           = currentC.get<bool>("cg_wb_tint_enable") ? currentC.get<float>("cg_wb_tint") : 0f;
+            cg.postExposure.value   = currentC.get<bool>("cg_tone_post_exposure_enable") ? currentC.get<float>("cg_tone_post_exposure") : 0f;
+            cg.colorFilter.value    = currentC.get<bool>("cg_tone_color_filter_enable") ? currentC.get_color("cg_tone_color_filter") : Color.white;
+            cg.hueShift.value       = currentC.get<bool>("cg_tone_hue_shift_enable") ? currentC.get<int>("cg_tone_hue_shift") : 0;
+            cg.saturation.value     = currentC.get<bool>("cg_tone_saturation_enable") ? currentC.get<int>("cg_tone_saturation") : 0;
+            cg.contrast.value       = currentC.get<bool>("cg_tone_contrast_enable") ? currentC.get<int>("cg_tone_contrast") : 0;
+
+            var v = ppvp.GetSetting<Vignette>();
+            v.active                = currentC.get<bool>("v_enable");
+            v.color.value           = currentC.get<bool>("v_color_enable") ? currentC.get_color("v_color") : Color.black;
+            v.center.value          = currentC.get<bool>("v_center_enable") ? currentC.get_vector2("v_center") : new Vector2(0.5f,0.5f);
+            v.intensity.value       = currentC.get<bool>("v_intensity_enable") ? currentC.get<float>("v_intensity") : 0.5f;
+            v.smoothness.value      = currentC.get<bool>("v_smoothness_enable") ? currentC.get<float>("v_smoothness") : 0.5f;
+            v.roundness.value       = currentC.get<bool>("v_roundness_enable") ? currentC.get<float>("v_roundness") : 0.5f;
+            v.rounded.value         = currentC.get<bool>("v_rounded_enable") ? currentC.get<bool>("v_rounded") : false;
+
             var ao = ppvp.GetSetting<AmbientOcclusion>();
             ao.active                  = currentC.get<bool>("ao_enable");
             ao.intensity.value         = currentC.get<bool>("ao_intensity_enable") ? currentC.get<float>("ao_intensity") : 0f;
             ao.thicknessModifier.value = currentC.get<bool>("ao_thickness_enable") ? currentC.get<float>("ao_thickness") : 1f;
+            ao.color.value             = currentC.get<bool>("ao_color_enable") ? currentC.get_color("ao_color") : Color.black;
         }
 
         protected override void update_parameter_from_gui(string updatedArgName) {

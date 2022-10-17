@@ -48,12 +48,17 @@ namespace Ex{
         public Button bPrevious = null;
         public Button bToggleCam = null;
 
-        public GameObject debugIndicator = null;
+        //public GameObject debugIndicator = null;
 
         public DebugCameraState debugCamState = DebugCameraState.hidden;
         public RuntimeDebugCamera runtimeDebugCamera = null;
 
         IEnumerator play_in_ten_seconds() {
+
+            var p = bReloadCurrent.transform.parent;
+            p.Find("white1").gameObject.SetActive(false);
+            p.Find("white2").gameObject.SetActive(false);
+            p.Find("white3").gameObject.SetActive(false);
 
             bReloadCurrent.gameObject.SetActive(false);
             bStop.gameObject.SetActive(false);
@@ -65,6 +70,11 @@ namespace Ex{
             bPrevious.gameObject.SetActive(false);
 
             yield return new WaitForSeconds(10);
+
+
+            p.Find("white1").gameObject.SetActive(true);
+            p.Find("white2").gameObject.SetActive(true);
+            p.Find("white3").gameObject.SetActive(true);
 
             bReloadCurrent.gameObject.SetActive(true);
             bStop.gameObject.SetActive(true);
@@ -136,17 +146,17 @@ namespace Ex{
                 case DebugCameraState.hidden:
                     debugCamState = DebugCameraState.minimized;
                     runtimeDebugCamera.bottom_left();
-                    debugIndicator.SetActive(true);
+                    //debugIndicator.SetActive(true);
                     break;
                 case DebugCameraState.minimized:
                     debugCamState = DebugCameraState.expanded;
                     runtimeDebugCamera.expand();
-                    debugIndicator.SetActive(true);
+                    //debugIndicator.SetActive(true);
                     break;
                 case DebugCameraState.expanded:
                     debugCamState = DebugCameraState.hidden;
                     runtimeDebugCamera.hide();
-                    debugIndicator.SetActive(false);
+                    //debugIndicator.SetActive(false);
                     break;
             }
         }

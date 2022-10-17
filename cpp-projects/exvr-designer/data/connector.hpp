@@ -80,13 +80,13 @@ struct Connector{
     // Connectors types
     enum class Type : int {
         Component, // Component
-        Boolean, Integer,Real, String, Vector3, Transform, Id_any, String_any, Random_real,// Generator
+        Boolean, Integer,Real, String, Vector2, Vector3, Color, Transform, Id_any, String_any, Random_real,// Generator
         From_time_any, Reals_to_vec2, Reals_to_vec3, Vec2_to_reals, Vec3_to_reals, String_list_to_id_any, Transform_to_vectors, Vectors_to_transform,// Convertor
         Curve_x, Logger, Post_it, // Display
         Decimal_trigonometry, Decimal_counter, Delay, Variable_delay, // Function
         Binary_operation, Decimal_operation, String_operation, // Operator
         Pass_value_trigger, Conditional_trigger, Pass_values, Conditional_gate, Check_id, Check_str, // Link
-        Filter_keyboard_button, Check_joypad_button, Check_joypad_axis, Check_mouse_button, Check_keyboard_button, // Event
+        Filter_keyboard_button, Check_joypad_button, Check_joypad_axis, Check_mouse_button, Check_mouse_axis, Check_keyboard_button, // Event
         Next, Previous, Stop, Pause, Next_with_name, Next_with_cond, Previous_with_name, Previous_with_cond, Force_component_config, // Action
         Time, Start_routine, Stop_routine, Update_routine, Pre_update_routine, Post_update_routine, Routine_condition,// Flow
         Image_resource,Text_resource, // Resource
@@ -127,6 +127,7 @@ struct Connector{
         {T::Check_joypad_button,    "CheckJoypadButton"sv,          "Check joypad button"sv},
         {T::Check_joypad_axis,      "CheckJoypadAxis"sv,            "Check joypad axis"sv},
         {T::Check_mouse_button,     "CheckMouseButton"sv,           "Check mouse button"sv},
+        {T::Check_mouse_axis,       "CheckMouseAxis"sv,             "Check mouse axis"sv},
         // # Flow
         {T::Time,                   "Time"sv,                       "Time"sv},
         {T::Start_routine,          "StartRoutine"sv,               "Start routine"sv},
@@ -145,7 +146,9 @@ struct Connector{
         {T::Integer,                "Integer"sv,                    "Integer"sv},
         {T::Real,                   "Real"sv,                       "Real"sv},
         {T::String,                 "String"sv,                     "String"sv},
+        {T::Vector2,                "Vector2"sv,                    "Vector2"sv},
         {T::Vector3,                "Vector3"sv,                    "Vector3"sv},
+        {T::Color,                  "Color"sv,                      "Color"sv},
         {T::Transform,              "Transform"sv,                  "Transform"sv},
         {T::Id_any,                 "IdAny"sv,                      "Id any"sv},
         {T::String_any,             "StringAny"sv,                  "String any"sv},
@@ -249,6 +252,7 @@ struct Connector{
     static constexpr auto t_real        = CNT::real_t;
     static constexpr auto t_vec2        = CNT::vector2_t;
     static constexpr auto t_vec3        = CNT::vector3_t;
+    static constexpr auto t_col         = CNT::color_t;
     static constexpr auto t_transform   = CNT::transform_t;
     static constexpr auto t_str         = CNT::string_t;
     static constexpr auto t_img         = CNT::image_t;
@@ -267,6 +271,7 @@ struct Connector{
     static constexpr auto t_joy_ax_s    = CNT::joypad_axis_event_t;
     static constexpr auto t_key_but_s   = CNT::keyboard_button_event_t;
     static constexpr auto t_mou_but_s   = CNT::mouse_button_event_t;
+    static constexpr auto t_mou_ax_s    = CNT::mouse_axis_event_t;
 
     static constexpr auto L = P::Low;
     static constexpr auto M = P::Medium;
@@ -292,7 +297,8 @@ struct Connector{
         // # Component
         {T::Component,              C::Component, M, {0,{},                        0,{}},                     {i,{},        {}},      LO, FO, 0, PT},
         // # Convertor
-        {T::From_time_any,          C::Convertor, M, {1,{t_time_any},              2,{t_real,t_any}},         {v,{v},       {v,v}},   LO, FO, 0, PT},
+        {T::From_time_any,          C::Convertor, M, {1,{t_time_any},              3,{t_real,t_real,t_any}},  {v,{v},       {v,v,v}},
+         LO, FO, 0, PT},
         {T::Reals_to_vec2,          C::Convertor, M, {2,{t_real,t_real},           1,{t_vec2}},               {v,{v,v},     {v}},     LO, FO, 0, PT},
         {T::Vec2_to_reals,          C::Convertor, M, {1,{t_vec2},                  2,{t_real,t_real}},        {v,{v},       {v,v}},   LO, FO, 0, PT},
         {T::Reals_to_vec3,          C::Convertor, M, {3,{t_real,t_real,t_real},    1,{t_vec3}},               {v,{v,v,v},   {v}},     LO, FO, 0, PT},
@@ -314,7 +320,9 @@ struct Connector{
         {T::Integer,                C::Generator, M, {1,{t_int},                   1,{t_int}},                {v,{v},       {v}},     IN, FO, 1, PT},
         {T::Real,                   C::Generator, M, {1,{t_real},                  1,{t_real}},               {v,{v},       {v}},     IN, FO, 1, PT},
         {T::String,                 C::Generator, M, {1,{t_str},                   1,{t_str}},                {v,{v},       {v}},     IN, FO, 1, PT},
+        {T::Vector2,                C::Generator, M, {1,{t_vec2},                  1,{t_vec2}},               {v,{v},       {v}},     IN, FO, 1, PT},
         {T::Vector3,                C::Generator, M, {1,{t_vec3},                  1,{t_vec3}},               {v,{v},       {v}},     IN, FO, 1, PT},
+        {T::Color,                  C::Generator, M, {1,{t_col},                   1,{t_col}},                {v,{v},       {v}},     IN, FO, 1, PT},
         {T::Transform,              C::Generator, M, {1,{t_transform},             1,{t_transform}},          {v,{v},       {v}},     IN, PO, 1, PT},
         {T::Id_any,                 C::Generator, M, {1,{t_any},                   1,{t_id_any}},             {v,{v},       {v}},     IN, FO, 1, PT},
         {T::String_any,             C::Generator, M, {1,{t_any},                   1,{t_str_any}},            {v,{v},       {v}},     IN, FO, 1, PT},
@@ -331,11 +339,12 @@ struct Connector{
         {T::Conditional_trigger,    C::Link,      M, {1,{t_bool},                  1,{t_void}},               {v,{v},       {v}},     LO, FO, 1, PT},
         {T::Conditional_gate,       C::Link,      M, {2,{t_any, t_bool},           1,{t_any}},                {v,{v,v},     {v}},     IN, FO, 1, PT},
         // # Event
-        {T::Check_keyboard_button,  C::Event,     M, {1,{t_key_but_s},             3,{t_real,t_real,t_real}},  {v,{v},       {v,v,v}}, IN, FO, 1, PT},
-        {T::Filter_keyboard_button, C::Event,     M, {1,{t_key_but_s},             1,{t_key_but_s}},           {v,{v},       {v}},     IN, FO, 1, PT},
-        {T::Check_joypad_button,    C::Event,     M, {1,{t_joy_but_s},             3,{t_real,t_real,t_real}},  {v,{v},       {v,v,v}}, IN, FO, 1, PT},
-        {T::Check_joypad_axis,      C::Event,     M, {1,{t_joy_ax_s},              2,{t_float,t_real}},        {v,{v},       {v,v}},   IN, FO, 1, PT},
-        {T::Check_mouse_button,     C::Event,     M, {1,{t_mou_but_s},             3,{t_real,t_real,t_real}},  {v,{v},       {v,v,v}}, IN, FO, 1, PT},
+        {T::Check_keyboard_button,  C::Event,     M, {1,{t_key_but_s},             3,{t_real,t_real,t_real}}, {v,{v},       {v,v,v}}, IN, FO, 1, PT},
+        {T::Filter_keyboard_button, C::Event,     M, {1,{t_key_but_s},             1,{t_key_but_s}},          {v,{v},       {v}},     IN, FO, 1, PT},
+        {T::Check_joypad_button,    C::Event,     M, {1,{t_joy_but_s},             3,{t_real,t_real,t_real}}, {v,{v},       {v,v,v}}, IN, FO, 1, PT},
+        {T::Check_joypad_axis,      C::Event,     M, {1,{t_joy_ax_s},              2,{t_float,t_real}},       {v,{v},       {v,v}},   IN, FO, 1, PT},
+        {T::Check_mouse_button,     C::Event,     M, {1,{t_mou_but_s},             3,{t_real,t_real,t_real}}, {v,{v},       {v,v,v}}, IN, FO, 1, PT},
+        {T::Check_mouse_axis,       C::Event,     M, {1,{t_mou_ax_s},              2,{t_float,t_real}},       {v,{v},       {v,v}},   IN, FO, 1, PT},
         // # Action
         {T::Next,                   C::Action,    M, {1,{t_void},                  0,{}},                     {v,{v},       {}},      LO, FO, 0, PT},
         {T::Next_with_name,         C::Action,    M, {1,{t_void},                  0,{}},                     {v,{v},       {}},      IN, FO, 0, PT},

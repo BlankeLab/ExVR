@@ -24,7 +24,7 @@
 
 // system
 using System;
-using System.Threading;
+using System.Text;
 using System.Collections.Generic;
 
 // unity
@@ -37,12 +37,11 @@ namespace Ex{
 
     public class QualisysTrackingComponent : ExComponent{
 
-        private bool connected = false;
-        private Dictionary<string, GameObject> objects = new Dictionary<string, GameObject>();
+        private Dictionary<string, GameObject> m_objects = new Dictionary<string, GameObject>();
+        private Dictionary<string, SixDOFBody> m_bodies  = new Dictionary<string, SixDOFBody>();
 
-        private string hostName;
-        private string ipAddress;
-        private bool connectToFirst;
+        private RTClient m_rtClient = null;
+        private int m_currentFrame = 0;
 
         #region ex_functions
 
@@ -50,20 +49,14 @@ namespace Ex{
 
             add_signal("tracked object");
 
-            hostName       = initC.get<string>("host_name");
-            ipAddress      = initC.get<string>("ip_address");
-            connectToFirst = initC.get<bool>("connect_to_first");
-
-            connect();
+            connect_to_qualisys();
 
             return true;
         }
 
         protected override void clean() {
-
-            if (connected) {
-                RTClient.GetInstance().Dispose();
-                connected = false;
+            if (m_rtClient != null) {
+                m_rtClient.Dispose();
             }
         }
 
@@ -77,13 +70,15 @@ namespace Ex{
         protected override void update_parameter_from_gui(string updatedArgName) {
             update_from_current_config();
         }
+
         protected override void start_routine() {
 
             // clean objects
-            foreach (var trackedObject in objects) {
+            foreach (var trackedObject in m_objects) {
                 Destroy(trackedObject.Value);
             }
-            objects.Clear();
+            m_objects.Clear();
+            m_bodies.Clear();
 
             // recreate object list
             foreach (var objectName in currentC.get<string>("objects").Split('\n')) {
@@ -91,10 +86,8 @@ namespace Ex{
                 if (objectName.Length == 0) {
                     continue;
                 }
-
-                objects[objectName] = GO.generate_sphere(objectName, transform, 0.025f, new Color(1, 0, 0));
-                var rtObject = objects[objectName].AddComponent<QualisysTrackedBody>();
-                rtObject.name = objectName;
+                m_objects[objectName] = GO.generate_sphere(objectName, transform, 0.025f, new Color(1, 0, 0));
+                m_bodies[objectName] = null;
             }
 
             set_visibility(is_visible());
@@ -102,34 +95,90 @@ namespace Ex{
 
         protected override void pre_update() {
 
-            foreach (var trackedObject in objects) {
-                var rtObject = trackedObject.Value.GetComponent<QualisysTrackedBody>();
-                if (rtObject.tracked) {
+            if(m_rtClient == null) {
+                return;
+            }
 
-                    TransformValue trV = new TransformValue();
-                    trV.position = rtObject.transform.position;
-                    trV.rotation = rtObject.transform.rotation;
-                    invoke_signal("tracked object", new StringAny(rtObject.name, trV));
+            // get new frame
+            m_currentFrame = m_rtClient.GetFrame();
 
-                    trackedObject.Value.GetComponent<MeshRenderer>().material.color = Color.green;
-                } else {
-                    trackedObject.Value.GetComponent<MeshRenderer>().material.color = Color.red;
+            // read bodies
+            foreach(var obj in m_objects) {
+
+                m_bodies[obj.Key] = m_rtClient.GetBody(obj.Key);
+
+                if (is_updating()) {
+
+                    var currentBody   = m_bodies[obj.Key];
+                    var currentObject = m_objects[obj.Key];
+                    bool tracked = false;
+                    if (currentBody != null) {
+                        if (currentBody.Position.magnitude > 0) {
+
+                            // update go                            
+                            currentObject.transform.localPosition = currentBody.Position;
+                            currentObject.transform.localRotation = currentBody.Rotation;
+
+                            // update signal tr
+                            TransformValue trV = new TransformValue();
+                            trV.position = currentBody.Position;
+                            trV.rotation = currentBody.Rotation;
+                            invoke_signal("tracked object", new StringAny(obj.Key, trV));
+
+                            tracked = true;
+                        }
+                    }
+                    currentObject.GetComponent<MeshRenderer>().material.color = tracked ? Color.green : Color.red;
                 }
             }
         }
 
         protected override void set_visibility(bool visible) {
-            foreach (var trackedObject in objects) {
+            foreach (var trackedObject in m_objects) {
                 trackedObject.Value.GetComponent<MeshRenderer>().enabled = visible;
             }
         }
 
+        public override string format_frame_data_for_global_logger(bool header) {
+
+            if (header) {
+                return "Qualisys: [body_name_n] tracked_n tx_n ty_n tz_n rx_n ry_n rz_n";
+            }
+
+            if (m_rtClient == null) {
+                return "[Not_connected]";
+            }
+
+            if(m_bodies.Count == 0) {
+                return "[No_body_tracked]";
+            }
+
+            List<string> bodiesStr = new List<string>();
+            foreach (var body in m_bodies) {
+
+                if(body.Value != null) {
+                    if (body.Value.Position.magnitude > 0) {
+                        bodiesStr.Add(string.Format("[{0}] 1 {1} {2}",
+                            body.Key,
+                            Converter.to_string(body.Value.Position, Converter.g7, " "),
+                            Converter.to_string(body.Value.Rotation.eulerAngles, Converter.g7, " ")
+                        ));
+                        continue;
+                    }
+                }
+                bodiesStr.Add(string.Format("[{0}] 0 ? ? ? ? ? ?",
+                    body.Key
+                ));
+            }
+            return string.Join(" ", bodiesStr);
+        }
+
         #endregion
         #region private_functions
-        private void connect() {
+        private void connect_to_qualisys() {
 
-            connected = false;
-            var servers = RTClient.GetInstance().GetServers();
+            m_rtClient  = RTClient.GetInstance();
+            var servers = m_rtClient.GetServers();
             if (servers.Count == 0) {
                 log_error("No Qualisys server found.", false);
                 return;
@@ -137,60 +186,80 @@ namespace Ex{
 
             foreach (var server in servers) {
 
-                if (!connectToFirst) {
+                if (!initC.get<bool>("connect_to_first")) {
 
+                    var hostName = initC.get<string>("host_name");
                     if (hostName.Length > 0) {
                         if (server.HostName != hostName) {
                             continue;
                         }
                     }
+                    var ipAddress = initC.get<string>("ip_address");
                     if (ipAddress.Length > 0) {
                         if (server.IpAddress != ipAddress) {
                             continue;
                         }
                     }
                 }
-                if(RTClient.GetInstance().Connect(server, server.Port, true, true, true, true, true, true)) { 
+                if(m_rtClient.Connect(server, server.Port, true, true, true, true, true, true)) { 
                 
                     log_message(
                         String.Format("Connected to Qualisys server {0}:{1}:{2} with {3} cameras.",
                         server.HostName, server.IpAddress, server.Port, server.CameraCount
                         ), false);
-                    connected = true;
+                    
                     return;
                 }
             }
 
             log_error("Cannot connect to to any Qualisys server.", false);
+            m_rtClient = null;
         }
 
-
         public bool is_connected() {
-            return connected;
+            return m_rtClient != null;
+        }
+
+        public Vector3 get_body_position(string objectName) {
+
+            if (m_bodies.ContainsKey(objectName)) {
+                return m_bodies[objectName].Position;
+            }
+
+            log_error(string.Format("Body with name [{0}] not available. ", objectName));
+            return Vector3.zero;
+        }
+
+        public Quaternion get_body_rotation(string objectName) {
+
+            if (m_bodies.ContainsKey(objectName)) {
+                return m_bodies[objectName].Rotation;
+            }
+
+            log_error(string.Format("Body with name [{0}] not available. ", objectName));
+            return Quaternion.identity;
         }
 
         public Vector3 get_object_position(string objectName) {
 
-            if (objects.ContainsKey(objectName)) {
-                return objects[objectName].transform.position;
+            if (m_objects.ContainsKey(objectName)) {
+                return m_objects[objectName].transform.position;
             }
 
-            log_error("Object with name " + objectName + " not available. ");
+            log_error(string.Format("Object with name [{0}] not available. ", objectName));
             return Vector3.zero;
         }
 
         public Quaternion get_object_rotation(string objectName) {
 
-            if (objects.ContainsKey(objectName)) {
-                return objects[objectName].transform.rotation;
+            if (m_objects.ContainsKey(objectName)) {
+                return m_objects[objectName].transform.rotation;
             }
 
-            log_error("Object with name " + objectName + " not available. ");
+            log_error(string.Format("Object with name [{0}] not available. ", objectName));
             return Quaternion.identity;
         }
 
         #endregion
-        #region public_functions
-        #endregion        
     }
 }

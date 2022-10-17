@@ -147,9 +147,10 @@ namespace Ex{
         }
 
         public Condition get_routine_condition_order(Routine routine, int id) {
-            var elements = routine.is_a_randomizer() ? randomizerElementsOrder : elementsOrder;
-            if (id < elements.Count && id >= 0) {
-                return ((RoutineInfo)elements[id]).condition();
+
+            var condition = get_routine_conditions_order(routine);
+            if(id < condition.Count) {
+                return condition[id];
             }
             return null;
         }

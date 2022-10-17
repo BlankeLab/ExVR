@@ -90,7 +90,9 @@ void CameraConfigParametersW::insert_widgets(){
             position(),
             rotation(),
             ui::W::horizontal_line(),
-            enableDebugMouseCameraMovements()
+            enableDebugMouseCameraMovements(),
+            ui::W::txt("<b>Debug speed:</b>"),
+            ui::F::gen(ui::L::HB(), {ui::W::txt("M"),mSpeed(),ui::W::txt("RX"),rxSpeed(),ui::W::txt("RY"),rySpeed(),ui::W::txt("RZ"), rzSpeed()}, LStretch{true}, LMargins{false}, QFrame::NoFrame)
         },
         LStretch{false}, LMargins{true}, QFrame::Box)
     );
@@ -148,13 +150,17 @@ void CameraConfigParametersW::init_and_register_widgets(){
     currentEyeRotation.init_widget("rotation: ", offsetVecRot, false);
 
     add_input_ui(enableDebugMouseCameraMovements.init_widget("Enable debug camera movement (move with mouse middle click, rotate with right click)", false));
+    add_input_ui(mSpeed.init_widget({MinR{0.0}, ValR{1.0}, MaxR{50.0},StepV<qreal>{0.1}, 2}));
+    add_input_ui(rxSpeed.init_widget({MinR{0.0}, ValR{2.0}, MaxR{10.0},StepV<qreal>{0.1}, 2}));
+    add_input_ui(rySpeed.init_widget({MinR{0.0}, ValR{2.0}, MaxR{10.0},StepV<qreal>{0.1}, 2}));
+    add_input_ui(rzSpeed.init_widget({MinR{0.0}, ValR{2.0}, MaxR{10.0},StepV<qreal>{0.1}, 2}));
 }
 
 void CameraConfigParametersW::update_with_info(QStringView id, QStringView value){
 
     if(id == QSL("cameras_info")){
 
-        auto split = value.toString().remove(",").split(" ");
+        auto split = value.toString().replace(",", " ").split(" ");
         if(split.size() < 12){
             return;
         }
@@ -202,4 +208,7 @@ void CameraConfigParametersW::create_connections(){
     });
 }
 
-void CameraConfigParametersW::late_update_ui(){}
+void CameraConfigParametersW::late_update_ui(){
+
+
+}

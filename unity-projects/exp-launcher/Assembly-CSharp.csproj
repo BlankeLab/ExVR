@@ -47,7 +47,7 @@
   <PropertyGroup>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <UnityProjectGenerator>Package</UnityProjectGenerator>
-    <UnityProjectGeneratorVersion>2.0.8</UnityProjectGeneratorVersion>
+    <UnityProjectGeneratorVersion>2.0.14</UnityProjectGeneratorVersion>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows64:19</UnityBuildTarget>
     <UnityVersion>2019.4.36f1</UnityVersion>
@@ -70,14 +70,16 @@
     <Compile Include="Assets\Scripts\Exp\Content\Components\DLLExComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\ExComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\FOPRobotComponent.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\KinectBodyTrackingComponent.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\KinectManagerComponent.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\K2BodyTrackingComponent.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\K2ManagerComponent.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\K4ManagerComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\ScanerVideoComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\SceneScanerComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\SoncebozSGComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\VolumetricVideoComponent.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\internal\DLLKinectManagerComponent.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\internal\DLLVolumetricVideoComponent.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\internal\DLLK2ManagerComponent.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\internal\DLLK4ManagerComponent.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\LNCO\internal\DLLK4VolumetricVideoComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\AssetBundleComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\AttachObjectToHandComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\AudioListenerComponent.cs" />
@@ -101,23 +103,25 @@
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\FlagPoleComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\FlashingDotComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\FovSimulatorComponent.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\GlobalLoggerComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\ImageResourceComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\ImageViewerComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\JoypadComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\KeyboardComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\LandmarkComponent.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\LeapMotionComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\LinesComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\LoggerColumnsComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\LoggerComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\LoggerConditionComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\LoggerExperimentComponent.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\MRIComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\MarkToCleanComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\MicrophoneComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\MouseComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\MultiABComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\OptitrackComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\ParallelPortWriterComponent.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\PlaneComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\PlotResourceComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\PostProcessComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\PythonScriptComponent.cs" />
@@ -139,6 +143,7 @@
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\VideoFileCameraViewerComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\VideoFileComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\VideoResourceComponent.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\VideoSaverComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\ViveProEyeTrackingComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\WebcamComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\WebcamViewerComponent.cs" />
@@ -147,15 +152,14 @@
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\BiopacAPI.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\BiopacJobs.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\BlendFadeOverlay.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\DLLPythonScriptComponent.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\DLLVideoSaverComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\ErasableTexture.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\KinectData.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\PythonScriptComponentDLL.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\K2Data.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\ModelComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\QualisysTrackedBody.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\VideoSaver\DllVideoSaver.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\internal\VideoSaver\VideoSaverComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\legacy\CameraTrajectoryComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\legacy\CameraTrajectoryFileComponent.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Components\Public\legacy\LeapMotionComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\legacy\LeapMotionTrackingComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\Public\legacy\MirrorComponent.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Components\SampleComponent.cs" />
@@ -165,6 +169,7 @@
     <Compile Include="Assets\Scripts\Exp\Content\Conditions\Timeline\TimeLine.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Config\Argument.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Config\Config.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\ExResource.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\FlowElements\FlowElement.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\FlowElements\ISI.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\FlowElements\ISIs.cs" />
@@ -172,7 +177,6 @@
     <Compile Include="Assets\Scripts\Exp\Content\FlowElements\Routines.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Resources\CppExResourceFile.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Resources\DllExResource.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Resources\ExResource.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Resources\public\AssetBundleResource.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Resources\public\AudioResource.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Resources\public\CSharpScriptResource.cs" />
@@ -184,8 +188,8 @@
     <Compile Include="Assets\Scripts\Exp\Content\Resources\public\TextResource.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Resources\public\VideoResource.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\Resources\public\VolumetricVideoResource.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Resources\public\internal\DLLScanerVideoResource.cs" />
-    <Compile Include="Assets\Scripts\Exp\Content\Resources\public\internal\DLLVolumetricVideoResource.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Resources\public\internal\DLLK2VolumetricVideoResource.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\Resources\public\internal\DLLK4VolumetricVideoResource.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connections\Connections.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connections\ConnectionsConvertors.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connections\Signal.cs" />
@@ -196,8 +200,10 @@
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\CheckJoypadAxisConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\CheckJoypadButtonConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\CheckKeyboardButtonConnector.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\CheckMouseAxisConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\CheckMouseButtonConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\CheckStrConnector.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\ColorConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\ConditionalGateConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\ConditionalTriggerConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\ConnectorsFunctions.cs" />
@@ -243,12 +249,13 @@
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\TransformToVectorsConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\UpdateRoutineConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\VariableDelayConnector.cs" />
+    <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\Vector2Connector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\Vector2ToRealsConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\Vector3Connector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\Vector3ToRealsConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\Connectors\VectorsToTransfromConnector.cs" />
     <Compile Include="Assets\Scripts\Exp\Content\VisualScripting\ExConnector.cs" />
-    <Compile Include="Assets\Scripts\Exp\CppExElement.cs" />
+    <Compile Include="Assets\Scripts\Exp\DLLExElement.cs" />
     <Compile Include="Assets\Scripts\Exp\DLLExperiment.cs" />
     <Compile Include="Assets\Scripts\Exp\Experiment.cs" />
     <Compile Include="Assets\Scripts\Exp\FutureIntegration\WalkerReader.cs" />
@@ -258,8 +265,6 @@
     <Compile Include="Assets\Scripts\GoExplorer.cs" />
     <Compile Include="Assets\Scripts\Managers\CamerasManager.cs" />
     <Compile Include="Assets\Scripts\Managers\CoroutinesManager.cs" />
-    <Compile Include="Assets\Scripts\Managers\Debug\GlobalVariables.cs" />
-    <Compile Include="Assets\Scripts\Managers\DebugManager.cs" />
     <Compile Include="Assets\Scripts\Managers\DisplayManager.cs" />
     <Compile Include="Assets\Scripts\Managers\EventsManager.cs" />
     <Compile Include="Assets\Scripts\Managers\GlobalResourcesManager.cs" />
@@ -286,7 +291,7 @@
     <Compile Include="Assets\Scripts\Misc\Converter\Tests\t1.cs" />
     <Compile Include="Assets\Scripts\Misc\Converter\Tests\t2.cs" />
     <Compile Include="Assets\Scripts\Misc\Converter\Tests\t3.cs" />
-    <Compile Include="Assets\Scripts\Misc\DLL\DllImport.cs" />
+    <Compile Include="Assets\Scripts\Misc\DLL\DLLCppImport.cs" />
     <Compile Include="Assets\Scripts\Misc\Geometry\ExportMesh.cs" />
     <Compile Include="Assets\Scripts\Misc\Geometry\GridMesh.cs" />
     <Compile Include="Assets\Scripts\Misc\Geometry\PointCloud.cs" />
@@ -316,7 +321,7 @@
     <Compile Include="Assets\Scripts\UI\Menu\EditorExperimentMenu.cs" />
     <Compile Include="Assets\Scripts\UI\Menu\EditorGeometryGeneratorMenu.cs" />
     <Compile Include="Assets\Scripts\UI\Runtime\ButtonsActionsExp.cs" />
-    <Compile Include="Assets\Scripts\UI\Runtime\DisplayExpInfo.cs" />
+    <Compile Include="Assets\Scripts\UI\Runtime\ExpInfos.cs" />
     <Compile Include="Assets\Scripts\UI\Runtime\FPSCounter.cs" />
     <Compile Include="Assets\Scripts\Utility\Container.cs" />
     <Compile Include="Assets\Scripts\Utility\GO.cs" />
@@ -1437,20 +1442,14 @@
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Timeline.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEditor.CacheServer">
-      <HintPath>Library\ScriptAssemblies\UnityEditor.CacheServer.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.ScriptableBuildPipeline.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.ScriptableBuildPipeline.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.VSCode.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VSCode.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Formats.Fbx.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Formats.Fbx.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.Editor.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.ResourceManager">
-      <HintPath>Library\ScriptAssemblies\Unity.ResourceManager.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
@@ -1458,29 +1457,29 @@
     <Reference Include="Unity.Timeline">
       <HintPath>Library\ScriptAssemblies\Unity.Timeline.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Addressables.Editor">
-      <HintPath>Library\ScriptAssemblies\Unity.Addressables.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Postprocessing.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Postprocessing.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Rider.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.Rider.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Autodesk.Fbx.Editor">
+      <HintPath>Library\ScriptAssemblies\Autodesk.Fbx.Editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.Postprocessing.Runtime">
       <HintPath>Library\ScriptAssemblies\Unity.Postprocessing.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Autodesk.Fbx">
+      <HintPath>Library\ScriptAssemblies\Autodesk.Fbx.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualStudio.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Addressables">
-      <HintPath>Library\ScriptAssemblies\Unity.Addressables.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.ScriptableBuildPipeline">
-      <HintPath>Library\ScriptAssemblies\Unity.ScriptableBuildPipeline.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Formats.Fbx.Runtime">
+      <HintPath>Library\ScriptAssemblies\Unity.Formats.Fbx.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>

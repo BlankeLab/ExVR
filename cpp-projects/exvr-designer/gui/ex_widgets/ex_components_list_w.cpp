@@ -88,7 +88,23 @@ ExComponentsListW *ExComponentsListW::init_widget(Component::Type componentType,
     m_title->setText(title);
 
     m_icon->setText("");
-    m_icon->setIcon(QIcon(from_view(Component::get_icon_path(m_componentType.value()))));
+    m_icon->setIcon(QIcon(Component::get_icon_path(m_componentType.value())));
+    m_icon->setIconSize(QSize(30,30));
+    m_icon->setMinimumWidth(35);
+
+    return this;
+}
+
+ExComponentsListW *ExComponentsListW::init_widget(Component::Category componentCategory, bool canBeLogged, QString title, bool enabled){
+
+    w->setEnabled(enabled);
+    m_componentCategory = {componentCategory};
+    m_canBeLogged = canBeLogged;
+    m_title->setText(title);
+
+    // TODO: add category iconds
+    m_icon->setText("");
+//    m_icon->setIcon(QIcon(Component::get_icon_path(m_componentType.value())));
     m_icon->setIconSize(QSize(30,30));
     m_icon->setMinimumWidth(35);
 
@@ -104,8 +120,12 @@ void ExComponentsListW::update_from_arg(const Arg &arg){
 
     if(arg.generator.has_value()){
         if(auto type = Component::get_type_from_name(arg.generator->info->toStdString()); type.has_value()){
-            m_componentType = {type.value()};
-            m_icon->setIcon(QIcon(from_view(Component::get_icon_path(m_componentType.value()))));
+            m_componentType = {type.value()};            
+            m_icon->setIcon(QIcon(Component::get_icon_path(m_componentType.value())));
+            m_title->setText(arg.generator->info.value());
+        } else if(auto category = Component::get_category(arg.generator->info->toStdString()); category.has_value()){
+            m_componentCategory = {category.value()};
+            //m_icon->setIcon(QIcon(Component::get_icon_path(m_componentType.value())));
             m_title->setText(arg.generator->info.value());
         }
     }
@@ -146,6 +166,9 @@ Arg ExComponentsListW::convert_to_arg() const{
         if(m_componentType.has_value()){
             arg.generator->info = from_view(Component::get_full_name(m_componentType.value()));
         }
+        if(m_componentCategory.has_value()){
+            arg.generator->info = from_view(Component::to_string(m_componentCategory.value()));
+        }
     }
 
     return arg;
@@ -158,48 +181,55 @@ void ExComponentsListW::update_from_components(){
     QString currentText = m_componentNames->currentText();
     m_componentNames->clear();
 
-    QStringList names;    
-    if(auto components = ExperimentManager::get()->current()->compM.get_components(m_componentType.value()); components.size() > 0){
+    QStringList names;
 
-        // remove component keys not existing anymore
-        std_v1<int> elemsToRemove;
+
+    std::vector<Component *> components;
+    if(m_componentType.has_value()){
+        components = ExperimentManager::get()->current()->compM.get_components(m_componentType.value());
+    }else if(m_componentCategory.has_value()){
+        components = ExperimentManager::get()->current()->compM.get_components(m_componentCategory.value(), m_canBeLogged);
+    }
+
+
+    // remove component keys not existing anymore
+    std_v1<int> elemsToRemove;
+    for(size_t ii = 0; ii < m_componentsKeys.size(); ++ii){
+
+        bool found = false;
+        for(const auto &component : components){
+            if(component->key() == m_componentsKeys[ii]){
+                found = true;
+                break;
+            }
+        }
+
+        if(!found){
+            elemsToRemove.push_back(static_cast<int>(ii));
+        }
+    }
+    if(elemsToRemove.size() > 0){
+        for(int ii = static_cast<int>(elemsToRemove.size()) -1; ii >= 0; --ii){
+            m_list->delete_at(elemsToRemove[ii]);
+            m_componentsKeys.erase(std::begin(m_componentsKeys) + elemsToRemove[ii]);
+        }
+    }
+
+    // check for new components
+    for(const auto &component : components){
+
+        bool found = false;
         for(size_t ii = 0; ii < m_componentsKeys.size(); ++ii){
 
-            bool found = false;
-            for(const auto &component : components){
-                if(component->key() == m_componentsKeys[ii]){
-                    found = true;
-                    break;
-                }
-            }
-
-            if(!found){
-                elemsToRemove.push_back(static_cast<int>(ii));
-            }
-        }
-        if(elemsToRemove.size() > 0){
-            for(int ii = static_cast<int>(elemsToRemove.size()) -1; ii >= 0; --ii){
-                m_list->delete_at(elemsToRemove[ii]);
-                m_componentsKeys.erase(std::begin(m_componentsKeys) + elemsToRemove[ii]);
+            if(component->key() == m_componentsKeys[ii]){
+                dynamic_cast<QLabel*>(m_list->widget_at(to_signed(ii)))->setText(component->name());
+                found = true;
+                break;
             }
         }
 
-        // check for new components
-        for(const auto &component : components){
-
-            bool found = false;
-            for(size_t ii = 0; ii < m_componentsKeys.size(); ++ii){
-
-                if(component->key() == m_componentsKeys[ii]){
-                    dynamic_cast<QLabel*>(m_list->widget_at(to_signed(ii)))->setText(component->name());
-                    found = true;
-                    break;
-                }
-            }
-
-            if(!found){
-                names << component->name();
-            }
+        if(!found){
+            names << component->name();
         }
     }
 

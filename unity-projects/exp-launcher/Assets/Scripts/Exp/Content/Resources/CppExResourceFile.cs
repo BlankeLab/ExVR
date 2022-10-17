@@ -29,7 +29,7 @@ namespace Ex {
 
     public class CppExResourceFile : ExResourceFile {
 
-        protected ExResourceDll cppDll = null;
+        protected DLLExResource cppDll = null;
 
         public CppExResourceFile(int key, string alias, string path) : base(key, alias, path) {
         }

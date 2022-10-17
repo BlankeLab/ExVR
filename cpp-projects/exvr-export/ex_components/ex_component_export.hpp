@@ -26,11 +26,9 @@
 
 // local
 #include "exvr/ex_component.hpp"
-#include "exvr/ex_experiment.hpp"
 #include "utility/export.hpp"
 
 extern "C"{
-
 
     DECL_EXPORT void delete_ex_component(tool::ex::ExComponent *c);
 

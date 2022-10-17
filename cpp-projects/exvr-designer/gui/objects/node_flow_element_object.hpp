@@ -45,7 +45,7 @@ public:
     void draw_add_buttons(QPainter &painter, qreal zoomLevel);
 
     std::unique_ptr<AddButtonO> addRoutine = nullptr;
-    std::unique_ptr<AddButtonO> addIsi     = nullptr;
+//    std::unique_ptr<AddButtonO> addIsi     = nullptr;
     std::unique_ptr<AddButtonO> addLoop    = nullptr;
 };
 }

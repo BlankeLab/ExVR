@@ -29,7 +29,10 @@ using namespace tool::ex;
 
 void delete_ex_component(ExComponent *c){delete c;}
 
-int initialize_ex_component(ExComponent*c){return c->initialize()?1:0;}
+int initialize_ex_component(ExComponent*c){
+    return c->initialize()?1:0;
+}
+
 void clean_ex_component(ExComponent*c) {c->clean();}
 
 void start_experiment_ex_component(ExComponent*c){c->start_experiment();}

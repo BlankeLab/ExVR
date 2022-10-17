@@ -124,7 +124,7 @@ namespace Ex{
                 set_experiment_state_to_GUI(ExpState.NotLoaded, "", false);
 
                 guiIpc.send_exp_launcher_state_to_GUI(
-                    to_string(m_lastExpLauncherState = ExpLauncherState.Closing), false);
+                    to_string(m_lastExpLauncherState = ExpLauncherState.NotStarted), false);
 
 
                 guiIpc.clean();
@@ -138,6 +138,13 @@ namespace Ex{
             if (m_lastExpLauncherState != ExpLauncherState.Idle) {
                 guiIpc.send_exp_launcher_state_to_GUI(
                     to_string(m_lastExpLauncherState = ExpLauncherState.Idle));
+            }
+        }
+
+        public void set_launcher_closing_state() {
+            if (m_lastExpLauncherState != ExpLauncherState.Closing) {
+                guiIpc.send_exp_launcher_state_to_GUI(
+                    to_string(m_lastExpLauncherState = ExpLauncherState.Closing));
             }
         }
 

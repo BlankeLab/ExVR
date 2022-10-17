@@ -170,16 +170,17 @@ void BaseNodeContainerW::add_row_in_dialog(QString name, QWidget *w, bool horizo
 }
 
 bool BaseNodeContainerW::set_text_value(const QString &value){
-
-//    bool askForResize = m_valueText.text().size() != value.size();
-//    m_valueText.blockSignals(true);
-
     Bench::start("BaseNodeContainerW::set_text_value");
     m_valueText.setText(value);
     Bench::stop();
-//    m_valueText.blockSignals(false);
     return true;
-//    return askForResize;
+}
+
+bool BaseNodeContainerW::set_pixmap_value(const QPixmap &value){
+    Bench::start("BaseNodeContainerW::set_pixmap_value");
+    m_valueText.setPixmap(value);
+    Bench::stop();
+    return true;
 }
 
 void BaseNodeContainerW::disable(){

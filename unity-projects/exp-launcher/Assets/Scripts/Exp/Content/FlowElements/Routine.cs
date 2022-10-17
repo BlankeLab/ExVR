@@ -146,6 +146,7 @@ namespace Ex{
         }
 
         public void on_gui() {m_currentCondition.on_gui();}
+        public void end_of_frame() { m_currentCondition.end_of_frame(); }
         public void update() {m_currentCondition.update();}
         public void play() {
             ExVR.ExpLog().routine_message("Play.");

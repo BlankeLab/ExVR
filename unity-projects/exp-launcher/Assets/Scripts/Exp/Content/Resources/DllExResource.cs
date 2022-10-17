@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 namespace Ex {
 
 
-    public abstract class ExResourceDll : CppExElement {
+    public abstract class DLLExResource : DLLExElement {
 
         // parent component
         public CppExResourceFile parent = null;

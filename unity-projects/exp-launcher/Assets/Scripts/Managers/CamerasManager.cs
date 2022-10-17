@@ -55,6 +55,10 @@ namespace Ex{
             // reset camera rig
             set_camera_rig_transform(Vector3.zero, Quaternion.identity);
 
+            var camerasTr = get_camera_rig_transform().Find("Cameras");
+            camerasTr.rotation = Quaternion.identity;
+            camerasTr.position = Vector3.zero;
+
             // reset calibration
             reset_calibration_from_eye_camera(
                 ExVR.GuiSettings().useCameraXAxixAsNeutral, 

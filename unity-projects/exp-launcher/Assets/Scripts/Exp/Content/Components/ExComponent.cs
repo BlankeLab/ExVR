@@ -39,6 +39,7 @@ namespace Ex {
         public enum Function{
             initialize,
             start_experiment,
+            post_start_experiment,
             set_current_config,
             pre_start_routine,
             start_routine,
@@ -51,9 +52,11 @@ namespace Ex {
             pre_update,
             update,
             post_update,
+            global_update,
             play,
             pause,
             stop_routine,
+            pre_stop_experiment,
             stop_experiment,
             clean,
             slot1,
@@ -62,6 +65,7 @@ namespace Ex {
             slot4,
             slot5,
             on_gui,
+            end_of_frame,
             undefined,
             not_defined_in_component
         }
@@ -90,28 +94,49 @@ namespace Ex {
             Undefined
         };
 
-        public enum Pritority { Low, Medium, Hight};
+        public enum Priority { Low, Medium, Hight};
         public enum Reserved {Public, Closed, LNCO};
 
         public int key = -1; // id component
         public string keyStr;
         public string typeStr;
         public Category category = Category.Undefined;
-        public Pritority priority = Pritority.Medium;
+        public Priority priority = Priority.Medium;
+
+        [SerializeField]
+        private Reserved m_reserved = Reserved.Public;
+
         public Function currentFunction = Function.undefined;
-        public Dictionary<Function, bool> functionsDefined = null;
-        
+        public Dictionary<Function, bool> functionsDefined = null;       
+
         public Routine currentRoutine = null;
         public Condition currentCondition = null;
-        public TimeLine currentTimeline = null;                
+        public TimeLine currentTimeline = null;
+
+        [SerializeField]
         protected Events.Connections m_connections = null;
 
+        [SerializeField]
         protected bool m_visibility = false; // is visible ?
+        [SerializeField]
         protected bool m_updating = false;   // call update function ?
+        [SerializeField]
+        protected bool m_alwaysCallUpdate = false; // call update even if not in timeline
+        [SerializeField]
+        protected bool m_global = false;           // call update even if not in condition
+        [SerializeField]
         private bool m_started = false;      // has associated routine started ?
+        [SerializeField]
         private bool m_closed = false;       // is closed ? (cannot be enabled anymore until next routine)
+        [SerializeField]
         private bool m_initialized = false;  // has initialization failed ? 
-        protected bool catchExceptions = false;
+        [SerializeField]
+        protected bool m_catchExceptions = false;
+        [SerializeField]
+        protected bool m_frameLogging = false;
+        [SerializeField]
+        protected bool m_triggerLogging = false;
+        private int m_layoutEventsNbCallsForCurrentFrame = 0;
 
         // access        
         public Components components() { return ExVR.Components(); }
@@ -139,7 +164,11 @@ namespace Ex {
         // states
         public bool is_started() {return m_started;}
         public bool is_visible() {return m_visibility;}
-        public bool is_updating() {return m_updating;}
+        public bool is_updating() { return m_updating; }
+        public bool is_global() { return m_global; }
+        public bool has_frame_logging() { return m_frameLogging; }
+        public bool has_trigger_logging() { return m_triggerLogging; }
+        public bool always_call_update() { return m_alwaysCallUpdate; }
         public bool is_closed() {return m_closed;}
         public void set_closed_flag(bool closed) { m_closed = closed; }
         public void close() { components().close(this); }
@@ -229,8 +258,12 @@ namespace Ex {
         // configs
         public ComponentInitConfig init_config() { return initC; }
 
+        public bool has_current_config() {
+            return currentC != null;
+        }
+
         public ComponentConfig current_config() {
-            if (currentC == null) {
+            if (!has_current_config()) {
                 log_error("No current config set, check if component has been added to this condition.");
             }
             return currentC;
@@ -239,6 +272,7 @@ namespace Ex {
             if (configsPerName.ContainsKey(configName)) {
                 return configsPerName[configName];
             }
+            log_error(string.Format("No config with name [{0}] available for this component.", configName));
             return null;
         }
 
@@ -246,6 +280,7 @@ namespace Ex {
             if (configsPerKey.ContainsKey(configKey)) {
                 return configsPerKey[configKey];
             }
+            log_error(string.Format("No config with key [{0}] available for this component.", configKey));
             return null;
         }
 
@@ -277,44 +312,62 @@ namespace Ex {
             }             
         }
 
+        // routine
+        public bool has_current_routine() {
+            return currentRoutine != null;
+        }
+        public Routine current_routine() {
+            if (!has_current_routine()) {
+                log_error("No current routine set, check if component has been added to this condition.");
+            }
+            return currentRoutine;
+        }
+
+        // condition
+        public bool has_current_condition() {
+            return currentCondition != null;
+        }
+        public Condition current_condition() {
+            if (!has_current_condition()) {
+                log_error("No current condition set, check if component has been added to this condition.");
+            }
+            return currentCondition;
+        }
+
         // setup component, parent, layer, configurations...
         public bool setup_component_object(XML.Component xmlComponent) {
 
             // set members
-            gameObject.name = xmlComponent.Name;
-            key             = xmlComponent.Key;
-            keyStr = Converter.to_string(xmlComponent.Key);            
+            gameObject.name     = xmlComponent.Name;
+            key                 = xmlComponent.Key;
+            keyStr              = Converter.to_string(xmlComponent.Key);
+            m_global            = xmlComponent.Global;
+            priority            = (Priority)xmlComponent.Priority;
+            tag                 = string.Format("{0}Component", xmlComponent.Category);
+            typeStr             = string.Format("Ex.{0}Component", xmlComponent.Type);
+            category            = (Category)Enum.Parse(typeof(Category), xmlComponent.Category);
+            m_reserved          = (Reserved)xmlComponent.Restricted;
+            m_catchExceptions     = ExVR.GuiSettings().catchComponentsExceptions || xmlComponent.Exceptions;
+            m_alwaysCallUpdate  = xmlComponent.AlwaysUpdating;
+            m_frameLogging      = xmlComponent.FrameLogging;
+            m_triggerLogging    = xmlComponent.TriggerLogging;
 
-            typeStr = string.Format("Ex.{0}Component", xmlComponent.Type);
-            if (Components.Names2Info.ContainsKey(typeStr)) {
-
-                var infos = Components.Names2Info[typeStr];
-                catchExceptions = ExVR.GuiSettings().catchComponentsExceptions || infos.catchExceptions;
-
-                bool valid = false;
-                if (infos.reserved == Reserved.Public) {
-                    valid = true;
-                }else if (infos.reserved == Reserved.Closed) {
+            bool valid = false;
+            if (m_reserved == Reserved.Public) {
+                valid = true;
+            } else if (m_reserved == Reserved.Closed) {
 #if CLOSED_COMPONENTS
-                    valid = true;
+                valid = true;
 #endif
-                }else if (infos.reserved == Reserved.LNCO) {
+            } else if (m_reserved == Reserved.LNCO) {
 #if LNCO_COMPONENTS
-                    valid = true;
+                valid = true;
 #endif
-                }
-                if (!valid) {
-                    log_error("Component is restricted and not available for this ExVR build.");
-                    return false;
-                }
-                
-                category = infos.category;
-                priority = infos.priority;
-            } else {
-                log_error("Component doesn't belong to a category.");
+            }
+            if (!valid) {
+                log_error("Component is restricted and not available for this ExVR build.");
                 return false;
             }
-            tag = string.Format("{0}Component", category.ToString());
 
             // set parent
             if(Components.Category2Transform.ContainsKey(category)){
@@ -368,20 +421,26 @@ namespace Ex {
             functionsDefined[Function.clean] = (derivedType.GetMethod("clean", flagPrivate).DeclaringType == derivedType);
 
             functionsDefined[Function.start_experiment] = (derivedType.GetMethod("start_experiment", flagPrivate).DeclaringType == derivedType);
+            functionsDefined[Function.post_start_experiment] = (derivedType.GetMethod("post_start_experiment", flagPrivate).DeclaringType == derivedType);            
+            functionsDefined[Function.pre_stop_experiment] = (derivedType.GetMethod("pre_stop_experiment", flagPrivate).DeclaringType == derivedType);
             functionsDefined[Function.stop_experiment] = (derivedType.GetMethod("stop_experiment", flagPrivate).DeclaringType == derivedType);
 
             functionsDefined[Function.set_current_config] = (derivedType.GetMethod("set_current_config", flagPrivate).DeclaringType == derivedType);
             functionsDefined[Function.update_from_current_config] = (derivedType.GetMethod("update_from_current_config", flagPublic).DeclaringType == derivedType);
+
             functionsDefined[Function.pre_start_routine] = (derivedType.GetMethod("pre_start_routine", flagPrivate).DeclaringType == derivedType);
             functionsDefined[Function.start_routine] = (derivedType.GetMethod("start_routine", flagPrivate).DeclaringType == derivedType);
             functionsDefined[Function.post_start_routine] = (derivedType.GetMethod("post_start_routine", flagPrivate).DeclaringType == derivedType);
-
-            functionsDefined[Function.on_gui] = (derivedType.GetMethod("on_gui", flagPrivate).DeclaringType == derivedType);
+            
             functionsDefined[Function.pre_update] = (derivedType.GetMethod("pre_update", flagPrivate).DeclaringType == derivedType);
             functionsDefined[Function.update] = (derivedType.GetMethod("update", flagPrivate).DeclaringType == derivedType);
             functionsDefined[Function.post_update] = (derivedType.GetMethod("post_update", flagPrivate).DeclaringType == derivedType);
-            functionsDefined[Function.stop_routine] = (derivedType.GetMethod("stop_routine", flagPrivate).DeclaringType == derivedType);
+            functionsDefined[Function.global_update] = (derivedType.GetMethod("global_update", flagPublic).DeclaringType == derivedType);
+            
+            functionsDefined[Function.on_gui] = (derivedType.GetMethod("on_gui", flagPrivate).DeclaringType == derivedType);
+            functionsDefined[Function.end_of_frame] = (derivedType.GetMethod("end_of_frame", flagPrivate).DeclaringType == derivedType);
 
+            functionsDefined[Function.stop_routine] = (derivedType.GetMethod("stop_routine", flagPrivate).DeclaringType == derivedType);
 
             functionsDefined[Function.set_update_state] = (derivedType.GetMethod("set_update_state", flagPrivate).DeclaringType == derivedType);
             functionsDefined[Function.set_visibility] = (derivedType.GetMethod("set_visibility", flagPrivate).DeclaringType == derivedType);
@@ -404,7 +463,7 @@ namespace Ex {
 
             currentFunction = Function.initialize;
             m_initialized = false;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     m_initialized = initialize();
                 } catch (Exception e) {
@@ -428,7 +487,7 @@ namespace Ex {
             }
 
             currentFunction = Function.clean;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     clean();
                 } catch (Exception e) {
@@ -444,7 +503,7 @@ namespace Ex {
         public void base_start_experiment() {
             
             currentFunction = Function.start_experiment;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     start_experiment();
                 } catch (Exception e) {
@@ -454,12 +513,40 @@ namespace Ex {
                 start_experiment();
             }      
         }
+        public void base_post_start_experiment() {
+
+            currentFunction = Function.post_start_experiment;
+            if (m_catchExceptions) {
+                try {
+                    post_start_experiment();
+                } catch (Exception e) {
+                    display_exception(e);
+                }
+            } else {
+                post_start_experiment();
+            }
+        }
+
+
+        
 
         // This function is called only once at the end of an experiment 
+        public void base_pre_stop_experiment() {
+            currentFunction = Function.pre_stop_experiment;
+            if (m_catchExceptions) {
+                try {
+                    pre_stop_experiment();
+                } catch (Exception e) {
+                    display_exception(e);
+                }
+            } else {
+                pre_stop_experiment();
+            }
+        }
         public void base_stop_experiment() {
     
             currentFunction = Function.stop_experiment;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     stop_experiment();
                 } catch (Exception e) {
@@ -468,9 +555,6 @@ namespace Ex {
             } else {
                 stop_experiment();
             }
-
-            // disable the closing state
-            m_closed = false;
         }
 
         public void base_set_current_config(Condition condition, ComponentConfig config, TimeLine timeline) {
@@ -498,7 +582,7 @@ namespace Ex {
 
             // call virtual function
             currentFunction = Function.set_current_config;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     set_current_config(config.name);
                 } catch (Exception e) {
@@ -512,7 +596,7 @@ namespace Ex {
         public void base_update_from_current_config() {
 
             currentFunction = Function.update_from_current_config;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     update_from_current_config();
                 } catch (Exception e) {
@@ -527,7 +611,7 @@ namespace Ex {
 
             m_started = true;
             currentFunction = Function.pre_start_routine;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     pre_start_routine();
                 } catch (Exception e) {
@@ -541,7 +625,7 @@ namespace Ex {
         public void base_start_routine() {
 
             currentFunction = Function.start_routine;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     start_routine();
                 } catch (Exception e) {
@@ -555,7 +639,7 @@ namespace Ex {
         public void base_post_start_routine() {
 
             currentFunction = Function.post_start_routine;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     post_start_routine();
                 } catch (Exception e) {
@@ -570,7 +654,7 @@ namespace Ex {
 
             m_started = false;
             currentFunction = Function.stop_routine;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     stop_routine();
                 } catch (Exception e) {
@@ -579,28 +663,16 @@ namespace Ex {
             } else {
                 stop_routine();
             }
-        }
 
-        // Called several times per frame if component inside timeline
-        public void base_on_gui() {
-
-            currentFunction = Function.on_gui;
-            if (catchExceptions) {
-                try {
-                    on_gui();
-                } catch (Exception e) {
-                    display_exception(e);
-                }
-            } else {
-                on_gui();
-            }
+            // disable the closing state
+            set_closed_flag(false);
         }
 
         // Called at every frame if component inside timeline, will call child pre_update
         public void base_pre_update() {
 
             currentFunction = Function.pre_update;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     pre_update();
                 } catch (Exception e) {
@@ -615,7 +687,7 @@ namespace Ex {
         public void base_update() {
  
             currentFunction = Function.update;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     update();
                 } catch (Exception e) {
@@ -631,7 +703,7 @@ namespace Ex {
         public void base_post_update() {
 
             currentFunction = Function.post_update;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     post_update();
                 } catch (Exception e) {
@@ -642,11 +714,127 @@ namespace Ex {
             }
         }
 
+
+        public void base_global_update() {
+
+            currentFunction = Function.global_update;
+            if (m_catchExceptions) {
+                try {
+                    global_update();
+                } catch (Exception e) {
+                    display_exception(e);
+                }
+            } else {
+                global_update();
+            }
+        }
+
+
+        private void process_event(Event cEvent) {
+
+            var eType = cEvent.type;
+
+            //  detect first event
+            if (eType == EventType.Layout) {
+                // A layout event.
+                // (This event is sent prior to anything else - this is a chance to perform any initialization. It is used by the automatic layout system
+                ++m_layoutEventsNbCallsForCurrentFrame;
+                if (m_layoutEventsNbCallsForCurrentFrame == 1) {
+                    first_event(!ExVR.Time().is_current_frames_started());
+                    return;
+                }
+            }
+
+            // process others events                        
+            switch (eType) {
+                // mouse events
+                case EventType.MouseDown:
+                    // Mouse button was pressed.
+                    // (This event gets sent when any mouse button is pressed. Use Event.button to determine which button was pressed down.)
+                    mouse_event(cEvent);
+                    return;
+                case EventType.MouseUp:
+                    // Mouse button was released.
+                    // (This event gets sent when any mouse button is released. Use Event.button to determine which button was pressed down.)
+                    mouse_event(cEvent);
+                    return;
+                case EventType.MouseMove:
+                    // Mouse was moved (Editor views only).
+                    // (The mouse was moved without any buttons being held down. Use Event.mousePosition and Event.delta to determine mouse motion.)
+                    // (Note that this event is only sent in the Editor for EditorWindow windows which have EditorWindow.wantsMouseMove set to true. Mouse move events are never sent in the games.)
+                    mouse_event(cEvent);
+                    return;
+                case EventType.MouseDrag: // editor view
+                    // Mouse was dragged.
+                    // (The mouse was moved with a button held down - a mouse drag. Use Event.mousePosition and Event.delta to determine mouse motion.)
+                    mouse_event(cEvent);
+                    return;
+                case EventType.ScrollWheel:
+                    // The scroll wheel was moved.
+                    // (Use Event.delta to determine X & Y scrolling amount.)
+                    mouse_event(cEvent);
+                    return;
+                // keyboard events
+                case EventType.KeyDown:
+                    // A keyboard key was pressed
+                    // (Use Event.character to find out what has been typed. Use Event.keyCode to handle arrow, home/end or other function keys, or to find out which physical key has been pressed.
+                    // This event is sent repeatedly depending on the end user's keyboard repeat settings.)
+                    // (Note that key presses can come as separate events, one with valid Event.keyCode, and another with valid Event.character. In case of keyboard layouts with dead keys,
+                    // multiple Event.keyCode events can generate a single Event.character event)
+                    keyboard_event(cEvent);
+                    return;
+                case EventType.KeyUp:
+                    // A keyboard key was released.
+                    // (Use Event.keyCode to find which physical key was released. Note that depending on the system and keyboard layout, Event.character might not contain any character for a key release event.)
+                    keyboard_event(cEvent);
+                    return;
+                case EventType.Repaint:
+                    // A repaint event. One is sent every frame. (All other events are processed first, then the repaint event is sent.)
+                    last_event();
+                    return;
+            }
+        }
+
+        // Called several times per frame if component inside timeline
+        public void base_on_gui() {
+
+            currentFunction = Function.on_gui;
+            var cEvent = Event.current;
+            if (m_catchExceptions) {
+                try {
+                    process_event(cEvent);
+                    on_gui();
+                } catch (Exception e) {
+                    display_exception(e);
+                }
+            } else {
+                process_event(cEvent);
+                on_gui();
+            }
+        }
+
+        // Called at every frame if component inside timeline, will call child enbd_of_frame
+        public void base_end_of_frame() {
+            currentFunction = Function.end_of_frame;
+            if (m_catchExceptions) {
+                try {
+                    end_of_frame();
+                } catch (Exception e) {
+                    display_exception(e);
+                }
+            } else {
+                end_of_frame();
+            }
+
+            m_layoutEventsNbCallsForCurrentFrame = 0;
+        }
+
+
         // Play command from the GUI, will resumed if on pause, will call child play
         public void base_play() {
 
             currentFunction = Function.play;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     play();
                 } catch (Exception e) {
@@ -661,7 +849,7 @@ namespace Ex {
         public void base_pause() {
 
             currentFunction = Function.pause;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     pause();
                 } catch (Exception e) {
@@ -677,7 +865,7 @@ namespace Ex {
             m_visibility = visibility;
             currentFunction = Function.set_visibility;
 
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     set_visibility(m_visibility);
                 } catch (Exception e) {
@@ -693,7 +881,7 @@ namespace Ex {
             m_updating = doUpdate;
 
             currentFunction = Function.set_update_state;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     set_update_state(m_updating);
                 } catch (Exception e) {
@@ -708,7 +896,7 @@ namespace Ex {
         public void base_update_parameter_from_gui(string updatedArgName) {
             
             currentFunction = Function.update_parameter_from_gui;
-            if (catchExceptions) {
+            if (m_catchExceptions) {
                 try {
                     update_parameter_from_gui(updatedArgName);
                 } catch (Exception e) {
@@ -724,7 +912,7 @@ namespace Ex {
             currentFunction = Function.action_from_gui;
             if (initC.key == configKey) {
 
-                if (catchExceptions) {
+                if (m_catchExceptions) {
                     try {
                         action_from_gui(true, action);
                     } catch (Exception e) {
@@ -738,7 +926,7 @@ namespace Ex {
                 if (currentC != null) {
                     if (currentC.key == configKey) {
 
-                        if (catchExceptions) {
+                        if (m_catchExceptions) {
                             try {
                                 action_from_gui(false, action);
                             } catch (Exception e) {
@@ -759,6 +947,8 @@ namespace Ex {
 
         // once per experiment
         protected virtual void start_experiment() { }
+        protected virtual void post_start_experiment() { }
+        protected virtual void pre_stop_experiment() { }
         protected virtual void stop_experiment() { }
 
         // once per routine
@@ -776,16 +966,32 @@ namespace Ex {
         public virtual void pause() { }
 
 
-        // every frame or more
-        protected virtual void on_gui() {}
+        // every frame or more        
         protected virtual void pre_update() {}
         protected virtual void update() {}
         protected virtual void post_update() {}
+        public virtual void global_update() { }
+        protected virtual void on_gui() { }
+        protected virtual void end_of_frame() { }
+
+        // events
+        protected virtual void first_event(bool isCalledBeforeUpdate) {} // can be called before or after pre_update/update/post_update
+        protected virtual void keyboard_event(Event kEvent) { } // called before pre_update/update/post_update
+        protected virtual void mouse_event(Event mEvent) { } // called before pre_update/update/post_update
+        protected virtual void last_event() { } // called after pre_update/udpate/post_update
+
 
         // from gui
         protected virtual void update_parameter_from_gui(string updatedArgName) {}
         protected virtual void action_from_gui(bool initConfig, string action) {}
 
+
+        // logging
+        public virtual string format_frame_data_for_global_logger(bool header) { return null; }
+        public virtual List<Tuple<double, double, string>> format_trigger_data_for_global_logger() { 
+            // exp time / routine time / data
+            return null; 
+        }
 
 
         // transform related function

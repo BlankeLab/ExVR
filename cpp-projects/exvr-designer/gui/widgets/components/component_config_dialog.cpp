@@ -58,7 +58,7 @@ ComponentConfigDialog::ComponentConfigDialog(QWidget *parent, Component *compone
     defaultFlags = windowFlags() & ~Qt::WindowContextHelpButtonHint;
     setWindowFlags(defaultFlags); 
     setWindowTitle(QSL("[") % from_view(Component::get_full_name(component->type)) % QSL("] component settings"));
-    setWindowIcon(QIcon(from_view(Component::get_icon_path(component->type))));
+    setWindowIcon(QIcon(Component::get_icon_path(component->type)));
 
     set_connections();
 

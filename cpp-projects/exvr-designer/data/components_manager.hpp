@@ -77,7 +77,7 @@ public:
     Component *get_component(const Name &name) const;
     std::vector<Component*> get_components() const;
     std::vector<Component*> get_components(Component::Type type) const;
-
+    std::vector<Component*> get_components(Component::Category category, bool canBeLogged) const;
 
     std::pair<size_t, Component*> get_component_and_position(ComponentKey componentKey) const;
     int get_position(ComponentKey componentKey) const;

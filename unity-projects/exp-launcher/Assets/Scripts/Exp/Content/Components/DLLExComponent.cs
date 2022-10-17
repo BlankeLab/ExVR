@@ -31,7 +31,7 @@ namespace Ex{
 
 
 
-    public abstract class DLLExComponent : CppExElement {
+    public abstract class DLLExComponent : DLLExElement {
 
         // parent component
         public ExComponent parent = null;
@@ -44,8 +44,8 @@ namespace Ex{
         public virtual bool initialize() {
 
             set_exp_ex_element(_handle, ExVR.Experiment().cppDll.getHandle());
-
             set(Parameters.Container.Global, "component_key", parent.key);
+
             foreach (KeyValuePair<string, Argument> arg in parent.initC.args) {
                 set(Parameters.Container.InitConfig, arg.Value);
             }

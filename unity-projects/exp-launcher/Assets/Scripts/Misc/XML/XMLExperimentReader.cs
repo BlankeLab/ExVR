@@ -107,8 +107,32 @@ namespace Ex{
             [XmlAttribute(AttributeName = "name")]
             public string Name { get; set; }
 
+            [XmlAttribute(AttributeName = "category")]
+            public string Category { get; set; }
+
             [XmlAttribute(AttributeName = "type")]
             public string Type { get; set; }
+
+            [XmlAttribute(AttributeName = "global")]
+            public bool Global { get; set; }
+
+            [XmlAttribute(AttributeName = "always_updating")]
+            public bool AlwaysUpdating { get; set; }
+
+            [XmlAttribute(AttributeName = "exceptions")]
+            public bool Exceptions { get; set; }
+
+            [XmlAttribute(AttributeName = "frame_logging")]
+            public bool FrameLogging { get; set; }
+
+            [XmlAttribute(AttributeName = "trigger_logging")]
+            public bool TriggerLogging { get; set; }
+
+            [XmlAttribute(AttributeName = "restricted")]
+            public int Restricted { get; set; }
+
+            [XmlAttribute(AttributeName = "priority")]
+            public int Priority { get; set; }
 
             // elements
             [XmlElement(ElementName = "InitConfig")]

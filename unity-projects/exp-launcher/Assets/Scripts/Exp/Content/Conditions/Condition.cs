@@ -51,10 +51,14 @@ namespace Ex{
         public List<ExConnector> connectors = null;
         public Dictionary<int, ExConnector> connectorsPerKey = null;
         public ExConnector currentConnector = null;
-        
+
         // actions
         public List<Action> actions = null;
         public List<Action> reverseOrderActions = null;
+
+        // global components (always call update functions even if not in current condition)
+        static public Dictionary<int, ExComponent> sortedGlobalComponents = null;
+
         public Dictionary<ExComponent.Category, List<Action>> actionsPerComponentCategory = null;
         public Dictionary<Type, List<Action>> actionsPerComponentType   = null;        
         public Dictionary<string, Action> actionPerComponentName = null;
@@ -163,22 +167,22 @@ namespace Ex{
             actions = new List<Action>(m_xmlCondition.Actions.Count);
             reverseOrderActions = new List<Action>(m_xmlCondition.Actions.Count);
             foreach (var action in unsortedActions) {
-                if (action.component().priority == ExComponent.Pritority.Hight) {
+                if (action.component().priority == ExComponent.Priority.Hight) {
                     actions.Add(action);
-                } else if (action.component().priority == ExComponent.Pritority.Low) {
+                } else if (action.component().priority == ExComponent.Priority.Low) {
                     reverseOrderActions.Add(action);
                 }
             }
             foreach (var action in unsortedActions) {
-                if (action.component().priority == ExComponent.Pritority.Medium) {
+                if (action.component().priority == ExComponent.Priority.Medium) {
                     actions.Add(action);
                     reverseOrderActions.Add(action);
                 }
             }
             foreach (var action in unsortedActions) {
-                if (action.component().priority == ExComponent.Pritority.Low) {
+                if (action.component().priority == ExComponent.Priority.Low) {
                     actions.Add(action);
-                } else if (action.component().priority == ExComponent.Pritority.Hight) {
+                } else if (action.component().priority == ExComponent.Priority.Hight) {
                     reverseOrderActions.Add(action);
                 }
             }
@@ -372,6 +376,14 @@ namespace Ex{
             // set connections between components and connectors
             set_connections();
 
+            // reset components current routine/condition/timeline/config
+            foreach (var component in ExVR.Components().componentPerName) {
+                component.Value.currentRoutine   = null;
+                component.Value.currentCondition = null;
+                component.Value.currentTimeline  = null;
+                component.Value.currentC         = null;
+            }
+
             // actions
             {
                 // set components config
@@ -428,37 +440,105 @@ namespace Ex{
         public void on_gui() {
 
             Profiler.BeginSample(string.Format("[ExVR][Condition][{0}] on_gui", name));
-            foreach (var action in actions) {
-                Profiler.BeginSample(string.Format("[ExVR][Component][{0}] on_gui", action.component().name));
-                action.on_gui();
+
+            // call on_gui for global components
+            foreach (var component in sortedGlobalComponents) {
+                Profiler.BeginSample(string.Format("[ExVR][Component][{0}] on_gui", component.Value.name));
+                Action.on_gui(component.Value);
                 Profiler.EndSample();
             }
+
+            // call on_gui for actions
+            foreach (var action in actions) {                
+                if (!action.component().is_global()) {
+                    Profiler.BeginSample(string.Format("[ExVR][Component][{0}] on_gui", action.component().name));
+                    action.on_gui();
+                    Profiler.EndSample();
+                }
+            }
+            Profiler.EndSample();
+        }
+
+        public void end_of_frame() {
+
+            Profiler.BeginSample(string.Format("[ExVR][Condition][{0}] end_of_frame", name));
+
+            // call end_of_frame for global components
+            foreach (var component in sortedGlobalComponents) {
+                Profiler.BeginSample(string.Format("[ExVR][Component][{0}] end_of_frame", component.Value.name));
+                Action.end_of_frame(component.Value);
+                Profiler.EndSample();
+            }
+
+            // call end_of_frame for actions
+            foreach (var action in actions) {
+                if (!action.component().is_global()) {
+                    Profiler.BeginSample(string.Format("[ExVR][Component][{0}] end_of_frame", action.component().name));
+                    action.end_of_frame();
+                    Profiler.EndSample();
+                }
+            }
+
             Profiler.EndSample();
         }
 
         public void update() {
 
             Profiler.BeginSample(string.Format("[ExVR][Condition][{0}] pre_update", name));
-            foreach (var action in actions) {
-                Profiler.BeginSample(string.Format("[ExVR][Component][{0}] pre_update", action.component().name));
-                action.pre_update();
+
+            // call pre_update for global component
+            foreach (var component in sortedGlobalComponents) {
+                Profiler.BeginSample(string.Format("[ExVR][Component][{0}] pre_update", component.Value.name));
+                Action.pre_update(component.Value);
                 Profiler.EndSample();
+            }
+
+            // call pre_update for actions       
+            foreach (var action in actions) {
+                if (!action.component().is_global()) {
+                    Profiler.BeginSample(string.Format("[ExVR][Component][{0}] pre_update", action.component().name));
+                    action.pre_update();
+                    Profiler.EndSample();
+                }
             }
             Profiler.EndSample();
 
+
             Profiler.BeginSample(string.Format("[ExVR][Condition][{0}] update", name));
-            foreach (var action in actions) {
-                Profiler.BeginSample(string.Format("[ExVR][Component][{0}] update", action.component().name));
-                action.update();
+
+            // call update for global components
+            foreach (var component in sortedGlobalComponents) {
+                Profiler.BeginSample(string.Format("[ExVR][Component][{0}] update", component.Value.name));
+                Action.update(component.Value);
                 Profiler.EndSample();
+            }
+
+            // call update for actions
+            foreach (var action in actions) {
+                if (!sortedGlobalComponents.ContainsKey(action.component().key)) {
+                    Profiler.BeginSample(string.Format("[ExVR][Component][{0}] update", action.component().name));
+                    action.update();
+                    Profiler.EndSample();
+                }
             }
             Profiler.EndSample();
 
             Profiler.BeginSample(string.Format("[ExVR][Condition][{0}] post_update", name));
-            foreach (var action in actions) {
-                Profiler.BeginSample(string.Format("[ExVR][Component][{0}] post_update", action.component().name));
-                action.post_update();
+
+            // call post_update for global components
+            foreach (var component in sortedGlobalComponents) {
+                Profiler.BeginSample(string.Format("[ExVR][Component][{0}] post_update", component.Value.name));
+                Action.post_update(component.Value);
                 Profiler.EndSample();
+            }
+
+            // call post_update for actions
+            foreach (var action in actions) {
+                if (!sortedGlobalComponents.ContainsKey(action.component().key)) {
+                    Profiler.BeginSample(string.Format("[ExVR][Component][{0}] post_update", action.component().name));
+                    action.post_update();
+                    Profiler.EndSample();
+                }
             }
             Profiler.EndSample();
         }

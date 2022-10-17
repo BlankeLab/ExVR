@@ -54,7 +54,7 @@ namespace Ex {
         public override bool initialize() {
 
             // init DLL
-            cppDll = new DLLVolumetricVideoResource();
+            cppDll = new DLLK4VolumetricVideoResource();
             cppDll.parent = this;
 
             // set path to load
@@ -67,7 +67,7 @@ namespace Ex {
             }
 
             // retrieve infos
-            var vvrdll = (DLLVolumetricVideoResource)cppDll;
+            var vvrdll = (DLLK4VolumetricVideoResource)cppDll;
             nbCameras = vvrdll.nb_cameras();
             List<int> nbFramesPerCamera = new List<int>(nbCameras);
             List<Matrix4x4> modelPerCamera = new List<Matrix4x4>(nbCameras);
@@ -106,6 +106,7 @@ namespace Ex {
                         maxNb = currentNb;
                     }
                 }
+
                 if (maxNbVerticesAllCameras < maxNb) {
                     maxNbVerticesAllCameras = maxNb;
                 }
@@ -130,11 +131,11 @@ namespace Ex {
         }
 
         public int nb_valid_vertices(int idCamera, int idFrame) {
-            return ((DLLVolumetricVideoResource)cppDll).valid_vertices_count(idCamera, idFrame);
+            return ((DLLK4VolumetricVideoResource)cppDll).valid_vertices_count(idCamera, idFrame);
         }
 
         public int id_frame_from_time(int idCamera, float timeMs) {
-            return ((DLLVolumetricVideoResource)cppDll).id_frame_from_time(idCamera, timeMs);
+            return ((DLLK4VolumetricVideoResource)cppDll).id_frame_from_time(idCamera, timeMs);
         }
     }
 }

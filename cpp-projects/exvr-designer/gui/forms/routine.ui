@@ -79,14 +79,14 @@
         </size>
        </property>
        <property name="text">
-        <string>Set</string>
+        <string>Set name</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="Line" name="line">
+    <widget class="Line" name="line1">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -109,14 +109,7 @@
    <item>
     <widget class="QListWidget" name="lwConditions">
      <property name="styleSheet">
-      <string notr="true">QListWidget::item {
-    color:#0000ff;
-    background-color:#ffffff;
-}
-QListWidget::item:hover {
-    color:rgb(0,0,230);
-    background-color:rgb(230,230,230);
-}</string>
+      <string notr="true"/>
      </property>
     </widget>
    </item>
@@ -200,7 +193,7 @@ QListWidget::item:hover {
     </widget>
    </item>
    <item>
-    <widget class="Line" name="line_2">
+    <widget class="Line" name="line2">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -209,7 +202,7 @@ QListWidget::item:hover {
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Infomations:</string>
+      <string>Informations displayed from tooltip:</string>
      </property>
     </widget>
    </item>

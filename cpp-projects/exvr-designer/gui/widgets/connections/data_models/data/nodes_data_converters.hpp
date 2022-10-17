@@ -125,6 +125,9 @@ struct StringToStringListConverter : public BaseConverter{DataSP operator()(Data
 struct Vector2ToStringConverter : public BaseConverter{DataSP operator()(DataSP data) override;};
 // vector3
 struct Vector3ToStringConverter : public BaseConverter{DataSP operator()(DataSP data) override;};
+// color
+struct ColorToStringConverter : public BaseConverter{DataSP operator()(DataSP data) override;};
+struct ColorToVector3Converter : public BaseConverter{DataSP operator()(DataSP data) override;};
 // transform
 struct TransformToStringConverter : public BaseConverter{DataSP operator()(DataSP data) override;};
 // string list

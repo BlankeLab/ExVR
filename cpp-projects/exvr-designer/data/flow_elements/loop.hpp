@@ -63,7 +63,6 @@ struct Loop : public FlowElement {
         ShuffleOneForAllInstances,
         RandomEveryNInstances,
         ShuffleEveryNInstances,
-        File,
         SizeEnum
     };
 
@@ -81,7 +80,6 @@ struct Loop : public FlowElement {
         {Mode::ShuffleOneForAllInstances,   "only_once_shuffle"sv},
         {Mode::RandomEveryNInstances,       "every_n_instances_random"sv},
         {Mode::ShuffleEveryNInstances,      "every_n_instances_shuffle"sv},
-        {Mode::File,                        "file"sv},
     }};
 
     [[maybe_unused]] static Name get_name(Mode m) {
@@ -98,8 +96,6 @@ struct Loop : public FlowElement {
     inline QString to_string() const{return QSL("Loop(") % name() % QSL("|") % QString::number(key()) % QSL(")");}
 
     static std::unique_ptr<Loop> copy_with_new_element_id(const Loop &loopToCopy, const QString &newName);
-
-    bool is_file_mode() const noexcept;
 
     void set_nodes(LoopNode *start, LoopNode *end);
     void set_nb_reps(size_t nbReps) noexcept;
@@ -128,14 +124,11 @@ struct Loop : public FlowElement {
     // settings
     size_t nbReps = 1;
     Mode mode = Mode::Fixed;
-    QString filePath; /**< path for FILE loop mode */
     int N = 1;
     bool noFollowingValues = false; /**< for random and shuffle only */
 
     // sets
-    QString currentSetName;
     std::vector<std::unique_ptr<Set>> sets;
-    std::vector<std::unique_ptr<Set>> fileSets;
 
     // associated nodes
     LoopNode *start = nullptr;

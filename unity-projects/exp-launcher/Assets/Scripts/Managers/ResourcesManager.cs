@@ -430,9 +430,11 @@ namespace Ex {
             return ((PlotResource)m_aliasMappingResources[ResourceType.Plot][alias]);
         }
 
-        public ImageResource get_image_file_data(string alias) {
+        public ImageResource get_image_file_data(string alias, bool displayError = true) {
             if (!m_aliasMappingResources[ResourceType.Image].ContainsKey(alias)) {
-                log_error(String.Format("Cannot read image with alias [{0}] from resources.", alias));
+                if (displayError) {
+                    log_error(string.Format("Cannot read image with alias [{0}] from resources.", alias));
+                }
                 return null;
             }
             return ((ImageResource)m_aliasMappingResources[ResourceType.Image][alias]);

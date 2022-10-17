@@ -101,24 +101,7 @@ public:
     }
 
     auto get_elements() const -> std::vector<FlowElement*>;
-
-//    template <typename T>
-//    static constexpr FlowElement::Type get_type(){
-//        if constexpr(std::is_same<T, Routine>()){
-//            return FlowElement::Type::Routine;
-//        }else if constexpr(std::is_same<T, Isi>()){
-//            return FlowElement::Type::Isi;
-//        }else if constexpr(std::is_same<T, LoopNode>()){
-//            return FlowElement::Type::LoopStart;
-//        }
-//        return FlowElement::Type::Node;
-//    }
-
-    auto get_elements_from_type(FlowElement::Type type) const{
-        return elements | std::ranges::views::filter([type](const auto &element) {
-            return element->type() == type;
-        });
-    }
+    auto get_elements_of_type(FlowElement::Type type) const;
 
     template<FlowElementDerived T>
     auto get_elements_from_type() const -> std::vector<T*>{
@@ -134,6 +117,8 @@ public:
 
     // ## routine
     auto get_routine(ElementKey routineKey) const -> Routine*;
+    auto get_routine(RowId id) const -> Routine*;
+    auto get_routines_name() const -> std::vector<QStringView>;
     // ### condition
     auto get_condition(ConditionKey conditionKey) const -> Condition*;
     auto get_condition(ElementKey routineKey, ConditionKey conditionKey) const -> Condition*;
@@ -235,8 +220,10 @@ public slots:
     void select_element_id_no_nodes(RowId elementId, bool updateSignal = true);
     void select_element_from_ptr(FlowElement *element, bool updateSignal = true);
     void add_element(FlowElement::Type type, size_t index);
-    void remove_element(FlowElement *elemToDelete);    
+    void remove_element(FlowElement *elemToDelete, bool updateConditions = true);
     void remove_element_of_key(ElementKey elementKey);
+    void remove_everything_before_element_of_key(ElementKey elementKey);
+    void remove_everything_after_element_of_key(ElementKey elementKey);
     void duplicate_element(ElementKey elementKey);
     void clean_current_routine_condition(ElementKey routineKey);
     void clean_all_routine_conditions(ElementKey routineKey);
@@ -249,7 +236,6 @@ public slots:
     void update_element_informations(ElementKey elementKey, QString informations);
 
     // # loop
-    void select_loop_set(ElementKey loopKey, QString setName);
     void add_loop_sets(ElementKey loopKey, QString sets, RowId id);
     void modify_loop_set_name(ElementKey loopKey, QString setName, RowId id);
     void modify_loop_set_occurrencies_nb(ElementKey loopKey, int setOccuranciesNb, RowId id);
@@ -263,7 +249,6 @@ public slots:
     void move_loop_set_up(ElementKey loopKey, RowId id);
     void move_loop_set_down(ElementKey loopKey, RowId id);
     void load_loop_sets_file(ElementKey loopKey, QString path);
-    void reload_loop_sets_file(ElementKey loopKey);
 
     // # isi
     void add_isi_interval(ElementKey isiKey, qreal value, RowId id);

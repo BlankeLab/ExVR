@@ -57,7 +57,7 @@ namespace Ex{
 
             // slots
             add_slot("play", (nullArg) => {
-                audioSource.Play(); // TODO
+                start_sound();
             });
             add_slot("pause", (nullArg) => {
                 pause();
@@ -177,8 +177,6 @@ namespace Ex{
 
         public override void update_from_current_config() {
 
-
-
             audioSource.mute = currentC.get<bool>("mute");
             set_volume(currentC.get<float>("volume"));
 
@@ -246,21 +244,21 @@ namespace Ex{
             if (doUpdate) {
 
                 if (!audioSource.isPlaying && m_playNewBlock) {
-                    audioSource.Play();
+                    start_sound();
                 } else if (audioSource.isPlaying && m_stopNewBlock) {
-                    audioSource.Stop();
-                }else if(audioSource.isPlaying && m_pauseNewBlock) {
-                    audioSource.Pause();
+                    stop_sound();
+                } else if(audioSource.isPlaying && m_pauseNewBlock) {
+                    pause();
                 } 
 
             } else {
 
                 if (!audioSource.isPlaying && m_playEndBlock) {
-                    audioSource.Play();
+                    start_sound();
                 } else if (audioSource.isPlaying && m_stopEndBlock) {
-                    audioSource.Stop();
+                    stop_sound();
                 } else if (audioSource.isPlaying && m_pauseEndBlock) {
-                    audioSource.Pause();
+                    pause();
                 }
             }
         }
@@ -327,21 +325,30 @@ namespace Ex{
 
         public void start_sound() {
             audioSource.Play();
+            audioSourceGO.GetComponent<MeshRenderer>().material.color = audioSource.mute ? Color.red : Color.green;
         }
-        public void stop_sound() {
+        public void stop_sound() {            
             audioSource.Stop();
+            audioSourceGO.GetComponent<MeshRenderer>().material.color = Color.red;
         }
 
         public void mute(bool state) {
             audioSource.mute = state;
+            audioSourceGO.GetComponent<MeshRenderer>().material.color = audioSource.mute ? Color.red : Color.green;
+            //if (state) {
+            //    audioSourceGO.GetComponent<MeshRenderer>().material.color = Color.yellow;
+            //}
+
         }
 
         public override void play() {
             audioSource.UnPause();
+            audioSourceGO.GetComponent<MeshRenderer>().material.color = audioSource.mute ? Color.red : Color.green;
         }
 
         public override void pause() {
             audioSource.Pause();
+            audioSourceGO.GetComponent<MeshRenderer>().material.color = Color.red;
         }
 
         public void set_time(float time) {

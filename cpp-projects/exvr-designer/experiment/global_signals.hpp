@@ -82,8 +82,8 @@ signals:
     void toggle_component_parameters_signal(tool::ex::ComponentKey key);
     void remove_component_signal(tool::ex::ComponentKey key);
     void duplicate_component_signal(tool::ex::ComponentKey componentKey);
-    void enter_component_signal(tool::ex::ComponentKey key);
-    void leave_component_signal(tool::ex::ComponentKey key);
+//    void enter_component_signal(tool::ex::ComponentKey key);
+//    void leave_component_signal(tool::ex::ComponentKey key);
     void show_component_informations_signal(tool::ex::ComponentKey componentKey);
     void copy_component_signal(tool::ex::Component *component, std::vector<tool::ex::ConfigKey> configKeys, tool::ex::RowId to);
 
@@ -113,6 +113,8 @@ signals:
     void remove_selected_element_signal();
     void add_element_signal(tool::ex::FlowElement::Type type, size_t index);
     void remove_element_signal(tool::ex::ElementKey elementKey);
+    void remove_everything_before_signal(tool::ex::ElementKey elementKey);
+    void remove_everything_after_signal(tool::ex::ElementKey elementKey);
     void move_element_signal(tool::ex::ElementKey elementKey);
     void set_duration_for_all_routine_conditions_signal(tool::ex::ElementKey routineKey);
     void move_element_left_signal(size_t id);
@@ -120,7 +122,6 @@ signals:
     void clean_current_routine_condition_signal(tool::ex::ElementKey routineKey);
     void clean_all_routine_conditions_signal(tool::ex::ElementKey routineKey);
     // # loops
-    void select_loop_set_signal(tool::ex::ElementKey loopKey, QString set);
     void modify_loop_nb_reps_signal(tool::ex::ElementKey loopKey, int nbReps);
     void modify_loop_n_signal(tool::ex::ElementKey loopKey, int nbReps);
     void modify_loop_no_following_value_signal(tool::ex::ElementKey loopKey, bool state);
@@ -132,7 +133,6 @@ signals:
     void move_loop_set_up_signal(tool::ex::ElementKey loopKey, tool::ex::RowId idSet);
     void move_loop_set_down_signal(tool::ex::ElementKey loopKey, tool::ex::RowId idSet);
     void load_loop_sets_file_signal(tool::ex::ElementKey loopKey, QString filePath);
-    void reload_loop_sets_file_signal(tool::ex::ElementKey loopKey);
     // # isi
     void set_isi_randomize_signal(tool::ex::ElementKey isiKey, bool checked);
     void add_isi_interval_signal(tool::ex::ElementKey isiKey, double interval, tool::ex::RowId idInterval);

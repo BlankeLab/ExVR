@@ -143,7 +143,14 @@ namespace Ex{
             }
         }
 
+        public void end_of_frame() {
+            if (m_currentRoutine != null) {
+                m_currentRoutine.end_of_frame();
+            }
+        }
+
         public void update_current_routine() {
+            
             if (m_currentRoutine != null) {
                 m_currentRoutine.update();
             }
@@ -190,6 +197,7 @@ namespace Ex{
         public void start_experiment() {
             ExVR.ExpLog().routines_message("Start experiment.");
             ExVR.Components().start_experiment();
+            ExVR.Components().post_start_experiment();            
         }
 
         public void stop_experiment() {
@@ -207,6 +215,7 @@ namespace Ex{
             }
 
             // call stop experiment function for all components
+            ExVR.Components().pre_stop_experiment();
             ExVR.Components().stop_experiment();
         }
 

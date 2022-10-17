@@ -94,7 +94,7 @@ namespace Ex{
             if (armElements.ContainsKey(elementName)) {
                 return armElements[elementName].transform;
             }
-            log_error("Element " + elementName + " doesn't exist");
+            log_error(string.Format("Element {0} doesn't exist", elementName));
             return null;
         }
 
@@ -139,12 +139,12 @@ namespace Ex{
                 currentElements["elbow"].transform.position = currentPositions["elbow"];
 
                 // fingers
-                foreach (var finger in frame.fingersName) {
+                foreach (var finger in LeapMotionFrame.fingersName) {
 
                     // update elements
                     currentElements[finger.Value + "_tip"].transform.position = currentPositions[finger.Value + "_tip"];
 
-                    foreach (var bone in frame.bonesName) {
+                    foreach (var bone in LeapMotionFrame.bonesName) {
 
                         // update elements
                         currentElements[finger.Value + "_" + bone.Value].transform.position = currentPositions[finger.Value + "_" + bone.Value];
@@ -170,12 +170,12 @@ namespace Ex{
                 currentElements["elbow"].transform.position = currentPositions["elbow"];
 
                 // fingers
-                foreach (var finger in frame.fingersName) {
+                foreach (var finger in LeapMotionFrame.fingersName) {
 
                     // update elements
                     currentElements[finger.Value + "_tip"].transform.position = currentPositions[finger.Value + "_tip"];
 
-                    foreach (var bone in frame.bonesName) {
+                    foreach (var bone in LeapMotionFrame.bonesName) {
 
                         // update elements
                         currentElements[finger.Value + "_" + bone.Value].transform.position = currentPositions[finger.Value + "_" + bone.Value];

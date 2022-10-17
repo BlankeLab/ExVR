@@ -97,7 +97,7 @@
             </property>
             <property name="styleSheet">
              <string notr="true">QFrame{
-	background-color:white;
+	background-color:rgb(45,45,45);
 }</string>
             </property>
             <property name="frameShape">
@@ -146,7 +146,7 @@
                 <string/>
                </property>
                <property name="icon">
-                <iconset resource="../../_resources/resources.qrc">
+                <iconset resource="../../../_resources/resources.qrc">
                  <normaloff>:/icons/Expand</normaloff>:/icons/Expand</iconset>
                </property>
                <property name="iconSize">
@@ -198,8 +198,8 @@
               <rect>
                <x>0</x>
                <y>0</y>
-               <width>1238</width>
-               <height>245</height>
+               <width>1622</width>
+               <height>244</height>
               </rect>
              </property>
              <layout class="QHBoxLayout" name="hlFlows">
@@ -241,7 +241,10 @@
       </property>
       <property name="styleSheet">
        <string notr="true">QFrame{
-	background-color:white;
+	background-color:rgb(45,45,45);
+}
+QLabel{
+	color:rgb(255,255,255);
 }</string>
       </property>
       <property name="frameShape">
@@ -267,14 +270,34 @@
         <number>4</number>
        </property>
        <item>
-        <widget class="QLabel" name="laExpState">
+        <widget class="QLabel" name="laExVRExpState">
          <property name="text">
-          <string>ExVR-exp is not running</string>
+          <string>...</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="Line" name="line_5">
+        <widget class="Line" name="line1">
+         <property name="styleSheet">
+          <string notr="true">background-color: white;</string>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="laExpState">
+         <property name="text">
+          <string>...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line2">
+         <property name="styleSheet">
+          <string notr="true">background-color: white;</string>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
@@ -288,34 +311,17 @@
         </widget>
        </item>
        <item>
-        <widget class="Line" name="line">
+        <widget class="Line" name="line3">
+         <property name="styleSheet">
+          <string notr="true">background-color: white;</string>
+         </property>
          <property name="orientation">
           <enum>Qt::Vertical</enum>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QProgressBar" name="pgbElementCurrentTIme">
-         <property name="maximumSize">
-          <size>
-           <width>150</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="value">
-          <number>0</number>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="laElementCurrentTime">
-         <property name="text">
-          <string>Time: ... (s)</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
+        <spacer name="horizontalSpacer_2">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -328,9 +334,43 @@
         </spacer>
        </item>
        <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Times (s):</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="laElementCurrentTime">
+         <property name="text">
+          <string>[Current] ...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="laExpTime">
          <property name="text">
-          <string>Total exp time: ... (s)</string>
+          <string>[Total] ...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QProgressBar" name="pgbElementCurrentTIme">
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QProgressBar {
+	color : white;
+}
+
+</string>
+         </property>
+         <property name="value">
+          <number>0</number>
          </property>
         </widget>
        </item>
@@ -340,199 +380,6 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="QDockWidget" name="dwComponents">
-   <property name="minimumSize">
-    <size>
-     <width>182</width>
-     <height>37</height>
-    </size>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
-   </property>
-   <property name="styleSheet">
-    <string notr="true"/>
-   </property>
-   <property name="floating">
-    <bool>false</bool>
-   </property>
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::LeftDockWidgetArea|Qt::RightDockWidgetArea</set>
-   </property>
-   <property name="windowTitle">
-    <string>Components</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dwcComponents">
-    <layout class="QVBoxLayout" name="vlComponents">
-     <property name="spacing">
-      <number>2</number>
-     </property>
-     <property name="leftMargin">
-      <number>2</number>
-     </property>
-     <property name="topMargin">
-      <number>2</number>
-     </property>
-     <property name="rightMargin">
-      <number>2</number>
-     </property>
-     <property name="bottomMargin">
-      <number>2</number>
-     </property>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="dwLogs">
-   <property name="minimumSize">
-    <size>
-     <width>90</width>
-     <height>109</height>
-    </size>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QDockWidget{
-	color: white;
-    background-color: rgb(51, 51, 51);;
-	font: bold 14px;
-}</string>
-   </property>
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-   </property>
-   <property name="windowTitle">
-    <string>Logs</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dwLogsContent">
-    <property name="styleSheet">
-     <string notr="true">QWidget#dwLogsContent{
-    background-color: rgb(71, 71, 71);;
-}</string>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QFrame" name="fLogs">
-       <property name="styleSheet">
-        <string notr="true">QFrame#•fLogs{
-    background-color: rgb(71, 71, 71);;
-}</string>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <widget class="QTextBrowser" name="tbLogs">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
-  <widget class="QDockWidget" name="dwSelectedElement">
-   <property name="features">
-    <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
-   </property>
-   <property name="windowTitle">
-    <string>Selected element</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dwSelectedElementContent">
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <property name="spacing">
-      <number>0</number>
-     </property>
-     <property name="leftMargin">
-      <number>0</number>
-     </property>
-     <property name="topMargin">
-      <number>0</number>
-     </property>
-     <property name="rightMargin">
-      <number>0</number>
-     </property>
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QTabWidget" name="twSelectedElement">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="currentIndex">
-        <number>-1</number>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
   <action name="actionNew_project">
    <property name="text">
     <string>New project</string>
@@ -561,7 +408,7 @@
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources>
-  <include location="../../_resources/resources.qrc"/>
+  <include location="../../../_resources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

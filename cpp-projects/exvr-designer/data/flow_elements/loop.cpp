@@ -32,14 +32,11 @@ using namespace tool::ex;
 
 Loop::Loop() : FlowElement(Type::Loop, QSL("loop")){
     sets.push_back(std::make_unique<Set>(QSL("default")));
-    fileSets.push_back(std::make_unique<Set>(QSL("file_default")));
 }
 
 Loop::Loop(QString n, ElementKey id, QString infos) : FlowElement(Type::Loop, n, id.v, infos){
-
     if(id.v == -1){
         sets.push_back(std::make_unique<Set>(QSL("default")));
-        fileSets.push_back(std::make_unique<Set>(QSL("file_default")));
     }
 }
 
@@ -48,18 +45,11 @@ std::unique_ptr<Loop> Loop::copy_with_new_element_id(const Loop &loopToCopy, con
     auto loop = std::make_unique<Loop>(newName, ElementKey{-1}, loopToCopy.informations);
     loop->nbReps            = loopToCopy.nbReps;
     loop->mode              = loopToCopy.mode;
-    loop->filePath          = loopToCopy.filePath;
     loop->noFollowingValues = loopToCopy.noFollowingValues;
-    loop->currentSetName    = loopToCopy.currentSetName;
 
     loop->sets.reserve(loopToCopy.sets.size());
     for(const auto &setToCopy : loopToCopy.sets){
         loop->sets.push_back(Set::copy_with_new_element_id(setToCopy.get()));
-    }
-
-    loop->fileSets.reserve(loopToCopy.fileSets.size());
-    for(const auto &setToCopy : loopToCopy.fileSets){
-        loop->fileSets.push_back(Set::copy_with_new_element_id(setToCopy.get()));
     }
 
     return loop;
@@ -130,7 +120,6 @@ bool Loop::add_set(QString setName, RowId id) {
 
     if(is_default()){
         sets[0]->name = setName;
-        currentSetName = setName;
         return true;
     }
 
@@ -143,7 +132,7 @@ bool Loop::add_set(QString setName, RowId id) {
     }
 
     sets.insert(std::begin(sets) + id.v, std::make_unique<Set>(setName));
-    currentSetName = setName;
+
     return true;
 }
 
@@ -179,19 +168,18 @@ void Loop::add_sets(QStringList setsName, RowId id){
     }
 }
 
-bool Loop::is_file_mode() const noexcept{
-    return mode == Mode::File;
-}
-
 void Loop::remove_set(RowId id){
-
     sets.erase(std::begin(sets) + id.v);
-    if(static_cast<int>(sets.size()) > id.v){
-        currentSetName = sets[id.v]->name;
-    }else if(id.v > 0){
-        currentSetName = sets[id.v-1]->name;
-    }else{
-        currentSetName = "";
+
+    for(auto &set : sets){
+        if(set->occurencies > 0){
+            return;
+        }
+    }
+
+    if(sets.size() > 0){
+        sets[0]->occurencies = 1;
+        QtLogger::warning(QSL("[LOOP] No remaining set has an occurencies nb > 0, first set occurencies nb has been set to 1."));
     }
 }
 
@@ -199,11 +187,6 @@ bool Loop::modify_set_name(QString newSetName, RowId id){
 
     if(newSetName == QSL("default")){
         QtLogger::error(QSL("[LOOP] Cannot rename as set to \"default\" name"));
-        return false;
-    }
-
-    if(is_file_mode()){
-        QtLogger::error(QSL("[LOOP] Cannot modify loop set when file mode is used."));
         return false;
     }
 
@@ -268,18 +251,38 @@ bool Loop::load_file(QString path){
     }
 
     QTextStream in(&file);
-    std::vector<std::unique_ptr<Set>> newFileSet;
+    std::vector<std::unique_ptr<Set>> filSets;
+    std::set<QString> validNames;
+
     while (!in.atEnd()){
-        newFileSet.push_back(std::make_unique<Set>(in.readLine(),1, SetKey{-1}));
+        auto line = in.readLine();
+        auto split = line.split(" ");
+        QString name;
+        if(split.length() > 0){
+            name = split[0];
+        }
+        if(name.length() == 0 || validNames.contains(name)){
+            continue;
+        }
+        validNames.insert(name);
+
+        int nbOcc = 1;
+        if(split.length() > 1){
+            bool ok;
+            nbOcc = split[1].toInt(&ok);
+            if(!ok){
+                nbOcc = 1;
+            }
+        }
+        filSets.push_back(std::make_unique<Set>(name,nbOcc, SetKey{-1}));
     }
     file.close();
 
-    if(newFileSet.size() == 0){
+    if(filSets.size() == 0){
         return false;
     }
 
-    fileSets = std::move(newFileSet);
-    filePath = path;
+    sets = std::move(filSets);
 
     return true;
 }
@@ -314,11 +317,7 @@ Set *Loop::get_set(SetKey setKey) {
             return set.get();
         }
     }
-    for(auto &set : fileSets){
-        if(set->key() == setKey.v){
-            return set.get();
-        }
-    }
+
     return nullptr;
 }
 

@@ -76,6 +76,7 @@ public:
     void add_row_in_dialog(QString name, QWidget *w, bool horizontalLayout = true);
 
     virtual bool set_text_value(const QString &value);
+    virtual bool set_pixmap_value(const QPixmap &value);
     void disable();
     void enable();
     void set_title(QString title);

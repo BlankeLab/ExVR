@@ -80,18 +80,9 @@ Instance::Instance(const Randomizer *randomizer, const std::vector<FlowElement*>
 
         // fill list of sets
         std::vector<QStringView> setsOccurenciesStr;
-        if(loop->mode != Loop::Mode::File){
-
-            for(const auto &set : loop->sets){
-                for(size_t ii = 0; ii < set->occurencies; ++ii){
-                    setsOccurenciesStr.push_back(set->name);
-                }
-            }
-        }else{
-            for(const auto &set : loop->fileSets){
-                for(size_t ii = 0; ii < set->occurencies; ++ii){
-                    setsOccurenciesStr.push_back(set->name);
-                }
+        for(const auto &set : loop->sets){
+            for(size_t ii = 0; ii < set->occurencies; ++ii){
+                setsOccurenciesStr.push_back(set->name);
             }
         }
 
@@ -196,13 +187,6 @@ Instance::Instance(const Randomizer *randomizer, const std::vector<FlowElement*>
                     setsNames.push_back(set);
                 }
 
-            break;}case Loop::Mode::File:{
-
-                setsNames.reserve(totalNbReps);
-                for(size_t ii = 0; ii < totalNbReps; ++ii){
-                    setsNames.push_back(setsOccurenciesStr[ii%setsOccurenciesStr.size()]);
-                }
-
             break;}
             default:
             break;
@@ -245,11 +229,14 @@ Instance::Instance(const Randomizer *randomizer, const std::vector<FlowElement*>
         isisCurentIntervalId[isi->key()] = 0;
     }
 
+
+
     for(size_t ii = 0; ii < elements.size(); ++ii){
 
         if(elements[ii]->type() == FlowElement::Type::Routine){
 
             auto routine = dynamic_cast<Routine*>(elements[ii]);
+
 
             // generate new instance element with routine
             InstanceElement instanceElem;
@@ -324,45 +311,39 @@ Instance::Instance(const Randomizer *randomizer, const std::vector<FlowElement*>
 
 
     // count iterations
-    std::unordered_map<int, int> routinesIterations;
-    std::unordered_map<int, std::unordered_map<QString, int>> routinesConditionsIterations;
-
-    std::unordered_map<int, int> isisIterations;
-    std::unordered_map<int, std::unordered_map<QString, int>> isisConditionsIterations;
-
     for(auto &element : flow){
 
-        const int key = element.elem->key();
+        const auto key = element.elem->e_key();
         const QString cond = element.condition;
 
         if(element.elem->type() == FlowElement::Type::Routine){
 
             if(routinesIterations.count(key) == 0){
-                routinesIterations[key] = 1;
+                routinesIterations[key] = 0;
             }
             if(routinesConditionsIterations.count(key) == 0){
                 routinesConditionsIterations[key] = {};
             }
             if(routinesConditionsIterations[key].count(cond) == 0){
-                routinesConditionsIterations[key][cond] = 1;
+                routinesConditionsIterations[key][cond] = 0;
             }
 
             element.elementIteration   = routinesIterations[key];
             element.conditionIteration = routinesConditionsIterations[key][cond];
 
             routinesIterations[key]++;
-            routinesConditionsIterations[key][cond]++;
+            routinesConditionsIterations[key][cond]++;            
 
         }else if(element.elem->type() == FlowElement::Type::Isi){
 
             if(isisIterations.count(key) == 0){
-                isisIterations[key] = 1;
+                isisIterations[key] = 0;
             }
             if(isisConditionsIterations.count(key) == 0){
                 isisConditionsIterations[key] = {};
             }
             if(isisConditionsIterations[key].count(cond) == 0){
-                isisConditionsIterations[key][cond] = 1;
+                isisConditionsIterations[key][cond] = 0;
             }
 
             element.elementIteration   = isisIterations[key];
@@ -373,7 +354,6 @@ Instance::Instance(const Randomizer *randomizer, const std::vector<FlowElement*>
         }
     }
 }
-
 
 std::unique_ptr<Instance> Instance::generate_from_one_routine(Routine *routine){
 

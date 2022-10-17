@@ -31,13 +31,14 @@ namespace Ex{
     public class ImageViewerComponent : CanvasWorldSpaceComponent{
 
         private GameObject m_imageGO = null;
-
+        private RectTransform m_rectTr = null;
         private Texture2D m_currentImage = null;
         private Texture2D m_generatedInputImage = null;
 
         private int m_currentImageWidth = 0;
         private int m_currentImageHeight = 0;
 
+        #region ex_functions
         protected override bool initialize() {
 
             // init slots
@@ -48,6 +49,7 @@ namespace Ex{
             // init gameObjects
             m_imageGO = ExVR.GlobalResources().instantiate_prebab("Common/Image", transform);
             m_imageGO.name = "ImageRect";
+            m_rectTr = m_imageGO.GetComponent<RectTransform>();
 
             // init default 
             set_image(ExVR.Resources().get_image_file_data("default_texture").texture);
@@ -75,15 +77,25 @@ namespace Ex{
 
         protected override void update_parameter_from_gui(string updatedArgName) {
             if(updatedArgName == "image") {
-                log_message("update_parameter_from_gui");
                 load_image_from_resource(currentC.get_resource_alias(updatedArgName));
             }
             resize_image();
         }
 
-        // use_eye_camera
         protected override void post_update() {
             resize_image();
+        }
+
+        #endregion
+
+        #region public_functions
+
+        public void set_pivot(Vector2 pivot) {
+            m_rectTr.pivot = pivot;
+        }
+
+        public void set_size(Vector2 size) {
+            m_rectTr.sizeDelta = size;
         }
 
         public void resize_image() {
@@ -91,8 +103,7 @@ namespace Ex{
             m_imageGO.transform.position = Vector3.zero;
             m_imageGO.transform.rotation = Quaternion.identity;
 
-            var rTr = m_imageGO.GetComponent<RectTransform>();
-            rTr.pivot = new Vector2(0.5f, 0.5f);
+            m_rectTr.pivot = new Vector2(0.5f, 0.5f);
 
             if (currentC.get<bool>("use_eye_camera")) {
 
@@ -100,21 +111,21 @@ namespace Ex{
                 Transform camTr = ExVR.Display().cameras().get_eye_camera_transform();
                 m_imageGO.transform.position = camTr.position + camTr.forward * currentC.get<float>("distance");
                 m_imageGO.transform.rotation = camTr.rotation;
-                m_imageGO.transform.eulerAngles += currentC.get_vector3("rotation");                
-                rTr.pivot = currentC.get_vector2("pivot");
+                m_imageGO.transform.eulerAngles += currentC.get_vector3("rotation");
+                m_rectTr.pivot = currentC.get_vector2("pivot");
 
             } else {
-                rTr.localPosition = currentC.get_vector3("position");
-                rTr.localEulerAngles = currentC.get_vector3("rotation");                
+                m_rectTr.localPosition = currentC.get_vector3("position");
+                m_rectTr.localEulerAngles = currentC.get_vector3("rotation");                
             }
 
-            rTr.sizeDelta = ((currentC.get<bool>("use_original_size")) ?
+            m_rectTr.sizeDelta = ((currentC.get<bool>("use_original_size")) ?
                         new Vector2(m_currentImageWidth, m_currentImageHeight) :
                         new Vector2(currentC.get<int>("width"), currentC.get<int>("height"))
             );
 
             var sf = currentC.get<float>("scale_factor") * 0.01f;
-            rTr.localScale = new Vector3(
+            m_rectTr.localScale = new Vector3(
                 sf, sf, sf
             );
         }
@@ -150,5 +161,7 @@ namespace Ex{
                 SpriteMeshType.FullRect
             );
         }
+
+        #endregion
     }
 }

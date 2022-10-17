@@ -108,7 +108,7 @@ namespace Ex {
 
         // flow elements
         [SerializeField]
-        private int m_currentElementId = 0;
+        private volatile int m_currentElementId = 0;
 
         [SerializeField]
         private FlowElementInfo m_currentElementInfo = null;
@@ -234,6 +234,8 @@ namespace Ex {
         }
 
         public void start_current_flow_element() {
+
+            
 
             // stop previous element
             ExVR.Routines().stop_current_routine();

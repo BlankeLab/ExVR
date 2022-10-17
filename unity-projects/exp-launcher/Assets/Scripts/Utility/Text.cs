@@ -32,6 +32,10 @@ namespace Ex {
         public static readonly string[] linesSep = { "\r\n", "\r", "\n" };
         public static readonly char[] tabSep = { '\t' };
 
+        public static string join_with_new_line(string[] text) {
+            return string.Join("\n", text);
+        }
+
         public static string[] split_lines(string text, bool removeEmptyLines = true) {
             return text.Split(linesSep, removeEmptyLines ? StringSplitOptions.RemoveEmptyEntries : StringSplitOptions.None);
         }

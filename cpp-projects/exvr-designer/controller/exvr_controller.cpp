@@ -522,6 +522,12 @@ void ExVrController::load_until_selected_routine_with_default_instance_to_unity(
     emit load_experiment_unity_signal(Paths::tempExp, Paths::tempInstance);
 }
 
+void ExVrController::load_full_exp_with_02duration(){
+    xml()->force_no_duration();
+    load_full_exp_with_default_instance_to_unity();
+    xml()->cancel_no_duration();
+}
+
 void ExVrController::show_component_informations_dialog(ComponentKey componentKey){
 
     if(const auto component = exp()->get_component(componentKey); component != nullptr){
@@ -591,7 +597,7 @@ void ExVrController::show_component_informations_dialog(ComponentKey componentKe
                         size_t nbUpdateIntervals = 0;
                         if(action->timelineUpdate){
                             nbUpdateIntervals = action->timelineUpdate->nb_intervals();
-                            lengthUpdate = action->timelineUpdate->sum_intervals();
+                            lengthUpdate      = action->timelineUpdate->sum_intervals();
                         }
                         double lengthVisibility = 0.;
                         size_t nbVisibilityIntervals = 0;
@@ -607,6 +613,10 @@ void ExVrController::show_component_informations_dialog(ComponentKey componentKe
                             if(nbUpdateIntervals > 0){
                                 timelineTxt += QSL(" with **[") % QString::number(nbUpdateIntervals) % QSL("]** intervals of total length  **[")
                                                % QString::number(lengthUpdate) % QSL("]** for update timeline");
+
+//                                if(lengthUpdate == condition->duration.v){
+//                                    timelineTxt += QSL(" [FULL]");
+//                                }
                             }else{
                                 timelineTxt += QSL(" with no interval for update timeline");
                             }
@@ -614,6 +624,9 @@ void ExVrController::show_component_informations_dialog(ComponentKey componentKe
                             if(nbVisibilityIntervals > 0){
                                 timelineTxt += QSL(" with  **[") % QString::number(nbVisibilityIntervals) % QSL("]** intervals of total length  **[") %
                                                QString::number(lengthVisibility) % QSL("]** for visibility timeline");
+//                                if(lengthVisibility == condition->duration.v){
+//                                    timelineTxt +=  QSL(" [FULL]");
+//                                }
                             }else{
                                 timelineTxt += QSL(" with no interval for visibility timeline");
                             }
@@ -639,7 +652,8 @@ void ExVrController::show_component_informations_dialog(ComponentKey componentKe
                             timelineTxt += QSL(" (Timeline-less)");
                         }
 
-                        insideTxt += QSL(" * Condition **[") % condition->name % QSL("]** with config **[") % action->config->name % QSL("]** ") % timelineTxt %
+                        insideTxt += QSL(" * Condition **[") % condition->name % QSL("]** with config **[") % action->config->name % QSL("]** and duration **[") %
+                                     QString::number(condition->duration.v) % QSL("]**") % timelineTxt %
                                       (action->nodeUsed ? QSL(" **(Node used)**") : QSL(""))  % QSL("<br />");
                     }
                 }
@@ -1043,8 +1057,8 @@ void ExVrController::generate_global_signals_connections(){
     connect(s, &GSignals::show_component_custom_menu_signal,          componentsM, &COM::show_howering_component_custom_menu);
     connect(s, &GSignals::toggle_component_parameters_signal,         componentsM, &COM::toggle_component_parameters_dialog);
     connect(s, &GSignals::toggle_selection_component_signal,          componentsM, &COM::toggle_component_selection);
-    connect(s, &GSignals::enter_component_signal,                     componentsM, &COM::update_style);
-    connect(s, &GSignals::leave_component_signal,                     componentsM, &COM::update_style);
+//    connect(s, &GSignals::enter_component_signal,                     componentsM, &COM::update_style);
+//    connect(s, &GSignals::leave_component_signal,                     componentsM, &COM::update_style);
 
     // -> experiment
     // # ui
@@ -1092,6 +1106,9 @@ void ExVrController::generate_global_signals_connections(){
     connect(s, &GSignals::move_element_right_signal,                        exp(), &EXP::move_right);
     connect(s, &GSignals::duplicate_element_signal,                         exp(), &EXP::duplicate_element);
     connect(s, &GSignals::remove_element_signal,                            exp(), &EXP::remove_element_of_key);
+    connect(s, &GSignals::remove_everything_before_signal,                  exp(), &EXP::remove_everything_before_element_of_key);
+    connect(s, &GSignals::remove_everything_after_signal,                   exp(), &EXP::remove_everything_after_element_of_key);
+
     connect(s, &GSignals::clean_current_routine_condition_signal,           exp(), &EXP::clean_current_routine_condition);
     connect(s, &GSignals::clean_all_routine_conditions_signal,              exp(), &EXP::clean_all_routine_conditions);
     connect(s, &GSignals::set_duration_for_all_routine_conditions_signal,   exp(), &EXP::set_duration_for_all_routine_conditions);
@@ -1105,7 +1122,6 @@ void ExVrController::generate_global_signals_connections(){
     connect(s, &GSignals::move_isi_interval_up_signal,                exp(), &EXP::move_isi_interval_up);
     connect(s, &GSignals::move_isi_interval_down_signal,              exp(), &EXP::move_isi_interval_down);
     // ## loop
-    connect(s, &GSignals::select_loop_set_signal,                     exp(), &EXP::select_loop_set);
     connect(s, &GSignals::modify_loop_nb_reps_signal,                 exp(), &EXP::modify_loop_nb_reps);
     connect(s, &GSignals::modify_loop_n_signal,                       exp(), &EXP::modify_loop_N);
     connect(s, &GSignals::modify_loop_no_following_value_signal,      exp(), &EXP::modify_loop_no_following_value);
@@ -1116,7 +1132,6 @@ void ExVrController::generate_global_signals_connections(){
     connect(s, &GSignals::move_loop_set_up_signal,                    exp(), &EXP::move_loop_set_up);
     connect(s, &GSignals::move_loop_set_down_signal,                  exp(), &EXP::move_loop_set_down);
     connect(s, &GSignals::load_loop_sets_file_signal,                 exp(), &EXP::load_loop_sets_file);
-    connect(s, &GSignals::reload_loop_sets_file_signal,               exp(), &EXP::reload_loop_sets_file);
     connect(s, &GSignals::add_loop_sets_signal,                       exp(), &EXP::add_loop_sets);
     // ## routine
     connect(s, &GSignals::set_routine_as_randomizer_signal,           exp(), &EXP::set_routine_as_randomizer);
@@ -1281,6 +1296,7 @@ void ExVrController::generate_main_window_connections(){
     connect(ui(), &DMW::save_experiment_to_temp_signal,                             this, &CON::save_full_exp_with_default_instance);    
     connect(ui(), &DMW::go_to_current_element_signal,                               this, &CON::go_to_current_specific_instance_element);
     connect(ui(), &DMW::go_to_specific_element_signal,                              this, &CON::show_got_to_specific_instance_element_dialog);
+    connect(ui(), &DMW::load_full_exp_with_02duration_signal,                        this, &CON::load_full_exp_with_02duration);
     connect(ui(), &DMW::start_experiment_launcher_signal,                           this, [&](){
         emit start_experiment_launcher_signal(*exp()->settings());
     });

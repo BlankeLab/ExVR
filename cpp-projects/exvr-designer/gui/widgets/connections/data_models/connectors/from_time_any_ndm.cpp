@@ -44,6 +44,7 @@ void FromTimeAnyNodeDataModel::compute(){
         propagate_default_runtime(
             {
                 std::make_shared<RealData>(0.0),
+                std::make_shared<RealData>(0.0),
                 generate_default_runtime_any_data()
             });
         return;
@@ -60,9 +61,10 @@ void FromTimeAnyNodeDataModel::compute(){
     propagate_data(
         "",
         {
-             std::make_shared<RealData>(data->value().time),
-             generate_default_runtime_any_data()
-        } );
+            std::make_shared<RealData>(data->value().expTime),
+            std::make_shared<RealData>(data->value().routineTime),
+            generate_default_runtime_any_data()
+        });
 }
 
 
@@ -70,9 +72,9 @@ void FromTimeAnyNodeDataModel::init_ports_caption(){
 
     const auto io = Connector::get_io(m_type);
     inPortsInfo[0].caption = QSL("in (") % get_name(io.inTypes[0]) % QSL(")");
-
-    outPortsInfo[0].caption = QSL("time (") % get_name(io.outTypes[0]) % QSL(")");
-    outPortsInfo[1].caption = QSL("value (") % get_name(io.outTypes[1]) % QSL(")");
+    outPortsInfo[0].caption = QSL("exp time (") % get_name(io.outTypes[0]) % QSL(")");
+    outPortsInfo[1].caption = QSL("routine time (") % get_name(io.outTypes[1]) % QSL(")");
+    outPortsInfo[2].caption = QSL("value (") % get_name(io.outTypes[2]) % QSL(")");
 }
 
 

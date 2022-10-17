@@ -57,8 +57,7 @@ namespace Ex {
         public TimeManager timeManager = null;
         [Rename("Memory")]
         public MemoryManager memoryManager = null;
-        [Rename("Debug")]
-        public DebugManager debugManager = null;
+
 
         [Rename("Global resources")]
         public GlobalResourcesManager globalResourcesManager = null;
@@ -101,8 +100,7 @@ namespace Ex {
             networkManager.initialize();                        
             // # memory
             memoryManager.initialize();
-            // # debug
-            debugManager.initialize();
+
 
             // # global resources
             ExVR.ExpLog().builder("Initialize global resources");
@@ -211,8 +209,9 @@ namespace Ex {
 
         void OnApplicationQuit() {
 
+            networkManager.set_launcher_closing_state();
 
-            ExVR.ExpLog().builder(string.Format("Application ending after {0} seconds -> {1}", Time.time, GlobalVariables.wantToLeave));
+            ExVR.ExpLog().builder(string.Format("Application ending after {0} seconds", Time.time));
 
             // force destroy experiment (mostly for C++DLL component to be clean correctly in Editor mode)
             ExVR.ExpLog().builder("Quit application");

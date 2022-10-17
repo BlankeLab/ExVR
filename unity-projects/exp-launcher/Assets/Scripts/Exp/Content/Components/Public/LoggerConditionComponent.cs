@@ -33,32 +33,7 @@ namespace Ex {
         // parameters       
         private HashSet<string> m_filesNames = null;
 
-        private string get_file_path(string routineName, string conditionName) {
-
-            string idName = "";
-            if (initC.get<bool>("add_both")) {
-                idName = string.Format("{0}_{1}", routineName, conditionName);
-            } else if (initC.get<bool>("add_routine")) {
-                idName = routineName;
-            } else if (initC.get<bool>("add_condition")) {
-                idName = conditionName;
-            }
-
-            if (idName.Length != 0) {
-                if (m_addInstanceToFileName) {
-                    return string.Format("{0}/{1}_{2}_{3}.{4}", m_directoryPath, m_baseFileName, ExVR.Experiment().instanceName, idName, m_fileExtension);
-                } else {
-                    return string.Format("{0}/{1}_{2}.{3}", m_directoryPath, m_baseFileName, idName, m_fileExtension);
-                }
-            } else {
-                if (m_addInstanceToFileName) {
-                    return string.Format("{0}/{1}_{2}.{3}", m_directoryPath, m_baseFileName, ExVR.Experiment().instanceName,m_fileExtension);
-                } else {
-                    return string.Format("{0}/{1}.{2}", m_directoryPath, m_baseFileName, m_fileExtension);
-                }
-            }
-        }
-
+        #region ex_functions
         protected override bool initialize() {
 
             if (!read_common_init_parameters()) {
@@ -100,25 +75,52 @@ namespace Ex {
 
             foreach (var fileName in m_filesNames) {
 
-                if (!create_file(fileName, initC.get<bool>("add_header_line") ? initC.get<string>("header_line") : string.Empty)) {
+                if (!FileLogger.create_file(
+                    fileName,
+                    initC.get<bool>("add_header_line") ? initC.get<string>("header_line") : string.Empty,
+                    initC.get<bool>("dont_write_if_file_exists"),
+                    initC.get<bool>("add_to_end_if_file_exists"))) {
                     return;
                 }
             }
-
-            writingJob = new WritingFileThread();
-            writingJob.doLoop = true;
-            writingJob.start();
+            m_fileLogger.start_logging();
         }
 
         protected override void pre_start_routine() {
+            m_fileLogger.open_file(get_file_path(currentRoutine.name, currentCondition.name));
+        }
 
-            m_fileFullPath = get_file_path(currentRoutine.name, currentCondition.name);
-            if (!writingJob.open_file(m_fileFullPath)) {
-                log_error(string.Format("Cannot open stream writer with path [{0}].", m_fileFullPath));
-                m_canWrite = false;
+        #endregion
+
+        #region private_functions
+
+        private string get_file_path(string routineName, string conditionName) {
+
+            string idName = "";
+            if (initC.get<bool>("add_both")) {
+                idName = string.Format("{0}_{1}", routineName, conditionName);
+            } else if (initC.get<bool>("add_routine")) {
+                idName = routineName;
+            } else if (initC.get<bool>("add_condition")) {
+                idName = conditionName;
+            }
+
+            if (idName.Length != 0) {
+                if (m_addInstanceToFileName) {
+                    return string.Format("{0}/{1}_{2}_{3}.{4}", m_directoryPath, m_baseFileName, ExVR.Experiment().instanceName, idName, m_fileExtension);
+                } else {
+                    return string.Format("{0}/{1}_{2}.{3}", m_directoryPath, m_baseFileName, idName, m_fileExtension);
+                }
             } else {
-                m_canWrite = true;
+                if (m_addInstanceToFileName) {
+                    return string.Format("{0}/{1}_{2}.{3}", m_directoryPath, m_baseFileName, ExVR.Experiment().instanceName,m_fileExtension);
+                } else {
+                    return string.Format("{0}/{1}.{2}", m_directoryPath, m_baseFileName, m_fileExtension);
+                }
             }
         }
+
+        #endregion
+
     }
 }

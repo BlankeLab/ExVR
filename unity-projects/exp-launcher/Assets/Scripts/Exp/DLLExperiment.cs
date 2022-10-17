@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 
 namespace Ex {
 
-    public class DLLExperiment : CppDllImport {
+    public class DLLExperiment : DLLCppImport {
 
         private static readonly string bracesStr = "{0}{1}";
         private static readonly string signalStr = "signal";
@@ -128,9 +128,10 @@ namespace Ex {
                 ExVR.ExpLog().push_to_strackTrace(new ComponentTrace(trace));
             };
 
-            logMessageCB = (message) => { ExVR.Log().message(message); };
+            logMessageCB = (message) => {
+                ExVR.Log().message(message, false, "", "", 0, true, false); 
+            };
             logMessageIdCB = (message, sType, sKey) => {
-
                 switch ((SenderT)sType) {
                     case SenderT.Component:
                         if (ExVR.Components().componentPerKey.ContainsKey(sKey)) {
@@ -152,7 +153,9 @@ namespace Ex {
                 }
             };
 
-            logWarningCB = (message) => { ExVR.Log().warning(message); };
+            logWarningCB = (message) => { 
+                ExVR.Log().warning(message, false, "", "", 0, true, false);
+            };
             logWarningIdCB = (message, sType, sKey) => {
 
                 switch ((SenderT)sType) {
@@ -171,7 +174,9 @@ namespace Ex {
                 }
             };
 
-            logErrorCB = (message) => { ExVR.Log().error(message); };
+            logErrorCB = (message) => {
+                ExVR.Log().error(message, false, "", "", 0, true, false);
+            };
             logErrorIdCB = (message, sType, sKey) => {
 
                 switch ((SenderT)sType) {
@@ -279,6 +284,8 @@ namespace Ex {
             );
 
             //test_call_backs_ex_experiment(_handle);
+            //var l = new HandleRef(this, get_logger_ptr_ex_experiment(_handle));
+            //test_log_ex_experiment(l);
         }
 
         private bool init_logger(string pathDir = "", string loggerFileName = "") {
@@ -333,5 +340,11 @@ namespace Ex {
 
         [DllImport("exvr-export", EntryPoint = "test_call_backs_ex_experiment", CallingConvention = CallingConvention.Cdecl)]
         static public extern void test_call_backs_ex_experiment(HandleRef exExperiment);
+
+        [DllImport("exvr-export", EntryPoint = "test_log_ex_experiment", CallingConvention = CallingConvention.Cdecl)]
+        static public extern void test_log_ex_experiment(HandleRef logger);
+
+        [DllImport("exvr-export", EntryPoint = "get_logger_ptr_ex_experiment", CallingConvention = CallingConvention.Cdecl)]
+        static public extern IntPtr get_logger_ptr_ex_experiment(HandleRef exExperiment);
     }
 }

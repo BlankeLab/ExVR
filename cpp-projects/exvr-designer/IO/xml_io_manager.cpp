@@ -518,6 +518,9 @@ std::unique_ptr<Component> XmlIoManager::read_component(){
         unityNameStr = unityNameStr.replace("SpatializedAudio", "AudioSource");
         unityNameStr = unityNameStr.replace("TextCamera", "TextViewer");
         unityNameStr = unityNameStr.replace("SliderCamera", "SliderUI");
+        unityNameStr = unityNameStr.replace("KinectManager", "K2Manager");
+        unityNameStr = unityNameStr.replace("KinectManager", "K2Manager");
+        unityNameStr = unityNameStr.replace("KinectBodyTracking", "K2BodyTracking");
 
         // try again with modifications
         type = Component::get_type_from_unity_name(unityNameStr.toStdString());
@@ -562,10 +565,10 @@ std::unique_ptr<Component> XmlIoManager::read_component(){
 
 std::unique_ptr<Resource> XmlIoManager::read_resource(){
 
-    const auto key   = read_attribute<int>(QSL("key"), true);
-    const auto typeStr = read_attribute<QString>(QSL("type"), true);
-    const auto alias = read_attribute<QString>(QSL("alias"), true);
-    const auto path  = read_attribute<QString>(QSL("path"), true);
+    const auto key      = read_attribute<int>(QSL("key"), true);
+    const auto typeStr  = read_attribute<QString>(QSL("type"), true);
+    const auto alias    = read_attribute<QString>(QSL("alias"), true);
+    const auto path     = read_attribute<QString>(QSL("path"), true);
 
     if(!key.has_value() || !typeStr.has_value() || !alias.has_value()  || !path.has_value()){
         QtLogger::error(QSL("[XML] Invalid resource at line: ") % QString::number(r->lineNumber()));
@@ -627,9 +630,18 @@ std::unique_ptr<Resource> XmlIoManager::read_resource(){
 void XmlIoManager::write_component(const Component *component) {
 
     w->writeStartElement(QSL("Component"));
-    w->writeAttribute(QSL("key"),                QString::number(component->key()));
-    w->writeAttribute(QSL("name"),               component->name());
-    w->writeAttribute(QSL("type"),               from_view(Component::get_unity_name(component->type)));
+    w->writeAttribute(QSL("key"),               QString::number(component->key()));
+    w->writeAttribute(QSL("name"),              component->name());
+    w->writeAttribute(QSL("category"),          from_view(Component::to_string(component->category)));
+    w->writeAttribute(QSL("type"),              from_view(Component::get_unity_name(component->type)));
+    w->writeAttribute(QSL("global"),            Component::is_global(component->type) ? QSL("1") : QSL("0"));
+    w->writeAttribute(QSL("always_updating"),   Component::is_alsways_updating(component->type) ? QSL("1") : QSL("0"));
+    w->writeAttribute(QSL("exceptions"),        Component::get_exceptions(component->type) ? QSL("1") : QSL("0"));
+    w->writeAttribute(QSL("frame_logging"),     Component::has_frame_logging(component->type) ? QSL("1") : QSL("0"));
+    w->writeAttribute(QSL("trigger_logging"),   Component::has_trigger_logging(component->type) ? QSL("1") : QSL("0"));
+    w->writeAttribute(QSL("restricted"),        QString::number(static_cast<int>(Component::get_restricted(component->type))));
+    w->writeAttribute(QSL("priority"),          QString::number(static_cast<int>(Component::get_priority(component->type))));
+
     write_config(component->initConfig.get(), true);
     w->writeStartElement(QSL("Configs"));
     for(const auto &config : component->configs){
@@ -1004,7 +1016,12 @@ void XmlIoManager::write_condition(const Condition *condition){
     w->writeStartElement(QSL("Condition"));
     w->writeAttribute(QSL("key"), QString::number(condition->key()));
     w->writeAttribute(QSL("name"), condition->name);
-    w->writeAttribute(QSL("duration"),  QString::number(condition->duration.v));
+
+    if(!m_debugNoDuration){
+        w->writeAttribute(QSL("duration"),  QString::number(condition->duration.v));
+    }else{
+        w->writeAttribute(QSL("duration"),  "0.2");
+    }
     w->writeAttribute(QSL("ui_scale"),  QString::number(condition->scale));
     w->writeAttribute(QSL("ui_size"),   QString::number(condition->uiFactorSize));
 
@@ -1148,17 +1165,9 @@ void XmlIoManager::write_loop(const Loop *loop) {
     w->writeAttribute(QSL("noFollowingValues"), loop->noFollowingValues ? "1" : "0");
     w->writeAttribute(QSL("informations"), loop->informations);
 
-    if(loop->mode == Loop::Mode::File){
-        w->writeAttribute(QSL("path"), loop->filePath);
-        for(const auto &set : loop->fileSets){
-            write_set(set.get());
-        }
-
-    }else{
-        for(const auto &set : loop->sets){
-            write_set(set.get());
-        }
-    }           
+    for(const auto &set : loop->sets){
+        write_set(set.get());
+    }
 
     w->writeEndElement(); // /Loop
 }
@@ -1397,10 +1406,22 @@ bool XmlIoManager::save_instance_file(const Instance &instance, QString instance
     QXmlStreamWriter stream( &instanceFile );
     stream.setAutoFormatting(true);
     stream.writeStartDocument();
+
+    stream.writeComment(QString("Nb routines: %1").arg(instance.routinesIterations.size()));
+    for(const auto &routineInfo : instance.routinesIterations){
+        auto routine = m_experiment->get_routine(routineInfo.first);
+        size_t nbConditions = instance.routinesConditionsIterations.at(routineInfo.first).size();
+        stream.writeComment(QString(" routine [%1] [%2] is called [%3] times and has [%4] conditions").arg(
+            routine->name(),QString::number(routineInfo.first.v), QString::number(routineInfo.second), QString::number(nbConditions)));
+        for(const auto &condInfo : instance.routinesConditionsIterations.at(routineInfo.first)){
+            stream.writeComment(QString("   condition [%1] is called [%2] times").arg(
+                condInfo.first, QString::number(condInfo.second)));
+        }
+    }
+
     stream.writeStartElement(QSL("ExperimentFlow"));
     stream.writeAttribute(QSL("id_instance"), QString::number(instance.idInstance));
-    for(auto &instElem : instance.flow){
-
+    for(const auto &instElem : instance.flow){
         QString type = (instElem.elem->type() == FlowElement::Type::Routine) ? QSL("routine") : QSL("isi");
         stream.writeStartElement(QSL("Element"));
         stream.writeAttribute(QSL("key"),  QString::number(instElem.elem->key()));
@@ -1519,7 +1540,7 @@ std::unique_ptr<Instance> XmlIoManager::load_instance_file(QString instanceFileP
     return nullptr;
 }
 
-RoutineUP XmlIoManager::read_routine(){
+std::unique_ptr<Routine> XmlIoManager::read_routine(){
 
     const auto key      = read_attribute<int>(QSL("key"), true);
     const auto name     = read_attribute<QString>(QSL("name"), true);
@@ -1529,7 +1550,7 @@ RoutineUP XmlIoManager::read_routine(){
         return nullptr;
     }
 
-    RoutineUP routine = std::make_unique<Routine>(name.value(), key.value());
+    auto routine = std::make_unique<Routine>(name.value(), key.value());
     if(auto informations  = read_attribute<QString>(QSL("informations"), false); informations.has_value()){
         routine->informations = std::move(informations.value());
     }

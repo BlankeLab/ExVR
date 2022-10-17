@@ -57,6 +57,9 @@ namespace Ex {
             add_slot("write current line", (nullArg) => {
                 write(String.Join(m_columnsSeparator, columnsValue), true);
             });
+            add_slot("reset all values", (nullArg) => {
+                reset_all_values();
+            });
 
             return true;
         }
@@ -66,10 +69,17 @@ namespace Ex {
             base.start_experiment();
 
             if (initC.get<bool>("add_header_line")) {
-                write(initC.get<string>("header_line"), true);
-            }
+                var header = initC.get<string>("header_line");
+                write(header, true);
 
-            columnsValue = new List<string>();
+                var count = Ex.Text.split(header, ";").Length;
+                columnsValue = new List<string>(count);
+                for (int ii = 0; ii < count; ++ii) {
+                    columnsValue.Add("-");
+                }
+            } else {
+                columnsValue = new List<string>();
+            }            
         }
 
 
@@ -77,10 +87,6 @@ namespace Ex {
             if (m_writeCurrentColumnsAtEachFrame) {
                 write_current_colums();
             }
-        }
-
-        protected override void stop_experiment() {
-            base.stop_experiment();
         }
 
         #endregion
@@ -99,7 +105,7 @@ namespace Ex {
         #region public_functions
 
         public void write_current_colums() {
-            write(String.Join(m_columnsSeparator, columnsValue), true);
+            write(string.Join(m_columnsSeparator, columnsValue), true);
         }
 
         public void update_column_value(int idColumn, object value) {
@@ -108,6 +114,12 @@ namespace Ex {
                 columnsValue.Add("-");
             }
             columnsValue[idColumn] = Converter.to_string(value);
+        }
+
+        public void reset_all_values() {
+            for (int ii = 0; ii < columnsValue.Count; ++ii) {
+                columnsValue[ii] = "-";
+            }
         }
 
         #endregion

@@ -27,12 +27,12 @@ namespace Ex{
 
     public class ScanerVideoResource : ExResourceFile{
 
-        public DLLScanerVideoResource dllScanerVideoResource = null;
+        public DLLK2VolumetricVideoResource dllScanerVideoResource = null;
 
         public ScanerVideoResource(int key, string alias, string path) : base(key, alias, path) {}
 
         public override bool read_data() {
-            dllScanerVideoResource = new DLLScanerVideoResource();
+            dllScanerVideoResource = new DLLK2VolumetricVideoResource();
             if (!dllScanerVideoResource.load(path)) {
                 log_error(string.Format("Cannot load scaner video from path {0}.", path));
                 return false;

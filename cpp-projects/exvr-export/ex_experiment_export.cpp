@@ -38,7 +38,6 @@ void delete_ex_experiment(tool::ex::ExExperiment *e){
     delete e;
 }
 
-
 void init_callbacks_ex_experiment(
     tool::ex::ExExperiment *e,
     LogMessageCB logMessageCB,
@@ -90,8 +89,17 @@ void test_call_backs_ex_experiment(tool::ex::ExExperiment *e){
     tool::Logger::get()->message("test_message_callback_2");
     tool::Logger::get()->warning("test_warning_callback_2");
     tool::Logger::get()->error("test_error_callback_2");
-
     tool::Logger::message("test_message_callback_3");
     tool::Logger::warning("test_warning_callback_3");
     tool::Logger::error("test_error_callback_3");
+}
+
+void test_log_ex_experiment(tool::Logger *logger){
+    logger->message("test_log_message1");
+    logger->warning("test_log_warning1");
+    logger->error("test_log_error1");
+}
+
+tool::Logger *get_logger_ptr_ex_experiment(tool::ex::ExExperiment *e){
+    return e->logger.get();
 }
