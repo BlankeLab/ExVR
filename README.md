@@ -107,4 +107,4 @@ https://visualstudio.microsoft.com/vs/community/).
 
 ## Authors
 
-(TODO)
+Florian Lance
