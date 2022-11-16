@@ -392,6 +392,8 @@ std::tuple<std::optional<Arg>, QString> XmlIoManager::read_argument(){
     const auto value      = read_attribute<QString>(QSL("value"), true);
     const auto ui         = read_attribute<QString>({QSL("ui"), QSL("gen_type"), QSL("uiGeneratorType")}, true);
 
+
+
     if(!name.has_value()    ||
        !dim.has_value()     ||
        !type.has_value()    ||
@@ -514,6 +516,8 @@ std::unique_ptr<Component> XmlIoManager::read_component(){
         // for converting legacy
         unityNameStr = unityNameStr.remove("Component"); // for old style
         unityNameStr = unityNameStr.remove("MP36");
+        unityNameStr = unityNameStr.replace("Camera", "CameraController");
+        unityNameStr = unityNameStr.replace("VideoFile", "VideoResource");
         unityNameStr = unityNameStr.replace("EyeCamera", "Camera");
         unityNameStr = unityNameStr.replace("SpatializedAudio", "AudioSource");
         unityNameStr = unityNameStr.replace("TextCamera", "TextViewer");
@@ -632,7 +636,7 @@ void XmlIoManager::write_component(const Component *component) {
     w->writeStartElement(QSL("Component"));
     w->writeAttribute(QSL("key"),               QString::number(component->key()));
     w->writeAttribute(QSL("name"),              component->name());
-    w->writeAttribute(QSL("category"),          from_view(Component::to_string(component->category)));
+    w->writeAttribute(QSL("category"),          from_view(Component::get_unity_name(component->category)));
     w->writeAttribute(QSL("type"),              from_view(Component::get_unity_name(component->type)));
     w->writeAttribute(QSL("global"),            Component::is_global(component->type) ? QSL("1") : QSL("0"));
     w->writeAttribute(QSL("always_updating"),   Component::is_alsways_updating(component->type) ? QSL("1") : QSL("0"));
@@ -891,6 +895,12 @@ std::tuple<std::unique_ptr<Connection>, QString> XmlIoManager::read_connection(C
     if(connection->startType == Connection::Type::Component){
 
         if(auto component = condition->get_component_from_key(ComponentKey{connection->startKey}); component != nullptr){
+
+            // legacy
+            if(component->type == Component::Type::Camera_controller){
+                connection->slot.replace("set neutral cam", "set calibration");
+                connection->signal.replace("neutral cam", "calibration");
+            }
 
             if(!Component::has_signals(component->type)){ // no signals
                 return {nullptr, QSL("Invalid ") % connection->to_string() % QSL(" from ") % condition->to_string() + QSL(", component doesn't have any signal.")};

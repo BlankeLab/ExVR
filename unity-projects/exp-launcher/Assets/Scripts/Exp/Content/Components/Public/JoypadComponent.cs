@@ -45,6 +45,9 @@ namespace Ex{
         // events
         // # axis
         public Dictionary<Input.JoypadAxis.Code, Input.JoypadAxisEvent> axisEvent = new Dictionary<Input.JoypadAxis.Code, Input.JoypadAxisEvent>();
+
+        [System.Obsolete("Use axisEvent instead.")]
+        public Dictionary<Input.JoypadAxis.Code, Input.JoypadAxisEvent> axisState = null;
         // # buttons
         public Dictionary<Input.JoypadButton.Code, Input.JoypadButtonEvent> buttonsEvent = new Dictionary<Input.JoypadButton.Code, Input.JoypadButtonEvent>();
 
@@ -65,8 +68,9 @@ namespace Ex{
             foreach(var code in Input.JoypadAxis.Codes) {
                 axisEvent[code] = new Input.JoypadAxisEvent(code);
             }
+            axisState = axisEvent;
 
-            foreach(var code in Input.JoypadButton.Codes) {
+            foreach (var code in Input.JoypadButton.Codes) {
                 buttonsEvent[code] = new Input.JoypadButtonEvent(code);
             }
 

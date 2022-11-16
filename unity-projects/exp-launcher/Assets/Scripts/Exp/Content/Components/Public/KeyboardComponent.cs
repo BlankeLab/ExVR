@@ -149,6 +149,8 @@ namespace Ex {
         // events
         // # all events states
         public Dictionary<KeyCode, Input.KeyboardButtonEvent> buttonsEvent  = new Dictionary<KeyCode, Input.KeyboardButtonEvent>();
+        [System.Obsolete("Use buttonsEvent instead.")]
+        public Dictionary<KeyCode, Input.KeyboardButtonEvent> buttonsState = null;
         // # triggers
         private List<Input.KeyboardButtonEvent> triggerEvents = null;
 
@@ -186,6 +188,7 @@ namespace Ex {
                     m_keyboardGetReturn[code] = false;
                 }
             }
+            buttonsState = buttonsEvent;
 
             if (ExVR.GuiSettings().catchExternalKeyboardEvents) {
                 // init thread

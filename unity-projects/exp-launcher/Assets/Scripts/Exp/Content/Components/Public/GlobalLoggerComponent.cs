@@ -44,10 +44,10 @@ namespace Ex {
         private int m_nbExpFrameColumns = 0;
 
         private Dictionary<Category, CommonLoggingComponents> loggingPerCategory = new Dictionary<Category, CommonLoggingComponents>() {
-            [Category.Input]    = new CommonLoggingComponents(),
-            [Category.Network]  = new CommonLoggingComponents(),
-            [Category.Tracking] = new CommonLoggingComponents(),
-            [Category.UI]       = new CommonLoggingComponents(),
+            [Category.InputDevice]      = new CommonLoggingComponents(),
+            [Category.Network]          = new CommonLoggingComponents(),
+            [Category.AcquisitionDevice]   = new CommonLoggingComponents(),
+            [Category.UserInterface]    = new CommonLoggingComponents(),
         };
 
         #region ex_functions
@@ -173,10 +173,10 @@ namespace Ex {
             }
 
             // # components
-            loggingPerCategory[Category.Input].components    = initC.get_components_list("inputs_components");
+            loggingPerCategory[Category.InputDevice].components    = initC.get_components_list("inputs_components");
             loggingPerCategory[Category.Network].components  = initC.get_components_list("network_components");
-            loggingPerCategory[Category.UI].components       = initC.get_components_list("ui_components");
-            loggingPerCategory[Category.Tracking].components = initC.get_components_list("tracking_components");
+            loggingPerCategory[Category.UserInterface].components       = initC.get_components_list("ui_components");
+            loggingPerCategory[Category.AcquisitionDevice].components = initC.get_components_list("tracking_components");
 
             foreach(var logging in loggingPerCategory) {
 

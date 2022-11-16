@@ -102,9 +102,14 @@ HEADERS += \
     controller/exvr_controller.hpp \
     # utility
     gui/ex_widgets/ex_condition_w.hpp \
+    gui/ex_widgets/ex_oob_filtering_w.hpp \
+    gui/widgets/components/config_parameters/camera_controller_pw.hpp \
     gui/widgets/components/config_parameters/k2_body_tracking_pw.hpp \
     gui/widgets/components/config_parameters/k2_manager_pw.hpp \
+    gui/widgets/components/config_parameters/k4_direct_multi_clouds_pw.hpp \
     gui/widgets/components/config_parameters/k4_manager_pw.hpp \
+    gui/widgets/components/config_parameters/light_pw.hpp \
+    gui/widgets/components/config_parameters/video_resource_pw.hpp \
     utility/script_utility.hpp \
     utility/path_utility.hpp \
     # IO
@@ -208,7 +213,6 @@ HEADERS += \
     gui/widgets/components/config_parameters/camera_target_pw.hpp \
     gui/widgets/components/config_parameters/camera_trajectory_pw.hpp \
     gui/widgets/components/config_parameters/camera_trajectory_file_pw.hpp \
-    gui/widgets/components/config_parameters/camera_pw.hpp \
     gui/widgets/components/config_parameters/python_script_pw.hpp \
     gui/widgets/components/config_parameters/sonceboz_sg_pw.hpp \
     gui/widgets/components/config_parameters/duo_tracking_pw.hpp \
@@ -233,7 +237,6 @@ HEADERS += \
     gui/widgets/components/config_parameters/text_resource_pw.hpp \
     gui/widgets/components/config_parameters/image_resource_pw.hpp \
     gui/widgets/components/config_parameters/plot_resource_pw.hpp \
-    gui/widgets/components/config_parameters/video_file_pw.hpp \
     gui/widgets/components/config_parameters/webcam_pw.hpp \
     gui/widgets/components/config_parameters/video_generator_pw.hpp \
     gui/widgets/components/config_parameters/video_file_camera_pw.hpp \
@@ -336,9 +339,17 @@ SOURCES += \
     controller/exvr_controller.cpp \
     # launcher   
     gui/ex_widgets/ex_condition_w.cpp \
+    gui/ex_widgets/ex_oob_filtering_w.cpp \
+    gui/widgets/components/config_parameters/camera_controller_pw.cpp \
+    gui/widgets/components/config_parameters/camera_trajectory_file_pw.cpp \
+    gui/widgets/components/config_parameters/cloud_pw.cpp \
+    gui/widgets/components/config_parameters/flag_pole_pw.cpp \
     gui/widgets/components/config_parameters/k2_manager_pw.cpp \
+    gui/widgets/components/config_parameters/k4_direct_multi_clouds_pw.cpp \
     gui/widgets/components/config_parameters/k4_manager_pw.cpp \
+    gui/widgets/components/config_parameters/light_pw.cpp \
     gui/widgets/components/config_parameters/primitives_model_pw.cpp \
+    gui/widgets/components/config_parameters/video_resource_pw.cpp \
     launcher/exp_launcher.cpp \
     launcher/exp_launcher_communication.cpp \
     launcher/exp_launcher_process.cpp \
@@ -417,7 +428,6 @@ SOURCES += \
     gui/widgets/components/config_parameters/audio_source_pw.cpp \
     gui/widgets/components/config_parameters/microphone_pw.cpp \
     gui/widgets/components/config_parameters/humanoid_controller_pw.cpp \
-    gui/widgets/components/config_parameters/camera_pw.cpp \
     gui/widgets/components/config_parameters/qualisys_tracking_pw.cpp \
     gui/widgets/components/config_parameters/scene_scaner_pw.cpp \
     gui/widgets/components/config_parameters/thera_trainer_platform_pw.cpp \

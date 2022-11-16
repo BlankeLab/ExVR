@@ -2,6 +2,7 @@
 Shader "Custom/Cloud/ParaboloidFragWorldSizeShader"
 {
 	
+
 	/*
 	This shader renders the given vertices as circles with the given color.
 	The point size is the radius of the circle given in WORLD COORDINATES

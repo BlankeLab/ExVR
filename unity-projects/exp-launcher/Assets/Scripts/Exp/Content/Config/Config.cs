@@ -79,18 +79,20 @@ namespace Ex {
 
         #region get
 
-        public Argument get(string argName) {
+        public Argument get(string argName, bool displayError = true) {
 
             if (!has(argName)) {
-                log_error(string.Format("Argument {0}  doesn't exist.", argName));
+                if (displayError) {
+                    log_error(string.Format("Argument {0} doesn't exist.", argName));
+                }
                 return null;
             }
             return args[argName];
         }
 
-        public T get<T>(string argName){
+        public T get<T>(string argName, bool displayError = true){
 
-            Argument arg = get(argName);
+            Argument arg = get(argName, displayError);
             if(arg == null) {
                 return default(T);
             }
@@ -104,8 +106,8 @@ namespace Ex {
             return default(T);
         }
 
-        public void get<T>(string argName, ref T value) {
-            value = get<T>(argName);
+        public void get<T>(string argName, ref T value, bool displayError = true) {
+            value = get<T>(argName, displayError);
         }
 
         public void get(string argName, ref Color value) {
@@ -279,43 +281,6 @@ namespace Ex {
             return null;
         }
 
-        public Tuple<Routine, Condition, ExComponent, ComponentConfig> get_component_config(string argName) {
-
-            if (!has(argName)) {
-                log_error(string.Format("Argument {0} doesn't exist.", argName));
-                return null;
-            }
-
-            var split = ((List<object>)args[argName].value);
-            if (split.Count == 6) {
-
-                Condition condition = null;
-                Routine routine = ExVR.Routines().get((string)split[2]);
-                if (routine != null) {
-                    condition = routine.get_condition_from_name((string)split[3]);
-                }
-
-                int componentKey = Converter.to_int((string)split[4]);
-                int configKey = Converter.to_int((string)split[5]);
-                if (componentKey == -1 || configKey == -1) {
-                    log_error("Invalid component/config key.");
-                    return null;
-                }
-                ExComponent component = ExVR.Components().get_from_key(componentKey);
-                if (component != null) {
-                    ComponentConfig config = component.get_config(configKey);
-                    if (config != null) {
-                        return new Tuple<Routine, Condition, ExComponent, ComponentConfig>(routine, condition, component, config);
-                    } else {
-                        log_error(string.Format("Cannot find config from key {0} in component {1}", config, component.name));
-                    }
-                } else {
-                    log_error(string.Format("Cannot find component from key {0}", componentKey));
-                }
-
-            }
-            return null;
-        }
         public List<T> get_components_list<T>(string argName) where T : ExComponent {
 
             List<T> components = new List<T>();

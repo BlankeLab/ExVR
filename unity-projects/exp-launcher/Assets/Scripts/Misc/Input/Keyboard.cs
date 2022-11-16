@@ -274,6 +274,12 @@ namespace Ex.Input {
             return 0.0;
         }
 
+        [System.Obsolete("Use current_time_pressed_ms instead.")]
+        public double current_time_pressed() {
+            return current_time_pressed_ms();
+        }
+
+
         public KeyCode code;
         public Button.State state = Button.State.None;
         public Button.State previousState = Button.State.None;

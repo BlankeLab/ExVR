@@ -121,6 +121,7 @@ struct StringToFloatConverter  : public BaseConverter{DataSP operator()(DataSP d
 struct StringToRealConverter  : public BaseConverter{DataSP operator()(DataSP data) override;};
 struct StringToDecimalConverter : public BaseConverter{DataSP operator()(DataSP data) override;};
 struct StringToStringListConverter : public BaseConverter{DataSP operator()(DataSP data) override;};
+struct StringToColorConverter : public BaseConverter{DataSP operator()(DataSP data) override;};
 // vector2
 struct Vector2ToStringConverter : public BaseConverter{DataSP operator()(DataSP data) override;};
 // vector3

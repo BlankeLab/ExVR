@@ -36,7 +36,7 @@ namespace Ex{
 
         public enum Command{
             Load = 0, Play, Pause, Stop, Next, Previous, UpdateComponent, UpdateConnector, Quit,
-            Action, GoToSpecificInstanceElement, PlayPause, PlayDelay, Error, Clean
+            Action, GoToSpecificInstanceElement, PlayPause, PlayDelay, Error, Clean, UpdateDesignerDirPath
         };
 
         public enum ExpLauncherState : int{

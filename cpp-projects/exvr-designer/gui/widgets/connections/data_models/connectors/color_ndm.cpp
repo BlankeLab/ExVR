@@ -51,11 +51,13 @@ void ColorEmbeddedW::initialize(){
 }
 
 bool ColorEmbeddedW::set_text_value(const QString &value){
+
     QColor col = str::Convertor::to_color(value);
     p.fill(col);
     m_valueText.setPixmap(p);
     return true;
 }
+
 
 void ColorNodeDataModel::compute(){
 
@@ -86,6 +88,7 @@ void ColorNodeDataModel::compute(){
         set_invalid_cast();
         return;
     }
+
 
     // propagate
     QColor value = data1->value();

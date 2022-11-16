@@ -41,10 +41,7 @@ namespace Ex{
         public const string g7  = "G7";
         public const string g15 = "G15";
 
-        public static readonly string vector2StrF          = "{0}, {1}";
-        public static readonly string vector3StrF          = "{0}, {1}, {2}";
         public static readonly string transformValueStrF   = "{0}\n{1}\n{2}";
-        public static readonly string colorStrF            = "{0}, {1}, {2}";
 
 
         // pitch yaw roll (x y z)
@@ -514,9 +511,9 @@ namespace Ex{
                     var colorStr = (string)input; 
                     var split = colorStr.Split(' ');
                     if (split.Length == 4) {
-                        return new Color(to_float(split[1]), to_float(split[2]), to_float(split[3]), to_float(split[0]));
+                        return new Color(to_float(split[0]), to_float(split[1]), to_float(split[2]), to_float(split[3]));
                     }else if(split.Length == 3) {
-                        return new Color(to_float(split[1]), to_float(split[2]), to_float(split[0]));
+                        return new Color(to_float(split[0]), to_float(split[1]), to_float(split[2]));
                     }
                     log_e(string.Format("Color parse error with input: {0}", colorStr));
                     return Color.black;
@@ -524,7 +521,7 @@ namespace Ex{
                 [lObjT]     = input => {
                     var listO = (List<object>)input;
                     if (listO.Count >= 4) {
-                        return new Color(to_float(listO[1]), to_float(listO[2]), to_float(listO[3]), to_float(listO[0]));
+                        return new Color(to_float(listO[0]), to_float(listO[1]), to_float(listO[2]), to_float(listO[3]));
                     } else if (listO.Count >= 3) {
                         return new Color(to_float(listO[0]), to_float(listO[1]), to_float(listO[2]));
                     }
@@ -762,18 +759,17 @@ namespace Ex{
         public static string to_string(double value, string format) {
             return value.ToString(format);
         }
-        public static string to_string(Vector2 value, string format) {
-            return string.Format(vector2StrF, to_string(value.x, format), to_string(value.y, format));
+        public static string to_string(Vector2 value, string format, string sep = ",") {
+            return string.Join(sep, new string[] { to_string(value.x, format), to_string(value.y, format)});
         }
         public static string to_string(Vector3 value, string format, string sep = ",") {
             return string.Join(sep, new string[] { to_string(value.x, format), to_string(value.y, format), to_string(value.z, format) });
-            //return string.Format(vector3StrF, to_string(value.x, format), to_string(value.y, format), to_string(value.z, format));
         }
-        public static string to_string(TransformValue value, string format) {
-            return string.Format(transformValueStrF, to_string(value.position, format), to_string(value.rotation.eulerAngles, format), to_string(value.scale, format));
+        public static string to_string(TransformValue value, string format, string sep = "\n") {
+            return string.Join(sep, new string[] { to_string(value.position, format), to_string(value.rotation.eulerAngles, format), to_string(value.scale, format) });
         }
-        public static string to_string(Color value, string format) {
-            return string.Format(colorStrF, to_string(value.r, format), to_string(value.g, format), to_string(value.b, format));
+        public static string to_string(Color value, string format, string sep = " ") {
+            return string.Join(sep, new string[] { to_string(value.r, format), to_string(value.g, format), to_string(value.b, format), to_string(value.a, format) });
         }
         public static string to_string(DecimalValue value, string format) {
             return value.to_string(format);

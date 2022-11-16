@@ -41,12 +41,12 @@ ImageResourceInitConfigParametersW::ImageResourceInitConfigParametersW() :  Conf
 }
 
 void ImageResourceInitConfigParametersW::insert_widgets(){
-    add_widget(ui::F::gen(ui::L::VB(), {m_p->imagesList()}, LStretch{false}, LMargins{true}, QFrame::Box));
+    add_widget(ui::F::gen(ui::L::VB(), {ui::W::txt("<b>List of images to use:</b>"), m_p->imagesList()}, LStretch{false}, LMargins{true}, QFrame::Box));
     no_end_stretch();
 }
 
 void ImageResourceInitConfigParametersW::init_and_register_widgets(){
-    add_input_ui(m_p->imagesList.init_widget(Resource::Type::Image, "Images:"));
+    add_input_ui(m_p->imagesList.init_widget(Resource::Type::Image, "Resources:"));
 }
 
 void ImageResourceInitConfigParametersW::create_connections(){
@@ -72,7 +72,7 @@ ImageResourceConfigParametersW::ImageResourceConfigParametersW() :  ConfigParame
 }
 
 void ImageResourceConfigParametersW::insert_widgets(){
-    layout()->setContentsMargins(0,0,0,0);
+    layout()->setContentsMargins(0,0,0,0);    
     add_widget(ui::F::gen(ui::L::VB(), {ui::W::txt("Send current image when:"), m_p->startExp(),m_p->startRoutine(),m_p->stopRoutine()}, LStretch{false}, LMargins{true}, QFrame::NoFrame));
     add_widget(ui::F::gen(ui::L::HB(), {ui::W::txt("Using:"), m_p->sendAlias(),m_p->sendId()}, LStretch{true}, LMargins{true}, QFrame::NoFrame));
     add_widget(ui::F::gen(ui::L::HB(), {ui::W::txt("From init config images resources list:")}, LStretch{true}, LMargins{true}, QFrame::NoFrame));
@@ -81,9 +81,9 @@ void ImageResourceConfigParametersW::insert_widgets(){
 
 void ImageResourceConfigParametersW::init_and_register_widgets(){
 
-    add_input_ui(m_p->startExp.init_widget(" experiment starts", true));
+    add_input_ui(m_p->startExp.init_widget(" experiment starts", false));
     add_input_ui(m_p->startRoutine.init_widget(" routine starts", true));
-    add_input_ui(m_p->stopRoutine.init_widget(" routine stops", true));
+    add_input_ui(m_p->stopRoutine.init_widget(" routine stops", false));
     add_inputs_ui(
         ExRadioButtonW::init_group_widgets(m_p->group1,
         {&m_p->sendId, &m_p->sendAlias},

@@ -34,19 +34,27 @@ class MultiABInitConfigParametersW : public ConfigParametersW{
 
 public :
 
-    ExResourcesListW abList{"ab_list"};
+    MultiABInitConfigParametersW();
 
     void insert_widgets() override;
     void init_and_register_widgets() override;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> m_p = nullptr;
 };
 
 class MultiABConfigParametersW : public ConfigParametersW{
 
 public :
 
-    TransformSubPart m_transfo{"transform"};
-    ExResourceW m_currentAB{"ab_alias"};
+    MultiABConfigParametersW();
+
     void insert_widgets() override;
     void init_and_register_widgets() override;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> m_p = nullptr;
 };
 }

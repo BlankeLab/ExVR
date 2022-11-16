@@ -164,7 +164,6 @@ void Loop::add_sets(QStringList setsName, RowId id){
 
         // insert valid set
         sets.insert(std::begin(sets) + id.v + (v++), std::make_unique<Set>(setName));
-
     }
 }
 

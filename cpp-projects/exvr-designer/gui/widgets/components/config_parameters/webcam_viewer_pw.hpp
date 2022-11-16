@@ -38,31 +38,30 @@ class WebcamViewerInitConfigParametersW : public ConfigParametersW{
 
 public :
 
-    ExSpinBoxW m_sbDeviceId{"device_id"};
-    ExSpinBoxW m_sbFPS{"requested_fps"};
+    WebcamViewerInitConfigParametersW();
 
     void insert_widgets() override;
     void init_and_register_widgets() override;
-    void create_connections() override{}
-    void late_update_ui() override{}
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> m_p = nullptr;
 };
 
 class WebcamViewerConfigParametersW : public ConfigParametersW{
 
 public :
 
-    EyeRendererSubPart m_eye;
-
-    WordSpaceCanvasSubPart m_cameraSettings;
-    ExCheckBoxW m_followEyeCamera{"use_eye_camera"};
-    ExCheckBoxW m_cbUseVideoSize{"use_original_size"};
-    ExVector2dW m_pivot{"pivot"};
-    ExFloatSpinBoxW m_distance{"distance"};
+    WebcamViewerConfigParametersW();
 
     void insert_widgets() override;
     void init_and_register_widgets() override;
     void create_connections() override;
     void late_update_ui() override;
+
+private:
+    struct Impl;
+    std::unique_ptr<Impl> m_p = nullptr;
 };
 
 }

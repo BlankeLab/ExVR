@@ -111,23 +111,20 @@ namespace Ex {
         }
 
         public override void update_from_current_config() {
+            load_all_textures(currentC.get<int>("mode"));
             update_textures_parameters();
-        }
-
-
-        protected override void pre_start_routine() {
-            load_all_textures();
         }
 
         protected override void update_parameter_from_gui(string updatedArgName) {
 
             if (updatedArgName == "mode") {
-                load_all_textures();
+                load_all_textures(currentC.get<int>(updatedArgName));
             } else { // reload only current modified texture
                 reload_current_texture(updatedArgName);
             }
 
-            update_from_current_config();
+            //update_from_current_config();
+            update_textures_parameters();
         }
         
 
@@ -196,9 +193,9 @@ namespace Ex {
             return to;
         }
 
-        private void load_all_textures() {
+        private void load_all_textures(int mode) {
 
-            switch ((SkyboxMode)currentC.get<int>("mode")) {
+            switch ((SkyboxMode)mode) {
                 case SkyboxMode.Color:
                     break;
                 case SkyboxMode.Skybox6:
@@ -361,6 +358,11 @@ namespace Ex {
 
         #endregion
         #region public_functions
+
+        //public void set_mode(int mode) {
+        //    load_all_textures(mode);
+        //    update_from_current_config();
+        //}
 
         #endregion
     }

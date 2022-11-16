@@ -73,6 +73,10 @@ namespace Ex{
 
         public override void update_from_current_config() {
 
+            if (!currentC) {
+                return;
+            }
+
             // container
             resize_container();
             // background
@@ -94,6 +98,10 @@ namespace Ex{
 
         #region public_functions
         public void resize_container() {
+
+            if (!currentC) {
+                return;
+            }
 
             m_textGO.transform.position = Vector3.zero;
             m_textGO.transform.rotation = Quaternion.identity;
@@ -132,26 +140,41 @@ namespace Ex{
         }
 
         public void set_text(string text) {
+            if (!currentC) {
+                return;
+            }
             currentC.set("t_text", text);
             currentC.update_text("t", m_text);
         }
 
         public void set_color(Color color) {
+            if (!currentC) {
+                return;
+            }
             currentC.set("t_face_color", color);
             currentC.set("t_outline_color", color);
             currentC.update_text("t", m_text);
         }
 
         public void set_pivot(Vector2 pivot) {
+            if (!currentC) {
+                return;
+            }
             currentC.set_vector2("pivot", pivot);
         }
 
         public void set_scale_factor(float factor) {
+            if (!currentC) {
+                return;
+            }
             currentC.set("scale_factor", factor);
 
         }
 
         public void set_size(Vector2 size) {
+            if (!currentC) {
+                return;
+            }
             currentC.set("width", size.x);
             currentC.set("height", size.y);
         }

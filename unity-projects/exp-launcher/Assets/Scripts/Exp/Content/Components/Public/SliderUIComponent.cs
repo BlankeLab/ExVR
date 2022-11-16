@@ -257,9 +257,9 @@ namespace Ex{
             update_min_max_value_textes(whole, min, value, max);
 
             // send updated slider value
-            if (previousValue != m_slider.value) {
+            //if (previousValue != m_slider.value) {
                 invoke_signal("value updated", m_slider.value);
-            }
+            //}
         }
 
         public float get_value() {

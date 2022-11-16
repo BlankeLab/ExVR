@@ -68,8 +68,8 @@ ExComponentW *ExComponentW::init_widget(tool::ex::Component::Type componentType,
 
     m_icon->setText("");
     m_icon->setIcon(QIcon(Component::get_icon_path(m_componentType.value())));
-    m_icon->setIconSize(QSize(30,30));
-    m_icon->setMinimumWidth(35);
+    m_icon->setIconSize(QSize(20,20));
+    m_icon->setMinimumWidth(25);
 
     return this;
 }

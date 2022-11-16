@@ -32,9 +32,11 @@ namespace Ex{
 
     public class ImageResourceComponent : ExComponent {
 
-        private bool sentWhenExpStarted = false;
+        private bool m_sentWhenExpStarted = false;
         public List<ImageResource> images = null;
         public Dictionary<string, ImageResource> imagesPerAlias = null;
+
+        public ImageResource currentResourceImage = null;
 
         #region ex_functions
         protected override bool initialize() {
@@ -71,15 +73,15 @@ namespace Ex{
         }
 
         protected override void start_experiment() {
-            sentWhenExpStarted = false;  
+            m_sentWhenExpStarted = false;  
         }
 
         protected override void pre_start_routine() {
 
-            if (!sentWhenExpStarted && currentC.get<bool>("start_exp")) {
+            if (!m_sentWhenExpStarted && currentC.get<bool>("start_exp")) {
                 send_image();
             }
-            sentWhenExpStarted = true;
+            m_sentWhenExpStarted = true;
 
 
             if (currentC.get<bool>("start_routine")) {
@@ -98,6 +100,7 @@ namespace Ex{
 
         private void send_image(ImageResource image) {
             if (image != null) {
+                currentResourceImage = image;
                 invoke_signal("image", new ImageContainer(image.texture, false));
                 invoke_signal("alias", image.alias);
                 invoke_signal("path", image.path);
@@ -131,7 +134,7 @@ namespace Ex{
 
 
         ImageResource image(int id) {
-            if (id < images.Count) {
+            if (id < images.Count && id >= 0) {
                 return images[id];
             } 
             log_error(string.Format("No image with id {0} available in init config images resources list. ", id));

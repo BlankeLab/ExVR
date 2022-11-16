@@ -51,6 +51,9 @@ namespace Ex{
             m_imageGO.name = "ImageRect";
             m_rectTr = m_imageGO.GetComponent<RectTransform>();
 
+            m_imageGO.GetComponent<UnityEngine.UI.Image>().material = ExVR.GlobalResources().instantiate_unlit_transparent_color_mat();
+
+
             // init default 
             set_image(ExVR.Resources().get_image_file_data("default_texture").texture);
 
@@ -65,21 +68,49 @@ namespace Ex{
         }
 
         protected override void start_routine() {
-            if (!currentC.get<bool>("do_not_load")) {
+
+
+            if (currentC.get<bool>("use_resource")) {
                 load_image_from_resource(currentC.get_resource_alias("image"));
-            }
-            resize_image();
+            } else if (currentC.get<bool>("use_component")) {
+                var irc = currentC.get_component<ImageResourceComponent>("resource_component");
+                if(irc != null) {
+                    var ir = irc.currentResourceImage;
+                    if(ir != null) {
+                        load_image_from_resource(ir);
+                    }
+                }                                
+            } 
         }
 
         protected override void set_visibility(bool visibility) {
             m_imageGO.SetActive(visibility);
         }
 
+
+        public override void update_from_current_config() {
+            // container
+            resize_image();
+            // background
+            m_imageGO.GetComponent<UnityEngine.UI.Image>().material.SetColor("_Color", currentC.get_color("background_color"));
+        }
+
+
         protected override void update_parameter_from_gui(string updatedArgName) {
+
             if(updatedArgName == "image") {
                 load_image_from_resource(currentC.get_resource_alias(updatedArgName));
+            }else if(updatedArgName == "resource_component") {
+                var irc = initC.get_component<ImageResourceComponent>("resource_component");
+                if (irc != null) {
+                    var ir = irc.currentResourceImage;
+                    if (ir != null) {
+                        load_image_from_resource(ir);
+                    }
+                }
             }
-            resize_image();
+
+            update_from_current_config();
         }
 
         protected override void post_update() {
@@ -135,6 +166,10 @@ namespace Ex{
             if (imageAlias.Length != 0) {
                 set_image(ExVR.Resources().get_image_file_data(imageAlias).texture);
             }
+        }
+
+        public void load_image_from_resource(ImageResource imageResource) {
+            set_image(imageResource.texture);
         }
 
         public void load_image_from_container(ImageContainer imageContainer) {

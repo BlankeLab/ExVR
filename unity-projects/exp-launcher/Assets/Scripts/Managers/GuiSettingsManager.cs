@@ -117,16 +117,19 @@ namespace Ex{
 
         private bool read_command_line_arguments() {
 
+            UnityEngine.Debug.LogError("read_command_line_arguments");
+
             // gui mode
             // # read/write udp ports
             string[] arguments = Environment.GetCommandLineArgs();
 
 
-            if (arguments.Length >= 2) {
+            if (arguments.Length >= 3) {
 
-                writingPort = Int32.Parse(arguments[1]);
-                readingPort = writingPort + 1;
+                writingPort        = Int32.Parse(arguments[1]);
+                readingPort        = writingPort + 1;
                 designerDebugBuild = UInt32.Parse(arguments[2]) == 1;
+                ExVR.Paths().update_designer_path(arguments[3]);
                 return true;             
             } else {
                 UnityEngine.Debug.LogError(string.Format("Invalid nb of arguments : {0}", arguments.Length));

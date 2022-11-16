@@ -48,19 +48,20 @@ AssetBundleInitConfigParametersW::AssetBundleInitConfigParametersW():  ConfigPar
 
 void AssetBundleInitConfigParametersW::insert_widgets(){
 
-    add_widget(ui::F::gen(ui::L::HB(), {m_p->assetBundle()}, LStretch{false}, LMargins{true}, QFrame::Box));
+    add_sub_part_widget(m_p->transfo);
     add_widget(ui::F::gen(ui::L::VB(),{
+        ui::W::txt(QSL("<b>Asset bundle</b>")),
+        m_p->assetBundle(),
         ui::W::txt(QSL("Sub object to load in bundle (if empty, first object of the hierarchy will be load): ")),
         m_p->leSubObjectName(), m_p->displayHierarchy(), m_p->hierarchy = new QTextEdit()}, LStretch{false}, LMargins{true},QFrame::Box)
-    );
-    add_sub_part_widget(m_p->transfo);
+    );    
     m_p->hierarchy->setReadOnly(true);
     no_end_stretch();
 }
 
 void AssetBundleInitConfigParametersW::init_and_register_widgets(){
     map_sub_part(m_p->transfo.init_widget(QSL("Init transform</b> (applied when experiment starts)<b>")));
-    add_input_ui(m_p->assetBundle.init_widget(Resource::Type::AssetBundle, QSL("Asset bundle resource: ")));
+    add_input_ui(m_p->assetBundle.init_widget(Resource::Type::AssetBundle, QSL("Resource to load: ")));
     add_input_ui(m_p->leSubObjectName.init_widget(""));
     add_input_ui(m_p->displayHierarchy.init_widget(QSL("Display asset bundle content hierarchy"), false));
 }

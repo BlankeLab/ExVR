@@ -47,6 +47,7 @@ void init_callbacks_ex_experiment(
     LogWarningIdCB logWarningIdCB,
     LogErrorIdCB logErrorIdCB,
     StackTraceCB stackTraceCB,
+    PauseEditorCB pauseEditorCB,
     EllapsedTimeExpMsCB ellapsedTimeExpMsCB,
     EllapsedTimeRoutineMsCB ellapsedTimeRoutineMsCB,
     GetCB getCB,
@@ -65,7 +66,7 @@ void init_callbacks_ex_experiment(
 
     e->init_callbacks(
         logMessageCB, logWarningCB, logErrorCB,
-        logMessageIdCB, logWarningIdCB, logErrorIdCB, stackTraceCB,
+        logMessageIdCB, logWarningIdCB, logErrorIdCB, stackTraceCB, pauseEditorCB,
         ellapsedTimeExpMsCB, ellapsedTimeRoutineMsCB,
         getCB, isVisibleCB, isUpdatingCB, isClosedCB,
         nextCB, previousCB, closeCB,

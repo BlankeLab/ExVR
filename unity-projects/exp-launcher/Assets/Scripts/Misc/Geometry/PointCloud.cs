@@ -27,8 +27,50 @@ using System.Collections.Generic;
 
 // unity
 using UnityEngine;
+using Unity.Collections;
+using UnityEngine.Rendering;
 
 namespace Ex{
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    public struct DLLVertex {
+        public Vector3 pos;
+        public Color32 col;
+    }
+
+    public class NativeDLLVertices {
+
+        public DLLVertex[] data = null;
+        public NativeArray<DLLVertex> native;
+
+        public NativeDLLVertices(int nbVertices) {
+            data = new DLLVertex[nbVertices];
+            native = new NativeArray<DLLVertex>(data, Allocator.Persistent);
+        }
+
+        public void clean() {
+            native.Dispose();
+        }
+    }
+
+    public class NativeIndices {
+
+        public int[] data = null;
+        public NativeArray<int> native ;
+
+        public NativeIndices(int nbIndices) {
+
+            data = new int[nbIndices];
+            for (int ii = 0; ii < nbIndices; ++ii) {
+                data[ii] = ii;
+            }
+            native  = new NativeArray<int>(data, Allocator.Persistent);
+        }
+
+        public void clean() {
+            native.Dispose();
+        }
+    }
 
     public class OBBFInfo {
         public bool enabled = false;
@@ -48,16 +90,16 @@ namespace Ex{
             None = 0, Low, Medium, Hight
         };
 
-        Shader quadShader = null;
-        Shader paraboloidFrag = null;
-        Shader paraboloidGeoWorld = null;
+        private Shader quadShader = null;
+        private Shader paraboloidFrag = null;
+        private Shader paraboloidGeoWorld = null;
+        private RenderingType currentRendering = RenderingType.ParabloidGeo;
 
-        RenderingType currentRendering = RenderingType.ParabloidGeo;
-
-        public void Start() {
+        public void Awake() {
 
             Mesh mesh = new Mesh();
-            mesh.triangles = new int[0];
+            mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            mesh.triangles   = new int[0];
             GetComponent<MeshFilter>().mesh = mesh;
 
             var renderer                  = GetComponent<MeshRenderer>();
@@ -66,13 +108,83 @@ namespace Ex{
             renderer.receiveShadows       = false;
             renderer.lightProbeUsage      = UnityEngine.Rendering.LightProbeUsage.Off;
             renderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
-            
+            renderer.rendererPriority     = 3000;
+
             quadShader         = Shader.Find("Custom/Cloud/QuadGeoWorldSizeShader");
             paraboloidFrag     = Shader.Find("Custom/Cloud/ParaboloidFragWorldSizeShader");
             paraboloidGeoWorld = Shader.Find("Custom/Cloud/ParaboloidGeoWorldSizeShader");
 
             set_rendering(currentRendering);
         }
+
+
+        public void set_as_dynamic() {
+            GetComponent<MeshFilter>().mesh.MarkDynamic();
+        }
+
+        public bool set_points(List<Vector3> vertices, List<Color> colors, int count) {
+
+            if(count > vertices.Count || count > colors.Count) {
+                ExVR.Log().error("PointCloud: Invalid inputs.");
+                return false;
+            }
+
+            List<int> indices = new List<int>(count);
+            for (int ii = 0; ii < count; ++ii) {
+                indices.Add(ii);
+            }
+            
+            return set_points(vertices, colors, indices, count);
+        }
+
+        public bool set_points(List<Vector3> vertices, List<Color> colors, List<int> indices, int count) {
+
+            if (count > vertices.Count || count > colors.Count || count > indices.Count) {
+                ExVR.Log().error("PointCloud: Invalid inputs.");
+                return false;
+            }
+
+            var mesh = GetComponent<MeshFilter>().mesh;
+            mesh.Clear();
+            //mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            mesh.SetVertices(vertices);
+            mesh.SetColors(colors);
+            mesh.triangles = new int[0];
+            mesh.SetIndices(indices, MeshTopology.Points, 0);
+
+            return true;
+        }
+
+        public bool set_points(NativeDLLVertices vertices, NativeIndices indices, int count) {
+
+            if(count > vertices.data.Length || count > indices.data.Length) {
+                ExVR.Log().error("PointCloud: Invalid inputs.");
+                return false;
+            }
+
+            var layout = new[]{
+                new VertexAttributeDescriptor(VertexAttribute.Position, VertexAttributeFormat.Float32, 3),
+                new VertexAttributeDescriptor(VertexAttribute.Color, VertexAttributeFormat.UNorm8, 4)
+            };
+
+            var mesh = GetComponent<MeshFilter>().mesh;
+            mesh.Clear();
+
+            MeshUpdateFlags flags =
+              MeshUpdateFlags.DontValidateIndices
+            | MeshUpdateFlags.DontNotifyMeshUsers
+            | MeshUpdateFlags.DontResetBoneBounds;
+
+            mesh.SetVertexBufferParams(count, layout);
+            mesh.SetVertexBufferData(vertices.native, 0, 0, count, 0, flags);
+            mesh.SetIndexBufferParams(count, IndexFormat.UInt32);
+            mesh.SetIndexBufferData(indices.native, 0, 0, count, flags);
+            mesh.SetSubMesh(0, new SubMeshDescriptor(0, count, MeshTopology.Points), flags);
+            mesh.bounds = mesh.GetSubMesh(0).bounds;
+
+            return true;
+        }
+
 
         public void set_rendering(RenderingType rendering) {
 

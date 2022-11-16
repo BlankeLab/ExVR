@@ -13,13 +13,10 @@
 using namespace tool::ex;
 
 struct ButtonsUiConfigParametersW::Impl{
-    EyeRendererSubPart eye;
+
     QTabWidget tw;
-    WordSpaceCanvasSubPart cameraSettings;
-    ExCheckBoxW followEyeCamera{"use_eye_camera"};
-    ExVector2dW pivot{"pivot"};
-    ExFloatSpinBoxW distance{"distance"};
-    ExSelectColorW backgroundColor{"background_color"};
+    WordSpaceCanvasSubPart wscsp;
+
     ExTextEditW buttonsText{"buttons_text"};
     ExSelectColorW buttonsColor{"buttons_color"};
     ExSpinBoxW horizontalSpacing{"h_spacing"};
@@ -46,7 +43,6 @@ ButtonsUiConfigParametersW::ButtonsUiConfigParametersW():  ConfigParametersW(), 
 void ButtonsUiConfigParametersW::insert_widgets(){
 
     layout()->setContentsMargins(0,0,0,0);
-    add_sub_part_widget(m_p->eye);
     add_widget(&m_p->tw);
 
     {
@@ -56,10 +52,7 @@ void ButtonsUiConfigParametersW::insert_widgets(){
         tL->setContentsMargins(2,2,2,2);
 
         m_p->tw.addTab(tW, "Container");
-        tL->addWidget(ui::F::gen(ui::L::HB(), {m_p->followEyeCamera()}, LStretch{true}, LMargins{true}, QFrame::NoFrame));
-        tL->addWidget(m_p->cameraSettings.frame);
-        tL->addWidget(ui::F::gen(ui::L::HB(), {m_p->pivot(), ui::W::txt("Distance"),  m_p->distance()}, LStretch{true}, LMargins{true}, QFrame::Box));
-        tL->addWidget(ui::F::gen(ui::L::HB(), {ui::W::txt("Background color"),  m_p->backgroundColor(), ui::W::txt("Buttons color"),  m_p->buttonsColor()}, LStretch{true}, LMargins{true}, QFrame::Box));
+        tL->addWidget(m_p->wscsp.frame);
         tL->addStretch();
     }
 
@@ -87,46 +80,14 @@ void ButtonsUiConfigParametersW::insert_widgets(){
         m_p->tw.addTab(tabW, "Buttons");
     }
 
-    {
-        QTabWidget *tabW = new QTabWidget();
-        tabW->addTab(m_p->leftText.textW, "Text");
-        tabW->addTab(m_p->leftText.settingsW, "Settings");
-        m_p->tw.addTab(tabW, "Left text");
-    }
-
-    {
-        QTabWidget *tabW = new QTabWidget();
-        tabW->addTab(m_p->rightText.textW, "Text");
-        tabW->addTab(m_p->rightText.settingsW, "Settings");
-        m_p->tw.addTab(tabW, "Right text");
-    }
-
-    {
-        QTabWidget *tabW = new QTabWidget();
-        tabW->addTab(m_p->topText.textW, "Text");
-        tabW->addTab(m_p->topText.settingsW, "Settings");
-        m_p->tw.addTab(tabW, "Top text");
-    }
-
-    {
-        QTabWidget *tabW = new QTabWidget();
-        tabW->addTab(m_p->bottomText.textW, "Text");
-        tabW->addTab(m_p->bottomText.settingsW, "Settings");
-        m_p->tw.addTab(tabW, "Bottom text");
-    }
+    m_p->tw.addTab(m_p->rightText.frame,    "Right text");
+    m_p->tw.addTab(m_p->leftText.frame,     "Left text");
+    m_p->tw.addTab(m_p->topText.frame,      "Top text");
+    m_p->tw.addTab(m_p->bottomText.frame,   "Bottom text");
 }
 
 void ButtonsUiConfigParametersW::init_and_register_widgets(){
 
-    Vector2dSettings pivotSettings= {
-        {MinV<qreal>{-5}, V<qreal>{0.5}, MaxV<qreal>{5}, StepV<qreal>{0.01}, 2},
-        {MinV<qreal>{-5}, V<qreal>{0.5}, MaxV<qreal>{5}, StepV<qreal>{0.01}, 2}
-    };
-    DsbSettings distanceSettings= {MinV<qreal>{0}, V<qreal>{1.}, MaxV<qreal>{1000.}, StepV<qreal>{0.1}, 2};
-    add_input_ui(m_p->pivot.init_widget("Pivot", pivotSettings));
-    add_input_ui(m_p->distance.init_widget(distanceSettings));
-    add_input_ui(m_p->followEyeCamera.init_widget("Text always in front of the eyes camera", true));
-    add_input_ui(m_p->backgroundColor.init_widget("Select background color", QColor(255,255,255,0)));
     add_input_ui(m_p->buttonsColor.init_widget("Select button color", QColor(255,255,255,255)));
     add_input_ui(m_p->buttonsText.init_widget("Button1_Button2_Button3\nButton4_Button5_Button6", Qt::TextFormat::PlainText));
     m_p->buttonsText.set_information("Separe buttons text of the same line by using '_' and separe between lines by using return line.");
@@ -138,11 +99,9 @@ void ButtonsUiConfigParametersW::init_and_register_widgets(){
             {true, false, false}
         )
     );
+
     add_input_ui(m_p->id.init_widget(MinV<int>{0}, V<int>{0}, MaxV<int>{50}, StepV<int>{1}));
-
-
-    map_sub_part(m_p->eye.init_widget());
-    map_sub_part(m_p->cameraSettings.init_widget());
+    map_sub_part(m_p->wscsp.init_widget());
 
     map_sub_part(m_p->leftText.init_widget("Text"));
     map_sub_part(m_p->rightText.init_widget(""));
@@ -152,21 +111,12 @@ void ButtonsUiConfigParametersW::init_and_register_widgets(){
 
     add_input_ui(m_p->verticalSpacing.init_widget(MinV<int>{0}, V<int>{1}, MaxV<int>{500}, StepV<int>{1}));
     add_input_ui(m_p->horizontalSpacing.init_widget(MinV<int>{0}, V<int>{1}, MaxV<int>{500}, StepV<int>{1}));
-
 }
 
 void ButtonsUiConfigParametersW::create_connections(){
-    connect(m_p->followEyeCamera(), &QCheckBox::toggled, this, [&](bool checked){
-        m_p->pivot.w->setEnabled(checked);
-        m_p->distance.w->setEnabled(checked);
-        m_p->cameraSettings.set_position_enable_state(!checked,!checked,!checked);
-    });
+    m_p->wscsp.create_connections();
 }
 
 void ButtonsUiConfigParametersW::late_update_ui(){
-    m_p->pivot.w->setEnabled(m_p->followEyeCamera()->isChecked());
-    m_p->distance.w->setEnabled(m_p->followEyeCamera()->isChecked());
-
-    bool state = !m_p->followEyeCamera()->isChecked();
-    m_p->cameraSettings.set_position_enable_state(state,state,state);
+    m_p->wscsp.late_update_ui();
 }

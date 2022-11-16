@@ -235,7 +235,7 @@ void DocumentationDialog::init_components_doc(){
 //        );
 
         if(categoryComponents.size() > 0){
-            componentsCategoriesStr << from_view(C::to_string(category));
+            componentsCategoriesStr << from_view(C::get_display_name(category));
         }
     }
     componentsCategoriesSectionW->lwContent->addItems(componentsCategoriesStr);
@@ -447,7 +447,7 @@ void DocumentationDialog::display_components_section(Component::Type type){
     documentationsCategoriesW->set_current_row(from_view(section_name(currentSection)));
 
     // update category row
-    componentsCategoriesSectionW->set_current_row(from_view(Component::to_string(Component::get_category(type))));
+    componentsCategoriesSectionW->set_current_row(from_view(Component::get_display_name(Component::get_category(type))));
 
     // update component row
     update_current_category_components_list();

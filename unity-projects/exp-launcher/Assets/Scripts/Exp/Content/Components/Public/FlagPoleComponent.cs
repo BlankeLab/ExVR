@@ -49,16 +49,30 @@ namespace Ex {
         #region ex_functions
         protected override bool initialize() {
 
+            // slots
+            add_slot("visibility", (visibility) => { set_visibility((bool)visibility); });
+            add_slot("position", (position) => { transform.localPosition = (Vector3)position; });
+            add_slot("rotation", (rotation) => { transform.localEulerAngles = (Vector3)rotation; });
+            add_slot("scale", (scale) => { transform.localScale = (Vector3)scale; });
+            add_slot("transform", (value) => {
+                var transformV = (TransformValue)value;
+                transform.localPosition = transformV.position;
+                transform.localRotation = transformV.rotation;
+                transform.localScale = transformV.scale;
+            });
             add_slot("hoist", (factor) => {
                 var v = Mathf.Clamp((float)factor, 0f, 1f);
-                udpate_flag_cloth_max_distance(0.5f - v*0.45f);
-                update_flag_height(v);            
+                set_flag_cloth_max_distance(0.5f - v*0.45f);
+                set_flag_height(v);            
+            });
+            add_slot("flag texture", (imageContainer) => {
+                set_flag_image(((ImageContainer)imageContainer).texture);
             });
 
-            float width  = initC.get<float>("flag_width");
-            float height = initC.get<float>("flag_height");
-            float depth  = 0.001f;
 
+            float width     = initC.get<float>("flag_width");
+            float height    = initC.get<float>("flag_height");
+            float depth     = 0.001f;
             int nbVerticesH = initC.get<int>("flag_nb_vertices_horiz");
             int nbVerticesV = initC.get<int>("flag_nb_vertices_verti");
 
@@ -131,7 +145,7 @@ namespace Ex {
                     poleGO.AddComponent<CapsuleCollider>()
                 };
 
-                udpate_flag_cloth_max_distance(0f);
+                set_flag_cloth_max_distance(0f);
             }
 
             poleGO.SetActive(false);
@@ -148,11 +162,11 @@ namespace Ex {
 
         public override void update_from_current_config() {
             reset_config_transform();
-            udpate_flag_cloth_max_distance(currentC.get<float>("cloth_max_dist"));
-            update_flag_height(currentC.get<float>("height"));
+            set_flag_cloth_max_distance(currentC.get<float>("cloth_max_dist"));
+            set_flag_height(currentC.get<float>("height"));
         }
         protected override void pre_start_routine() {
-            update_image();
+            set_flag_image(currentC.get_resource_alias("flag_image"));
         }
 
         protected override void update() {
@@ -177,24 +191,17 @@ namespace Ex {
         protected override void update_parameter_from_gui(string updatedArgName) {
 
             if (updatedArgName == "flag_image") {
-                update_image();
+                set_flag_image(currentC.get_resource_alias(updatedArgName));
             }
             update_from_current_config();
         }
 
         #endregion
-        #region private_functions
 
-        private void update_image() {
-            var image = currentC.get_resource_image("flag_image", false);
-            if (image != null) {
-                smr.material.mainTexture = image;
-            }
-        }
-
-        #endregion
         #region public_functions
-        public void udpate_flag_cloth_max_distance(float maxDistance) {
+
+        // flag
+        public void set_flag_cloth_max_distance(float maxDistance) {
 
             for (int ii = 0; ii < coeffs.Length; ++ii) {
                 coeffs[ii].maxDistance = maxDistance;
@@ -210,26 +217,80 @@ namespace Ex {
             flagCloth.coefficients = coeffs;
         }
 
-        public void update_flag_height(float factor) {
+        public void set_flag_height(float factor) {
             flagGO.transform.localPosition = new Vector3(0.025f, factor * (initC.get<float>("pole_height") - initC.get<float>("flag_height")), 0);
         }
 
-        public Texture2D current_image() {
+        public Texture2D current_flag_image() {
             return (Texture2D)smr.material.mainTexture;
         }
+        public void set_flag_image(string imageAlias) {
 
-        public void load_image_from_resource(string imageAlias) {
-            if (imageAlias.Length != 0) {
-                smr.material.mainTexture = ExVR.Resources().get_image_file_data(imageAlias).texture;
-            }
+            var image = ExVR.Resources().get_image_file_data(imageAlias, false);
+            if (image != null) {
+                if (image.texture != null) {
+                    set_flag_image(image.texture);
+                }
+            }     
         }
 
+        public void set_flag_image(Texture2D texture) {
+            smr.material.SetTexture("_MainTex", texture);
+        }
+
+        public void set_flag_normal_texture(Texture2D texture) {
+            smr.material.SetTexture("_BumpMap", texture);
+        }
+
+        public void set_flag_height_texture(Texture2D texture) {
+            smr.material.SetTexture("_ParallaxMap", texture);
+        }
+
+        public void set_flag_color(Color color) {
+            smr.material.SetColor("_Color", color);
+        }
+
+        public void set_flag_metallic(float metallic) {
+            smr.material.SetFloat("_Metallic", metallic);
+        }
+
+        public void set_flag_smoothness(float smoothness) {
+            smr.material.SetFloat("_Glossiness", smoothness);
+        }
+
+        // pole
         public void set_pole_color(Color color) {
             flagPoleMaterial.color = color;
         }
 
+        public void set_pole_metallic(float metallic) {
+            flagPoleMaterial.SetFloat("_Metallic", metallic);
+        }
+
+        public void set_pole_smoothness(float smoothness) {
+            flagPoleMaterial.SetFloat("_Glossiness", smoothness);
+        }
+
         public SphereCollider flag_cloth_collider() {
             return flagGO.GetComponent<SphereCollider>();
+        }
+
+        // compatibility
+        [System.Obsolete("Use set_flag_image instead.", false)]
+        public void load_image_from_resource(string imageAlias) {
+            set_flag_image(imageAlias);
+        }
+        [System.Obsolete("Use current_flag_image instead.", false)]
+        public Texture2D current_image() {
+            return (Texture2D)smr.material.mainTexture;
+        }
+        [System.Obsolete("Use set_flag_height instead.", false)]
+        public void update_flag_height(float factor) {
+            set_flag_height(factor);
+        }
+        [System.Obsolete("Use set_flag_cloth_max_distance instead.", false)]
+        public void udpate_flag_cloth_max_distance(float maxDistance) {
+            set_flag_cloth_max_distance(maxDistance);
         }
 
         #endregion

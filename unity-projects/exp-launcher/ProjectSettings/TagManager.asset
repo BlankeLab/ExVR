@@ -7,23 +7,22 @@ TagManager:
   - ScriptComponent
   - NetworkComponent
   - SceneComponent
-  - InputComponent
   - AudioComponent
   - OutputComponent
   - ImageComponent
   - TextComponent
   - VideoComponent
-  - UIComponent
   - ModelComponent
   - InteractionComponent
   - AvatarComponent
-  - TrackingComponent
   - CameraComponent
   - SettingsComponent
-  - CloudComponent
   - ResourceComponent
   - ViewerComponent
   - EnvironmentComponent
+  - InputDeviceComponent
+  - UserInterfaceComponent
+  - AcquisitionDeviceComponent
   layers:
   - Default
   - TransparentFX

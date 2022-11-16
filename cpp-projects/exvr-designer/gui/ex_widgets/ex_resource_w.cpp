@@ -80,8 +80,8 @@ ExResourceW *ExResourceW::init_widget(Resource::Type resourceType, QString title
 
     m_icon->setText("");
     m_icon->setIcon(QIcon(from_view(Resource::get_icon_path(m_resourceType))));
-    m_icon->setIconSize(QSize(30,30));
-    m_icon->setMinimumWidth(35);
+    m_icon->setIconSize(QSize(20,20));
+    m_icon->setMinimumWidth(25);
 
     m_resources->setText("");
     m_resources->setIcon(QIcon(":/icons/Resources"));

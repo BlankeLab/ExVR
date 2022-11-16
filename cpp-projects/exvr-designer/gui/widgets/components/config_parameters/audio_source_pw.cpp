@@ -46,11 +46,8 @@ struct AudioSourceInitConfigParametersW::Impl{
     std_v1<std::unique_ptr<ExLineEditW>> channelsToCopy;
 };
 
-
-
 AudioSourceInitConfigParametersW::AudioSourceInitConfigParametersW() :  ConfigParametersW(), m_p(std::make_unique<Impl>()){
 }
-
 
 void AudioSourceInitConfigParametersW::insert_widgets(){
 

@@ -789,7 +789,7 @@ void ExVrController::update_gui_from_experiment(){
         }
     }
     Bench::stop();
-    // # infos
+    // # connectors
     Bench::start("[Update connectors infos]"sv, false);
     for(const auto &elementI : exp()->connectorsInfo){
         for(const auto &conditionI : elementI.second){

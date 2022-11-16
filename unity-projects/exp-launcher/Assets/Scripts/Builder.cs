@@ -69,7 +69,6 @@ namespace Ex {
 
     public void Awake() {
 
-
 #if EXVR
             Debug.Log("[EXVR-EXP]");
 #else

@@ -69,6 +69,14 @@ namespace Ex{
             return null;
         }
 
+        public Routine get_from_id(int id) {
+            if (id < m_routines.Count) {
+                return m_routines[id];
+            }
+            ExVR.Log().error(string.Format("Cannot find routine with id {0}.", Converter.to_string(id)));
+            return null;
+        }
+
         public void display_last_info() {
 
             // display last routine info

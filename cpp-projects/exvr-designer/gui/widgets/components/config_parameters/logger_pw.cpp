@@ -497,10 +497,10 @@ void GlobalLoggerInitConfigParametersW::insert_widgets(){
 
     auto tw = new QTabWidget();
     tw->addTab(m_p->mainW = new QWidget(), "Exp");
-    tw->addTab(m_p->inputW = new QWidget(), "Input");
+    tw->addTab(m_p->inputW = new QWidget(), "Input device");
     tw->addTab(m_p->networkW = new QWidget(), "Network");
-    tw->addTab(m_p->uiW = new QWidget(), "UI");
-    tw->addTab(m_p->trackingW = new QWidget(), "Tracking");
+    tw->addTab(m_p->uiW = new QWidget(), "User interface");
+    tw->addTab(m_p->trackingW = new QWidget(), "Acquisition device");
 
     auto l = ui::L::VB();
     m_p->mainW->setLayout(l);
@@ -539,10 +539,10 @@ void GlobalLoggerInitConfigParametersW::insert_widgets(){
 void GlobalLoggerInitConfigParametersW::init_and_register_widgets(){
 
     // directories/files
-    add_input_ui(m_p->inputsComponents.init_widget(Component::Category::Input, true, "Input components to log"));
+    add_input_ui(m_p->inputsComponents.init_widget(Component::Category::Input, true, "Input device components to log"));
     add_input_ui(m_p->networkComponents.init_widget(Component::Category::Network, true, "Network components to log"));
-    add_input_ui(m_p->uiComponents.init_widget(Component::Category::UI, true, "UI components to log"));
-    add_input_ui(m_p->trackingComponents.init_widget(Component::Category::Tracking, true, "Tracking components to log"));
+    add_input_ui(m_p->uiComponents.init_widget(Component::Category::UI, true, "User interface components to log"));
+    add_input_ui(m_p->trackingComponents.init_widget(Component::Category::Acquisition, true, "Acquisition device components to log"));
     add_input_ui(m_p->resource.init_widget(Resource::Type::Directory, "Directory to use:"));
     add_input_ui(m_p->addCurrentInstanceToSubDirectoryName.init_widget("Add current instance to directory name", true));
     add_input_ui(m_p->addDateToSubDirectoryName.init_widget("Add current date to directory name", true));

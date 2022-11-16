@@ -199,6 +199,7 @@ struct Styles{
     static QString docks();
     static QString menu();
     static QString global();
+    static QString component_config();
 };
 
 }

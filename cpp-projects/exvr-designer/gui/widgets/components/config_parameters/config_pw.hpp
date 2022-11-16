@@ -27,6 +27,7 @@
 // local
 #include "sub_parts_pw.hpp"
 #include "gui/ex_widgets/ex_parameters_generator_w.hpp"
+#include "data/component.hpp"
 
 namespace tool::ex {
 
@@ -87,6 +88,7 @@ public:
     bool initConfig;
     ComponentKey componentKey;
     ConfigKey configKey;
+    Component::Type type;
 
 protected:
 

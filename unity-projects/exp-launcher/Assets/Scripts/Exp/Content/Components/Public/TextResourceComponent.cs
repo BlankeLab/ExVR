@@ -46,6 +46,8 @@ namespace Ex{
                 }                
             });
 
+            m_currentLine = 0;
+
             return true;
         }
 

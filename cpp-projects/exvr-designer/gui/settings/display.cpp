@@ -216,13 +216,17 @@ QString Styles::qtab_widget(OName oName, BGCol bgColor){
     );
 }
 
-QString Styles::qtabbar(OName oName, BGCol bgColor, FCol fColor, BGCol bgHoverColor, FCol fHoverColor, BGCol bgSelectedColor, FCol fSelectedColor, BGCol bgSelectedHoverColor, FCol fSelectedHoverColor){
+QString Styles::qtabbar(OName oName,
+    BGCol bgColor, FCol fColor,
+    BGCol bgHoverColor, FCol fHoverColor,
+    BGCol bgSelectedColor, FCol fSelectedColor,
+    BGCol bgSelectedHoverColor, FCol fSelectedHoverColor){
 
     return QString(
         "QTabBar%1::tab{%2 %3}"
-        "QTabBar%1::tab:selected:hover{%8 %9}"
-        "QTabBar%1::tab:selected{%6 %7}"
         "QTabBar%1::tab:!selected{%4 %5}"
+        "QTabBar%1::tab:selected{%6 %7}"
+        "QTabBar%1::tab:selected:hover{%8 %9}"
     ).arg(
         object_name_b(oName),
         background_color_b(bgColor),               front_color_b(fColor),
@@ -343,5 +347,28 @@ QString Styles::global(){
         qtab_widget(        OName{""},     BGCol{C::darkGrayH}) %
         qtabbar(            OName{""},     BGCol{C::darkGrayH}, FCol{C::whiteH}, BGCol{C::darkGrayH}, FCol{C::whiteH}, BGCol{C::darkGrayH}, FCol{C::whiteH}, BGCol{C::darkGrayH}, FCol{C::whiteH});
     ;
+}
+
+QString Styles::component_config(){
+    return
+        qwidget(            OName{""},     BGCol{C::darkGrayH}) %
+        qlabel(             OName{""},     FCol{C::whiteH}, BGCol{C::darkGrayH}) %
+        qcheck_box(         OName{""},     FCol{C::whiteH}, BGCol{C::darkGrayH}) %
+        qtext_edit(         OName{""},     FCol{C::blackH}, BGCol{C::lightGrayH}) %
+        qspin_box(          OName{""},     BGCol{C::lightGrayH}) %
+        qdoublespin_box(    OName{""},     BGCol{C::lightGrayH}) %
+        qcombo_box(         OName{""},     BGCol{C::lightGrayH}) %
+        qabstract_item_view(OName{""},     BGCol{C::lightGrayH}) %
+        qpush_button(       OName{""},     BGCol{C::lightGrayH}, BGCol{C::lightBlueH}, BGCol{C::blueH}, BDCol{C::blackH}, BDCol{C::blueH}, BDCol{C::blueH}) %
+        qtable_widget(      OName{""},     BGCol{C::darkGrayH}) %
+        qline(              BName{"line"}, BDCol{C::whiteH}) %
+        qlist_widget(       OName{""},     BGCol{C::darkGrayH}, BGCol{C::lightGrayH}, BGCol{C::lightBlueH}) %
+        qheader_view(       OName{""},     BGCol{C::darkGrayH}, FCol{C::whiteH}, QFont::Weight::DemiBold) %
+        qtab_widget(        OName{""},     BGCol{C::darkGrayH}) %
+        qtabbar(            OName{""},
+                BGCol{C::darkGrayH}, FCol{C::whiteH},
+                BGCol{C::lightGrayH}, FCol{C::whiteH},
+                BGCol{C::blueH}, FCol{C::whiteH},
+                BGCol{C::redH}, FCol{C::whiteH});
 }
 

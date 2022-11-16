@@ -233,6 +233,11 @@ void ExpLauncher::message_from_exp_launcher(QString m){
 
                         editor = static_cast<quint16>(expLState.toInt()) == 1;
 
+                        if(editor){
+                            // send designer path to exp launcher (useful is using designer from an other path with exp-launcher editor)
+                            QtLogger::message(QSL("Send designer path to editor: [") % Paths::exeDir % QSL("]"));
+                            update_designer_dir(Paths::exeDir);
+                        }
                     }
                     emit GSignals::get()->exp_launcher_state_updated_signal(state, infos);
 
@@ -282,6 +287,12 @@ void ExpLauncher::load_experiment(QString expFilePath, QString instanceFilePath)
         m_expLauncherCommunication->send_udp_command(gen_command({to_command_id(ExpLauncherCommand::Load), expFilePath, instanceFilePath}));
     }else{
         QtLogger::message(QSL("You need to start the Experiment launcher before loading an experiment."));
+    }
+}
+
+void ExpLauncher::update_designer_dir(QString designerDirPath){
+    if(m_expLauncherProcess || editor){
+        m_expLauncherCommunication->send_udp_command(gen_command({to_command_id(ExpLauncherCommand::UpdateDesignerDir),designerDirPath}));
     }
 }
 

@@ -111,6 +111,7 @@ namespace Ex{
             ["string:bool"] = input => { return Converter.to_bool((string)input); },
             ["string:integer"] = input => { return Converter.to_int((string)input); },
             ["string:real"] = input => { return Converter.to_double((string)input); },
+            ["string:color"] = input => { return Converter.to_color((string)input); },
             // # from List<string> to                
             ["string_list:string"] = input => { return Converter.to_string((List<string>)input); },
             ["string_list:any"] = input => { return input; },

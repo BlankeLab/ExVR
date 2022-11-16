@@ -37,32 +37,10 @@
 
 using namespace tool::ex;
 
+
 int main(int argc, char *argv[]){
 
-    // build parameters
-    const QString numVersion = "1.0a60";
-    bool lncoComponents = true;
-
-    // compiler check
-    std::cout << tool::fmt("Start ExVR-designer v{}\n", numVersion.toStdString()); // c++20 check
-
-
     // doc generation
-//    Component::Category c = Component::Category::Viewer;
-//    for(auto t : Component::all_components_types()){
-//        auto fn = Component::get_full_name(t);
-//        auto un = Component::get_unity_name(t);
-
-//        std::string_view cn = "-";
-//        if(Component::get_category(t) != c){
-//            c = Component::get_category(t);
-//            cn = Component::to_string(c);
-//        }
-//        std::cout << std::format("|{}|{}|[link](components/{}_info.md)|[link](components/{}_csharp.md)|[link](components/{}_connections.md)|\n",
-//            cn, fn, un, un, un
-//        );
-//    }
-
 //    Connector::Category cc = Connector::Category::Resource;
 //    for(auto t : Connector::all_types()){
 
@@ -79,10 +57,27 @@ int main(int argc, char *argv[]){
 //            ccn, n, ccn, ccn
 //        );
 //    }
+//    Component::Category c = Component::Category::Viewer;
+//    for(auto t : Component::all_components_types()){
+//        auto fn = Component::get_full_name(t);
+//        auto un = Component::get_unity_name(t);
 
+//        std::string_view cn = "-";
+//        if(Component::get_category(t) != c){
+//            c = Component::get_category(t);
+//            cn = Component::get_display_name(c);
+//        }
+//        std::cout << std::format("|{}|{}|[link](components/{}_info.md)|[link](components/{}_csharp.md)|[link](components/{}_connections.md)|\n",
+//            cn, fn, un, un, un
+//        );
+//    }
 
+    // build parameters
+    const QString numVersion = "1.0b";
+    bool lncoComponents = false;
 
-
+    // compiler check
+    std::cout << tool::fmt("Start ExVR-designer v{}\n", numVersion.toStdString()); // c++20 check
 
     // build app
     QApplication a(argc, argv);
@@ -98,8 +93,11 @@ int main(int argc, char *argv[]){
     QTimer::singleShot(1000, &splash, &QWidget::close);
 
     int ret = a.exec();
-    std::cout << "Quit with: " << ret << "\n";
+    std::cout << "Exited with: " << ret << "\n";
     return ret;
 }
+
+
+
 
 

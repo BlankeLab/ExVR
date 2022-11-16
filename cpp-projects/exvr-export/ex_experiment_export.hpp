@@ -45,6 +45,7 @@ extern "C"{
         LogWarningIdCB logWarningIdCB,
         LogErrorIdCB logErrorIdCB,
         StackTraceCB stackTraceCB,
+        PauseEditorCB pauseEditorCB,
         EllapsedTimeExpMsCB ellapsedTimeExpMsCB,
         EllapsedTimeRoutineMsCB ellapsedTimeRoutineMsCB,
         GetCB getCB,

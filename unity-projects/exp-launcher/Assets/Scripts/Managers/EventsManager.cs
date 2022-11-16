@@ -60,6 +60,11 @@ namespace Ex{
                 NextElementEvent.Invoke();
             }
 
+            public void pause_editor() {
+                UnityEngine.Debug.LogError("Pause from DLL.");
+                Debug.Break();
+            }
+
             IEnumerator next_in(int milliseconds) {
                 yield return new WaitForSeconds(milliseconds * 0.001f);
                 next();

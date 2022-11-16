@@ -83,7 +83,7 @@ namespace Ex{
         protected override void start_routine() {
 
             if(m_insertNewRoutineInfo) {
-                string startRoutineLine = String.Format("[Time_exp(ms):{0}][Routine:{1}|Iter:{2}][Condition:{3}|Iter:{4}][Frame_id:{5}])", 
+                string startRoutineLine = string.Format("[Time_exp(ms):{0}][Routine:{1}|Iter:{2}][Condition:{3}|Iter:{4}][Frame_id:{5}])", 
                     Converter.to_string(ExVR.Time().ellapsed_exp_ms()),
                     currentRoutine.name, currentRoutine.element_iteration(),
                     currentCondition.name, currentRoutine.condition_iteration(),

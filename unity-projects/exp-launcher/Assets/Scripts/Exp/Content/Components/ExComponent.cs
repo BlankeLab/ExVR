@@ -71,12 +71,13 @@ namespace Ex {
         }
 
         public enum Category {
+            AcquisitionDevice,
             Audio,
             Avatar,
             Camera,
             Environment,
             Flow,
-            Input,
+            InputDevice,
             Interaction,                        
             Model,
             Network,
@@ -86,10 +87,8 @@ namespace Ex {
             Scene,
             Settings,
             Text,
-            UI,
-            Tracking,
+            UserInterface,            
             Video,
-            Cloud,
             Viewer,
             Undefined
         };
@@ -145,7 +144,6 @@ namespace Ex {
         public EventsManager events() { return ExVR.Events(); }
         public Events.Connections connections() { return m_connections; }
         public Events.Command command() { return events().command; }
-
         public bool is_function_defined(Function function) {return functionsDefined[function];}
 
         // connections
@@ -162,6 +160,7 @@ namespace Ex {
         public Dictionary<string, ComponentConfig> configsPerName = null;
 
         // states
+        protected bool is_initialized() { return m_initialized; }
         public bool is_started() {return m_started;}
         public bool is_visible() {return m_visibility;}
         public bool is_updating() { return m_updating; }
@@ -190,7 +189,11 @@ namespace Ex {
             log_error(string.Format("[ERROR-EXCEPTION] "), true, false);
             log_error(string.Format("[MESSAGE] {0}", e.Message), false, false);
             log_warning(string.Format("\t[SOURCE] {0}", e.Source), false, false);
-            log_warning(string.Format("\t[TARGET] {0}", e.TargetSite.ToString()), false, false);
+            if (e.TargetSite != null) {
+                log_warning(string.Format("\t[TARGET] {0}", e.TargetSite.ToString()), false, false);
+            } else {
+                log_warning("\t[TARGET] None");
+            }
             log_warning(string.Format("\t[STACK]: {0}", e.StackTrace), false, false);
         }
 
@@ -263,53 +266,47 @@ namespace Ex {
         }
 
         public ComponentConfig current_config() {
-            if (!has_current_config()) {
-                log_error("No current config set, check if component has been added to this condition.");
-            }
+            //if (!has_current_config()) {
+            //    log_error("No current config set, check if component has been added to this condition.");
+            //}
             return currentC;
         }
-        public ComponentConfig get_config(string configName) {
+        public ComponentConfig get_config(string configName, bool displayError = true) {
             if (configsPerName.ContainsKey(configName)) {
                 return configsPerName[configName];
             }
-            log_error(string.Format("No config with name [{0}] available for this component.", configName));
+            if (displayError) {
+                log_error(string.Format("No config with name [{0}] available for this component.", configName));
+            }
             return null;
         }
 
-        public ComponentConfig get_config(int configKey) {
+        public ComponentConfig get_config(int configKey, bool displayError = true) {
             if (configsPerKey.ContainsKey(configKey)) {
                 return configsPerKey[configKey];
             }
-            log_error(string.Format("No config with key [{0}] available for this component.", configKey));
+            if (displayError) {
+                log_error(string.Format("No config with key [{0}] available for this component.", configKey));
+            }
             return null;
         }
 
-
-        // ######### UNTESTED
-        public static void set_component_config<T>(string routineName, string conditionName, string componentName, string configToUse) where T : ExComponent {
-
-            // parse everything just in case there is routines/conditions/components/configs with the same names
-
-            var routine = ExVR.Routines().get(routineName);
-            if (routine == null) {
-                return;
+        public void update_current_config(string configName) {
+            var config = get_config(configName);
+            if(config != null) {
+                currentC = config;
             }
+        }
 
-            var condition = routine.get_condition_from_name(conditionName);
-            if (condition == null) {
-                return;
+        public void update_current_config(int configKey) {
+            var config = get_config(configKey);
+            if (config != null) {
+                currentC = config;
             }
+        }
 
-            var action = condition.get_action_from_component_name(componentName);
-            if(action == null) {
-                return;
-            }
-
-            var config = action.component().configsPerName[configToUse];
-            if(config != null){
-                // update config of the action
-                action.set_config(config);
-            }             
+        public void update_current_config(ComponentConfig config) {
+            currentC = config;
         }
 
         // routine
@@ -410,6 +407,14 @@ namespace Ex {
                 configsPerName[componentConfig.name] = componentConfig;
             }
 
+            if(configs.Count == 0) {
+                log_error(string.Format("No config found from component with name {0} and type {1}.", name, typeStr));
+                return false;
+            }
+
+            // init current config with the first one
+            currentC = configs[0];
+
             // look for defined functions in child class
             Type derivedType = this.GetType();
             functionsDefined = new Dictionary<Function, bool>();
@@ -475,15 +480,18 @@ namespace Ex {
 
             if (!m_initialized) {
                 log_error("Initialization failed.");
+                base_clean(true);
             }
 
             return m_initialized;
         }
 
-        public void base_clean() {
+        public void base_clean(bool forceClean = false) {
 
-            if (!m_initialized) {
-                return;
+            if (!forceClean) {
+                if (!m_initialized) {
+                    return;
+                }
             }
 
             currentFunction = Function.clean;
@@ -532,6 +540,7 @@ namespace Ex {
 
         // This function is called only once at the end of an experiment 
         public void base_pre_stop_experiment() {
+
             currentFunction = Function.pre_stop_experiment;
             if (m_catchExceptions) {
                 try {
@@ -1035,6 +1044,45 @@ namespace Ex {
         public virtual void reset_config_transform() {
             if (!currentC.get<bool>("transform_do_not_apply")) {
                 currentC.update_transform("transform", transform, true);
+            }
+        }
+
+
+        // compatibility
+        [System.Obsolete("Use ExVR.Components().get_from_name instead.")]
+        public static ExComponent get(string componentName) {
+            return ExVR.Components().get_from_name(componentName);
+        }
+        [System.Obsolete("Do not use anymore.")]
+        public static void next_element_with_name(string componentname) {
+            ExVR.Events().command.next_element_with_name(componentname);
+        }
+
+
+        //  UNTESTED
+        public static void set_component_config<T>(string routineName, string conditionName, string componentName, string configToUse) where T : ExComponent {
+
+            // parse everything just in case there is routines/conditions/components/configs with the same names
+
+            var routine = ExVR.Routines().get(routineName);
+            if (routine == null) {
+                return;
+            }
+
+            var condition = routine.get_condition_from_name(conditionName);
+            if (condition == null) {
+                return;
+            }
+
+            var action = condition.get_action_from_component_name(componentName);
+            if (action == null) {
+                return;
+            }
+
+            var config = action.component().configsPerName[configToUse];
+            if (config != null) {
+                // update config of the action
+                action.set_config(config);
             }
         }
     }

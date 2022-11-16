@@ -36,6 +36,7 @@
 #include "utility/benchmark.hpp"
 
 // local
+#include "gui/settings/display.hpp"
 #include "experiment/global_signals.hpp"
 
 
@@ -59,6 +60,8 @@ ComponentConfigDialog::ComponentConfigDialog(QWidget *parent, Component *compone
     setWindowFlags(defaultFlags); 
     setWindowTitle(QSL("[") % from_view(Component::get_full_name(component->type)) % QSL("] component settings"));
     setWindowIcon(QIcon(Component::get_icon_path(component->type)));
+
+//    this->setStyleSheet(display::Styles::component_config());
 
     set_connections();
 

@@ -39,9 +39,7 @@ cpp-projects/_build/bin/exvr-designer/imageformats
 cpp-projects/_build/bin/exvr-designer/exp-launcher
 cpp-projects/_build/bin/exvr-designer/data/temp
 
-
 ## unity-projects
-unity-projects/exp-launcher/exvr-export.dll
 unity-projects/exp-launcher/lnco-exvr-export.dll
 unity-projects/exp-launcher/Logs
 unity-projects/exp-launcher/ExVR-exp_Data

@@ -23,28 +23,18 @@ From top to bottom:
 
 ![Image](images/img_ui_flow_selection_2.png "")
 
-e
-efz
-f
-zfz
-f
-zfzzfz
-
+...
 
 ## Randomizer
 
-fzfe
-zfzze
-zfzzef
+...
 
 
 ## No selection
 
 ![Image](images/img_ui_flow_selection_1.png "")
 
-fzfe
-zfzze
-zfzzef
+...
 
 
 <br />

@@ -53,22 +53,21 @@ namespace Ex{
             [Category.Audio] = "[C:Audio]",
             [Category.Resource] = "[C:Resource]",
             [Category.Flow] = "[C:Flow]",
-            [Category.Input] = "[C:Input]",
+            [Category.InputDevice] = "[C:InputDevice]",
             [Category.Network] = "[C:Network]",
             [Category.Output] = "[C:Output]",
             [Category.Scene] = "[C:Scene]",
             [Category.Script] = "[C:Script]",
             [Category.Environment] = "[C:Environment]",
-            [Category.UI] = "[C:UI]",
+            [Category.UserInterface] = "[C:UserInterface]",
             [Category.Video] = "[C:Video]",
-            [Category.Tracking] = "[C:Tracking]",
+            [Category.AcquisitionDevice] = "[C:AcquisitionDevice]",
             [Category.Text] = "[C:Text]",
             [Category.Model] = "[C:Model]",
             [Category.Avatar] = "[C:Avatar]",
             [Category.Interaction] = "[C:Interaction]",
             [Category.Camera] = "[C:Camera]",
             [Category.Settings] = "[C:Settings]",
-            [Category.Cloud] = "[C:Cloud]",
             [Category.Viewer] = "[C:Viewer]"
         };
 
@@ -218,13 +217,11 @@ namespace Ex{
 
             ExComponent component = get_from_key(componentKey);
             if(component == null) {
-                // ExVR.Log().error(string.Format("Invalid component for updating parameter [{0}] with value [{1}]", xmlArg.Name, xmlArg.Value));
                 return;
             }
 
-            var config = component.get_config(configKey);
+            var config = component.get_config(configKey, false);
             if(config == null) {
-                // ExVR.Log().error(string.Format("Invalid Config for updating parameter [{0}] with value [{1}]", xmlArg.Name, xmlArg.Value));
                 return;
             }
 
@@ -238,11 +235,12 @@ namespace Ex{
                 ));
                 return;
             }
-
-            // contiue only if updated parameter is from component current config
-            if (component.currentC == null) {
+            
+            if(component.currentC == null) {
                 return;
             }
+
+            // continue only if updated parameter is from component current config
             if (component.currentC.key != configKey) {
                 return;
             }
@@ -269,7 +267,6 @@ namespace Ex{
                 component.currentCondition  = null;
                 component.currentRoutine    = null;
                 component.currentTimeline   = null;
-                component.currentC          = null;
 
                 if (component.is_function_defined(Function.start_experiment)) {
                     ExVR.ExpLog().log_and_add_to_stacktrace(component, Function.start_experiment, true, true);
@@ -339,16 +336,15 @@ namespace Ex{
                 }
 
                 // reset states
-                component.currentCondition = null;
-                component.currentRoutine = null;
-                component.currentTimeline = null;
-                component.currentC = null;
+                component.currentCondition  = null;
+                component.currentRoutine    = null;
+                component.currentTimeline   = null;
             }
             ExVR.ExpLog().components(Function.stop_experiment, false);
         }
 
         public void call_global_update() {
-            foreach(var component in sortedComponents) {
+            foreach(var component in sortedComponents) {                
                 component.global_update();
             }
         }

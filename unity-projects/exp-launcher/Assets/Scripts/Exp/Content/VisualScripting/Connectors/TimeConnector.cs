@@ -45,15 +45,20 @@ namespace Ex {
         }
 
         protected override void update_from_gui() {
-            var args  = m_config.get_list<string>(valueStr);
-            if(args.Count != 3) {
+
+            var args = m_config.get_list<string>(valueStr);
+            if (args.Count == 3) { 
+                sinceExp = (args[0] == "Time since exp");
+                frequency = Converter.to_int(args[1]);
+                sendEveryUpdate = (args[2] == "At each frame");
+                count = 0;
+            } else if(args.Count == 2) { // old system
+                sinceExp = (args[0] == "Time since exp");
+                frequency = Converter.to_int(args[1]);
+            } else {
                 log_error("Invalid TimeConnector arg.", true);
                 return;
             }
-            sinceExp  = (args[0] == "Time since exp");
-            frequency = Converter.to_int(args[1]);
-            sendEveryUpdate = (args[2] == "At each frame");
-            count = 0;
         }
 
         protected override void update() {

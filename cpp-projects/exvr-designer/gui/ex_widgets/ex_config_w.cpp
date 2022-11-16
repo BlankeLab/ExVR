@@ -38,10 +38,10 @@ ExConfigW::ExConfigW(QString name) : ExItemW<QFrame>(UiType::Component_config, n
     w->setLayout(l);
 
 
-    l->addWidget(m_routineTitle = new QLabel("Routine:"));
+    l->addWidget(m_routineTitle = new QLabel("Routine: (apply to all if empty)"));
     l->addWidget(m_routineName = new QLineEdit());
 
-    l->addWidget(m_conditionTitle = new QLabel("Condition:"));
+    l->addWidget(m_conditionTitle = new QLabel("Condition: (apply to all if empty)"));
     l->addWidget(m_conditionName = new QLineEdit());
 
     l->addWidget(m_componentTitle = new QLabel("Component:"));

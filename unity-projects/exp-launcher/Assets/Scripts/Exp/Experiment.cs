@@ -594,6 +594,17 @@ namespace Ex{
                 }case NetworkManager.Command.Clean: {
                     schedule_clean(ScheduledAction.Source.Gui);
                     return;
+                }case NetworkManager.Command.UpdateDesignerDirPath: {
+
+                    if (cmd.Item2.Count != 1) {
+                        log_error(string.Format("Update designer dir path error: bad number of parameters ({0}) with cmd : {1}", cmd.Item2.Count, strCommand));
+                        return;
+                    }
+                    // update path
+                    ExVR.Paths().update_designer_path(cmd.Item2[0]);
+                    // reset logs
+                    ExVR.Logger().initialize();
+                    return;
                 }case NetworkManager.Command.Previous: {
                     schedule_go_to_previous_element(ScheduledAction.Source.Gui);
                     return;

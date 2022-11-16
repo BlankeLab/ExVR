@@ -110,11 +110,15 @@ namespace Ex {
         public void add_default_resources() {
 
             // images
-            var dImage = new ImageResource(-1, "default_texture", "");
+            var dImage = generate_resource(ResourceType.Image, -1, "default_texture", "");
+
+            //var dImage = new ImageResource(-1, "default_texture", "");
             dImage.read_data();
             dImage.initialize();
             dImage.doNotRemove = true;
             m_aliasMappingResources[ResourceType.Image]["default_texture"] = dImage;
+
+            dImage.transform.SetParent(transform);
             // ...
         }
 
@@ -123,68 +127,90 @@ namespace Ex {
             foreach(var resourcesType in m_aliasMappingResources) {
                 foreach (var resource in resourcesType.Value) {
                     resource.Value.clean();
+                    Destroy(resource.Value.gameObject);
                 }
             }
         }
 
+        //private ExResource generate_resource(ResourceType type, int key, string alias, string path) {
         private ExResource generate_resource(ResourceType type, int key, string alias, string path) {
 
+            GameObject resourceGO = GO.generate_empty_object(alias, null, true);
+
+            ExResource resource = null;
             // resource file exists
             switch (type) {
-                case ResourceType.Image:               
-                    return new ImageResource(key, alias, path);
+                case ResourceType.Image:
+                    (resource = resourceGO.AddComponent<ImageResource>()).create(key, alias, path); break;
+                //return new ImageResource(key, alias, path);
                 case ResourceType.Text:
-                    return new TextResource(key, alias, path);
+                    (resource = resourceGO.AddComponent<TextResource>()).create(key, alias, path); break;
+                //return new TextResource(key, alias, path);
                 case ResourceType.UnityAssetBundle:
-                    return new AssetBundleResource(key, alias, path);
+                    (resource = resourceGO.AddComponent<AssetBundleResource>()).create(key, alias, path); break;
+                //return new AssetBundleResource(key, alias, path);
                 case ResourceType.Video:
-                    return new VideoResource(key, alias, path);
+                    (resource = resourceGO.AddComponent<VideoResource>()).create(key, alias, path); break;
+                //return new VideoResource(key, alias, path);
                 case ResourceType.Audio:
-                    return new AudioResource(key, alias, path);
+                    (resource = resourceGO.AddComponent<AudioResource>()).create(key, alias, path); break;
+                //return new AudioResource(key, alias, path);
                 case ResourceType.CSharpScript:
-                    return new CSharpScriptResource(key, alias, path);
+                    (resource = resourceGO.AddComponent<CSharpScriptResource>()).create(key, alias, path); break;
+                //return new CSharpScriptResource(key, alias, path);
                 case ResourceType.Cloud:
-                    return new CloudResource(key, alias, path);
+                    (resource = resourceGO.AddComponent<CloudResource>()).create(key, alias, path); break;
+                //return new CloudResource(key, alias, path);
                 case ResourceType.ScanerVideo:
-                    return new ScanerVideoResource(key, alias, path);
+                    (resource = resourceGO.AddComponent<ScanerVideoResource>()).create(key, alias, path); break;
+                //return new ScanerVideoResource(key, alias, path);
                 case ResourceType.Plot:
-                    return new PlotResource(key, alias, path);
+                    (resource = resourceGO.AddComponent<PlotResource>()).create(key, alias, path); break;
+                //return new PlotResource(key, alias, path);
                 case ResourceType.Directory:
-                    return new DirectoryResource(key, alias, path);
+                    (resource = resourceGO.AddComponent<DirectoryResource>()).create(key, alias, path); break;
+                //return new DirectoryResource(key, alias, path);
                 case ResourceType.VolumetricVideo:
-                    return new VolumetricVideoResource(key, alias, path);
+                    (resource = resourceGO.AddComponent<VolumetricVideoResource>()).create(key, alias, path); break;
+
+                    //return new VolumetricVideoResource(key, alias, path);
             }
-            return null;
+            //return null;
+            return resource;
         }
 
         private bool add_resource_from_xml(XML.Resource resource, ResourceType type) {
 
             bool exists = (type == ResourceType.Directory) ? Directory.Exists(resource.Path) : File.Exists(resource.Path);
             if (!exists) {
-                log_error(String.Format("Cannot load resource file of type [{0}] with path: {1}", resource.Type, resource.Path));
+                log_error(string.Format("Cannot load resource file of type [{0}] with path: {1}", resource.Type, resource.Path));
                 return false;
             }
 
             // load resource if not mapped
-            if (!m_pathMappingResources[type].ContainsKey(resource.Path)) {                
+            if (!m_pathMappingResources[type].ContainsKey(resource.Path)) {
 
                 ExResource resourceData = generate_resource(type, resource.Key, resource.Alias, resource.Path);
+
                 if (resourceData != null) {
                     m_pathMappingResources[type][resource.Path] = resourceData;
                     m_aliasMappingResources[type][resource.Alias] = resourceData;
                     if (!resourceData.read_data()) {
-                        log_error(String.Format("Cannot read data from resource file of type [{0}] with path: {1}.", resource.Type, resource.Path));
+                        log_error(string.Format("Cannot read data from resource file of type [{0}] with path: {1}.", resource.Type, resource.Path));                        
                         resourceData.clean();
+                        Destroy(resourceData.gameObject);
                         return false;
                     }
                     if (!resourceData.initialize()) {
-                        log_error(String.Format("Cannot initialize resource file of type [{0}] with path: {1}.", resource.Type, resource.Path));
+                        log_error(string.Format("Cannot initialize resource file of type [{0}] with path: {1}.", resource.Type, resource.Path));
                         resourceData.clean();
+                        Destroy(resourceData.gameObject);
                         return false;
                     }
+                    resourceData.transform.SetParent(transform);
                 }
             } else {
-                log_error(String.Format("Resource file of type [{0}] with path: {1} already added.", resource.Type, resource.Path));
+                log_error(string.Format("Resource file of type [{0}] with path: {1} already added.", resource.Type, resource.Path));
             }
 
             return true;
@@ -240,6 +266,7 @@ namespace Ex {
                     m_aliasMappingResources[resource.Item1].Remove(resource.Item3.alias);
                     m_pathMappingResources[resource.Item1].Remove(resource.Item2);
                     resource.Item3.clean();
+                    Destroy(resource.Item3.gameObject);
                 }
             }
 
@@ -256,6 +283,7 @@ namespace Ex {
                 foreach (var resourcesPerType in m_aliasMappingResources[type]) {
                     if (!resourcesPerType.Value.doNotRemove) {
                         resourcesPerType.Value.clean();
+                        Destroy(resourcesPerType.Value.gameObject);
                     } else {
                         resourcesToKeep.Add(resourcesPerType.Value);
                     }
@@ -316,11 +344,13 @@ namespace Ex {
                 // retrieve resources scripts
                 foreach (var csharpData in m_pathMappingResources[ResourceType.CSharpScript]) {
                     scriptsFiles.Add(csharpData.Value.path);
+                    //log_message("-> " + csharpData.Value.path);
                 }
 
                 // retrieve ui functions scripts                
                 foreach (var tempFile in CSharpFunctionComponent.generate_files_from_scripts_functions(xmlExperiment.Components)) {
                     scriptsFiles.Add(tempFile);
+                    //log_message("-> " + tempFile);
                 }
 
                 // compile assembly from scripts
@@ -358,7 +388,7 @@ namespace Ex {
                 }
             }
 
-            log_error(String.Format("Cannot read resource with key [{0}] from resources.", key));
+            log_error(string.Format("Cannot read resource with key [{0}] from resources.", key));
             return null;
         }
 
@@ -369,13 +399,13 @@ namespace Ex {
                     return resource.Value;
                 }
             }
-            log_error(String.Format("Cannot read resource with key [{0}] and type [{1}] from resources.", key, type.ToString()));
+            log_error(string.Format("Cannot read resource with key [{0}] and type [{1}] from resources.", key, type.ToString()));
             return null;
         }
 
         public ExResource get_resource_file_data(ResourceType type, string alias) {
             if (!m_aliasMappingResources[type].ContainsKey(alias)) {
-                log_error(String.Format("Cannot read resource with alias [{0}] and type [{1}] from resources.", alias, type.ToString()));
+                log_error(string.Format("Cannot read resource with alias [{0}] and type [{1}] from resources.", alias, type.ToString()));
                 return null;
             }
             return m_aliasMappingResources[type][alias];
@@ -383,7 +413,7 @@ namespace Ex {
 
         public ScanerVideoResource get_scaner_video_file_data(string alias) {
             if (!m_aliasMappingResources[ResourceType.ScanerVideo].ContainsKey(alias)) {
-                log_error(String.Format("Cannot read scaner video with alias [{0}] from resources.", alias ));
+                log_error(string.Format("Cannot read scaner video with alias [{0}] from resources.", alias ));
                 return null;
             }
             return ((ScanerVideoResource)m_aliasMappingResources[ResourceType.ScanerVideo][alias]);
@@ -391,7 +421,7 @@ namespace Ex {
 
         public CloudResource get_cloud_file_data(string alias) {
             if (!m_aliasMappingResources[ResourceType.Cloud].ContainsKey(alias)) {
-                log_error(String.Format("Cannot read cloud with alias [{0}] from resources.", alias));
+                log_error(string.Format("Cannot read cloud with alias [{0}] from resources.", alias));
                 return null;
             }
             return ((CloudResource)m_aliasMappingResources[ResourceType.Cloud][alias]);
@@ -400,7 +430,7 @@ namespace Ex {
         public TextResource get_text_file_data(string alias, bool showError = true) {
             if (!m_aliasMappingResources[ResourceType.Text].ContainsKey(alias)) {
                 if (showError) {
-                    log_error(String.Format("Cannot read text with alias [{0}] from resources.", alias));
+                    log_error(string.Format("Cannot read text with alias [{0}] from resources.", alias));
                 }
                 return null;
             }
@@ -408,7 +438,7 @@ namespace Ex {
         }
         public AudioResource get_audio_file_data(string alias) {
             if (!m_aliasMappingResources[ResourceType.Audio].ContainsKey(alias)) {
-                log_error(String.Format("Cannot read audio with alias [{0}] from resources.", alias));
+                log_error(string.Format("Cannot read audio with alias [{0}] from resources.", alias));
                 return null;
             }
             return ((AudioResource)m_aliasMappingResources[ResourceType.Audio][alias]);
@@ -416,7 +446,7 @@ namespace Ex {
 
         public VideoResource get_video_file_data(string alias) {
             if (!m_aliasMappingResources[ResourceType.Video].ContainsKey(alias)) {
-                log_error(String.Format("Cannot read video with alias [{0}] from resources.", alias));
+                log_error(string.Format("Cannot read video with alias [{0}] from resources.", alias));
                 return null;
             }
             return ((VideoResource)m_aliasMappingResources[ResourceType.Video][alias]);
@@ -424,7 +454,7 @@ namespace Ex {
 
         public PlotResource get_plot_file_data(string alias) {
             if (!m_aliasMappingResources[ResourceType.Plot].ContainsKey(alias)) {
-                log_error(String.Format("Cannot read plot with alias [{0}] from resources.", alias));
+                log_error(string.Format("Cannot read plot with alias [{0}] from resources.", alias));
                 return null;
             }
             return ((PlotResource)m_aliasMappingResources[ResourceType.Plot][alias]);
@@ -442,7 +472,7 @@ namespace Ex {
 
         public AssetBundleResource get_asset_bundle_file_data(string alias) {
             if (!m_aliasMappingResources[ResourceType.UnityAssetBundle].ContainsKey(alias)) {
-                log_error(String.Format("Cannot read asset bundle with alias [{0}] from resources.", alias));
+                log_error(string.Format("Cannot read asset bundle with alias [{0}] from resources.", alias));
                 return null;
             }
             return ((AssetBundleResource)m_aliasMappingResources[ResourceType.UnityAssetBundle][alias]);
@@ -450,7 +480,7 @@ namespace Ex {
 
         public VolumetricVideoResource get_volumetric_video_file_data(string alias) {
             if (!m_aliasMappingResources[ResourceType.VolumetricVideo].ContainsKey(alias)) {
-                log_error(String.Format("Cannot read volumetric video with alias [{0}] from resources.", alias));
+                log_error(string.Format("Cannot read volumetric video with alias [{0}] from resources.", alias));
                 return null;
             }
             return ((VolumetricVideoResource)m_aliasMappingResources[ResourceType.VolumetricVideo][alias]);
@@ -473,7 +503,7 @@ namespace Ex {
             
             // load asset from asset bundle
             if (assets == null) {
-                log_error(String.Format("Sub object [{0}] doesn't exist in loaded AssetBundle with alias: {1}", nameSubObject, alias));
+                log_error(string.Format("Sub object [{0}] doesn't exist in loaded AssetBundle with alias: {1}", nameSubObject, alias));
                 System.Threading.Thread.Sleep(50);
                 return null;
             }

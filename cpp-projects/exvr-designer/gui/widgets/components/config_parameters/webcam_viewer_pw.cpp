@@ -27,68 +27,50 @@
 
 using namespace tool::ex;
 
+
+struct WebcamViewerInitConfigParametersW::Impl{
+    ExSpinBoxW deviceId{"device_id"};
+    ExSpinBoxW fps{"requested_fps"};
+};
+
+
+WebcamViewerInitConfigParametersW::WebcamViewerInitConfigParametersW():  ConfigParametersW(), m_p(std::make_unique<Impl>()){
+}
+
 void WebcamViewerInitConfigParametersW::insert_widgets(){
 
-    add_widget(ui::F::gen(ui::L::HB(), {ui::W::txt("Device id: "), m_sbDeviceId()}, LStretch{true}, LMargins{false}, QFrame::NoFrame));
-    add_widget(ui::F::gen(ui::L::HB(), {ui::W::txt("Requested FPS: "), m_sbFPS()}, LStretch{true}, LMargins{false}, QFrame::NoFrame));
+    add_widget(ui::F::gen(ui::L::HB(), {ui::W::txt("Device id: "), m_p->deviceId()}, LStretch{true}, LMargins{false}, QFrame::NoFrame));
+    add_widget(ui::F::gen(ui::L::HB(), {ui::W::txt("Requested FPS: "), m_p->fps()}, LStretch{true}, LMargins{false}, QFrame::NoFrame));
 }
 
 void WebcamViewerInitConfigParametersW::init_and_register_widgets(){
 
-    add_input_ui(m_sbDeviceId.init_widget(MinV<int>{0}, V<int>{0}, MaxV<int>{32}, StepV<int>{1},  true));
-    add_input_ui(m_sbFPS.init_widget(MinV<int>{1}, V<int>{30}, MaxV<int>{120}, StepV<int>{1},  true));
+    add_input_ui(m_p->deviceId.init_widget(MinV<int>{0}, V<int>{0}, MaxV<int>{32}, StepV<int>{1},  true));
+    add_input_ui(m_p->fps.init_widget(MinV<int>{1}, V<int>{30}, MaxV<int>{120}, StepV<int>{1},  true));
 }
 
+struct WebcamViewerConfigParametersW::Impl{
+    WordSpaceCanvasSubPart wscsp;
+};
 
+WebcamViewerConfigParametersW::WebcamViewerConfigParametersW():  ConfigParametersW(), m_p(std::make_unique<Impl>()){
+}
 
 void WebcamViewerConfigParametersW::insert_widgets(){
-
     layout()->setContentsMargins(0,0,0,0);
-    add_sub_part_widget(m_eye);
-
-    auto useImageF      = ui::F::gen(ui::L::HB(), {m_cbUseVideoSize()}, LStretch{true}, LMargins{true}, QFrame::NoFrame);
-    auto followCameraF  = ui::F::gen(ui::L::HB(), {m_followEyeCamera()}, LStretch{true}, LMargins{true}, QFrame::NoFrame);
-    auto topF = ui::F::gen(ui::L::VB(), {useImageF, followCameraF}, LStretch{false}, LMargins{false}, QFrame::Box);
-    add_widget(topF);
-    add_sub_part_widget(m_cameraSettings);
-    add_widget(ui::F::gen(ui::L::HB(), {m_pivot(), ui::W::txt("Distance"),  m_distance()}, LStretch{true}, LMargins{true}, QFrame::Box));
+    add_sub_part_widget(m_p->wscsp);
 }
 
 void WebcamViewerConfigParametersW::init_and_register_widgets(){
-
-    map_sub_part(m_eye.init_widget());
-    add_input_ui(m_followEyeCamera.init_widget("Video always in front of the eyes camera", false));
-    add_input_ui(m_cbUseVideoSize.init_widget("Use video original size", true));
-
-    Vector2dSettings pivotSettings= {
-        {MinV<qreal>{-0.5}, V<qreal>{0.5}, MaxV<qreal>{1.5}, StepV<qreal>{0.01}, 2},
-        {MinV<qreal>{-0.5}, V<qreal>{0.5}, MaxV<qreal>{1.5}, StepV<qreal>{0.01}, 2}
-    };
-    add_input_ui(m_pivot.init_widget("Pivot", pivotSettings));
-    DsbSettings distanceSettings= {MinV<qreal>{0}, V<qreal>{10.}, MaxV<qreal>{1000.}, StepV<qreal>{0.1}, 2};
-    add_input_ui(m_distance.init_widget(distanceSettings));
-
-    map_sub_part(m_cameraSettings.init_widget());
+    map_sub_part(m_p->wscsp.init_widget());
 }
 
-void WebcamViewerConfigParametersW::create_connections(){
-    connect(m_cbUseVideoSize(), &QCheckBox::toggled, this, [&](bool checked){
-        m_cameraSettings.set_wh_enable_state(!checked,!checked);
-    });
 
-    connect(m_followEyeCamera(), &QCheckBox::toggled, this, [&](bool checked){
-        m_pivot.w->setEnabled(checked);
-        m_distance.w->setEnabled(checked);
-m_cameraSettings.set_position_enable_state(!checked,!checked,!checked);
-    });
+void WebcamViewerConfigParametersW::create_connections(){
+    m_p->wscsp.create_connections();
 }
 
 void WebcamViewerConfigParametersW::late_update_ui(){
-
-    bool state1 = !m_cbUseVideoSize()->isChecked();
-    m_cameraSettings.set_wh_enable_state(state1,state1);
-
-    m_pivot.w->setEnabled(m_followEyeCamera()->isChecked());
-    bool state2 = !m_followEyeCamera()->isChecked();
-    m_cameraSettings.set_position_enable_state(state2,state2,state2);
+    m_p->wscsp.late_update_ui();
 }
+

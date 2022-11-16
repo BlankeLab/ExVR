@@ -100,7 +100,7 @@ ImportSubExpDialog::ImportSubExpDialog(QString path){
 
         ui::ListWidget *lwCategory = new ui::ListWidget();
         lwCategory->set_margins(2,2,2,2,2);
-        twComponents->addTab(lwCategory, from_view(Component::to_string(category)) % QSL("(") % QString::number(count) % QSL(")"));
+        twComponents->addTab(lwCategory, from_view(Component::get_display_name(category)) % QSL("(") % QString::number(count) % QSL(")"));
 
         std::for_each(importedExp->compM.category_begin(category), importedExp->compM.category_end(category), [&](std::pair<QStringView,Component*> p){
 

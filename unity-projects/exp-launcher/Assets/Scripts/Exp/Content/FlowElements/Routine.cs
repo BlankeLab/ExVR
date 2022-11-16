@@ -63,27 +63,49 @@ namespace Ex{
         public List<Condition> get_conditions() { return m_conditions; }
         public int conditions_count() {return m_conditions.Count;}
 
-        public Condition get_condition_from_id(int id) {
+        public void force_config_to_all_conditions(ExComponent component, string configName) {
+
+            var config = component.get_config(configName);
+            if(config == null) {
+                return;
+            }
+
+            foreach(var condition in m_conditions) {
+                var action = condition.get_action_from_component_key(component.key);
+                if(action == null) {
+                    continue;
+                }
+                action.force_config(config);
+            }
+        }
+
+        public Condition get_condition_from_id(int id, bool displayError = true) {
             if (id < conditions_count() && id >= 0) {
                 return m_conditions[id];
             }
-            ExVR.Log().error(string.Format("Condition with id [{0}] invalid.", Converter.to_string(id)));
+            if (displayError) {
+                ExVR.Log().error(string.Format("Condition with id [{0}] invalid.", Converter.to_string(id)));
+            }
             return null;
         }
 
-        public Condition get_condition_from_key(int conditionKey) {
+        public Condition get_condition_from_key(int conditionKey, bool displayError = true) {
             if (m_conditionsPerKey.ContainsKey(conditionKey)) {
                 return m_conditionsPerKey[conditionKey];
             }
-            ExVR.Log().error(string.Format("Condition with key [{0}] not found.", Converter.to_string(conditionKey)));
+            if (displayError) {
+                ExVR.Log().error(string.Format("Condition with key [{0}] not found.", Converter.to_string(conditionKey)));
+            }
             return null;
         }
 
-        public Condition get_condition_from_name(string conditionName) {
+        public Condition get_condition_from_name(string conditionName, bool displayError = true) {
             if (m_conditionsPerName.ContainsKey(conditionName)) {
                 return m_conditionsPerName[conditionName];
             }
-            ExVR.Log().error(string.Format("Condition with name [{0}] not found.", conditionName));
+            if (displayError) {
+                ExVR.Log().error(string.Format("Condition with name [{0}] not found.", conditionName));
+            }
             return null;
         }
 

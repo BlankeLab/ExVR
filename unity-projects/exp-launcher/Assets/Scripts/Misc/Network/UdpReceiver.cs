@@ -219,8 +219,8 @@ namespace Ex {
                 } catch (System.Security.SecurityException e) {
                     UnityEngine.Debug.LogError(string.Format("Receive security error: [{0}]", e.Message));
                 } catch (Exception e) {
-                    // TODO: replace abort thread
-                    UnityEngine.Debug.LogError(string.Format("Receive error: [{0}]", e.Message));
+                    // TODO: replace abort thread                    
+                    UnityEngine.Debug.LogWarning(string.Format("Receive error: [{0}]", e.Message));
                 }
             }
 

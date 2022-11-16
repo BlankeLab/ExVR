@@ -308,7 +308,7 @@ void ComponentsManagerW::initialize_menues(){
             }
 
             QMenu *typesMenu = new QMenu();
-            typesMenu->setTitle(from_view(Component::to_string(category)));
+            typesMenu->setTitle(from_view(Component::get_display_name(category)));
 
             for(const auto &componentT : componentsT[category]){
 

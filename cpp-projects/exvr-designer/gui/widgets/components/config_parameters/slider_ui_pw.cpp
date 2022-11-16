@@ -53,16 +53,8 @@ struct SliderUiConfigParametersW::Impl{
 
     QTabWidget *tw1 = nullptr;
     QTabWidget *tw2 = nullptr;
-    QTabWidget *text1Tw = nullptr;
-    QTabWidget *text2Tw = nullptr;
-    QTabWidget *minTextTw = nullptr;
-    QTabWidget *maxTextTw = nullptr;
-    QTabWidget *valueTextTw = nullptr;
 
-    WordSpaceCanvasSubPart cameraSettings;
-    ExCheckBoxW followEyeCamera{"use_eye_camera"};
-    ExVector2dW pivot{"pivot"};
-    ExFloatSpinBoxW distance{"distance"};
+    WordSpaceCanvasSubPart wscsp;
 
     // textes settings
     TextSubPart text1 {"t1"};
@@ -82,7 +74,6 @@ struct SliderUiConfigParametersW::Impl{
     ExLineEditW sliderText1{"slider_text1"};
     ExLineEditW sliderText2{"slider_text2"};
 
-    ExSelectColorW colBackgound{"background_color"};
     ExSelectColorW colHandle{"handle_color"};
     ExSelectColorW colFillArea{"fill_area_color"};
     ExSelectColorW colRestArea{"rest_area_color"};
@@ -137,9 +128,7 @@ void SliderUiConfigParametersW::insert_widgets(){
     containerL->setContentsMargins(2,2,2,2);
 
     m_p->tw1->addTab(containerW, "Container");
-    containerL->addWidget(ui::F::gen(ui::L::HB(), {m_p->followEyeCamera()}, LStretch{true}, LMargins{true}, QFrame::NoFrame));
-    containerL->addWidget(m_p->cameraSettings.frame);
-    containerL->addWidget(ui::F::gen(ui::L::HB(), {m_p->pivot(), ui::W::txt("Distance"),  m_p->distance()}, LStretch{true}, LMargins{true}, QFrame::Box));
+    containerL->addWidget(m_p->wscsp.frame);
     containerL->addStretch();
 
     QFrame *minMaxVal = ui::F::gen(ui::L::HB(), {
@@ -149,11 +138,10 @@ void SliderUiConfigParametersW::insert_widgets(){
             ui::W::txt("Step"),     m_p->stepValue()
         },LStretch{true}, LMargins{false}
     );
-    QFrame *backgroundCol = ui::F::gen(ui::L::VB(), {ui::W::txt("Background"), m_p->colBackgound()});
     QFrame *handleCol     = ui::F::gen(ui::L::VB(), {ui::W::txt("Handle"),     m_p->colHandle()});
     QFrame *fillAreaCol   = ui::F::gen(ui::L::VB(), {ui::W::txt("Fill area"),  m_p->colFillArea()});
     QFrame *restAreaCol   = ui::F::gen(ui::L::VB(), {ui::W::txt("Rest area"),  m_p->colRestArea()});
-    QFrame *colors        = ui::F::gen(ui::L::HB(), {backgroundCol, handleCol, fillAreaCol, restAreaCol}, LStretch{true}, LMargins{false});
+    QFrame *colors        = ui::F::gen(ui::L::HB(), {handleCol, fillAreaCol, restAreaCol}, LStretch{true}, LMargins{false});
 
     auto v1 = ui::F::gen(ui::L::VB(), {ui::W::txt("<b>Values</b>"), m_p->wholeValue(), minMaxVal}, LStretch{true}, LMargins{false});
     auto v2 = ui::F::gen(ui::L::VB(), {ui::W::txt("<b>Init slider with:</b>"), m_p->normalStart(),m_p->onceStart(),m_p->randomStart(),m_p->onceRandomStart()}, LStretch{true}, LMargins{false});
@@ -166,39 +154,16 @@ void SliderUiConfigParametersW::insert_widgets(){
     m_p->tw1->addTab(sliderTab, "Slider");
     m_p->tw1->addTab(m_p->tw2 = new QTabWidget(), "Texts");
 
-    m_p->tw2->addTab(m_p->text1Tw = new QTabWidget(), "Description 1");
-    m_p->tw2->addTab(m_p->text2Tw = new QTabWidget(), "Description 2");
-    m_p->tw2->addTab(m_p->minTextTw = new QTabWidget(), "Min");
-    m_p->tw2->addTab(m_p->maxTextTw = new QTabWidget(), "Max");
-    m_p->tw2->addTab(m_p->valueTextTw = new QTabWidget(), "Current value");
-
-    m_p->text1Tw->addTab(m_p->text1.textW, "Text");
-    m_p->text1Tw->addTab(m_p->text1.settingsW, "Settings");
-
-    m_p->text2Tw->addTab(m_p->text2.textW, "Text");
-    m_p->text2Tw->addTab(m_p->text2.settingsW, "Settings");
-
-    m_p->minTextTw->addTab(m_p->minTxt.textW, "Text");
-    m_p->minTextTw->addTab(m_p->minTxt.settingsW, "Settings");
-
-    m_p->maxTextTw->addTab(m_p->maxTxt.textW, "Text");
-    m_p->maxTextTw->addTab(m_p->maxTxt.settingsW, "Settings");
-
-    m_p->valueTextTw->addTab(m_p->valueTxt.textW, "Text");
-    m_p->valueTextTw->addTab(m_p->valueTxt.settingsW, "Settings");
+    m_p->tw2->addTab(m_p->text1.frame, "Description 1");
+    m_p->tw2->addTab(m_p->text2.frame, "Description 2");
+    m_p->tw2->addTab(ui::F::gen(ui::L::VB(), {m_p->minTxt.frame}, LStretch{true}, LMargins{false}), "Min");
+    m_p->tw2->addTab(ui::F::gen(ui::L::VB(), {m_p->maxTxt.frame}, LStretch{true}, LMargins{false}), "Max");
+    m_p->tw2->addTab(ui::F::gen(ui::L::VB(), {m_p->valueTxt.frame}, LStretch{true}, LMargins{false}), "Current value");
 }
 
 void SliderUiConfigParametersW::init_and_register_widgets(){
 
-    Vector2dSettings pivotSettings= {
-        {MinV<qreal>{-0.5}, V<qreal>{0.5}, MaxV<qreal>{1.5}, StepV<qreal>{0.01}, 2},
-        {MinV<qreal>{-0.5}, V<qreal>{0.5}, MaxV<qreal>{1.5}, StepV<qreal>{0.01}, 2}
-    };
-    DsbSettings distanceSettings= {MinV<qreal>{0}, V<qreal>{1.}, MaxV<qreal>{1000.}, StepV<qreal>{0.1}, 2};
-    add_input_ui(m_p->pivot.init_widget("Pivot", pivotSettings));
-    add_input_ui(m_p->distance.init_widget(distanceSettings));
-    add_input_ui(m_p->followEyeCamera.init_widget("Slider always in front of the eyes camera", true));
-    map_sub_part(m_p->cameraSettings.init_widget());
+    map_sub_part(m_p->wscsp.init_widget());
 
     map_sub_part(m_p->text1.init_widget("Description txt1"));
     map_sub_part(m_p->text2.init_widget("Description txt2"));
@@ -244,7 +209,6 @@ void SliderUiConfigParametersW::init_and_register_widgets(){
     add_input_ui(m_p->sliderText1.init_widget("Slider txt1"));
     add_input_ui(m_p->sliderText2.init_widget("Slider txt2"));
 
-    add_input_ui(m_p->colBackgound.init_widget("Select background color", Qt::white));
     add_input_ui(m_p->colHandle.init_widget("Select handle color",        Qt::gray));
     add_input_ui(m_p->colFillArea.init_widget("Select fill area color",   Qt::gray));
     add_input_ui(m_p->colRestArea.init_widget("Select rest area color",   Qt::gray));
@@ -252,17 +216,14 @@ void SliderUiConfigParametersW::init_and_register_widgets(){
 
 void SliderUiConfigParametersW::create_connections(){
 
+    m_p->wscsp.create_connections();
+
     connect(m_p->wholeValue(),   &QCheckBox::clicked, this, &SliderUiConfigParametersW::update_ui_value_type);
     connect(m_p->minValue(),     QOverload<double>::of(&QDoubleSpinBox::valueChanged),this,  &SliderUiConfigParametersW::update_ui_value_limits);
     connect(m_p->initialValue(), QOverload<double>::of(&QDoubleSpinBox::valueChanged),this,  &SliderUiConfigParametersW::update_ui_value_limits);
     connect(m_p->maxValue(),     QOverload<double>::of(&QDoubleSpinBox::valueChanged),this,  &SliderUiConfigParametersW::update_ui_value_limits);
     connect(m_p->stepValue(),    QOverload<double>::of(&QDoubleSpinBox::valueChanged),this,  &SliderUiConfigParametersW::update_ui_value_limits);
 
-    connect(m_p->followEyeCamera(), &QCheckBox::toggled, this, [&](bool checked){
-        m_p->pivot.w->setEnabled(checked);
-        m_p->distance.w->setEnabled(checked);
-        m_p->cameraSettings.set_position_enable_state(!checked,!checked,!checked);
-    });
     connect(m_p->displayMinMax.w.get(), &QRadioButton::clicked, [&]{
         m_p->sliderText1.w->setEnabled(false);
         m_p->sliderText2.w->setEnabled(false);
@@ -297,15 +258,12 @@ void SliderUiConfigParametersW::create_connections(){
 
 void SliderUiConfigParametersW::late_update_ui(){
 
-    update_ui_value_type(m_p->wholeValue()->isChecked());
 
-    m_p->pivot.w->setEnabled(m_p->followEyeCamera()->isChecked());
-    m_p->distance.w->setEnabled(m_p->followEyeCamera()->isChecked());
-    bool state2 = !m_p->followEyeCamera()->isChecked();
-    m_p->cameraSettings.set_position_enable_state(state2,state2,state2);
+    m_p->wscsp.late_update_ui();
+
+    update_ui_value_type(m_p->wholeValue()->isChecked());
 
     m_p->sliderText1.w->setEnabled(m_p->displaySliderTextes.w->isChecked());
     m_p->sliderText2.w->setEnabled(m_p->displaySliderTextes.w->isChecked());
-
     m_p->initialValue.w->setEnabled(!m_p->randomStart.w->isChecked() && !m_p->onceRandomStart.w->isChecked());
 }

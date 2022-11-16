@@ -112,6 +112,7 @@ void ExpLauncherProcess::start_program(QString command, Settings settings, quint
     }
 
     args << QString::number(readingPort) << (Paths::exeDir.contains("debug") ? QSL("1") : QSL("0"));
+    args << Paths::exeDir;
     args << "-vrmode" << displayMode;
     args << "-monitor" << QString::number(settings.monitorId);
     args << "-screen-fullscreen" << (settings.fullscreen ? QSL("1") : QSL("0"));

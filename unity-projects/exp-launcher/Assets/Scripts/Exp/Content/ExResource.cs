@@ -26,16 +26,19 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 
+// unity
+using UnityEngine;
+
 namespace Ex {
 
-    public class ExResource {
+    public class ExResource : MonoBehaviour {
 
         public int key;
         public string alias;
         public string path;
         public bool doNotRemove = false;
 
-        public ExResource(int key, string alias, string path) {
+        public virtual void create(int key, string alias, string path) {
             this.key = key;
             this.alias = alias;
             this.path = path;
@@ -89,12 +92,12 @@ namespace Ex {
             }
         }
     }
-
     public class ExResourceFile : ExResource {
 
         public string extension;
 
-        public ExResourceFile(int key, string alias, string path) : base(key, alias, path) {
+        public override void create(int key, string alias, string path) {
+            base.create(key, alias, path);
             this.extension = Path.GetExtension(path);
         }
     }

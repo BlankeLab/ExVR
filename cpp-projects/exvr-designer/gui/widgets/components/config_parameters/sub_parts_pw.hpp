@@ -35,11 +35,14 @@
 
 namespace tool::ex {
 
-class ConfigParametersSubPart{
+class ConfigParametersSubPart : public QObject{
+    Q_OBJECT
 protected:
     void block_signals(bool state);
     void add_input_ui(ExBaseW *w);
     void add_inputs_ui(std::vector<ExBaseW *> widgets);
+    virtual void create_connections(){}
+    virtual void late_update_ui(){}
 public:
     std_v1<std::pair<QStringView, ExBaseW*>> inputUiElements;
     QFrame *frame = nullptr;
@@ -78,6 +81,9 @@ public:
     WordSpaceCanvasSubPart *init_widget();
     void set_wh_enable_state(bool w, bool h);
     void set_position_enable_state(bool x, bool y, bool z);
+    void set_background_color(QColor bgCol);
+    void create_connections() override;
+    void late_update_ui() override;
 private:
     struct Impl;
     std::unique_ptr<Impl> m_p = nullptr;

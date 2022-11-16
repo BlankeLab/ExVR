@@ -30,13 +30,6 @@
 namespace tool::ex {
 
 class CameraTargetInitConfigParametersW : public ConfigParametersW{
-
-public :
-
-    void insert_widgets() override{}
-    void init_and_register_widgets() override{}
-    void create_connections() override{}
-    void late_update_ui() override{}
 };
 
 

@@ -145,6 +145,7 @@ void DataNodeModels::initialize(){
     r->registerTypeConverter(std::make_pair(StringData().type(),FloatData().type()),TC{StringToFloatConverter()});
     r->registerTypeConverter(std::make_pair(StringData().type(),RealData().type()),TC{StringToRealConverter()});
     r->registerTypeConverter(std::make_pair(StringData().type(),StringListData().type()),TC{StringToStringListConverter()});
+    r->registerTypeConverter(std::make_pair(StringData().type(),ColorData().type()),TC{StringToColorConverter()});
     r->registerTypeConverter(std::make_pair(StringData().type(),AnyData().type()),TC{ToAnyConverter()});
     r->registerTypeConverter(std::make_pair(StringData().type(),VoidData().type()),TC{ToVoidConverter()});
     // ### string list

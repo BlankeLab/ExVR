@@ -34,17 +34,11 @@ namespace Ex {
 
     public class MultiABComponent : ExComponent {
 
-        private static readonly string[] assembliesNames = new string[] {
-            ", UnityEngine",
-            ", UnityEngine.UI",
-            ", UnityEngine.Image",
-            ", System",
-            ", System.Collections",
-            ", System.Collections.Generic"
-        };
 
         private Dictionary<string, GameObject> bundles = null;
         private GameObject currentBundle = null;
+
+        #region ex_functions
 
         protected override bool initialize() {
 
@@ -108,6 +102,10 @@ namespace Ex {
         protected override void update_parameter_from_gui(string updatedArgName) {
             update_from_current_config();
         }
+
+        #endregion
+
+        #region private_functions
 
         private void instantiate_sub_components(GameObject bundle) {
 
@@ -236,6 +234,8 @@ namespace Ex {
                 go.SetActive(true);
             }
         }
+
+        #endregion
     }
 
 }

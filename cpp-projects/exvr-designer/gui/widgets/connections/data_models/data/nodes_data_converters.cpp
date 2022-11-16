@@ -697,6 +697,24 @@ DataSP StringToStringListConverter::operator()(DataSP data){
     return m_value;
 }
 
+DataSP StringToColorConverter::operator()(DataSP data){
+
+    if(is_from_component(data)){
+        auto v = std::make_shared<ColorData>();
+        v->set_runtime();
+        return m_value = v;;
+    }
+
+    if(auto inputData =std::dynamic_pointer_cast<StringData>(data)){
+        m_value = std::make_shared<ColorData>(Convertor::to_color(inputData->value()));
+        propagate_runtime(inputData, m_value);
+    }else{
+        m_value.reset();
+    }
+    return m_value;
+}
+
+
 DataSP StringListToStringConverter::operator()(DataSP data){
 
     if(is_from_component(data)){

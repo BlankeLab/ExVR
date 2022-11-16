@@ -109,6 +109,10 @@ namespace Ex{
 
         public double send_pulse(int value, float pulseTime = -1f, string port = "") {
 
+            if (!currentC) {
+                return -1;
+            }
+
             if (!m_available) {
                 return -1;
             }
@@ -143,6 +147,10 @@ namespace Ex{
         }
 
         public double write(int value, string port = "") {
+
+            if (!currentC) {
+                return -1;
+            }
 
             if (!m_available) {
                 return -1;

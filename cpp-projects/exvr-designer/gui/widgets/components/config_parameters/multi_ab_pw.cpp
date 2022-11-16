@@ -26,23 +26,47 @@
 
 using namespace tool::ex;
 
+struct MultiABInitConfigParametersW::Impl{
+    TransformSubPart transfo{"init_transform"};
+    ExResourcesListW abList{"ab_list"};
+};
+
+MultiABInitConfigParametersW::MultiABInitConfigParametersW():  ConfigParametersW(), m_p(std::make_unique<Impl>()){
+}
+
 void MultiABInitConfigParametersW::insert_widgets(){
-    add_widget(ui::F::gen(ui::L::VB(), {abList()}, LStretch{false}, LMargins{true}, QFrame::Box));
+    add_sub_part_widget(m_p->transfo);
+    add_widget(ui::F::gen(ui::L::VB(),{
+        ui::W::txt(QSL("<b>Asset bundle</b>")),
+        m_p->abList()}, LStretch{false}, LMargins{true}, QFrame::Box
+    ));
     no_end_stretch();
 }
 
 void MultiABInitConfigParametersW::init_and_register_widgets(){
-    add_input_ui(abList.init_widget(Resource::Type::AssetBundle, "Assets bundles:"));
+    map_sub_part(m_p->transfo.init_widget(QSL("Init transform</b> (applied when experiment starts)<b>")));
+    add_input_ui(m_p->abList.init_widget(Resource::Type::AssetBundle, "Resources to load:"));
+}
+
+struct MultiABConfigParametersW::Impl{
+    TransformSubPart transfo{"transform"};
+    ExResourceW currentAB{"ab_alias"};
+};
+
+MultiABConfigParametersW::MultiABConfigParametersW():  ConfigParametersW(), m_p(std::make_unique<Impl>()){
 }
 
 void MultiABConfigParametersW::insert_widgets(){
-    add_sub_part_widget(m_transfo);
-    add_widget(ui::F::gen(ui::L::HB(), {m_currentAB()}, LStretch{false}, LMargins{true}, QFrame::Box));
+    add_sub_part_widget(m_p->transfo);
+    add_widget(ui::F::gen(ui::L::VB(),{
+        ui::W::txt(QSL("<b>Asset bundle</b>")),
+        m_p->currentAB()}, LStretch{false}, LMargins{true}, QFrame::Box
+    ));
 }
 
 void MultiABConfigParametersW::init_and_register_widgets(){
-    map_sub_part(m_transfo.init_widget(QSL("Config transform</b> (applied when routine starts)<b>")));
-    add_input_ui(m_currentAB.init_widget(Resource::Type::AssetBundle,QSL("Current asset bundle resource")));
+    map_sub_part(m_p->transfo.init_widget(QSL("Config transform</b> (applied when routine starts)<b>")));
+    add_input_ui(m_p->currentAB.init_widget(Resource::Type::AssetBundle,QSL("Current resource")));
 
 }
 

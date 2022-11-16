@@ -196,9 +196,6 @@ namespace Ex{
 
         protected override void set_update_state(bool doUpdate) {
 
-            if(currentC == null) {
-                return;
-            }
 
             if (doUpdate && currentC.get<bool>("send_new_update_block")) {
                 write();
@@ -346,6 +343,11 @@ namespace Ex{
         #region public_functions
 
         public void send_byte_pulse(int value) {
+
+            if (!currentC) {
+                return;
+            }
+
             if (value < 0) {
                 value = 0;
             }
@@ -356,32 +358,58 @@ namespace Ex{
         }
 
         public void send_byte_pulse(byte value) {
+            if (!currentC) {
+                return;
+            }
             ExVR.Coroutines().start(send_pulse(value));
         }
 
         public void send_bytes_pulse(byte[] value) {
+            if (!currentC) {
+                return;
+            }
             ExVR.Coroutines().start(send_pulse(value));
         }
 
         public void write_byte(byte value) {
-            if(m_serialWriterT != null) {
+
+            if (!currentC) {
+                return;
+            }
+
+            if (m_serialWriterT != null) {
                 m_serialWriterT.send_bytes(new byte[] { value });
             }
         }
 
         public void write_bytes(byte[] values) {
+
+            if (!currentC) {
+                return;
+            }
+
             if (m_serialWriterT != null) {
                 m_serialWriterT.send_bytes(values);
             }
         }
 
         public void write_str(string text) {
+
+            if (!currentC) {
+                return;
+            }
+
             if (m_serialWriterT != null) {
                 m_serialWriterT.send_texte(text);
             }
         }
 
         public void write_line_str(string text) {
+
+            if (!currentC) {
+                return;
+            }
+
             if (m_serialWriterT != null) {
                 m_serialWriterT.send_texte(string.Concat(text, '\n'));
             }

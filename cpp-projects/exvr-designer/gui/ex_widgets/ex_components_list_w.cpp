@@ -167,7 +167,7 @@ Arg ExComponentsListW::convert_to_arg() const{
             arg.generator->info = from_view(Component::get_full_name(m_componentType.value()));
         }
         if(m_componentCategory.has_value()){
-            arg.generator->info = from_view(Component::to_string(m_componentCategory.value()));
+            arg.generator->info = from_view(Component::get_display_name(m_componentCategory.value()));
         }
     }
 

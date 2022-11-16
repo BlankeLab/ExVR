@@ -1850,7 +1850,7 @@ void Experiment::update_conditions(){
                 if(routine->conditions.size() > 1){
                     for(size_t ii = 1; ii < routine->conditions.size(); ++ii){
                         QtLogger::message(
-                            QSL("[EXP] Condition ") % routine->conditions[ii]->name %
+                            QSL("[EXP](1) Condition ") % routine->conditions[ii]->name %
                             QSL(" from routine ") % routine->name() % QSL("(") %
                             QString::number(routine->key()) % QSL(") doesn't exist anymore and has been removed.")
                         );
@@ -1931,7 +1931,7 @@ void Experiment::update_conditions(){
             // log deleted conditions
             for(size_t ii = 1; ii < routine->conditions.size(); ++ii){
                 QtLogger::message(
-                    QSL("[EXP] Condition ") % routine->conditions[ii]->name %
+                    QSL("[EXP](2) Condition ") % routine->conditions[ii]->name %
                     QSL(" from routine ") % routine->name() % QSL("(") %
                     QString::number(routine->key()) % QSL(") doesn't exist anymore and has been removed.")
                 );
@@ -1943,13 +1943,12 @@ void Experiment::update_conditions(){
         }
 
         // rebuild routine conditions
-        std_v1<std::unique_ptr<Condition>> newConditions;
+        std::vector<std::unique_ptr<Condition>> newConditions;
         for(size_t ii = 0; ii < newConditionsKeys.size(); ++ii){
 
             bool found = false;
             for(size_t jj = 0; jj < routine->conditions.size(); ++jj){
-
-                if(routine->conditions[jj]->contains_same_set_keys(newConditionsKeys[ii])){
+                if(routine->conditions[jj]->contains_same_set_keys(newConditionsKeys[ii]) || routine->conditions[jj]->name == "default"){
                     // all keys found
                     routine->conditions[jj]->name = newConditionsNames[ii];
                     newConditions.push_back(std::move(routine->conditions[jj]));
@@ -1969,7 +1968,7 @@ void Experiment::update_conditions(){
         // log deleted conditions
         for(const auto &conditionToBeDeleted : routine->conditions){
 
-            QtLogger::message(QSL("[EXP] Condition ") % conditionToBeDeleted->name % QSL(" from routine ") % routine->name() % QSL("(") %
+            QtLogger::message(QSL("[EXP](3) Condition ") % conditionToBeDeleted->name % QSL(" from routine ") % routine->name() % QSL("(") %
                             QString::number(routine->key()) % QSL(") doesn't exist anymore and has been removed."));
         }
 

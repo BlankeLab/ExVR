@@ -47,6 +47,8 @@ namespace Ex {
         private delegate void LogErrorCB(string errorMessage);
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate void StrackTraceCB(string stackTraceMessage);
+        [UnmanagedFunctionPointer(CallingConvention.StdCall)]
+        private delegate void PauseEditorCB();
         // # per type
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         private delegate void LogMessageIdCB(string message, int sType, int sKey);
@@ -98,6 +100,7 @@ namespace Ex {
         private static LogWarningIdCB logWarningIdCB = null;
         private static LogErrorIdCB logErrorIdCB = null;
         private static StrackTraceCB stackTraceCB = null;
+        private static PauseEditorCB pauseEditorCB = null;
         private static EllapsedTimeExpMsCB ellapsedTimeExpMsCB = null;
         private static EllapsedTimeRoutineMsCB ellapsedTimeRoutineMsCB = null;
         private static GetCB getCB = null;
@@ -126,6 +129,9 @@ namespace Ex {
 
             stackTraceCB = (trace) => {
                 ExVR.ExpLog().push_to_strackTrace(new ComponentTrace(trace));
+            };
+            pauseEditorCB = () => {
+                ExVR.Events().command.pause_editor();
             };
 
             logMessageCB = (message) => {
@@ -275,7 +281,7 @@ namespace Ex {
                 _handle,
                 logMessageCB, logWarningCB, logErrorCB,
                 logMessageIdCB, logWarningIdCB, logErrorIdCB,
-                stackTraceCB,
+                stackTraceCB, pauseEditorCB,
                 ellapsedTimeExpMsCB, ellapsedTimeRoutineMsCB,
                 getCB,
                 isVisibleCB, isUpdatingCB, isClosedCB,
@@ -322,6 +328,7 @@ namespace Ex {
             [MarshalAs(UnmanagedType.FunctionPtr)] LogWarningIdCB logWarningIdCB,
             [MarshalAs(UnmanagedType.FunctionPtr)] LogErrorIdCB logErrorIdCB,
             [MarshalAs(UnmanagedType.FunctionPtr)] StrackTraceCB strackTraceCB,
+            [MarshalAs(UnmanagedType.FunctionPtr)] PauseEditorCB pauseEditorCB,
             [MarshalAs(UnmanagedType.FunctionPtr)] EllapsedTimeExpMsCB ellapsedTimeExpMsCB,
             [MarshalAs(UnmanagedType.FunctionPtr)] EllapsedTimeRoutineMsCB ellapsedTimeRoutineMsCB,
             [MarshalAs(UnmanagedType.FunctionPtr)] GetCB getCB,

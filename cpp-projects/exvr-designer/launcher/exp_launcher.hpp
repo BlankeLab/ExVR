@@ -60,9 +60,9 @@ public slots:
     void stop_communications();
 
     void init_communication();
-    void start_program(Settings settings);
+    void start_program(tool::ex::Settings settings);
 
-    void load_experiment(QString expFilePath, QString instanceFilePath);
+    void load_experiment(QString expFilePath, QString instanceFilePath);    
     void start_experiment();
 
     void clean_experiment();
@@ -74,9 +74,11 @@ public slots:
     void previous_element();
     void go_to_specific_instance_element(int elementOrderId);
 
-    void update_component_config_argument(ComponentKey componentKey, ConfigKey configKey, Arg arg, bool initConfig);
-    void trigger_component_config_action(ComponentKey componentKey, ConfigKey configKey, QStringView actionName, bool initConfig);
-    void update_connector_node(ElementKey routineKey,ConditionKey conditionKey, ConnectorKey connectorKey, QString name, Arg arg);
+    void update_component_config_argument(tool::ex::ComponentKey componentKey, tool::ex::ConfigKey configKey, tool::ex::Arg arg, bool initConfig);
+    void trigger_component_config_action(tool::ex::ComponentKey componentKey, tool::ex::ConfigKey configKey, QStringView actionName, bool initConfig);
+    void update_connector_node(tool::ex::ElementKey routineKey, tool::ex::ConditionKey conditionKey, tool::ex::ConnectorKey connectorKey, QString name, tool::ex::Arg arg);
+
+    void update_designer_dir(QString designerDirPath);
 
     void close_program();
 

@@ -381,7 +381,6 @@ namespace Ex{
                 component.Value.currentRoutine   = null;
                 component.Value.currentCondition = null;
                 component.Value.currentTimeline  = null;
-                component.Value.currentC         = null;
             }
 
             // actions

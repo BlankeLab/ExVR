@@ -63,9 +63,8 @@ void K2ManagerInitConfigParametersW::init_and_register_widgets(){
     add_input_ui(m_p->calib.init_widget(Resource::Type::Text,  "Calibration file: "));
     add_input_ui(m_p->camera.init_widget(Resource::Type::Text, "Common camera file: "));
     add_input_ui(m_p->mode.init_widget({"Cloud", "Mesh"}, 0));
-    add_input_ui(m_p->camarasToUse.init_widget("0 1 2 3 4 5 6 7"));
+    add_input_ui(m_p->camarasToUse.init_widget("0;1;2;3;4;5;6;7"));
     add_input_ui(m_p->debugBypassDevice.init_widget("Enable it for testing the experiment without the device", false));
-//    add_input_ui(m_p->disableDisplayOnGrabber.init_widget("Disable display on grabber", true));
 }
 
 void K2ManagerInitConfigParametersW::update_with_info(QStringView id, QStringView value){

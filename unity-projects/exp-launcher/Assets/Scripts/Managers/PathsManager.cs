@@ -70,25 +70,24 @@ namespace Ex{
             }
 
 #if UNITY_EDITOR
-            designerMainDir             = string.Format("{0}/../../cpp-projects/_build/bin/exvr-designer", expLauncherMainDir);
-            designerDataTempDir         = string.Format("{0}/data/temp", designerMainDir);
-            designerTempExpFile         = string.Format("{0}/data/temp/exp.xml", designerMainDir);                        
-            designerLogDir              = string.Format("{0}/logs", designerMainDir);
-            designerDefaultInstanceFile = string.Format("{0}/data/temp/debug-instance.xml", designerMainDir);
+            update_designer_path(string.Format("{0}/../../cpp-projects/_build/bin/exvr-designer", expLauncherMainDir));
 #else
-            designerMainDir             = expLauncherMainDir + "/..";
-            designerDataTempDir         = designerMainDir + "/data/temp";
-            designerTempExpFile         = designerMainDir + "/data/temp/exp.xml";           
-            designerLogDir              = designerMainDir + "/logs";
-            designerDefaultInstanceFile = designerMainDir + "/data/temp/debug-instance.xml";
+            update_designer_path(expLauncherMainDir + "/..");
 #endif
+        }
 
-            if (!File.Exists(designerTempExpFile)) {                
-                designerTempExpFile         = expLauncherMainDir + "/exp.xml";
+        public void update_designer_path(string designerMainDir) {
+
+            this.designerMainDir            = designerMainDir;
+            designerDataTempDir             = string.Format("{0}/data/temp", designerMainDir);
+            designerTempExpFile             = string.Format("{0}/data/temp/exp.xml", designerMainDir);
+            designerLogDir                  = string.Format("{0}/logs", designerMainDir);
+            designerDefaultInstanceFile     = string.Format("{0}/data/temp/debug-instance.xml", designerMainDir);
+
+            if (!File.Exists(designerTempExpFile)) {
+                designerTempExpFile = expLauncherMainDir + "/exp.xml";
                 designerDefaultInstanceFile = expLauncherMainDir + "/debug-instance.xml";
             }
         }
-
-
     }
 }

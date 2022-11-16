@@ -78,10 +78,14 @@ struct PostProcessConfigParametersW::Impl{
     ExCheckBoxW aoColorEnable{"ao_color_enable"}; // true
     ExSelectColorW aoColor{"ao_color"}; // black
 
+
+    ExCheckBoxW blEnable{"b_enable"}; // false
+
     QTabWidget *effectsTab = nullptr;
     QWidget *cgW = nullptr;
     QWidget *vW = nullptr;
     QWidget *aoW = nullptr;
+    QWidget *blW = nullptr;
 };
 
 PostProcessConfigParametersW::PostProcessConfigParametersW() :  ConfigParametersW(), m_p(std::make_unique<Impl>()){
@@ -125,6 +129,16 @@ void PostProcessConfigParametersW::insert_widgets(){
     aoL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->aoThicknessEnable(),1}, {m_p->aoThickness(),30}} , 0, LMarginsD{0,0,0,0,2}));
     aoL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->aoColorEnable(),1}, {m_p->aoColor(),30}} , 0, LMarginsD{0,0,0,0,2}));
     aoL->addStretch();
+    no_end_stretch();
+
+    m_p->effectsTab->addTab(m_p->blW = new QWidget(), "Bloom");
+    auto blL = ui::L::VB();
+    m_p->blW->setLayout(blL);
+    blL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->blEnable(),10}} , 0, LMarginsD{0,0,0,0,2}));
+//    blL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->aoIntensityEnable(),1}, {m_p->aoIntensity(),30}} , 0, LMarginsD{0,0,0,0,2}));
+//    blL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->aoThicknessEnable(),1}, {m_p->aoThickness(),30}} , 0, LMarginsD{0,0,0,0,2}));
+//    blL->addWidget(ui::F::gen_frame(ui::L::HB(), {{m_p->aoColorEnable(),1}, {m_p->aoColor(),30}} , 0, LMarginsD{0,0,0,0,2}));
+    blL->addStretch();
     no_end_stretch();
 }
 

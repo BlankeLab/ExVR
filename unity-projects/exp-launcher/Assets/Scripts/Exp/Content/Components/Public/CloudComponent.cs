@@ -33,17 +33,22 @@ namespace Ex{
 
     public class CloudComponent : ExComponent{
 
-        GameObject cloudGO = null;
-
+        private PointCloud pc = null;
+        private GameObject cloudGO = null;
+        private List<GameObject> m_OBBsGO = null;
+        private List<OBBFInfo> m_OBBsInfo = null;
         protected override bool initialize() {
 
             // slots
-            add_slot("set visibility", (visibility) => { set_visibility((bool)visibility); });
-            add_slot("set position", (position) => { transform.localPosition = (Vector3)position; });
-            add_slot("set rotation", (rotation) => { transform.localEulerAngles = (Vector3)rotation; });
-            add_slot("set scale", (scale) => { transform.localScale = (Vector3)scale; });
-            // signals
-            add_signal("visibility changed");
+            add_slot("visibility", (visibility) => { set_visibility((bool)visibility); });
+            add_slot("position", (position) => { transform.localPosition = (Vector3)position; });
+            add_slot("rotation", (rotation) => { transform.localEulerAngles = (Vector3)rotation; });
+            add_slot("scale", (scale) => { transform.localScale = (Vector3)scale; });
+            add_slot("transform", (value) => {
+                var transformV = (TransformValue)value;
+                transform.localPosition = transformV.position;
+                transform.localRotation = transformV.rotation;
+            });
 
             string alias = initC.get_resource_alias("cloud");
             if(alias.Length == 0) {
@@ -51,67 +56,83 @@ namespace Ex{
                 return false;
             }
 
+            
+
+
+            m_OBBsGO = new List<GameObject>(10);
+            m_OBBsInfo = new List<OBBFInfo>(10);
+            for (int ii = 0; ii < 10; ++ii) {
+                var obbGO = GO.generate_cube("filtering obb", transform, 1f, null, -1, ExVR.GlobalResources().instantiate_default_transparent_mat());
+                obbGO.SetActive(false);
+                m_OBBsGO.Add(obbGO);
+                m_OBBsInfo.Add(new OBBFInfo());
+            }
+
+            cloudGO = GO.generate_empty_object("cloud", transform, true);
+            pc = cloudGO.AddComponent<PointCloud>();
             var cloudData = ExVR.Resources().get_cloud_file_data(alias);
-            string path = cloudData.path;
-            string extension = System.IO.Path.GetExtension(path);
+            
+            return pc.set_points(cloudData.vertices, cloudData.colors, cloudData.vertices.Count);
+        }
 
-            List<Vector3> vertices = new List<Vector3>();
-            List<Color> colors = new List<Color>();
-
-            if (extension == ".ply") {
-                // ...
-            } else if (extension == ".asc") {
-
-                var lines = File.ReadLines(path);
-                foreach (var line in lines) {
-                    var split = line.Split(' ');
-                    if(split.Length > 5) {
-                        vertices.Add(new Vector3(Converter.to_float(split[0]), Converter.to_float(split[1]), Converter.to_float(split[2])));
-                        colors.Add(new Color(Converter.to_int(split[3])/255f, Converter.to_int(split[4]) / 255f, Converter.to_int(split[5]) / 255f));
-                    }
-                }
-            } else {
-                ExVR.Log().error("Extension not managed.");
-                return false;
+        protected override void start_experiment() {
+            if (!initC.get<bool>("init_transform_do_not_apply")) {
+                initC.update_transform("init_transform", cloudGO.transform, true);
             }
-
-            // generate cloud gameobject
-            cloudGO = GO.generate_empty_scene_object("cloud", transform, false);
-            var mRenderer = cloudGO.AddComponent<MeshRenderer>();
-            mRenderer.material = ExVR.GlobalResources().instantiate_mat("pointCloud");
-
-            var mFilter   = cloudGO.AddComponent<MeshFilter>();
-            Mesh mesh = mFilter.mesh;
-            mesh.MarkDynamic();
-            mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
-
-            int sizeVertices = vertices.Count;
-            mesh.vertices = vertices.ToArray();
-            mesh.colors = colors.ToArray();
-            mesh.triangles = new int[0];
-
-            int[] indices = new int[sizeVertices];
-            for (int ii = 0; ii < sizeVertices; ++ii) {
-                indices[ii] = ii;
-            }
-            mesh.SetIndices(indices, MeshTopology.Points, 0);
-
-            return true;
         }
 
         public override void update_from_current_config() {
+
             if (!currentC.get<bool>("transform_do_not_apply")) {
-                currentC.update_transform("transform", transform, true);
+                currentC.update_transform("transform", cloudGO.transform, true);
             }
+
+            var list = currentC.get_list<string>("filtering_obb_tab");
+            for (int ii = 0; ii < m_OBBsGO.Count; ++ii) {
+                if (ii < list.Count) {
+                    var args = Ex.Text.split(list[ii], "[#OBBFW#]");
+                    if (args.Length == 4) {
+                        m_OBBsInfo[ii].enabled = Converter.to<bool>(args[0]);
+                        m_OBBsInfo[ii].display = Converter.to<bool>(args[1]);
+                        m_OBBsInfo[ii].color = Converter.to<Color>(args[2]);
+                        m_OBBsInfo[ii].transform = Converter.to_transform_value(args[3]);
+                    } else {
+                        log_error("Invalid filtering obb arg.");
+                    }
+                } else {
+                    m_OBBsInfo[ii].enabled = false;
+                    m_OBBsInfo[ii].display = false;
+                    m_OBBsInfo[ii].transform = new TransformValue();
+                    m_OBBsInfo[ii].color = new Color(1, 0, 0, 0.2f);
+                }
+
+                Apply.to_transform(m_OBBsInfo[ii].transform, m_OBBsGO[ii].transform, false);
+                m_OBBsGO[ii].GetComponent<MeshRenderer>().material.SetColor("_Color", m_OBBsInfo[ii].color);
+            }
+
+            pc.set_pt_size(currentC.get<float>("size_points"));
+            pc.set_rendering((PointCloud.RenderingType)currentC.get<int>("rendering"));
+            pc.set_obb_filtering_state(currentC.get<bool>("filter_points_outside_obb"));
+            pc.set_circles_state(currentC.get<bool>("circles"));
+            pc.set_paraboloid_frag_cones_state(currentC.get<bool>("cones"));
+            pc.set_paraboloid_geo_details((PointCloud.ParabloidGeoDetails)currentC.get<int>("details"));
+            pc.set_tint(currentC.get_color("tint"));
+            pc.set_filtering_obb_infos(m_OBBsInfo);
+
+            set_visibility(is_visible());
         }
 
         protected override void update_parameter_from_gui(string updatedArgName) {
             update_from_current_config();
         }
 
-
         protected override void set_visibility(bool visibility) {
-            cloudGO.SetActive(visibility);
+
+            cloudGO.GetComponent<MeshRenderer>().enabled = visibility;
+
+            for (int ii = 0; ii < m_OBBsGO.Count; ++ii) {
+                m_OBBsGO[ii].SetActive(visibility && currentC.get<bool>("display_filtering_obb") && m_OBBsInfo[ii].display);
+            }
         }
 
     }
