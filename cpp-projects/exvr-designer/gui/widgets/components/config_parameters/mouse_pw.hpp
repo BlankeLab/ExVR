@@ -44,7 +44,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class MouseConfigParametersW : public ConfigParametersW{

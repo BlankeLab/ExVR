@@ -233,9 +233,9 @@ void ConditionW::update_from_condition(GUI *gui, Condition *condition){
         }
 
         // reorder
-        for(int ii = 0; ii < to_signed(condition->actions.size()); ++ii){
-            for(int jj = 0; jj < to_signed(m_actionsListW.count()); ++jj){
-                if(qobject_cast<ActionW*>(m_actionsListW.widget_at(jj))->action_key().v == condition->actions[to_unsigned(ii)]->key()){
+        for(int ii = 0; ii < to_int(condition->actions.size()); ++ii){
+            for(int jj = 0; jj < to_int(m_actionsListW.count()); ++jj){
+                if(qobject_cast<ActionW*>(m_actionsListW.widget_at(jj))->action_key().v == condition->actions[to_size_t(ii)]->key()){
                     if(ii != jj){
                         m_actionsListW.move_from_to(jj,ii);
                     }
@@ -249,7 +249,7 @@ void ConditionW::update_from_condition(GUI *gui, Condition *condition){
 
         // update actions
         for(int ii = 0; ii< m_actionsListW.count(); ++ii){
-            qobject_cast<ActionW*>(m_actionsListW.widget_at(ii))->update_from_action(ii, condition->actions[to_unsigned(ii)].get(), condition->scale, condition->uiFactorSize, condition->duration);
+            qobject_cast<ActionW*>(m_actionsListW.widget_at(ii))->update_from_action(ii, condition->actions[to_size_t(ii)].get(), condition->scale, condition->uiFactorSize, condition->duration);
         }
 
         update_ui_from_current_tab(m_ui.tabCondition->currentIndex());

@@ -24,6 +24,9 @@
 
 #pragma once
 
+// base
+#include "utility/unordered_map.hpp"
+
 // Qt
 #include <QProxyStyle>
 #include <QStyleOptionTab>
@@ -74,10 +77,8 @@ signals:
 private:
 
     Ui::ResourcesManagerD m_ui;
-    std::unordered_map<Resource::Type, std::tuple<Ui::ResourceTypeW,QWidget*>> m_typesW;
-    std::unordered_map<Resource::Type, int> m_tabsIdW;
-
-
+    umap<Resource::Type, std::tuple<Ui::ResourceTypeW,QWidget*>> m_typesW;
+    umap<Resource::Type, int> m_tabsIdW;
 };
 
 

@@ -73,13 +73,13 @@ public:
     bool check_infinity_loop(bool unknowValue = true);
 
     // inputs
-    bool has_inputs(const std_v1<std::shared_ptr<QtNodes::NodeData> > &inputs) const;
+    bool has_inputs(const std::vector<std::shared_ptr<QtNodes::NodeData> > &inputs) const;
     // # no inputs
-    bool check_if_no_inputs(const std_v1<std::shared_ptr<QtNodes::NodeData>> &inputs, std::optional<QString> text = {});
+    bool check_if_no_inputs(const std::vector<std::shared_ptr<QtNodes::NodeData>> &inputs, std::optional<QString> text = {});
     // # missing inputs
-    bool check_if_missing_inputs(const std_v1<std::shared_ptr<QtNodes::NodeData>> &inputs);
+    bool check_if_missing_inputs(const std::vector<std::shared_ptr<QtNodes::NodeData>> &inputs);
     // # runtime
-    bool check_if_runtime_inputs(const std_v1<std::shared_ptr<QtNodes::NodeData>> &inputs);
+    bool check_if_runtime_inputs(const std::vector<std::shared_ptr<QtNodes::NodeData>> &inputs);
 
     // data
     void propagate_default_runtime(std::vector<std::shared_ptr<BaseNodeData>> outputs, std::vector<size_t> indexes = {});
@@ -119,15 +119,15 @@ public slots:
 
 signals:
 
-    void connector_modified_signal(ConnectorKey key, QString name, tool::ex::Arg arg);
+    void connector_modified_signal(tool::ex::ConnectorKey key, QString name, tool::ex::Arg arg);
 
 protected:
 
     Connector::Type m_type;
 
-    std_v1<std::weak_ptr<NodeData>> inputData;
-    std_v1<std::shared_ptr<NodeData>> interData;
-    std_v1<std::shared_ptr<NodeData>> outputData;
+    std::vector<std::weak_ptr<NodeData>> inputData;
+    std::vector<std::shared_ptr<NodeData>> interData;
+    std::vector<std::shared_ptr<NodeData>> outputData;
 
 private:
 

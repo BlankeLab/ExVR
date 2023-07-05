@@ -38,7 +38,6 @@ using namespace tool::ex;
 
 ResourcesManagerDialog::ResourcesManagerDialog(){
 
-
     m_ui.setupUi(this);
     m_ui.twCategories->tabBar()->setStyle(new VerticalTextTabWidgetStyle());
     setWindowTitle("Resources manager");    
@@ -109,7 +108,7 @@ ResourcesManagerDialog::ResourcesManagerDialog(){
         });
         connect(typeUi.pbRemove, &QPushButton::clicked, this, [=]{
             if(auto id = lw->currentRow(); id >= 0){
-                emit remove_resource_signal(type, to_unsigned(id));
+                emit remove_resource_signal(type, to_size_t(id));
             }
         });
         connect(typeUi.pbClear, &QPushButton::clicked, this, [=]{
@@ -173,7 +172,7 @@ ResourcesManagerDialog::ResourcesManagerDialog(){
 
         connect(lw, &QListWidget::currentItemChanged, this, [=]{
             if(auto id = lw->currentIndex().row(); id >= 0){
-                emit resource_selected_signal(type, to_unsigned(id));
+                emit resource_selected_signal(type, to_size_t(id));
             }
         });
 
@@ -244,8 +243,8 @@ void ResourcesManagerDialog::update_from_resources_manager(const ResourcesManage
             ui.lwFiles->item(ui.lwFiles->count()-1)->setForeground(info.exists() ? Qt::darkGreen : Qt::red);
         }
 
-        if(to_signed(idSelected) < ui.lwFiles->count()){
-            ui.lwFiles->setCurrentRow(to_signed(idSelected));
+        if(to_int(idSelected) < ui.lwFiles->count()){
+            ui.lwFiles->setCurrentRow(to_int(idSelected));
         }
         ui.lwFiles->blockSignals(false);
 

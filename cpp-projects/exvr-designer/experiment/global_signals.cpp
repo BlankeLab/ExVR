@@ -26,15 +26,13 @@
 
 using namespace tool::ex;
 
-void GSignals::init(){
-    if(m_signals == nullptr){
-        m_signals = std::make_unique<GSignals>();
-    }
-}
+struct Global{
+    static inline std::unique_ptr<GSignals> instance = nullptr;
+};
 
-GSignals *GSignals::get(){
-    if(m_signals != nullptr){
-        return m_signals.get();
+auto GSignals::get() -> GSignals*{
+    if(Global::instance == nullptr){
+        Global::instance = std::make_unique<GSignals>();
     }
-    return nullptr;
+    return Global::instance.get();
 }

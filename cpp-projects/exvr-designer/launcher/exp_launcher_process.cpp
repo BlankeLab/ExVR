@@ -88,12 +88,11 @@ ExpLauncherProcess::ExpLauncherProcess(QObject *parent){
     });
 
     connect(this, QOverload<int, ExpLauncherProcess::ExitStatus>::of(&QProcess::finished), this, [&](int exitCode, QProcess::ExitStatus exitStatus){
-
         Q_UNUSED(exitStatus)
         if(exitCode == 1){
-            QtLogger::message(QSL("[STATE] Normal exit"));
+            QtLogger::message(QSL("[STATE] ExVR-exp exited successfully."));
         }else{
-            // Logger::error("Crash exit");
+            QtLogger::error(QSL("[STATE] ExVR-exp crashed."));
         }
     });
 }

@@ -41,7 +41,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 
@@ -56,6 +56,6 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 }

@@ -67,7 +67,6 @@
 #include <QGraphicsObject>
 #include <QObject>
 #include <QTextStream>
-#include <QStringRef>
 #include <QStringBuilder>
 #include <QWidget>
 #include <QThread>

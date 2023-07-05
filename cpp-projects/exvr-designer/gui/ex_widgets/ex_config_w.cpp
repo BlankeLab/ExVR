@@ -80,7 +80,7 @@ ExConfigW::ExConfigW(QString name) : ExItemW<QFrame>(UiType::Component_config, n
 
         m_currentComponentKey.v = -1;
         if(m_componentNames->currentIndex() > 0){
-            const size_t id = to_unsigned(m_componentNames->currentIndex()-1);
+            const size_t id = to_size_t(m_componentNames->currentIndex()-1);
             m_currentComponentKey.v = ExperimentManager::get()->current()->compM.get_components()[id]->key();
         }
         update_configs_list_widget();
@@ -92,7 +92,7 @@ ExConfigW::ExConfigW(QString name) : ExItemW<QFrame>(UiType::Component_config, n
         m_currentConfigKey.v = -1;
         if(m_currentComponentKey.v != -1){
             if(m_configNames->currentIndex() > 0){
-                const size_t id = to_unsigned(m_configNames->currentIndex()-1);
+                const size_t id = to_size_t(m_configNames->currentIndex()-1);
                 if(auto currentComponent = ExperimentManager::get()->current()->compM.get_component(m_currentComponentKey); currentComponent != nullptr){
                     m_currentConfigKey.v = currentComponent->configs[id]->key();
                 }

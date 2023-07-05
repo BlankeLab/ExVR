@@ -39,7 +39,7 @@ public:
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class CSharpFunctionConfigParametersW : public ConfigParametersW{
@@ -54,7 +54,7 @@ public:
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class CSharpScriptInitConfigParametersW : public ConfigParametersW{
@@ -67,7 +67,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class CSharpScriptConfigParametersW : public ConfigParametersW{
@@ -80,7 +80,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 }

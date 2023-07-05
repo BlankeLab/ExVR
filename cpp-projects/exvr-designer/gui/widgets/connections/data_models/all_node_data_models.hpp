@@ -69,10 +69,10 @@ public:
     template<Connector::Category C>
 
 
-    static std_v1<std::pair<QString,QString>> get_connectors(){
+    static std::vector<std::pair<QString,QString>> get_connectors(){
 
         const auto& types = Connector::types_with_category<C>();
-        std_v1<std::pair<QString, QString>> connectors;
+        std::vector<std::pair<QString, QString>> connectors;
         for (const auto &type : types) {
             connectors.emplace_back(std::make_pair(from_view(Connector::get_name(type)),from_view(Connector::get_caption(type))));
         }

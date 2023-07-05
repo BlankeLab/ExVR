@@ -43,14 +43,12 @@ equals(CFG, "release"){
 }
 
 ####################################### TEMPLATE
-equals(EXVR_DESIGNER_TARGET, "app"){
-    TEMPLATE = app
-    CONFIG += precompile_header
-    CONFIG += console
-    # console
-    DEFINES += QT_MESSAGELOGCONTEXT
-    PRECOMPILED_HEADER = stable.h
-}
+TEMPLATE = app
+CONFIG += precompile_header
+CONFIG -= console
+# console
+DEFINES += QT_MESSAGELOGCONTEXT
+PRECOMPILED_HEADER = stable.h
 
 ####################################### BUILD FILES
 OBJECTS_DIR = $$EXVR_DESIGNER_OBJ
@@ -63,16 +61,14 @@ PRECOMPILED_DIR = $$EXVR_DESIGNER_OBJ
 ####################################### CONFIG
 QT  += core gui network concurrent widgets opengl
 
-
 ####################################### INCLUDES
 
 # Use Precompiled headers (PCH)
 PRECOMPILED_HEADER  = stable.h
 
 INCLUDEPATH += \
-    # base
+    # tool
     $$BASE_INCLUDES \
-    # qt-utility
     $$QT_UTILITY_INCLUDES \
     # local
     $$EXVR_DESIGNER_MOC \
@@ -80,19 +76,16 @@ INCLUDEPATH += \
     $$QWT_INCLUDES \
     $$NODES_INCLUDES \
     $$MAGIC_ENUM_INCLUDES\
-#    $$QMARKDOWN_TEXT_EDIT_INCLUDES\
 
 ####################################### LIBRAIRIES
 
 LIBS +=  \
-    # base
+    # tool
     $$BASE_LIB \
-    # qt-utility
     $$QT_UTILITY_LIB \
     # third-party
     $$QWT_LIBS \
     $$NODES_LIB \
-#    $$QMARKDOWN_TEXT_EDIT_LIBS\
 
 ####################################### PROJECT FILES
 

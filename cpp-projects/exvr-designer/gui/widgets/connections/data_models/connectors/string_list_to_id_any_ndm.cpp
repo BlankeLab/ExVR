@@ -56,7 +56,7 @@ void StringListToIdAnyNodeDataModel::compute(){
 
     // propagate
     QStringList txt = data->value();
-    std_v1<std::shared_ptr<BaseNodeData>> outputs;
+    std::vector<std::shared_ptr<BaseNodeData>> outputs;
     for(int ii = 0; ii < txt.size(); ++ii){
         outputs.emplace_back(std::make_shared<IdAnyData>(IdAny{ii, std::make_shared<StringData>(txt[ii])}));
     }

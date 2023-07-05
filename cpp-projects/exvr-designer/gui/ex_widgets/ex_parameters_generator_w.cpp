@@ -24,6 +24,7 @@
 
 #include "ex_parameters_generator_w.hpp"
 
+
 // qt-utility
 #include "gui/ex_widgets/ex_color_frame_w.hpp"
 #include "gui/ex_widgets/ex_label_w.hpp"
@@ -144,7 +145,7 @@ ExParametersGeneratorWidgetW::~ExParametersGeneratorWidgetW(){
 }
 
 ExParametersGeneratorWidgetW *ExParametersGeneratorWidgetW::init_widget(
-    std::unordered_map<QStringView, ExBaseW *> *inputUiElements, bool enabled){
+    umap<QStringView, ExBaseW *> *inputUiElements, bool enabled){
 
     m_inputUiElements = inputUiElements;
     w->setEnabled(enabled);

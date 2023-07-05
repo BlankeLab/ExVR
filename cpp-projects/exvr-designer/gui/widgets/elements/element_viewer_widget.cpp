@@ -35,7 +35,7 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QTableWidget>
-#include <QRegExpValidator>
+//#include <QRegExpValidator>
 
 using namespace tool::ex;
 
@@ -465,7 +465,7 @@ void ElementViewerW::update_loop_ui(Loop *loop){
 
     // spinboxes
     ui->sbNbReps->blockSignals(true);
-    ui->sbNbReps->setValue(to_signed(loop->nbReps));
+    ui->sbNbReps->setValue(to_int(loop->nbReps));
     ui->sbNbReps->blockSignals(false);
 
     ui->cbNoFollowingValues->blockSignals(true);
@@ -522,7 +522,7 @@ void ElementViewerW::update_routine_ui(Routine *routine){
     // selection
     for(size_t ii = 0; ii < routine->conditions.size(); ++ii){
         if(routine->conditions[ii]->selected){
-            lw->setCurrentRow(to_signed(ii));
+            lw->setCurrentRow(to_int(ii));
             break;
         }
     }
@@ -553,8 +553,8 @@ void ElementViewerW::update_isi_ui(Isi *isi){
         item->setFlags(item->flags() | Qt::ItemIsEditable);
     }
 
-    if(to_signed(isi->currentIntervalId) < lw->count()){
-        lw->setCurrentRow(to_signed(isi->currentIntervalId));
+    if(to_int(isi->currentIntervalId) < lw->count()){
+        lw->setCurrentRow(to_int(isi->currentIntervalId));
     }
 
 //    int previousId = lw->currentRow();

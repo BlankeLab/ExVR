@@ -25,7 +25,7 @@
 #pragma once
 
 // qt-utility
-#include "qt_str.hpp"
+//#include "qt_str.hpp"
 
 // local
 #include "experiment.hpp"
@@ -58,10 +58,10 @@ struct Instance {
     static std::unique_ptr<Instance> generate_from_element_to_the_end(const Randomizer *randomizer, const Experiment &experiment, size_t idInstance);
     static std::unique_ptr<Instance> generate_from_start_to_element(const Randomizer *randomizer, const Experiment &experiment, size_t idInstance);
 
-    static inline std::unordered_map<int, std::vector<QStringView>> onlyOnceShuffleLoopSets = {};
-    static inline std::unordered_map<int, std::vector<QStringView>> onlyOnceRandomLoopSets = {};
-    static inline std::unordered_map<int, std::vector<QStringView>> everyNShuffleLoopSets = {};
-    static inline std::unordered_map<int, std::vector<QStringView>> everyNRandomLoopSets = {};
+    static inline umap<int, std::vector<QStringView>> onlyOnceShuffleLoopSets = {};
+    static inline umap<int, std::vector<QStringView>> onlyOnceRandomLoopSets = {};
+    static inline umap<int, std::vector<QStringView>> everyNShuffleLoopSets = {};
+    static inline umap<int, std::vector<QStringView>> everyNRandomLoopSets = {};
 
     QString filePath = "";
     QString fileName = "debug-instance";
@@ -69,10 +69,10 @@ struct Instance {
     std::vector<InstanceElement> flow;
 
     // count iterations
-    std::unordered_map<ElementKey, int> routinesIterations;
-    std::unordered_map<ElementKey, std::unordered_map<QString, int>> routinesConditionsIterations;
-    std::unordered_map<ElementKey, int> isisIterations;
-    std::unordered_map<ElementKey, std::unordered_map<QString, int>> isisConditionsIterations;
+    umap<ElementKey, int> routinesIterations;
+    umap<ElementKey, umap<QString, int>> routinesConditionsIterations;
+    umap<ElementKey, int> isisIterations;
+    umap<ElementKey, umap<QString, int>> isisConditionsIterations;
 };
 
 }

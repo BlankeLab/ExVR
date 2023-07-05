@@ -31,6 +31,7 @@
 #include "gui/ex_widgets/ex_line_edit_w.hpp"
 #include "gui/ex_widgets/ex_slider_w.hpp"
 #include "gui/ex_widgets/ex_radio_button_w.hpp"
+#include "gui/ex_widgets/ex_float_spin_box_w.hpp"
 
 // local
 #include "gui/ex_widgets/ex_resource_w.hpp"
@@ -43,13 +44,13 @@ struct AudioSourceInitConfigParametersW::Impl{
     ExCheckBoxW generateNewSound = {"generate_new_sound"};
     ExComboBoxIndexW newSoundChannels = {"new_sound_channel"};
     ExTextEditW infoText;
-    std_v1<std::unique_ptr<ExLineEditW>> channelsToCopy;
+    std::vector<std::unique_ptr<ExLineEditW>> channelsToCopy;
 };
 
 AudioSourceInitConfigParametersW::AudioSourceInitConfigParametersW() :  ConfigParametersW(), m_p(std::make_unique<Impl>()){
 }
 
-void AudioSourceInitConfigParametersW::insert_widgets(){
+auto AudioSourceInitConfigParametersW::insert_widgets() -> void {
 
     // top
     add_widget(ui::F::gen(ui::L::VB(), {m_p->sound(), m_p->assetBundle()}, LStretch{false}, LMargins{true}, QFrame::Box));
@@ -63,7 +64,7 @@ void AudioSourceInitConfigParametersW::insert_widgets(){
     m_p->infoText.w->setMinimumHeight(100);
 
     // new sound
-    std_v1<QWidget*> channelsW;
+    std::vector<QWidget*> channelsW;
     for(size_t ii = 0; ii < 8; ++ii){
         auto layout = ui::L::HB();
         layout->addWidget(ui::W::txt("Copy channel " + QString::number(ii+1) + " to channel: "));
@@ -84,7 +85,7 @@ void AudioSourceInitConfigParametersW::insert_widgets(){
     );
 }
 
-void AudioSourceInitConfigParametersW::init_and_register_widgets(){
+auto AudioSourceInitConfigParametersW::init_and_register_widgets() -> void {
 
     add_input_ui(m_p->sound.init_widget(Resource::Type::Audio, "Audio resource: "));
     add_input_ui(m_p->assetBundle.init_widget(Resource::Type::AssetBundle, "Audio asset bundle (mandatory for ambisonic): "));
@@ -97,12 +98,12 @@ void AudioSourceInitConfigParametersW::init_and_register_widgets(){
     m_p->channelsToCopy[0]->w->setText("1 2");
 }
 
-void AudioSourceInitConfigParametersW::create_connections(){
+auto AudioSourceInitConfigParametersW::create_connections() -> void {
 }
 
-void AudioSourceInitConfigParametersW::late_update_ui(){}
+auto AudioSourceInitConfigParametersW::late_update_ui() -> void {}
 
-void AudioSourceInitConfigParametersW::update_with_info(QStringView id, QStringView value){
+auto AudioSourceInitConfigParametersW::update_with_info(QStringView id, QStringView value) -> void {
 
     if(id == QSL("input_sound_info")){
         if(auto infos = value.split('?'); infos.size() > 5){
@@ -135,7 +136,9 @@ struct AudioSourceConfigParametersW::Impl{
 
     ExCheckBoxW doMute              = {"mute"};
     ExCheckBoxW doLoop              = {"loop"};
-    ExSliderFloatW volume           = {"volume"};
+    ExSliderFloatW volume           = {"volume"};    
+    ExFloatSpinBoxW startTime       = {"start_time"};
+    ExFloatSpinBoxW endTime         = {"end_time"};
     ExSliderFloatW stereo           = {"stereo"};
     ExSliderFloatW pitch            = {"pitch"};
 
@@ -148,13 +151,12 @@ struct AudioSourceConfigParametersW::Impl{
     ExSliderFloatW maxDistance      = {"max_distance"};
 
     TransformSubPart transfo        = {"transform"};
-
 };
 
 AudioSourceConfigParametersW::AudioSourceConfigParametersW() :  ConfigParametersW(), m_p(std::make_unique<Impl>()){
 }
 
-void AudioSourceConfigParametersW::insert_widgets(){
+auto AudioSourceConfigParametersW::insert_widgets() -> void {
 
     m_p = std::make_unique<Impl>();
 
@@ -175,6 +177,12 @@ void AudioSourceConfigParametersW::insert_widgets(){
         gl->addWidget(ui::W::txt("<b>Global</b>"), rowId,   0, 2, 1);
         rowId+=2;
         gl->addWidget(ui::F::gen(ui::L::HB(), {m_p->doMute(), m_p->doLoop()}, LStretch{true}, LMargins{false}, QFrame::NoFrame),rowId++, 0, 1, 6);
+
+        gl->addWidget(ui::W::txt("Start time"),  rowId,   0, 1, 1);
+        gl->addWidget(m_p->startTime(),          rowId++, 1, 1, 4);
+
+        gl->addWidget(ui::W::txt("End time"),  rowId,   0, 1, 1);
+        gl->addWidget(m_p->endTime(),          rowId++, 1, 1, 4);
 
         gl->addWidget(m_p->volume.title,    rowId, 0, 1, 1);
         gl->addWidget(m_p->volume.minMax,   rowId, 1, 1, 1);
@@ -243,8 +251,7 @@ void AudioSourceConfigParametersW::insert_widgets(){
     }
 }
 
-void AudioSourceConfigParametersW::init_and_register_widgets(){
-
+auto AudioSourceConfigParametersW::init_and_register_widgets() -> void {
 
     add_inputs_ui(
         ExRadioButtonW::init_group_widgets(m_p->group1,
@@ -262,11 +269,14 @@ void AudioSourceConfigParametersW::init_and_register_widgets(){
         )
     );
 
-
     add_input_ui(m_p->displaySoundOrigin.init_widget("Display sound origin", false));
     add_input_ui(m_p->doLoop.init_widget("Loop", true));
     add_input_ui(m_p->doMute.init_widget("Mute", false));
     add_input_ui(m_p->isSpatialized.init_widget("Spatialized", true));
+
+    add_input_ui(m_p->startTime.init_widget(MinV<qreal>{0.}, V<qreal>{0.}, MaxV<qreal>{10000.}, StepV<qreal>{0.01}, 2));
+    add_input_ui(m_p->endTime.init_widget(MinV<qreal>{0.}, V<qreal>{100.}, MaxV<qreal>{10000.}, StepV<qreal>{0.01}, 2));
+
     add_input_ui(m_p->volume.init_widget("Volume", MinV<qreal>{0.}, V<qreal>{1.}, MaxV<qreal>{1.}, StepV<qreal>{0.01}));
     add_input_ui(m_p->stereo.init_widget("Stereo", MinV<qreal>{-1.}, V<qreal>{0.0}, MaxV<qreal>{1.}, StepV<qreal>{0.01}));
     add_input_ui(m_p->spatialBlend.init_widget("Spatial blend", MinV<qreal>{0.}, V<qreal>{1.}, MaxV<qreal>{1.}, StepV<qreal>{0.01}));
@@ -294,6 +304,6 @@ void AudioSourceConfigParametersW::init_and_register_widgets(){
     m_p->maxDistance.set_information("(Logarithmic rolloff) MaxDistance is the distance a sound stops attenuating at.");
 }
 
-void AudioSourceConfigParametersW::create_connections(){}
+auto AudioSourceConfigParametersW::create_connections() -> void {}
 
-void AudioSourceConfigParametersW::late_update_ui(){}
+auto AudioSourceConfigParametersW::late_update_ui() -> void {}

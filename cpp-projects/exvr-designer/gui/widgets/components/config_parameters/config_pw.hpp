@@ -79,7 +79,7 @@ public :
     void add_non_ui_arg(Arg arg);
     void add_generator_ui(ExBaseW *g);
 
-    inline std::unordered_map<QStringView, ExBaseW*> *input_ui_widgets(){
+    inline umap<QStringView, ExBaseW*> *input_ui_widgets(){
         return &m_inputUiElements;
     }
 
@@ -96,10 +96,10 @@ protected:
 
 private:
 
-    std::unordered_map<QStringView, ExBaseW*> m_inputUiElements;
-    std::unordered_map<QStringView, ExBaseW*> m_actionUiElements;
-    std::unordered_map<QStringView, Arg> m_inputNonUiArguments;
-    std::unordered_map<QStringView, ExParametersGeneratorWidgetW*> m_generatorsUiElements;
+    umap<QStringView, ExBaseW*> m_inputUiElements;
+    umap<QStringView, ExBaseW*> m_actionUiElements;
+    umap<QStringView, Arg> m_inputNonUiArguments;
+    umap<QStringView, ExParametersGeneratorWidgetW*> m_generatorsUiElements;
 
 
     bool endStretch = true;

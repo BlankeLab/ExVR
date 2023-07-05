@@ -65,7 +65,7 @@ class ResourcesManager{
 
 public:
 
-    std_v1<Resource*> get_resources(Resource::Type type) const;
+    std::vector<Resource*> get_resources(Resource::Type type) const;
     size_t get_type_selected_id(Resource::Type type) const;
     Resource* get_resource(ResourceKey key) const;
     Resource* get_resource(Resource::Type type, ResourceKey key, bool errorIfNotFound = true) const;
@@ -101,6 +101,6 @@ private:
     std::unordered_map<Resource::Type, size_t> m_idSelectedPerType;
     std::unordered_map<std::string, Resource*> m_paths;
     std::unordered_map<std::string, Resource*> m_aliases;
-    std::unordered_map<Resource::Type, std_v1<Resource*>> m_resourcesPerType;
+    std::unordered_map<Resource::Type, std::vector<Resource*>> m_resourcesPerType;
 };
 }

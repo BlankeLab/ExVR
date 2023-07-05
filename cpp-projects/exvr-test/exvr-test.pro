@@ -45,10 +45,8 @@ equals(CFG, "release"){
 }
 
 ####################################### TEMPLATE
-equals(EXVR_TEST_TARGET, "app"){
-    TEMPLATE = app
-    CONFIG += console
-}
+TEMPLATE = app
+CONFIG += console
 
 ####################################### BUILD FILES
 OBJECTS_DIR = $$EXVR_TEST_OBJ

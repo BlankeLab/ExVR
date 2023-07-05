@@ -70,7 +70,7 @@ struct Isi : public FlowElement  {
     QString str_intervals()const;
 
     bool randomized;
-    std_v1<double> intervals = {1.0};
+    std::vector<double> intervals = {1.0};
     size_t currentIntervalId = 0;
 };
 }

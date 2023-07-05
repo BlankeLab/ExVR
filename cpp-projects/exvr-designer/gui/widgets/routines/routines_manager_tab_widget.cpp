@@ -149,9 +149,9 @@ void RoutinesManagerTW::update_from_experiment(Experiment *exp){
     Bench::start("RoutinesManagerTW update_from_experiment 3"sv, display);
 
         // reorder
-        for(int ii = 0; ii < to_signed(routines.size()); ++ii){
+        for(int ii = 0; ii < to_int(routines.size()); ++ii){
             for(int jj = 0; jj< count(); ++jj){
-                if(qobject_cast<RoutineTabW*>(widget(jj))->routine_key().v == routines[to_unsigned(ii)]->key()){
+                if(qobject_cast<RoutineTabW*>(widget(jj))->routine_key().v == routines[to_size_t(ii)]->key()){
                     if(ii != jj){
                         tabBar()->moveTab(jj,ii);
                     }
@@ -167,7 +167,7 @@ void RoutinesManagerTW::update_from_experiment(Experiment *exp){
 
         // update routines timelines
         for(int idTab = 0; idTab < count(); ++idTab){
-            auto routine  = routines[to_unsigned(idTab)];
+            auto routine  = routines[to_size_t(idTab)];
             auto routineW = routine_widget(RowId{idTab});
 
             Bench::start("RoutinesManagerTW update_from_experiment 41"sv, display);

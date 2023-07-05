@@ -24,6 +24,8 @@
 
 #pragma once
 
+// base
+#include "utility/unordered_map.hpp"
 
 // Qt
 #include <QDialog>
@@ -156,9 +158,6 @@ class DocumentationDialog : public QDialog{
 public :
 
     DocumentationDialog();
-    void enable_lnco_components(bool useComponentsFromLNCO){
-        m_lncoComponents = useComponentsFromLNCO;
-    }
 
     static QTextBrowser *generate_text_browser();
     void init_components_doc();
@@ -197,8 +196,8 @@ private:
     QHBoxLayout *mainLayout = nullptr;
     SectionW *documentationsCategoriesW = nullptr;
     // sub categories
-    std::unordered_map<DocSection, QWidget*> sectionsWidgets;
-    std::unordered_map<DocSection, QString> sectionsDocContent;
+    umap<DocSection, QWidget*> sectionsWidgets;
+    umap<DocSection, QString> sectionsDocContent;
 
     // buttons
     QPushButton *genPb = nullptr;

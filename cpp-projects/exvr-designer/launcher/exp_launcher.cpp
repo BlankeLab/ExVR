@@ -54,7 +54,8 @@ void ExpLauncher::init_communication(){
     QThread::currentThread()->setObjectName(QSL("exp_launcher_thread"));
     m_expLauncherCommunication = std::make_unique<ExpLauncherCommunication>();
     connect(m_expLauncherCommunication.get(), &ExpLauncherCommunication::message_received_signal, this, &ExpLauncher::message_from_exp_launcher);
-    connect(m_expLauncherCommunication.get(), &ExpLauncherCommunication::error_signal, this, &ExpLauncher::error_message_from_exp_launcher);
+    connect(m_expLauncherCommunication.get(), &ExpLauncherCommunication::error_signal, this, &ExpLauncher::error_message_from_exp_launcher);    
+    connect(this, &ExpLauncher::stop_exp_launcher_signal, this, &ExpLauncher::close_exp_launcher_process);
 }
 
 
@@ -235,8 +236,11 @@ void ExpLauncher::message_from_exp_launcher(QString m){
 
                         if(editor){
                             // send designer path to exp launcher (useful is using designer from an other path with exp-launcher editor)
+                            QtLogger::message("ExVR-exp started (UnityEditor)");
                             QtLogger::message(QSL("Send designer path to editor: [") % Paths::exeDir % QSL("]"));
                             update_designer_dir(Paths::exeDir);
+                        }else{
+                            QtLogger::message("ExVR-exp started");
                         }
                     }
                     emit GSignals::get()->exp_launcher_state_updated_signal(state, infos);
@@ -356,7 +360,6 @@ void ExpLauncher::update_component_config_argument(ComponentKey componentKey, Co
         return;
     }
 
-
     const QString componentKeyStr    = QString::number(componentKey.v);
     const QString configKeyStr       = QString::number(configKey.v);
     const QString unityTypeStr       = from_view(get_unity_type_string(arg.unity_type()));
@@ -423,23 +426,33 @@ void ExpLauncher::update_connector_node(ElementKey routineKey, ConditionKey cond
 
 void ExpLauncher::close_program(){
 
-    if(!editor){
-
-        if(QThread::currentThread()->objectName() != QSL("exp_launcher_thread")){
-            qWarning() << "Error: call to close program from wrong thread.";
-            return;
-        }
-        QtLogger::message("Close ExVR-exp");
-        if(m_expLauncherProcess != nullptr){
-            m_expLauncherProcess->close();
-            if(!m_expLauncherProcess->waitForFinished(500)){
-                m_expLauncherProcess->kill();
-            }
-            m_expLauncherProcess = nullptr;
-            emit GSignals::get()->exp_launcher_state_updated_signal(ExpLauncherState::Closing, {});
+    if(m_expLauncherProcess || editor){
+        m_expLauncherCommunication->send_udp_command(gen_command({to_command_id(ExpLauncherCommand::Quit)}));
+        if(!editor){
+            QTimer::singleShot(500, this, &ExpLauncher::stop_exp_launcher_signal);
+        }else{
+            QtLogger::message("Close ExVR-exp (UnityEditor)");
+            editor = false;
         }
     }
-    editor = false;
+}
+
+auto ExpLauncher::close_exp_launcher_process() -> void{
+
+    if(QThread::currentThread()->objectName() != QSL("exp_launcher_thread")){
+        qWarning() << "Error: call to close program from wrong thread.";
+        return;
+    }
+    if(m_expLauncherProcess != nullptr){
+        QtLogger::message("Close ExVR-exp");
+        m_expLauncherProcess->close();
+        if(!m_expLauncherProcess->waitForFinished(500)){
+            m_expLauncherProcess->kill();
+        }
+        m_expLauncherProcess = nullptr;
+        emit GSignals::get()->exp_state_updated_signal(ExpState::NotLoaded, QSL(""));
+        emit GSignals::get()->exp_launcher_state_updated_signal(ExpLauncherState::NotStarted, {});
+    }
 }
 
 #include "moc_exp_launcher.cpp"

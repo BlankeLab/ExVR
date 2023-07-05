@@ -98,7 +98,7 @@ void ConnectorNodeDataModel::initialize(QtNodes::NodeStyle style, ConnectorKey c
     set_node_style(style);
 
     // init embedded widget
-    connect(m_widget, &BaseNodeContainerW::update_internal_data_signal, this, [&](std_v1<size_t> indexes, std_v1<std::shared_ptr<NodeData>> nodes){
+    connect(m_widget, &BaseNodeContainerW::update_internal_data_signal, this, [&](std::vector<size_t> indexes, std::vector<std::shared_ptr<NodeData>> nodes){
         for(size_t ii = 0; ii < indexes.size(); ++ii){
             interData[indexes[ii]] = nodes[ii];
         }
@@ -152,7 +152,7 @@ bool ConnectorNodeDataModel::check_infinity_loop(bool unknowValue){
 
 }
 
-bool ConnectorNodeDataModel::has_inputs(const std_v1<std::shared_ptr<QtNodes::NodeData> > &inputs) const{
+bool ConnectorNodeDataModel::has_inputs(const std::vector<std::shared_ptr<QtNodes::NodeData> > &inputs) const{
 
     for(const auto &input : inputs){
         if(input){ // at least one input
@@ -162,7 +162,7 @@ bool ConnectorNodeDataModel::has_inputs(const std_v1<std::shared_ptr<QtNodes::No
     return false;
 }
 
-bool ConnectorNodeDataModel::check_if_no_inputs(const std_v1<std::shared_ptr<QtNodes::NodeData> > &inputs, std::optional<QString> text){
+bool ConnectorNodeDataModel::check_if_no_inputs(const std::vector<std::shared_ptr<QtNodes::NodeData> > &inputs, std::optional<QString> text){
 
     if(has_inputs(inputs)){
         return false;
@@ -181,7 +181,7 @@ bool ConnectorNodeDataModel::check_if_no_inputs(const std_v1<std::shared_ptr<QtN
     return true;
 }
 
-bool ConnectorNodeDataModel::check_if_missing_inputs(const std_v1<std::shared_ptr<QtNodes::NodeData>> &inputs){
+bool ConnectorNodeDataModel::check_if_missing_inputs(const std::vector<std::shared_ptr<QtNodes::NodeData>> &inputs){
 
     size_t countMissing = 0;
     for(const auto &input : inputs){
@@ -206,7 +206,7 @@ bool ConnectorNodeDataModel::check_if_missing_inputs(const std_v1<std::shared_pt
     return true;
 }
 
-bool ConnectorNodeDataModel::check_if_runtime_inputs(const std_v1<std::shared_ptr<QtNodes::NodeData> > &inputs){
+bool ConnectorNodeDataModel::check_if_runtime_inputs(const std::vector<std::shared_ptr<QtNodes::NodeData> > &inputs){
 
     bool runtimeDetected = false;
     for(const auto &input : inputs){
@@ -405,10 +405,10 @@ void ConnectorNodeDataModel::update_with_info(QStringView id, QStringView value)
 
 
 std::shared_ptr<QtNodes::NodeData> ConnectorNodeDataModel::outData(QtNodes::PortIndex index){
-    return outputData[to_unsigned(index)];
+    return outputData[to_size_t(index)];
 }
 
 void ConnectorNodeDataModel::setInData(std::shared_ptr<QtNodes::NodeData> nodeData, QtNodes::PortIndex index){
-    inputData[to_unsigned(index)] = nodeData;
+    inputData[to_size_t(index)] = nodeData;
     compute();
 }

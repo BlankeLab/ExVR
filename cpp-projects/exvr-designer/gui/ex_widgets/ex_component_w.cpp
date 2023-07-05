@@ -50,7 +50,7 @@ ExComponentW::ExComponentW(QString name) : ExItemW<QFrame>(UiType::Component, na
         m_currentKey = {-1};
 
         if(index > 0){
-            const size_t id = to_unsigned(index-1);
+            const size_t id = to_size_t(index-1);
 
             if(auto components = ExperimentManager::get()->current()->compM.get_components(m_componentType.value()); id < components.size()){
                 m_currentKey =  components[id]->c_key();

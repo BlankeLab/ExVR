@@ -76,6 +76,8 @@ struct FlowElement {
     FlowElement(const FlowElement &) = delete;
     FlowElement& operator=(const FlowElement&) = delete;
 
+    virtual ~FlowElement() = default;
+
     constexpr Type type()const noexcept{ return m_type;}
     constexpr int key() const noexcept{ return m_key();}
     constexpr ElementKey e_key() const noexcept {return ElementKey{key()};}

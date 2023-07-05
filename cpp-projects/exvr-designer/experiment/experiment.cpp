@@ -37,6 +37,7 @@
 #include "qt_str.hpp"
 
 // local
+#include "data/flow_elements/node_flow.hpp"
 #include "data/config.hpp"
 #include "utility/path_utility.hpp"
 
@@ -45,7 +46,7 @@ using namespace tool::ex;
 
 
 Experiment::Experiment(QString nVersion) : states(nVersion), randomizer(Randomizer(states.randomizationSeed)) {
-    new_experiment();
+    new_experiment();    
 }
 
 auto Experiment::nb_elements() const noexcept -> size_t{
@@ -288,8 +289,8 @@ void Experiment::add_element(FlowElement::Type type, size_t index){
             auto routine = std::make_unique<Routine>(name, -1);
             auto routinePtr = routine.get();
 
-            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 1), std::move(routine));
-            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
+            elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(index + 1), std::move(routine));
+            elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
             select_element(routinePtr->e_key(), false);
     }break;
     case FlowElement::Type::Isi:{
@@ -312,8 +313,8 @@ void Experiment::add_element(FlowElement::Type type, size_t index){
 
             auto isi = std::make_unique<Isi>(name, ElementKey{-1});
             auto isiPtr = isi.get();
-            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 1), std::move(isi));
-            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
+            elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(index + 1), std::move(isi));
+            elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
             select_element(isiPtr->e_key(), false);
     }break;
     case FlowElement::Type::Loop:{
@@ -342,10 +343,10 @@ void Experiment::add_element(FlowElement::Type type, size_t index){
             auto end   = std::make_unique<LoopNode>(loopPtr, false);
             loopPtr->set_nodes(start.get(),end.get());
 
-            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 1), std::move(start));
-            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
-            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 3), std::move(end));
-            elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(index + 4), std::make_unique<NodeFlow>());
+            elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(index + 1), std::move(start));
+            elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(index + 2), std::make_unique<NodeFlow>());
+            elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(index + 3), std::move(end));
+            elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(index + 4), std::make_unique<NodeFlow>());
             select_element(loopPtr->e_key(), false);
     }break;
     default:
@@ -533,16 +534,16 @@ void Experiment::duplicate_element(ElementKey elementKey){
 
                 newElement = Routine::copy_with_new_element_id(*dynamic_cast<Routine*>(elements[ii].get()), elements[ii]->name() % QSL("(copy)"));
                 auto elementPtr = newElement.get();
-                elements.insert(std::begin(elements) + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(ii + 1), std::make_unique<NodeFlow>());
-                elements.insert(std::begin(elements) + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(ii + 2), std::move(newElement));
+                elements.insert(std::begin(elements) + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(ii + 1), std::make_unique<NodeFlow>());
+                elements.insert(std::begin(elements) + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(ii + 2), std::move(newElement));
                 select_element(ElementKey{elementPtr->key()}, false);
 
             }else if(elements[ii]->type() == FlowElement::Type::Isi){
 
                 newElement = Isi::copy_with_new_element_id(*dynamic_cast<Isi*>(elements[ii].get()), elements[ii]->name() % QSL("(copy)"));
                 auto elementPtr = newElement.get();
-                elements.insert(std::begin(elements) + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(ii + 1), std::make_unique<NodeFlow>());
-                elements.insert(std::begin(elements) + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(ii + 2), std::move(newElement));
+                elements.insert(std::begin(elements) + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(ii + 1), std::make_unique<NodeFlow>());
+                elements.insert(std::begin(elements) + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(ii + 2), std::move(newElement));
                 select_element(ElementKey{elementPtr->key()}, false);
 
             }else if(elements[ii]->type() == FlowElement::Type::LoopStart){
@@ -560,10 +561,10 @@ void Experiment::duplicate_element(ElementKey elementKey){
                 auto end   = std::make_unique<LoopNode>(loopPtr, false);
                 loopPtr->set_nodes(start.get(),end.get());
 
-                elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 1), std::make_unique<NodeFlow>());
-                elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 2), std::move(start));
-                elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 3), std::make_unique<NodeFlow>());
-                elements.insert(elements.begin() + static_cast<std_v1<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 4), std::move(end));
+                elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 1), std::make_unique<NodeFlow>());
+                elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 2), std::move(start));
+                elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 3), std::make_unique<NodeFlow>());
+                elements.insert(elements.begin() + static_cast<std::vector<std::unique_ptr<FlowElement>>::difference_type>(endPosition + 4), std::move(end));
                 select_element(ElementKey{loopPtr->key()}, false);
 
             }
@@ -887,8 +888,8 @@ void Experiment::check_integrity(){
 
     // check validity
     // # components
-    std::unordered_map<int, Component*> checkComponents;
-    std::unordered_map<int, Config*> checkConfigs;
+    umap<int, Component*> checkComponents;
+    umap<int, Config*> checkConfigs;
     for(auto component : compM.get_components()){
         if(checkComponents.count(component->key()) != 0){
             QtLogger::error(QSL("[EXP] ") % component->to_string() % QSL(" already exists."));
@@ -906,13 +907,13 @@ void Experiment::check_integrity(){
     }
 
     // # elements
-    std::unordered_map<int, Routine*> checkRoutines;
-    std::unordered_map<int, Loop*> checkLoops;
-    std::unordered_map<int, Isi*> checkIsi;
-    std::unordered_map<int, Condition*> checkConditions;
-    std::unordered_map<int, Connection*> checkConnection;
-    std::unordered_map<int, Connector*> checkConnectors;
-    std::unordered_map<int, Action*> checkActions;
+    umap<int, Routine*> checkRoutines;
+    umap<int, Loop*> checkLoops;
+    umap<int, Isi*> checkIsi;
+    umap<int, Condition*> checkConditions;
+    umap<int, Connection*> checkConnection;
+    umap<int, Connector*> checkConnectors;
+    umap<int, Action*> checkActions;
 
     for(auto &elem : elements){
         if(elem->type() == FlowElement::Type::Routine){
@@ -973,7 +974,7 @@ void Experiment::check_integrity(){
 
 
 
-void Experiment::copy_to_conditions(ElementKey routineKey, ConditionKey conditionKey, std_v1<std::pair<ElementKey,ConditionKey>> conditionsToBeEcrased, bool copyActions, bool copyConnections){
+void Experiment::copy_to_conditions(ElementKey routineKey, ConditionKey conditionKey, std::vector<std::pair<ElementKey,ConditionKey>> conditionsToBeEcrased, bool copyActions, bool copyConnections){
 
     if(auto conditionToCopy = get_condition(routineKey, conditionKey); conditionToCopy != nullptr){
         for(const auto &conditionToBeEcrased : conditionsToBeEcrased){
@@ -1110,6 +1111,15 @@ void Experiment::delete_selected_nodes(ElementKey routineKey, ConditionKey condi
     }
 }
 
+auto Experiment::duplicate_selected_nodes(ElementKey routineKey, ConditionKey conditionKey) -> void{
+
+    if(auto condition = get_condition(routineKey,conditionKey); condition != nullptr){
+
+//        routine->duplicate_connector_node(conditionKey, connectorKey);
+//        add_to_update_flag(UpdateRoutines);
+    }
+}
+
 void Experiment::create_component_node(ElementKey routineKey, ConditionKey conditionKey, ComponentKey componentKey, QPointF pos){
 
     if(auto condition = get_condition(routineKey, conditionKey); condition != nullptr){
@@ -1150,8 +1160,8 @@ void Experiment::unselect_nodes_and_connections(ElementKey routineKey, Condition
     }
 }
 
-void Experiment::delete_nodes_and_connections(ElementKey routineKey, ConditionKey conditionKey, std_v1<ConnectorKey> connectorsKey,
-    std_v1<ComponentKey> componentsKey, std_v1<ConnectionKey> connectionsKey, bool doUpdate){
+void Experiment::delete_nodes_and_connections(ElementKey routineKey, ConditionKey conditionKey, std::vector<ConnectorKey> connectorsKey,
+    std::vector<ComponentKey> componentsKey, std::vector<ConnectionKey> connectionsKey, bool doUpdate){
 
     if(auto condition = get_condition(routineKey,conditionKey); condition != nullptr){
 
@@ -1177,7 +1187,7 @@ void Experiment::delete_nodes_and_connections(ElementKey routineKey, ConditionKe
 }
 
 void Experiment::select_nodes_and_connections(ElementKey routineKey, ConditionKey conditionKey,
-    std_v1<ConnectorKey> connectorsKey, std_v1<ComponentKey> componentsKey, std_v1<ConnectionKey> connectionsKey, bool doUpdate){
+    std::vector<ConnectorKey> connectorsKey, std::vector<ComponentKey> componentsKey, std::vector<ConnectionKey> connectionsKey, bool doUpdate){
 
     unselect_nodes_and_connections(routineKey, conditionKey, false);
 
@@ -1207,12 +1217,36 @@ void Experiment::select_nodes_and_connections(ElementKey routineKey, ConditionKe
     }
 }
 
+auto Experiment::paste_nodes_clip_board(QPointF mousePosition, ElementKey routineKey, ConditionKey conditionKey) -> void{
+
+    if(!NodesClipBoard::enabled){
+        return;
+    }
+    if(auto condition = get_condition(routineKey,conditionKey); condition != nullptr){
+        if(auto fromCondition = get_condition(NodesClipBoard::fromRoutine,NodesClipBoard::fromCondition); fromCondition != nullptr){
+            for(const auto &connector : NodesClipBoard::connectors){
+                condition->duplicate_connector(mousePosition, fromCondition->get_connector_from_key(connector));
+            }
+        }
+    }
+    NodesClipBoard::components.clear();
+    NodesClipBoard::connectors.clear();
+    NodesClipBoard::connections.clear();
+    NodesClipBoard::enabled = false;
+    add_to_update_flag(UpdateRoutines);
+}
+
 void Experiment::display_exp_infos(){
 
     QtLogger::message("### ELEMENTS ###");
     for(const auto &element : elements){
         QtLogger::message(QSL("->") % QString::number(element->key()) % QSL(" ") %element->name() %  QSL(" ") % from_view(FlowElement::get_type_name(element->type())));
     }
+}
+
+void Experiment::fix_colors(){
+    compM.fix_colors();
+    add_to_update_flag(UpdateComponents);
 }
 
 
@@ -1617,7 +1651,7 @@ void Experiment::modify_loop_type(ElementKey loopKey, Loop::Mode mode){
 
 void Experiment::modify_loop_nb_reps(ElementKey loopKey, int nbReps){
     if(auto loop = get_loop(loopKey); loop != nullptr){
-        loop->set_nb_reps(to_unsigned(nbReps));
+        loop->set_nb_reps(to_size_t(nbReps));
     }
 }
 
@@ -1780,8 +1814,8 @@ void Experiment::compute_loops_levels(){
             elem->insideLoopsID = idLoops;
         }
 
-        if(states.maximumDeepLevel < to_signed(idLoops.size())){
-            states.maximumDeepLevel = to_signed(idLoops.size());
+        if(states.maximumDeepLevel < to_int(idLoops.size())){
+            states.maximumDeepLevel = to_int(idLoops.size());
         }
     }
 
@@ -1822,9 +1856,9 @@ void Experiment::compute_loops_levels(){
     }
 }
 
-std_v1<QString> mix(const std_v1<QString> &l1, const std_v1<QString> &l2){
+std::vector<QString> mix(const std::vector<QString> &l1, const std::vector<QString> &l2){
 
-    std_v1<QString> m;
+    std::vector<QString> m;
     m.reserve(l1.size()*l2.size());
     for(size_t ii = 0; ii < l1.size(); ++ii){
         for(size_t jj = 0; jj < l2.size(); ++jj){
@@ -2163,7 +2197,7 @@ void Experiment::remove_config_from_component(ComponentKey componentKey, RowId i
 
             for(auto &condition : routine->conditions){
 
-                std_v1<ActionKey> actionsToRemoved;
+                std::vector<ActionKey> actionsToRemoved;
                 for(auto &action : condition->actions){
                     if(action->config->key() == configKey.v){
                         QtLogger::message(QSL("[EXP] Remove ") % action->to_string() % QSL(" from ") % condition->to_string() %
@@ -2564,8 +2598,8 @@ void Experiment::remove_elements_not_in_flow(){
         }
     }
 
-    for(int ii = to_signed(loops.size()-1); ii >= 0; --ii){
-        if(idsLoopsRemaining.indexOf(loops[to_unsigned(ii)]->key()) == -1){
+    for(int ii = to_int(loops.size()-1); ii >= 0; --ii){
+        if(idsLoopsRemaining.indexOf(loops[to_size_t(ii)]->key()) == -1){
             loops.erase(loops.begin()+ii);
         }
     }
@@ -2574,8 +2608,8 @@ void Experiment::remove_elements_not_in_flow(){
 
 
 
-std_v1<Loop *> Experiment::get_loops() const{
-    std_v1<Loop*> l;
+std::vector<Loop *> Experiment::get_loops() const{
+    std::vector<Loop*> l;
     l.reserve(loops.size());
     for(const auto &loop : loops){
         l.push_back(loop.get());
@@ -2595,6 +2629,66 @@ auto Experiment::get_element_iterator(FlowElement *element) const -> std::vector
     return std::find_if(elements.begin(), elements.end(), [element](const std::unique_ptr<FlowElement> & currElem){
         return currElem.get() == element;
     });
+}
+
+
+
+struct Global{
+    static inline std::unique_ptr<ExperimentManager> expManager = nullptr;
+};
+
+void ExperimentManager::init(){
+    if(Global::expManager == nullptr){
+        Global::expManager = std::make_unique<ExperimentManager>();
+    }
+}
+
+ExperimentManager *ExperimentManager::get(){
+    if(Global::expManager != nullptr){
+        return Global::expManager.get();
+    }
+    return nullptr;
+}
+
+void ExperimentManager::init_current(const QString &numVersion){
+    auto currentSource = IdKey::current_source();
+    IdKey::set_source(IdKey::Source::Current);
+    m_experiment = std::make_unique<Experiment>(numVersion);
+    IdKey::set_source(currentSource);
+}
+
+void ExperimentManager::init_imported(const QString &numVersion){
+    auto currentSource = IdKey::current_source();
+    IdKey::set_source(IdKey::Source::Imported);
+    m_importedExperiment = std::make_unique<Experiment>(numVersion);
+    IdKey::set_source(currentSource);
+}
+
+Experiment *ExperimentManager::current(){
+    return m_experiment.get();
+}
+
+Experiment *ExperimentManager::imported(){
+    return m_importedExperiment.get();
+}
+
+void ExperimentManager::clean_current(){
+    auto currentSource = IdKey::current_source();
+    IdKey::set_source(IdKey::Source::Current);
+    m_experiment = nullptr;
+    IdKey::set_source(currentSource);
+}
+
+void ExperimentManager::clean_imported(){
+    auto currentSource = IdKey::current_source();
+    IdKey::set_source(IdKey::Source::Imported);
+    m_importedExperiment = nullptr;
+    IdKey::set_source(currentSource);
+}
+
+void ExperimentManager::clean(){
+    clean_imported();
+    clean_current();
 }
 
 

@@ -173,7 +173,11 @@ void ComponentW::mouseDoubleClickEvent(QMouseEvent *event){
     }
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 void ComponentW::enterEvent(QEvent *event){
+#else
+void ComponentW::enterEvent(QEnterEvent *event){
+#endif
     Q_UNUSED(event)
     mouseHovering = true;
 //    emit GSignals::get()->enter_component_signal(key);

@@ -36,8 +36,8 @@ Instance::Instance(const Randomizer *randomizer, const std::vector<FlowElement*>
 
     QVector<LoopInfo> infos;
     auto get_index_from_loop_node = [&](FlowElement *elem){
-        for(int ii = 0; ii < to_signed(elements.size()); ++ii){
-            if(elements[to_unsigned(ii)] == elem){
+        for(int ii = 0; ii < to_int(elements.size()); ++ii){
+            if(elements[to_size_t(ii)] == elem){
                 return ii;
             }
         }
@@ -65,18 +65,18 @@ Instance::Instance(const Randomizer *randomizer, const std::vector<FlowElement*>
 
 
     // generate randomization for each loop
-    std::unordered_map<int, std::vector<QStringView>> loopsSetsNames;
-    std::unordered_map<int, size_t> loopsCurentSetId;        
+    umap<int, std::vector<QStringView>> loopsSetsNames;
+    umap<int, size_t> loopsCurentSetId;
 
     for(const auto loop : loops){
 
         size_t multiplier = 1;
         for(const auto outerLoop : loop->insideLoops){
             auto l = dynamic_cast<Loop*>(outerLoop);
-            multiplier *= to_unsigned(l->nbReps);
+            multiplier *= to_size_t(l->nbReps);
         }
 
-        const size_t totalNbReps = multiplier * to_unsigned(loop->nbReps);
+        const size_t totalNbReps = multiplier * to_size_t(loop->nbReps);
 
         // fill list of sets
         std::vector<QStringView> setsOccurenciesStr;
@@ -197,14 +197,14 @@ Instance::Instance(const Randomizer *randomizer, const std::vector<FlowElement*>
     }
 
     // generate randomization for each ISI
-    std::unordered_map<int, std::vector<double>> isisIntervals;
-    std::unordered_map<int, size_t> isisCurentIntervalId;
+    umap<int, std::vector<double>> isisIntervals;
+    umap<int, size_t> isisCurentIntervalId;
     for(const auto isi : ISIs){
 
         size_t multiplier = 1;
         for(const auto outerLoop : isi->insideLoops){
             auto l = dynamic_cast<Loop*>(outerLoop);
-            multiplier *= to_unsigned(l->nbReps);
+            multiplier *= to_size_t(l->nbReps);
         }
 
         const bool randomizeOnce = true;
@@ -217,7 +217,7 @@ Instance::Instance(const Randomizer *randomizer, const std::vector<FlowElement*>
                     intervals.emplace_back(std::move(isi));
                 }
             }else{
-                for(size_t ii = 0; ii < to_unsigned(totalNbReps); ++ii){
+                for(size_t ii = 0; ii < to_size_t(totalNbReps); ++ii){
                     intervals.emplace_back(isi->intervals[ii%isi->intervals.size()]);
                 }
             }
@@ -298,8 +298,8 @@ Instance::Instance(const Randomizer *randomizer, const std::vector<FlowElement*>
             if(inf != nullptr){
 
                 inf->currentRep++;
-                if(inf->currentRep < to_signed(inf->l->nbReps)){ // continue loop
-                    ii = to_unsigned(inf->idStart);
+                if(inf->currentRep < to_int(inf->l->nbReps)){ // continue loop
+                    ii = to_size_t(inf->idStart);
                 }else{ // end of loop
                     infos.removeAt(idInfo);
                 }
@@ -395,7 +395,7 @@ std::unique_ptr<Instance> Instance::generate_from_element_to_the_end(const Rando
     for(size_t ii = 0; ii < elements.size(); ++ii){
         if(selectedElement->key() == elements[ii]->key()){
             if(ii > 0){
-                elements.erase(elements.begin(), elements.begin()+to_signed(ii-1));
+                elements.erase(elements.begin(), elements.begin()+to_int(ii-1));
             }
             break;
         }
@@ -424,7 +424,7 @@ std::unique_ptr<Instance> Instance::generate_from_start_to_element(const Randomi
     for(size_t ii = 0; ii < elements.size(); ++ii){
         if(selectedElement->key() == elements[ii]->key()){
             if(ii < elements.size()-1){
-                elements.erase(elements.begin()+to_signed(ii+1), elements.end());
+                elements.erase(elements.begin()+to_int(ii+1), elements.end());
             }
             break;
         }

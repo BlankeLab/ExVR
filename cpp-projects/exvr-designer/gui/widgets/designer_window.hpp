@@ -26,7 +26,6 @@
 
 // Qt
 #include <QMainWindow>
-#include <QDesktopWidget>
 #include <QDockWidget>
 
 // local
@@ -64,7 +63,7 @@ class DesignerWindow : public QMainWindow{
 
 public:
 
-    explicit DesignerWindow(bool lncoComponents, QWidget *parent = nullptr);
+    explicit DesignerWindow(QWidget *parent = nullptr);
     void set_window_settings();
     void close_program();
 
@@ -164,7 +163,7 @@ private:
     void create_logger();
 
     void create_flow_diagram();
-    void create_components_manager(bool lncoComponents);
+    void create_components_manager();
     void create_routines_manager();
     void create_element_viewer();
 
@@ -267,6 +266,7 @@ private:
     // # debug
     QAction m_benchmarkAct;
     QAction m_crashAct;
+    QAction m_fixColors;
     QAction m_deleteUnusedComponentAct;
     QAction m_displayKeysAct;
     QAction m_fullLoadWith0DurationAct;

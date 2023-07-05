@@ -30,10 +30,7 @@
 //TEST_CASE( "1: All test cases reside in other .cpp files (empty)", "[multi-file:1]" ) {
 //}
 
-
-
-// main.cpp
-#define CATCH_CONFIG_RUNNER
+// Qt
 #include <QCoreApplication>
 
 // base
@@ -46,8 +43,8 @@
 #include "IO/xml_io_manager.hpp"
 #include "utility/path_utility.hpp"
 
-#include "catch.hpp" // include after defining CATCH_CONFIG_RUNNER
-
+#define CATCH_CONFIG_RUNNER
+#include "thirdparty/catch/catch.hpp"
 
 using namespace tool;
 using namespace tool::ex;

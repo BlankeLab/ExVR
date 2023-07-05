@@ -24,6 +24,9 @@
 
 #include "decimal_trigo_ndm.hpp"
 
+// base
+#include "utility/decimal.hpp"
+
 using namespace tool::ex;
 
 void DecimalTrigoEmbeddedW::initialize(){
@@ -77,23 +80,23 @@ void DecimalTrigoNodeDataModel::compute(){
 
     Decimal dec;
     if(index == 0){ // cos
-        dec = Decimal::cos(v1);
+        dec = cos(v1);
     }else if(index == 1){ // sin
-        dec = Decimal::sin(v1);
+        dec = sin(v1);
     }else if(index == 2){ // tan
-        dec = Decimal::tan(v1);
+        dec = tan(v1);
     }else if(index == 3){ // acos
-        dec = Decimal::acos(v1);
+        dec = acos(v1);
     }else if(index == 4){ // asin
-        dec = Decimal::asin(v1);
+        dec = asin(v1);
     }else if(index == 5){ // atan
-        dec = Decimal::atan(v1);
+        dec = atan(v1);
     }else if(index == 6){ // cosh
-        dec = Decimal::cosh(v1);
+        dec = cosh(v1);
     }else if(index == 7){ // sinh
-        dec = Decimal::sinh(v1);
+        dec = sinh(v1);
     }else if(index == 8){ // tanh
-        dec = Decimal::tanh(v1);
+        dec = tanh(v1);
     }
 
     propagate_data(

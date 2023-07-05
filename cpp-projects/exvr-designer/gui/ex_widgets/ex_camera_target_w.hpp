@@ -53,7 +53,7 @@ public:
     Arg convert_to_arg() const override;
     void set_as_generator() override;
 
-    ExBaseW *init_widget_from_any_array(std_v1<std::any> &parameters) override;
+    ExBaseW *init_widget_from_any_array(std::vector<std::any> &parameters) override;
 
 public:
 

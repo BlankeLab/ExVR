@@ -63,7 +63,7 @@ ExConditionW::ExConditionW(QString name) : ExItemW<QFrame>(UiType::Routine_condi
         m_currentConditionKey.v = -1;
         if(m_currentConditionKey.v != -1){
             if(m_conditionNames->currentIndex() > 0){
-                const size_t id = to_unsigned(m_conditionNames->currentIndex()-1);
+                const size_t id = to_size_t(m_conditionNames->currentIndex()-1);
                 if(auto currentRoutine = ExperimentManager::get()->current()->get_routine(m_currentRoutineKey); currentRoutine != nullptr){
                     m_currentConditionKey =  currentRoutine->conditions[id]->c_key();
                 }

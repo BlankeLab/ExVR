@@ -55,7 +55,7 @@ class ComponentsManagerW : public QFrame{
 
 public :
 
-    ComponentsManagerW(bool lncoComponents);
+    ComponentsManagerW();
 
     ComponentConfigDialog *component_dialog(ComponentKey componentKey);
     ComponentW *component_widget(ComponentKey componentKey);
@@ -88,7 +88,6 @@ private:
 
 private :
 
-    bool m_lncoComponents = false;
 
     QPoint m_lastPos;
 

@@ -24,8 +24,8 @@
 
 #pragma once
 
-// std
-#include <unordered_map>
+// base
+#include "utility/unordered_map.hpp"
 
 // Qt
 #include <QColor>
@@ -79,7 +79,7 @@ struct Colors{
     };
 
     using FT = tool::ex::FlowElement::Type;
-    static inline const std::unordered_map<tool::ex::FlowElement::Type, FlowElementColors> flowElements = {
+    static inline const umap<tool::ex::FlowElement::Type, FlowElementColors> flowElements = {
                          // sel_txt unsel_txt sel_line    unsel_line   sel_box    unsel_box
         {FT::Node,       {blackC,   blackC,   blackC,     blackC,      blackC,    blackC}},
         {FT::LoopStart,  {whiteC,   whiteC,   navyBlueC,  blackC,      navyBlueC, navyBlueC}},
@@ -90,7 +90,7 @@ struct Colors{
     };
 
     using BT = tool::ex::ButtonType;
-    static inline const std::unordered_map<tool::ex::ButtonType, ButtonColors> buttons = {
+    static inline const umap<tool::ex::ButtonType, ButtonColors> buttons = {
         // sel_txt           unsel_txt  unsel_line  unsel_box
         {BT::AddElement,     {whiteC,   blackC,     whiteC}},
         {BT::RemoveElement,  {whiteC,   blackC,     blackC}},

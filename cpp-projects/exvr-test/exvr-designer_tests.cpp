@@ -26,9 +26,8 @@
 // std
 #include <format>
 
-// catch
-#include "catch.hpp"
-
+// base
+#include "thirdparty/catch/catch.hpp"
 
 // qt-utility
 #include "qt_logger.hpp"

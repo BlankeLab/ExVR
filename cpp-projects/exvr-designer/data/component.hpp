@@ -27,9 +27,6 @@
 // Qt
 #include <QStringList>
 
-// base
-#include "utility/vector.hpp"
-
 // qt-utility
 #include "qt_str.hpp"
 #include "data/id_key.hpp"
@@ -133,8 +130,8 @@ struct Component {
     using CO = ConfigO;
 
     enum class Restricted : int {
-        OpenSource, ClosedSource, LNCO,
-        OS = OpenSource, CS = ClosedSource, LN = LNCO
+        OpenSource, ClosedSource,
+        OS = OpenSource, CS = ClosedSource
     };
     using R = Restricted;
 
@@ -191,19 +188,19 @@ struct Component {
         // Acquisition
         {T::Attach_object_to_hand,    C::Acquisition, TO::B, CO::B, Y, N, N, Y, N, N, P::M, R::OS, S::Exp, "Attach_object_to_hand"sv, "Attach object to hand"sv, "AttachObjectToHand"sv, "Sponge"sv},
         {T::Biopac,                   C::Acquisition, TO::U, CO::I, Y, N, N, Y, N, N, P::H, R::OS, S::Sta, "Biopac"sv, "Biopac device"sv, "Biopac"sv, "Physio"sv},
-        {T::Fop_robot,                C::Acquisition, TO::U, CO::B, Y, N, N, Y, N, N, P::H, R::LN, S::Sta, "Fop_robot"sv, "FOP robot"sv, "FOPRobot"sv,"Fop_robot"sv},
-        {T::K2_body_tracking,         C::Acquisition, TO::B, CO::B, Y, N, N, Y, N, N, P::H, R::LN, S::Exp, "K2_body_tracking"sv, "K2 body tracking"sv, "K2BodyTracking"sv,"Kinect"sv},
-        {T::K2_manager,               C::Acquisition, TO::U, CO::B, Y, N, N, Y, N, N, P::H, R::LN, S::Sta, "K2_manager"sv, "K2 manager"sv, "K2Manager"sv,"Kinect"sv},
-        {T::K4_manager,               C::Acquisition, TO::U, CO::B, Y, N, N, Y, N, N, P::H, R::LN, S::Sta, "K4_manager"sv, "K4 manager"sv, "K4Manager"sv,"Kinect"sv},
-        {T::K4_direct_multi_clouds,   C::Acquisition, TO::B, CO::B, N, N, N, Y, N, N, P::M, R::LN, S::Sta, "K4_direct_multi_clouds"sv, "K4 direct multi clouds"sv, "K4DirectMultiClouds"sv,"Kinect"sv},
+        {T::Fop_robot,                C::Acquisition, TO::U, CO::B, Y, N, N, Y, N, N, P::H, R::OS, S::Sta, "Fop_robot"sv, "FOP robot"sv, "FOPRobot"sv,"Fop_robot"sv},
+        {T::K2_body_tracking,         C::Acquisition, TO::B, CO::B, Y, N, N, Y, N, N, P::H, R::OS, S::Exp, "K2_body_tracking"sv, "K2 body tracking"sv, "K2BodyTracking"sv,"Kinect"sv},
+        {T::K2_manager,               C::Acquisition, TO::U, CO::B, Y, N, N, Y, N, N, P::H, R::OS, S::Sta, "K2_manager"sv, "K2 manager"sv, "K2Manager"sv,"Kinect"sv},
+        {T::K4_manager,               C::Acquisition, TO::U, CO::B, Y, N, N, Y, N, N, P::H, R::OS, S::Sta, "K4_manager"sv, "K4 manager"sv, "K4Manager"sv,"Kinect"sv},
+        {T::K4_direct_multi_clouds,   C::Acquisition, TO::B, CO::B, N, N, N, Y, N, N, P::M, R::OS, S::Sta, "K4_direct_multi_clouds"sv, "K4 direct multi clouds"sv, "K4DirectMultiClouds"sv,"Kinect"sv},
         {T::Leap_motion,              C::Acquisition, TO::U, CO::C, Y, Y, Y, Y, Y, N, P::H, R::OS, S::Exp, "Leap_motion"sv, "LeapMotion"sv, "LeapMotion"sv, "Hand"sv},
         {T::Leap_motion_arms_display, C::Acquisition, TO::V, CO::B, Y, N, N, Y, N, N, P::M, R::CS, S::Leg, "Leap_motion_arms_display"sv, "LeapMotion realistic arms"sv, "LeapMotionArmsDisplay"sv, "Hand"sv},
         {T::Leap_motion_tracking,     C::Acquisition, TO::V, CO::N, Y, N, N, Y, N, N, P::M, R::OS, S::Leg, "Leap_motion_tracking"sv, "LeapMotion tracking"sv, "LeapMotionTracking"sv, "Hand"sv},
         {T::Qualisys,                 C::Acquisition, TO::B, CO::B, Y, Y, Y, Y, Y, N, P::M, R::OS, S::Sta, "Qualisys_tracking"sv, "Qualisys tracking"sv, "QualisysTracking"sv, "Qualisys"sv},
-        {T::Scene_scaner,             C::Acquisition, TO::B, CO::B, Y, N, N, Y, N, N, P::M, R::LN, S::Sta, "Scene_scaner"sv, "Scene scaner"sv, "SceneScaner"sv,"Body_scanner"sv},
-        {T::Sonceboz_SG,              C::Acquisition, TO::U, CO::B, Y, Y, Y, Y, Y, N, P::H, R::LN, S::Sta, "Sonceboz_SG"sv, "Sonceboz SG"sv, "SoncebozSG"sv,"Sonceboz"sv},
-        {T::Thera_trainer_tracking,   C::Acquisition, TO::U, CO::I, Y, N, N, Y, N, N, P::M, R::LN, S::Sta, "Thera_trainer_tracking"sv, "Thera trainer tracking"sv, "TheraTrainerTracking"sv, "Thera_trainer"sv},
-        {T::Thera_trainer_platform,   C::Acquisition, TO::B, CO::C, N, N, N, Y, N, N, P::M, R::LN, S::Sta, "Thera_trainer_platform"sv, "Thera trainer platform"sv, "TheraTrainerPlatform"sv, "Thera_trainer"sv},
+        {T::Scene_scaner,             C::Acquisition, TO::B, CO::B, Y, N, N, Y, N, N, P::M, R::OS, S::Sta, "Scene_scaner"sv, "Scene scaner"sv, "SceneScaner"sv,"Body_scanner"sv},
+        {T::Sonceboz_SG,              C::Acquisition, TO::U, CO::B, Y, Y, Y, Y, Y, Y, P::H, R::OS, S::Sta, "Sonceboz_SG"sv, "Sonceboz SG"sv, "SoncebozSG"sv,"Sonceboz"sv},
+        {T::Thera_trainer_tracking,   C::Acquisition, TO::U, CO::I, Y, N, N, Y, N, N, P::M, R::OS, S::Sta, "Thera_trainer_tracking"sv, "Thera trainer tracking"sv, "TheraTrainerTracking"sv, "Thera_trainer"sv},
+        {T::Thera_trainer_platform,   C::Acquisition, TO::B, CO::C, N, N, N, Y, N, N, P::M, R::OS, S::Sta, "Thera_trainer_platform"sv, "Thera trainer platform"sv, "TheraTrainerPlatform"sv, "Thera_trainer"sv},
         {T::Vive_pro_eye_tracking,    C::Acquisition, TO::B, CO::C, N, N, N, Y, N, N, P::H, R::OS, S::Sta, "Vive_pro_eye_tracking"sv, "Vive pro eye tracking"sv, "ViveProEyeTracking"sv, "Thera_trainer"sv},
         {T::Webcam,                   C::Acquisition, TO::U, CO::I, N, N, N, Y, N, N, P::M, R::OS, S::Sta, "Webcam"sv, "Webcam"sv, "Webcam"sv,"Webcam"sv},
         // Audio
@@ -275,10 +272,10 @@ struct Component {
         {T::Slider_ui,                C::UI,          TO::B, CO::B, N, N, N, Y, N, N, P::M, R::OS, S::Sta, "Slider_ui"sv, "Slider ui"sv, "SliderUI"sv, "Slider_overlay"sv},
         {T::Buttons_ui,               C::UI,          TO::B, CO::C, N, N, N, Y, N, N, P::M, R::OS, S::Sta, "Buttons_ui"sv, "Buttons ui"sv, "ButtonsUI"sv, "Buttons"sv},
         // Video
-        {T::Scaner_video,             C::Video,       TO::B, CO::B, N, N, N, Y, N, N, P::H, R::LN, S::Exp, "Scaner_video"sv, "Scaner video"sv, "ScanerVideo"sv, "Video_cloud"sv},
+        {T::Scaner_video,             C::Video,       TO::B, CO::B, N, N, N, Y, N, N, P::H, R::OS, S::Exp, "Scaner_video"sv, "Scaner video"sv, "ScanerVideo"sv, "Video_cloud"sv},
         {T::Video_file_camera_viewer, C::Video,       TO::B, CO::B, N, N, N, Y, N, N, P::M, R::OS, S::Exp, "Video_file_camera_viewer"sv, "Video file camera viewer"sv, "VideoFileCameraViewer"sv,"Video_file"sv},
         {T::Video_saver,              C::Video,       TO::B, CO::B, N, N, N, Y, N, N, P::M, R::OS, S::Exp, "Video_saver"sv, "Video saver"sv, "VideoSaver"sv,"Video_record"sv},
-        {T::Volumetric_video,         C::Video,       TO::B, CO::B, N, N, N, Y, N, N, P::H, R::LN, S::Exp, "Volumetric_video"sv,  "Volumetric video"sv, "VolumetricVideo"sv, "Video_cloud"sv},
+        {T::Volumetric_video,         C::Video,       TO::B, CO::B, N, N, N, Y, N, N, P::H, R::OS, S::Sta, "Volumetric_video"sv,  "Volumetric video"sv, "VolumetricVideo"sv, "Video_cloud"sv},
         // Viewer
         {T::Blend_fade_viewer,        C::Viewer,      TO::B, CO::C, N, N, N, Y, N, N, P::H, R::OS, S::Sta, "Blend_fade_viewer"sv, "Blend fade viewer"sv, "BlendFadeViewer"sv, "Blend"sv},
         {T::Fixation_cross_viewer,    C::Viewer,      TO::B, CO::C, N, N, N, Y, N, N, P::L, R::OS, S::Sta, "Fixation_cross_viewer"sv, "Fixation cross viewer"sv, "FixationCrossViewer"sv, "Fixation_cross"sv},
@@ -386,16 +383,17 @@ struct Component {
 
     using TComponentSlots = std::tuple<
         T,                             FunctionN,                      CNT,                    Doc>;
-    static constexpr TupleArray<126,TComponentSlots> componentsSlots = {{        
+    static constexpr TupleArray<127,TComponentSlots> componentsSlots = {{
         TComponentSlots
         // Acquisition
+        {T::Biopac,                    "inused"sv,                     CNT::void_t,            "TODO: Remove it"sv},
+        {T::Fop_robot,                 "set delay"sv,                  CNT::integer_t,         "..."sv},
+        {T::Fop_robot,                 "set force ratio"sv,            CNT::float_t,           "..."sv},
+        {T::K4_manager,                "set delay (ms)"sv,             CNT::integer_t,         "Delay to be applied on grabbers"sv},
         {T::Leap_motion_arms_display,  "trigger"sv,                    CNT::void_t,            "..."sv},
         {T::Leap_motion_arms_display,  "update frame"sv,               CNT::lm_frame_t,        "..."sv},
         {T::Leap_motion_tracking,      "update tracking"sv,            CNT::lm_hands_frame_t,  "..."sv},
         {T::Thera_trainer_platform,    "update rotation"sv,            CNT::vector2_t,         "Set thera trainer platform current rotation angles"sv},
-        {T::Biopac,                    "inused"sv,                     CNT::void_t,            "TODO: Remove it"sv},
-        {T::Fop_robot,                 "set delay"sv,                  CNT::integer_t,         "..."sv},
-        {T::Fop_robot,                 "set force ratio"sv,            CNT::float_t,           "..."sv},
         // Audio
         {T::AudioSource,               "play"sv,                       CNT::void_t,            "..."sv},
         {T::AudioSource,               "pause"sv,                      CNT::void_t,            "..."sv},
@@ -532,7 +530,7 @@ struct Component {
 
     using TComponentSignals = std::tuple<
         CT,                             FunctionN,                     CNT,                            Doc>;
-    static constexpr TupleArray<62, TComponentSignals> componentsSignals = {{
+    static constexpr TupleArray<64, TComponentSignals> componentsSignals = {{
         TComponentSignals
         // Acquisition
         {T::K2_body_tracking,          "body"sv,                       CNT::kinect_body_t,             "..."sv},
@@ -552,6 +550,8 @@ struct Component {
         {T::Fop_robot,                 "slave force"sv,                CNT::float_t,                   "..."sv},
         {T::Fop_robot,                 "master force"sv,               CNT::float_t,                   "..."sv},
         {T::Sonceboz_SG,               "feedback"sv,                   CNT::transform_t,               "..."sv},
+        {T::Sonceboz_SG,               "tEnd"sv,                       CNT::float_t,                   "..."sv},
+        {T::Sonceboz_SG,               "tAcc"sv,                       CNT::float_t,                   "..."sv},
         {T::Vive_pro_eye_tracking,     "gaze direction"sv,             CNT::vector3_t,                 "..."sv},
         {T::Vive_pro_eye_tracking,     "eye openess"sv,                CNT::id_any_t,                  "..."sv},
         {T::Vive_pro_eye_tracking,     "pupil position"sv,             CNT::id_any_t,                  "..."sv},

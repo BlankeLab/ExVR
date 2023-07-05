@@ -24,6 +24,13 @@
 
 #pragma once
 
+// base
+#include "utility/unordered_map.hpp"
+
+// qt-utility
+#include "data/id_key.hpp"
+#include "qt_str.hpp"
+
 // local
 #include "component.hpp"
 #include "states.hpp"
@@ -41,7 +48,10 @@ struct Connection{
     Connection(const Connection &) = delete;
     Connection& operator=(const Connection&) = delete;
 
-    static std::unique_ptr<Connection> copy_with_new_element_id(const Connection &connectionToCopy, std::unordered_map<int,int> keysMapping){
+    constexpr auto key() const noexcept -> int{ return m_key();}
+    constexpr auto c_key() const noexcept -> ConnectionKey{return ConnectionKey{key()};}
+
+    static auto copy_with_new_element_id(const Connection &connectionToCopy, umap<int,int> keysMapping) -> std::unique_ptr<Connection>{
 
         std::unique_ptr<Connection> connection = std::make_unique<Connection>(ConnectionKey{-1});
 
@@ -69,15 +79,13 @@ struct Connection{
         return connection;
     }
 
-    inline QString to_string() const{
+    inline auto to_string() const -> QString{
         return
             QSL("Connection(") % QString::number(key()) %
             QSL("|signal:") % signal % QSL("|startDataType:") % startDataType %
             QSL("|endDataType:")  % endDataType % QSL("|slot:") % slot % QSL(")");
     }
 
-    constexpr int key() const noexcept{ return m_key();}
-    constexpr ConnectionKey c_key() const noexcept {return ConnectionKey{key()};}
 
     Type startType;
     Type endType;
@@ -100,9 +108,7 @@ private:
     IdKey m_key;
 };
 
-
-
-static bool operator<(const std::unique_ptr<Connection> &l, const std::unique_ptr<Connection> &r){
+static auto operator<(const std::unique_ptr<Connection> &l, const std::unique_ptr<Connection> &r) -> bool{
     if(l->key() == r->key()){
         return false;
     }
@@ -116,7 +122,7 @@ static bool operator<(const std::unique_ptr<Connection> &l, const std::unique_pt
     return true;
 }
 
-[[maybe_unused]]  static bool operator==(const std::unique_ptr<Connection> &l, const std::unique_ptr<Connection> &r){
+[[maybe_unused]] static auto operator==(const std::unique_ptr<Connection> &l, const std::unique_ptr<Connection> &r) -> bool{
     return !(l < r) && !(r < l);
 }
 }

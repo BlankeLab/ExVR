@@ -103,8 +103,6 @@
         <file alias="Landmark">icons/Landmark.png</file>
         <file alias="Parallel_port">icons/Parallel_port.png</file>
         <file alias="Flag_pole">icons/FlagPole.png</file>
-        <file alias="Post_process">icons/color-circle.png</file>
-        <file alias="Plane">icons/Plane.png</file>
     </qresource>
     <qresource prefix="/">
         <file alias="DefaultStyle">nodes/DefaultStyle.json</file>

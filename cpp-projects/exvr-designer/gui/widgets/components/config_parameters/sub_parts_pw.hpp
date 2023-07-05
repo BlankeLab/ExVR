@@ -44,7 +44,7 @@ protected:
     virtual void create_connections(){}
     virtual void late_update_ui(){}
 public:
-    std_v1<std::pair<QStringView, ExBaseW*>> inputUiElements;
+    std::vector<std::pair<QStringView, ExBaseW*>> inputUiElements;
     QFrame *frame = nullptr;
 };
 
@@ -60,7 +60,7 @@ public :
     void set_trans_steps(geo::Pt3<qreal> s);
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class WordSpaceCameraCanvasSubPart :  public ConfigParametersSubPart{
@@ -71,7 +71,7 @@ public:
     void set_wh_enable_state(bool w, bool h);
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class WordSpaceCanvasSubPart :  public ConfigParametersSubPart{
@@ -86,7 +86,7 @@ public:
     void late_update_ui() override;
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class EyeRendererSubPart : public ConfigParametersSubPart{
@@ -96,7 +96,7 @@ public:
     EyeRendererSubPart *init_widget();
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class TextSubPart : public ConfigParametersSubPart{
@@ -110,7 +110,7 @@ public:
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 }

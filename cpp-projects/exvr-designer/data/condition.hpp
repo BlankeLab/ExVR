@@ -37,6 +37,17 @@
 
 namespace tool::ex {
 
+
+struct NodesClipBoard{
+    static inline bool enabled = false;
+    static inline ElementKey fromRoutine;
+    static inline ConditionKey fromCondition;
+    static inline std::vector<ComponentKey> components = {};
+    static inline std::vector<ConnectorKey> connectors = {};
+    static inline std::vector<ConnectionKey> connections = {};
+};
+
+
 struct Condition  {
 
     Condition() = delete;
@@ -66,7 +77,7 @@ struct Condition  {
     Action *get_action_from_key(ActionKey actionKey, bool displayError = true) const;
     Action *get_action_from_component_key(ComponentKey componentKey, bool displayError = true) const;
     Action *get_action_from_id(RowId  idTab, bool displayError = true) const;
-    std_v1<Action*> actions_with_nodes() const;
+    std::vector<Action*> actions_with_nodes() const;
     void move_action_up(ActionKey actionKey);
     void move_action_down(ActionKey actionKey);
     void remove_action(ActionKey actionKey);
@@ -74,6 +85,7 @@ struct Condition  {
 
     inline QString to_string() const{return QSL("Condition(")  % name % QSL("|") % QString::number(key()) % QSL(")");}
 
+    auto paste_clipboard() -> void;
     // connections
     Connection *get_connection_from_key(ConnectionKey connectionKey, bool displayError = true) const;
     Connection *get_connection_from_id(RowId  idTab, bool displayError = true) const;
@@ -84,6 +96,7 @@ struct Condition  {
     Connector *get_connector_from_id(RowId  idTab, bool displayError = true) const;
     void move_connector(ConnectorKey connectorKey, QPointF pos);
     void duplicate_connector(ConnectorKey connectorKey);
+    auto duplicate_connector(QPointF position, Connector *connector) -> void;
     void remove_connector(ConnectorKey connectorKey);
     void modify_connector(ConnectorKey connectorKey, QString name, Arg arg);
 
@@ -108,14 +121,9 @@ struct Condition  {
 
     bool selected = false;
 
-    std_v1<std::unique_ptr<Connection>> connections;
-    std_v1<std::unique_ptr<Connector>> connectors;
-    std_v1<std::unique_ptr<Action>> actions;
-
-    // copy
-    static inline bool currentNodesCopySet = false;
-    static inline std_v1<std::unique_ptr<Connector>> connectorsToCopy = {};
-    static inline std_v1<std::unique_ptr<Connection>> connectionsToCopy = {};
+    std::vector<std::unique_ptr<Connection>> connections;
+    std::vector<std::unique_ptr<Connector>> connectors;
+    std::vector<std::unique_ptr<Action>> actions;
 
 private:
 

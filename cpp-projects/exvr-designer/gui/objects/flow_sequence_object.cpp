@@ -295,14 +295,14 @@ void FlowSequenceO::check_click_on_elements(QPoint clickPos) noexcept{
             return;
         }
 
-        int id = to_signed(flow_position(moveElem));
+        int id = to_int(flow_position(moveElem));
         if(moveElem->moveLeftElement->uiElemRect.contains(clickPos) && id > 1){
-            emit GSignals::get()->move_element_left_signal(to_unsigned(id));
+            emit GSignals::get()->move_element_left_signal(to_size_t(id));
             return;
         }
 
-        if(moveElem->moveRightElement->uiElemRect.contains(clickPos) && to_unsigned(id) < elements.size()-2){
-            emit GSignals::get()->move_element_right_signal(to_unsigned(id));
+        if(moveElem->moveRightElement->uiElemRect.contains(clickPos) && to_size_t(id) < elements.size()-2){
+            emit GSignals::get()->move_element_right_signal(to_size_t(id));
             return;
         }
     }

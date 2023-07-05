@@ -88,6 +88,12 @@ private slots :
     void message_from_exp_launcher(QString message);
     void error_message_from_exp_launcher(QStringView error);
 
+    auto close_exp_launcher_process() -> void;
+
+signals:
+
+    auto stop_exp_launcher_signal() -> void;
+
 private :
 
     std::optional<QStringView> extract_balise(QStringView &message);

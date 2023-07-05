@@ -27,8 +27,10 @@
 
 // Qt
 #include <QObject>
-#include <QDesktopWidget>
 #include <QMetaEnum>
+
+// base
+#include <utility/unordered_map.hpp>
 
 // qt-utility
 #include "qt_logger.hpp"
@@ -61,7 +63,7 @@ class ExVrController : public QObject{
 
 public :
 
-    ExVrController(const QString &nVersion, bool lncoComponents);
+    ExVrController(const QString &nVersion);
 
     inline Experiment *exp(){return ExperimentManager::get()->current();}
     inline DesignerWindow *ui(){return m_designerWindow.get();}
@@ -170,8 +172,7 @@ private :
     CopyToConditionDialog m_copyToCondD;
     SettingsDialog m_settingsD;
 
-    std::unordered_map<QEvent::Type, std::unordered_map<QString, int>> countEvents;
-
+    umap<QEvent::Type, umap<QString, int>> countEvents;
 
     // experiment launcher
     std::unique_ptr<ExpLauncher> m_expLauncher = nullptr;

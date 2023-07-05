@@ -193,7 +193,7 @@ void ExComponentsListW::update_from_components(){
 
 
     // remove component keys not existing anymore
-    std_v1<int> elemsToRemove;
+    std::vector<int> elemsToRemove;
     for(size_t ii = 0; ii < m_componentsKeys.size(); ++ii){
 
         bool found = false;
@@ -222,7 +222,7 @@ void ExComponentsListW::update_from_components(){
         for(size_t ii = 0; ii < m_componentsKeys.size(); ++ii){
 
             if(component->key() == m_componentsKeys[ii]){
-                dynamic_cast<QLabel*>(m_list->widget_at(to_signed(ii)))->setText(component->name());
+                dynamic_cast<QLabel*>(m_list->widget_at(to_int(ii)))->setText(component->name());
                 found = true;
                 break;
             }

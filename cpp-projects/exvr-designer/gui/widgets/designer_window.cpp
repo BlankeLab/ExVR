@@ -54,7 +54,7 @@
 
 using namespace tool::ex;
 
-DesignerWindow::DesignerWindow(bool lncoComponents, QWidget *parent) : QMainWindow(parent){
+DesignerWindow::DesignerWindow(QWidget *parent) : QMainWindow(parent){
 
     // define designer ui
     m_ui.setupUi(this);        
@@ -86,7 +86,7 @@ DesignerWindow::DesignerWindow(bool lncoComponents, QWidget *parent) : QMainWind
 
     create_flow_diagram();
     create_logger();
-    create_components_manager(lncoComponents);    
+    create_components_manager();
     create_routines_manager();
     create_element_viewer();
     resizeDocks({m_dwLogs, m_dwComponents}, {3, 5}, Qt::Vertical);
@@ -125,6 +125,7 @@ void DesignerWindow::set_window_settings(){
 
     resize(sizeWindow);
 }
+
 
 void DesignerWindow::close_program(){
 
@@ -522,6 +523,11 @@ void DesignerWindow::create_actions(){
         abort();
     });
 
+    m_fixColors.setText(tr("&Fix colors"));
+    m_fixColors.setStatusTip(tr("Fix colors"));
+    connect(&m_fixColors, &QAction::triggered, GSignals::get(), &GSignals::fix_colors_signal);
+
+
     m_fullLoadWith0DurationAct.setText(tr("&Load with 0.2 duration"));
     m_fullLoadWith0DurationAct.setStatusTip(tr("&Load full experiment with default instance (0.2s duration for each routine)"));
     connect(&m_fullLoadWith0DurationAct, &QAction::triggered, this, &DesignerWindow::load_full_exp_with_02duration_signal);
@@ -612,7 +618,7 @@ void DesignerWindow::create_actions(){
     m_showCSharpScriptDirectoryAct.setStatusTip(tr("Show C# scripts default directory"));
     m_showCSharpScriptDirectoryAct.setIcon(QIcon(":/icons/Open"));
     connect(&m_showCSharpScriptDirectoryAct, &QAction::triggered, this, [=]{
-       QDesktopServices::openUrl(QUrl(Paths::scriptsCSharpDir, QUrl::TolerantMode));
+        QDesktopServices::openUrl(QUrl::fromLocalFile(Paths::scriptsCSharpDir));
     });
 
     m_focusFlowAct.setText(tr("&Display only flow panel"));
@@ -722,6 +728,8 @@ void DesignerWindow::create_menu(){
     menu->addSeparator();
     menu->addAction(&m_benchmarkAct);
     menu->addAction(&m_crashAct);
+    menu->addAction(&m_fixColors);
+
     menu->addAction(&m_deleteUnusedComponentAct);
     menu->addAction(&m_displayKeysAct);
     menu->addAction(&m_fullLoadWith0DurationAct);
@@ -745,14 +753,14 @@ void DesignerWindow::create_toolbar(){
     tb->setAllowedAreas(Qt::ToolBarArea::TopToolBarArea);
     tb->setContextMenuPolicy(Qt::PreventContextMenu);
 
-        m_newFileButton.setDefaultAction(&m_newExperimentAct);
-        tb->addWidget(&m_newFileButton);
+    m_newFileButton.setDefaultAction(&m_newExperimentAct);
+    tb->addWidget(&m_newFileButton);
 
-        m_saveAsButton.setDefaultAction(&m_saveAsExperimentAct);
-        tb->addWidget(&m_saveAsButton);
+    m_saveAsButton.setDefaultAction(&m_saveAsExperimentAct);
+    tb->addWidget(&m_saveAsButton);
 
-        m_openButton.setDefaultAction(&m_loadExperimentAct);
-        tb->addWidget(&m_openButton);
+    m_openButton.setDefaultAction(&m_loadExperimentAct);
+    tb->addWidget(&m_openButton);
 
     tb->addSeparator();
 
@@ -915,9 +923,9 @@ void DesignerWindow::create_flow_diagram(){
     m_ui.hlFlows->insertWidget(0,m_flowDiagramW.get());
 }
 
-void DesignerWindow::create_components_manager(bool lncoComponents){
+void DesignerWindow::create_components_manager(){
 
-    m_componentsW = std::make_unique<ComponentsManagerW>(lncoComponents);
+    m_componentsW = std::make_unique<ComponentsManagerW>();
 
     m_dwComponents = new QDockWidget(this);
     m_dwComponents->setWindowTitle("Components");

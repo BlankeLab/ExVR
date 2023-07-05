@@ -47,7 +47,7 @@ using namespace tool::ex;
 //    return nullptr;
 //}
 
-std_v1<Resource *> ResourcesManager::get_resources(Resource::Type type) const{
+std::vector<Resource *> ResourcesManager::get_resources(Resource::Type type) const{
 
     if(m_resourcesPerType.count(type) == 0){
         return {};
@@ -265,7 +265,7 @@ void ResourcesManager::remove_resource(Resource::Type type, size_t index){
     m_paths.erase(resourceToRemove->path.toStdString());
     m_aliases.erase(resourceToRemove->alias.toStdString());
 
-    m_resourcesPerType[type].erase(m_resourcesPerType[type].begin() + to_signed(index));
+    m_resourcesPerType[type].erase(m_resourcesPerType[type].begin() + to_int(index));
     m_resources.erase(resourceToRemove->key());
 }
 

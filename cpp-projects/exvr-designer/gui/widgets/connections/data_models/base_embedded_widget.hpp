@@ -32,11 +32,7 @@
 #include <QFontMetrics>
 #include <QPlainTextEdit>
 
-// base
-#include "utility/benchmark.hpp"
-
 // qt-utility
-#include "qt_str.hpp"
 #include "data/argument.hpp"
 #include "gui/ex_widgets/ex_label_w.hpp"
 
@@ -44,6 +40,7 @@
 #include "gui/widgets/connections/data_models/data/nodes_data.hpp"
 
 namespace tool::ex{
+
 
 class NodeDataDisplayDialog : public QDialog {
 
@@ -55,11 +52,15 @@ public:
 
     void add_row_in_dialog(QString name, QWidget *w, bool horizontalLayout);
     bool node_settings_execute(QPoint pos);
+    bool node_settings_execute(QPoint pos, QWidget *cw);
 
     QVBoxLayout *layout = nullptr;
 
+    constexpr auto is_popup() const noexcept {return m_popup;}
+
 private:
     bool m_popup = true;
+    std::unique_ptr<QMenu> m_popupMenu = nullptr;
 };
 
 
@@ -92,9 +93,12 @@ public:
 
 signals:
 
-    void update_internal_data_signal(std_v1<size_t> indexes, std_v1<std::shared_ptr<NodeData>> nodes);
+    void update_internal_data_signal(std::vector<size_t> indexes, std::vector<std::shared_ptr<NodeData>> nodes);
     void compute_data_signal();
     void ask_node_to_update();
+
+    auto popup_opened_signal()  -> void;
+    auto popup_closed_signal() -> void;
 
 protected:
 
@@ -104,12 +108,13 @@ protected:
     QPushButton m_helpButton;
 
     std::optional<QString> m_dialogTitle;
-    std_v1<std::tuple<QString, QWidget*, bool>> m_dialogWidgetsRows;
+    std::vector<std::tuple<QString, QWidget*, bool>> m_dialogWidgetsRows;
     std::unique_ptr<NodeDataDisplayDialog> m_dataDisplayD = nullptr;
 
 
     static const QString buttonStyle1;
     static const QString buttonStyle2;
+
 };
 
 template <typename W>

@@ -24,6 +24,8 @@
 
 #include "exvr_controller.hpp"
 
+#include "utility/benchmark.hpp"
+
 // qt-utility
 #include "qt_str.hpp"
 #include "gui/widgets/list_widget.hpp"
@@ -46,7 +48,7 @@ using ROU   = RoutinesManagerTW;
 using COM   = ComponentsManagerW;
 using ELW   = ElementViewerW;
 
-ExVrController::ExVrController(const QString &nVersion, bool lncoComponents){
+ExVrController::ExVrController(const QString &nVersion){
 
     QThread::currentThread()->setObjectName("main");
 
@@ -88,8 +90,8 @@ ExVrController::ExVrController(const QString &nVersion, bool lncoComponents){
 
     Bench::disable_display();
 
-    QtLogger::message("[CONTROLLER] Generate signals");
-    GSignals::init();
+//    QtLogger::message("[CONTROLLER] Generate signals");
+//    GSignals::get();
 
     QtLogger::message("[CONTROLLER] Initialize experiment");
     ExperimentManager::init();
@@ -99,7 +101,7 @@ ExVrController::ExVrController(const QString &nVersion, bool lncoComponents){
     m_xmlManager = std::make_unique<XmlIoManager>(exp());
 
     QtLogger::message("[CONTROLLER] Generate UI");
-    m_designerWindow = std::make_unique<DesignerWindow>(lncoComponents);
+    m_designerWindow = std::make_unique<DesignerWindow>();
 
     // generate exp launcher
     QtLogger::message("[CONTROLLER] Generate Exp Launcher");
@@ -112,7 +114,6 @@ ExVrController::ExVrController(const QString &nVersion, bool lncoComponents){
     emit start_communication_signal();
 
     // dialogs
-    m_documentationD.enable_lnco_components(lncoComponents);
     m_benchmarkD     = std::make_unique<BenchmarkDialog>();
 
     // connections
@@ -361,12 +362,12 @@ void ExVrController::show_got_to_specific_instance_element_dialog(){
         ++totalRows;
     }
 
-    twInstanceElements->setRowCount(to_signed(totalRows));
+    twInstanceElements->setRowCount(to_int(totalRows));
     twInstanceElements->setColumnCount(4);
     twInstanceElements->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     int orderId = 0;
-    std::unordered_map<int,std::unordered_map<QString, int>> countIterations;
+    umap<int, umap<QString,int>> countIterations;
 
     twInstanceElements->setHorizontalHeaderLabels({"Element type", "Element name", "Condition/interval", "Condition iteration"});
     for(const auto &element : m_currentInstance->flow){
@@ -532,10 +533,10 @@ void ExVrController::show_component_informations_dialog(ComponentKey componentKe
 
     if(const auto component = exp()->get_component(componentKey); component != nullptr){
 
-        std_v1<std::tuple<Routine*,std_v1<std::tuple<Condition*, Action*>>>> containingComponent;
-        std_v1<std::tuple<Routine*,std_v1<Condition*>>> notContainingComponent;
-        std::unordered_map<int, Config*> usedConfigs;
-        std::unordered_map<int, Config*> notUsedConfigs;
+        std::vector<std::tuple<Routine*,std::vector<std::tuple<Condition*, Action*>>>> containingComponent;
+        std::vector<std::tuple<Routine*,std::vector<Condition*>>> notContainingComponent;
+        umap<int, Config*> usedConfigs;
+        umap<int, Config*> notUsedConfigs;
 
         auto routines = exp()->get_elements_from_type<Routine>();
         for(const auto &routine : routines){
@@ -544,8 +545,8 @@ void ExVrController::show_component_informations_dialog(ComponentKey componentKe
                 continue;
             }
 
-            std_v1<std::tuple<Condition*, Action*>> conditionsContainingComponent;
-            std_v1<Condition*> conditionsNotContainingComponent;
+            std::vector<std::tuple<Condition*, Action*>> conditionsContainingComponent;
+            std::vector<Condition*> conditionsNotContainingComponent;
             for(const auto& condition : routine->conditions){
                 if(auto action = condition->get_action_from_component_key(componentKey, false); action != nullptr){
                     conditionsContainingComponent.emplace_back(std::make_tuple(condition.get(), action));
@@ -1064,6 +1065,7 @@ void ExVrController::generate_global_signals_connections(){
     // # ui
     connect(s, &GSignals::toggle_mode_signal,                         exp(), &EXP::toggle_design_mode);
     connect(s, &GSignals::toggle_follow_condition_mode_signal,        exp(), &EXP::toggle_follow_condition_mode);
+    connect(s, &GSignals::fix_colors_signal,                          exp(), &EXP::fix_colors);
     // # state
     connect(s, &GSignals::exp_state_updated_signal,                   exp(), &EXP::update_exp_state);
     connect(s, &GSignals::exp_launcher_state_updated_signal,          exp(), &EXP::update_exp_launcher_state);
@@ -1195,9 +1197,11 @@ void ExVrController::generate_global_signals_connections(){
     connect(s, &GSignals::component_node_moved_signal,                exp(), &EXP::move_component_node);
     connect(s, &GSignals::delete_nodes_and_connections_signal,        exp(), &EXP::delete_nodes_and_connections);
     connect(s, &GSignals::delete_selected_nodes_signal,               exp(), &EXP::delete_selected_nodes);
+    connect(s, &GSignals::duplicate_selected_nodes_signal,            exp(), &EXP::duplicate_selected_nodes);
     connect(s, &GSignals::delete_connections_signal,                  exp(), &EXP::delete_connections);
     connect(s, &GSignals::unselect_nodes_and_connections_signal,      exp(), &EXP::unselect_nodes_and_connections);
     connect(s, &GSignals::select_nodes_and_connections_signal,        exp(), &EXP::select_nodes_and_connections);
+    connect(s, &GSignals::paste_nodes_clip_board_signal,              exp(), &EXP::paste_nodes_clip_board);
 
     // -> exp launcher
     connect(s, &GSignals::connector_node_modified_signal, [&](ElementKey routineKey, ConditionKey conditionKey, ConnectorKey connectorKey, QString name, Arg arg){

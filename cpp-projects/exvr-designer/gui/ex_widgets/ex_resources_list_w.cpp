@@ -171,7 +171,7 @@ void ExResourcesListW::update_from_resources(){
     if(auto resources = ExperimentManager::get()->current()->resM.get_resources(m_resourceType.value()); resources.size() > 0){
 
         // remove resources keys not existing anymore
-        std_v1<int> elemsToRemove;
+        std::vector<int> elemsToRemove;
         for(size_t ii = 0; ii < m_resourcesKeys.size(); ++ii){
 
             bool found = false;
@@ -201,7 +201,7 @@ void ExResourcesListW::update_from_resources(){
             for(size_t ii = 0; ii < m_resourcesKeys.size(); ++ii){
 
                 if(resource->key() == m_resourcesKeys[ii]){
-                    dynamic_cast<QLabel*>(m_list->widget_at(to_signed(ii)))->setText(resource->alias);
+                    dynamic_cast<QLabel*>(m_list->widget_at(to_int(ii)))->setText(resource->alias);
                     found = true;
                     break;
                 }

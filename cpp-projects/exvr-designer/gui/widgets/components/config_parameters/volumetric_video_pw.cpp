@@ -36,6 +36,8 @@
 
 // local
 #include "gui/ex_widgets/ex_resources_list_w.hpp"
+#include "gui/ex_widgets/ex_tab_w.hpp"
+#include "gui/ex_widgets/ex_oob_filtering_w.hpp"
 
 using namespace tool::ex;
 using namespace tool::ui;
@@ -74,7 +76,7 @@ void VolumetricVideoInitConfigParametersW::update_with_info(QStringView id, QStr
 
 struct VolumetricVideoConfigParametersW::Impl{
 
-    TransformSubPart transfo{"transform"};
+    TransformSubPart tr{"global_transform"};
 
     // video
     ExCheckBoxW loop{"loop"};
@@ -85,6 +87,9 @@ struct VolumetricVideoConfigParametersW::Impl{
     ExCheckBoxW enableAudio{"enable_audio"};
     ExSpinBoxW audioCameraId{"audio_id"};
     ExFloatSpinBoxW volume{"volume"};
+
+    // display
+    ExCheckBoxW displayClouds{"display_clouds"};
 
     // rendering
     ExFloatSpinBoxW sizePoints{"size_points"};
@@ -97,7 +102,9 @@ struct VolumetricVideoConfigParametersW::Impl{
     // filtering obb
     ExCheckBoxW filterPointsOutsideOBB{"filter_points_outside_obb"};
     ExCheckBoxW displayFilteringOBB{"display_filtering_obb"};
-    TransformSubPart filteringObbTr{"filtering_obb_tr"};
+    ExTabW<OBBFilteringW> filteringObbTab{"filtering_obb_tab"};
+
+    QTabWidget *tw = nullptr;
 };
 
 VolumetricVideoConfigParametersW::VolumetricVideoConfigParametersW() :  ConfigParametersW(), m_p(std::make_unique<Impl>()){
@@ -105,33 +112,50 @@ VolumetricVideoConfigParametersW::VolumetricVideoConfigParametersW() :  ConfigPa
 
 void VolumetricVideoConfigParametersW::insert_widgets(){
 
-    add_sub_part_widget(m_p->transfo);
-    add_widget(F::gen(L::VB(),{W::txt("<b>Video: </b>"),
-        m_p->loop(),
-        F::gen(L::HB(), {W::txt("Duration (s), from: "), m_p->startTime(),W::txt(" to: "), m_p->endTime()}, LStretch{true}, LMargins{false}, QFrame::NoFrame)
-    }, LStretch{false}, LMargins{true},QFrame::Box));
+    add_sub_part_widget(m_p->tr);
+    add_widget(m_p->tw = new QTabWidget());
+    m_p->tw->addTab(
+        F::gen(L::VB(),{
+            m_p->loop(),
+            F::gen(L::HB(), {W::txt("Duration (s), from: "), m_p->startTime(),W::txt(" to: "), m_p->endTime()}, LStretch{true}, LMargins{false}, QFrame::NoFrame)
+        }, LStretch{true}, LMargins{true}, QFrame::NoFrame), "Video"
+    );
 
-    add_widget(F::gen(L::VB(),{W::txt("<b>Audio: </b>"),
-        m_p->enableAudio(),
-        F::gen(L::HB(), {m_p->enableAudio(), W::txt("Audio id: "), m_p->audioCameraId()}, LStretch{true}, LMargins{false}, QFrame::NoFrame),
-        F::gen(L::HB(), {W::txt("Volume: "), m_p->volume()}, LStretch{false}, LMargins{false}, QFrame::NoFrame)
-    },LStretch{false}, LMargins{true},QFrame::Box));
+    m_p->tw->addTab(
+        F::gen(L::VB(),{
+            m_p->enableAudio(),
+            F::gen(L::HB(), {m_p->enableAudio(), W::txt("Audio id: "), m_p->audioCameraId()}, LStretch{true}, LMargins{false}, QFrame::NoFrame),
+            F::gen(L::HB(), {W::txt("Volume: "), m_p->volume()}, LStretch{false}, LMargins{false}, QFrame::NoFrame)
+        }, LStretch{true}, LMargins{true}, QFrame::NoFrame), "Audio"
+    );
 
+    m_p->tw->addTab(
+        F::gen(L::VB(),{
+            m_p->displayClouds()
+        }, LStretch{true}, LMargins{true}, QFrame::NoFrame), "Display"
+    );
 
-    add_widget(F::gen(L::VB(),{W::txt("<b>Rendering: </b>"),
-        F::gen(L::HB(),{W::txt("Size points: "),m_p->sizePoints()}, LStretch{true}, LMargins{false},QFrame::NoFrame),
-        F::gen(L::HB(),{W::txt("Rendering: "), m_p->rendering()}, LStretch{true}, LMargins{false},QFrame::NoFrame),
-        F::gen(L::HB(),{W::txt("Points color tint: "), m_p->tint()}, LStretch{true}, LMargins{false},QFrame::NoFrame),
-        m_p->renderCircles(), m_p->parabloidFragCones(),
-        F::gen(L::HB(),{W::txt("Parbloid geo details: "), m_p->parabloidGeoDetails()}, LStretch{true}, LMargins{false},QFrame::NoFrame)
-    }, LStretch{false}, LMargins{true},QFrame::Box));
+    m_p->tw->addTab(
+        F::gen(L::VB(),{
+             F::gen(L::HB(),{W::txt("Size points: "),m_p->sizePoints()}, LStretch{true}, LMargins{false},QFrame::NoFrame),
+             F::gen(L::HB(),{W::txt("Rendering: "), m_p->rendering()}, LStretch{true}, LMargins{false},QFrame::NoFrame),
+             F::gen(L::HB(),{W::txt("Points color tint: "), m_p->tint()}, LStretch{true}, LMargins{false},QFrame::NoFrame),
+             m_p->renderCircles(), m_p->parabloidFragCones(),
+             F::gen(L::HB(),{W::txt("Parbloid geo details: "), m_p->parabloidGeoDetails()}, LStretch{true}, LMargins{false},QFrame::NoFrame
+        )}, LStretch{true}, LMargins{true}, QFrame::NoFrame), "Rendering"
+    );
 
-    add_widget(F::gen(L::VB(),{W::txt("<b>Filtering oriented bounding box: </b>"),
-        m_p->filterPointsOutsideOBB(), m_p->displayFilteringOBB(), m_p->filteringObbTr.frame}, LStretch{false}, LMargins{true},QFrame::Box));
+    m_p->tw->addTab(
+        F::gen(L::VB(),{
+            F::gen(L::HB(), {m_p->filterPointsOutsideOBB(), m_p->displayFilteringOBB()}, LStretch{true}, LMargins{false},QFrame::NoFrame),
+            m_p->filteringObbTab()
+        },LStretch{false}, LMargins{true},QFrame::NoFrame), "Filtering oriented bounding box"
+    );
 }
 
 void VolumetricVideoConfigParametersW::init_and_register_widgets(){
-    map_sub_part(m_p->transfo.init_widget(QSL("Config transform</b> (applied when routine starts)<b>")));
+
+    map_sub_part(m_p->tr.init_widget("Global model transform"));
     // video
     add_input_ui(m_p->loop.init_widget("Loop video", true));
     add_input_ui(m_p->startTime.init_widget(MinV<qreal>{0.0}, V<qreal>{0.0}, MaxV<qreal>{1000.}, StepV<qreal>{0.1}, 2));
@@ -140,8 +164,10 @@ void VolumetricVideoConfigParametersW::init_and_register_widgets(){
     add_input_ui(m_p->enableAudio.init_widget("Enable audio", true));    
     add_input_ui(m_p->volume.init_widget(MinV<qreal>{0}, V<qreal>{1.f}, MaxV<qreal>{1.f}, StepV<qreal>{0.01}, 2));
     add_input_ui(m_p->audioCameraId.init_widget(MinV<int>{0}, V<int>{0}, MaxV<int>{100}, StepV<int>{1}));
+    // display
+    add_input_ui(m_p->displayClouds.init_widget("Display clouds", true));
     // rendering
-    add_input_ui(m_p->sizePoints.init_widget(MinV<qreal>{0.0001}, V<qreal>{0.0025}, MaxV<qreal>{0.05}, StepV<qreal>{0.0001},4));
+    add_input_ui(m_p->sizePoints.init_widget(MinV<qreal>{0.0001}, V<qreal>{0.0030}, MaxV<qreal>{0.05}, StepV<qreal>{0.0001},4));
     add_input_ui(m_p->rendering.init_widget({"Quad", "ParabloidFrag", "ParabloidGeo"}, 2));
     add_input_ui(m_p->parabloidGeoDetails.init_widget({"None", "Low", "Middle", "Hight"}, 3));
     add_input_ui(m_p->tint.init_widget("Points tint", QColor(255,255,255,0)));
@@ -150,6 +176,6 @@ void VolumetricVideoConfigParametersW::init_and_register_widgets(){
     // filtering obb
     add_input_ui(m_p->filterPointsOutsideOBB.init_widget("Remove points outside", false));
     add_input_ui(m_p->displayFilteringOBB.init_widget("Display", false));
-    map_sub_part(m_p->filteringObbTr.init_widget("Transform"));
+    add_input_ui(m_p->filteringObbTab.init_widget("Filtering OBBs", OBBFilteringW::generate_init_any_array(QColor(200,0,0,50)), 10, QTabWidget::TabPosition::North));
 }
 

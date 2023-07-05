@@ -66,7 +66,7 @@ void Routine::select_condition(ConditionKey conditionKey){
 }
 
 void Routine::move_condition_down(RowId id){
-    if(id.v + 1 < to_signed(conditions.size())){
+    if(id.v + 1 < to_int(conditions.size())){
         std::swap(conditions[id.v], conditions[id.v+1]);
     }
 }

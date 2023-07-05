@@ -24,6 +24,9 @@
 
 #pragma once
 
+// base
+#include "utility/unordered_map.hpp"
+
 // qt-utility
 #include "qt_str.hpp"
 
@@ -48,7 +51,7 @@ public :
     ExParametersGeneratorWidgetW(QString name ="");
     ~ExParametersGeneratorWidgetW() override;
 
-    ExParametersGeneratorWidgetW *init_widget(std::unordered_map<QStringView, ExBaseW*> *inputUiElements, bool enabled = true);
+    ExParametersGeneratorWidgetW *init_widget(umap<QStringView, ExBaseW*> *inputUiElements, bool enabled = true);
 
     void update_from_arg(const Arg &arg) override;
     Arg convert_to_arg() const override;
@@ -72,8 +75,8 @@ private:
 
 //    int currentId = 0;
     QVector<QStringView> elementsOrder;
-    std::unordered_map<QStringView, ExBaseW*> generatorElements;
-    std::unordered_map<QStringView, ExBaseW*> *m_inputUiElements = nullptr;
+    umap<QStringView, ExBaseW*> generatorElements;
+    umap<QStringView, ExBaseW*> *m_inputUiElements = nullptr;
 
 signals:
 

@@ -58,7 +58,7 @@ private:
     QPushButton *m_remove = nullptr;
     ui::ListWidget *m_list = nullptr;
 
-    std_v1<int> m_resourcesKeys;
+    std::vector<int> m_resourcesKeys;
 };
 
 }

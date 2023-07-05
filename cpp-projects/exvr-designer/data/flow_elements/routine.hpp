@@ -71,7 +71,7 @@ struct Routine : public FlowElement {
     bool isARandomizer = false;
     std::vector<std::unique_ptr<Condition>> conditions;
 
-//    std_v1<std::unique_ptr<Condition>> ghostsConditions; // condition that could be restored
+//    std::vector<std::unique_ptr<Condition>> ghostsConditions; // condition that could be restored
 };
 
 //[[maybe_unused]] static bool operator<(const std::unique_ptr<Routine> &l, const std::unique_ptr<Routine> &r){

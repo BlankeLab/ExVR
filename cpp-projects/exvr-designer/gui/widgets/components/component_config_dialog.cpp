@@ -199,11 +199,11 @@ void ComponentConfigDialog::update_from_component(Component *component){
     Bench::start("[ComponentsConfigDialog 2]"sv);
 
     // reorder
-    for(int ii = 0; ii < to_signed(component->configs.size()); ++ii){
+    for(int ii = 0; ii < to_int(component->configs.size()); ++ii){
         for(int jj = 0; jj < m_ui.tabConfigs->count(); ++jj){
 
             auto cw = get_config_widget(jj);
-            if(cw->configKey.v == component->configs[to_unsigned(ii)]->key()){
+            if(cw->configKey.v == component->configs[to_size_t(ii)]->key()){
                 if(ii != jj){
                     m_ui.tabConfigs->tabBar()->moveTab(jj,ii);
                 }
@@ -226,14 +226,14 @@ void ComponentConfigDialog::update_from_component(Component *component){
 
         if(!found){ // insert tab for the new config
             Config *config = component->configs[ii].get();
-            m_ui.tabConfigs->insertTab(to_signed(ii), new ConfigW(config, component, false, config->args), config->name);
+            m_ui.tabConfigs->insertTab(to_int(ii), new ConfigW(config, component, false, config->args), config->name);
         }
     }
 
     // update tab textes with configs name
     QStringList items;
     for(size_t ii = 0; ii < component->configs.size(); ++ii){
-        m_ui.tabConfigs->setTabText(to_signed(ii), component->configs[ii]->name);
+        m_ui.tabConfigs->setTabText(to_int(ii), component->configs[ii]->name);
         items << component->configs[ii]->name;
     }
     m_ui.pbRemoveConfig->setEnabled(m_ui.tabConfigs->count() > 1);

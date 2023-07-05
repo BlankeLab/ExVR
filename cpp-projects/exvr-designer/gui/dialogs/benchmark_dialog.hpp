@@ -24,6 +24,9 @@
 
 #pragma once
 
+// base
+#include "utility/unordered_map.hpp"
+
 // Qt
 #include <QDialog>
 #include <QTableWidget>
@@ -42,7 +45,7 @@ public:
     void update(bool sort);
     //int headerData(int section, Qt::Orientation orientation, int role) const;
 
-    std::unordered_map<std::string_view, size_t> elementsRow;
+    umap<std::string_view, size_t> elementsRow;
     std::vector<std::tuple<std::string_view, QString, std::int64_t, bool, size_t>> elements;
 };
 

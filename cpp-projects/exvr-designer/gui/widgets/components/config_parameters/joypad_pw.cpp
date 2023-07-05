@@ -126,11 +126,11 @@ void JoypadInitConfigParametersW::insert_widgets(){
     gl->addWidget(ui::W::txt("<b>Dead zone J2</b>"),   0, 4, 1, 1);
 
     for(size_t ii = 0; ii < m_p->axisNames.size(); ++ii){
-        gl->addWidget(ui::W::txt(m_p->axisNames[ii]),    to_signed(ii + 1), 0, 1, 1);
-        gl->addWidget(m_p->axes1Le[ii]->w.get(),         to_signed(ii + 1), 1, 1, 1);
-        gl->addWidget(m_p->axes1Dead[ii]->w.get(),       to_signed(ii + 1), 2, 1, 1);
-        gl->addWidget(m_p->axes2Le[ii]->w.get(),         to_signed(ii + 1), 3, 1, 1);
-        gl->addWidget(m_p->axes2Dead[ii]->w.get(),       to_signed(ii + 1), 4, 1, 1);
+        gl->addWidget(ui::W::txt(m_p->axisNames[ii]),    to_int(ii + 1), 0, 1, 1);
+        gl->addWidget(m_p->axes1Le[ii]->w.get(),         to_int(ii + 1), 1, 1, 1);
+        gl->addWidget(m_p->axes1Dead[ii]->w.get(),       to_int(ii + 1), 2, 1, 1);
+        gl->addWidget(m_p->axes2Le[ii]->w.get(),         to_int(ii + 1), 3, 1, 1);
+        gl->addWidget(m_p->axes2Dead[ii]->w.get(),       to_int(ii + 1), 4, 1, 1);
     }
 
 
@@ -141,9 +141,9 @@ void JoypadInitConfigParametersW::insert_widgets(){
     gl->addWidget(ui::W::txt("<b>J2</b>"),      0, 2, 1, 1);
 
     for(size_t ii = 0; ii < m_p->buttonsNames.size(); ++ii){
-        gl->addWidget(ui::W::txt(m_p->buttonsNames[ii]), to_signed(ii + 1), 0, 1, 1);
-        gl->addWidget(m_p->buttons1Cf[ii]->w.get(),      to_signed(ii + 1), 1, 1, 1);
-        gl->addWidget(m_p->buttons2Cf[ii]->w.get(),      to_signed(ii + 1), 2, 1, 1);
+        gl->addWidget(ui::W::txt(m_p->buttonsNames[ii]), to_int(ii + 1), 0, 1, 1);
+        gl->addWidget(m_p->buttons1Cf[ii]->w.get(),      to_int(ii + 1), 1, 1, 1);
+        gl->addWidget(m_p->buttons2Cf[ii]->w.get(),      to_int(ii + 1), 2, 1, 1);
     }
 
     add_widget(ui::F::gen(ui::L::HB(), {allAxis,allButtons}, LStretch{false}, LMargins{false}, QFrame::NoFrame));

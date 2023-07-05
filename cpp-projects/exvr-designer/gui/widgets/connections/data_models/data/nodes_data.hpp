@@ -61,11 +61,9 @@ static QString get_name(ConnectionNode::Type t){
     return tool::from_view(ConnectionNode::get_name(t));
 }
 
-
 template<class T>
-QString apply_str_convertion(const T &value){
+auto apply_str_convertion(const T &value) -> QString{
 
-    static_cast<void>(value); // for removing unused warning
     if constexpr(!std::is_same_v<T, std::shared_ptr<NodeData>>){        
         if constexpr(std::is_same_v<T, QStringList>){
             return str::Convertor::to_str(value, " ");
@@ -231,7 +229,7 @@ using GameObjectListData        = TypeNodeData<CNT::gameobject_list_t, Undefined
 using ComponentOutData          = TypeNodeData<CNT::component_out_data_t, UndefinedV>;
 
 
-[[maybe_unused]] static QtNodes::NodeDataType generate_node_data_type(ConnectionNode::Type type){
+[[maybe_unused]] static auto generate_node_data_type(ConnectionNode::Type type) -> QtNodes::NodeDataType{
     const auto nodeType = get_id(type);
     const auto nodeName = get_name(type);
     if(nodeType.length() > 0 || nodeName.length() > 0){
@@ -241,7 +239,7 @@ using ComponentOutData          = TypeNodeData<CNT::component_out_data_t, Undefi
     return NodeDataType();
 }
 
-[[maybe_unused]] static QString convert_node_data_to_string(std::shared_ptr<QtNodes::NodeData> nodeData){
+[[maybe_unused]] static auto convert_node_data_to_string(std::shared_ptr<QtNodes::NodeData> nodeData) -> QString{
     return std::dynamic_pointer_cast<BaseNodeData>(nodeData)->value_as_text();
 }
 

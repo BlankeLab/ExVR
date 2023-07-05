@@ -29,7 +29,7 @@
 #include "gui/ex_widgets/ex_checkbox_w.hpp"
 #include "gui/ex_widgets/ex_line_edit_w.hpp"
 #include "gui/ex_widgets/ex_label_w.hpp"
-#include "qt_logger.hpp"
+#include "gui/ex_widgets/ex_spin_box_w.hpp"
 
 // local
 #include "gui/ex_widgets/ex_resource_w.hpp"
@@ -146,18 +146,21 @@ void K4ManagerInitConfigParametersW::update_with_info(QStringView id, QStringVie
 }
 
 struct K4ManagerConfigParametersW::Impl{
+    ExSpinBoxW delay{"delay"};
     ExLabelW infos{"infos"};
-    QStringList frameInfos = {};
+    QStringList frameInfos = {};    
 };
 
 K4ManagerConfigParametersW::K4ManagerConfigParametersW():  ConfigParametersW(), m_p(std::make_unique<Impl>()){
 }
 
 void K4ManagerConfigParametersW::insert_widgets(){
+    add_widget(ui::F::gen(ui::L::HB(), {ui::W::txt("Delay (ms):"), m_p->delay()}, LStretch{false}, LMargins{true}, QFrame::NoFrame));
     add_widget(ui::F::gen(ui::L::VB(), {ui::W::txt("Infos:"), m_p->infos()}, LStretch{false}, LMargins{true}, QFrame::Box));
 }
 
 void K4ManagerConfigParametersW::init_and_register_widgets(){
+    add_input_ui(m_p->delay.init_widget(MinV<int>{0}, V<int>{0}, MaxV<int>{5000}, StepV<int>{10}));
 }
 
 void K4ManagerConfigParametersW::update_with_info(QStringView id, QStringView value){

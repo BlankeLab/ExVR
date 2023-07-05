@@ -94,8 +94,8 @@ private:
     QRectF rightTopIntervalsR;
     QRectF rightBottomAxisR;
 
-    std_v1<QRectF> m_elementsPartsAreas;
-    std_v1<QRectF> m_intervalsAreas;
+    std::vector<QRectF> m_elementsPartsAreas;
+    std::vector<QRectF> m_intervalsAreas;
     static constexpr QColor backgroundCol = QColor(255,255,255);
     static constexpr QColor invalidIntervals = QColor(255,0,0);
     static constexpr QColor intervalAreaCol = QColor(81,219,51);

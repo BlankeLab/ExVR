@@ -93,7 +93,7 @@ void ComponentsManager::duplicate_component(ComponentKey componentKey){
             add_component_to_map(component.get());
 
             components.insert(
-                components.begin() + static_cast<std_v1<std::unique_ptr<Component>>::difference_type>(compoInfo.first + 1),
+                components.begin() + static_cast<std::vector<std::unique_ptr<Component>>::difference_type>(compoInfo.first + 1),
                 std::move(component)
             );                        
         }
@@ -327,6 +327,40 @@ bool ComponentsManager::is_key_used(ComponentKey key) const noexcept{
 
 bool ComponentsManager::is_name_used(const QString &name) const noexcept{
     return m_componentsPerName.contains(name);
+}
+
+void ComponentsManager::fix_colors(){
+    for(auto &component : components){
+        for(auto &arg : component->initConfig->args){
+            if(arg.second.associated_ui_type() == UiType::Color_pick){
+                qDebug() << "arg" << arg.first << arg.second.value();
+                auto split = arg.second.value().split(" ");
+                QStringList nV;
+                nV << split[1];
+                nV << split[2];
+                nV << split[3];
+                nV << split[0];
+                arg.second.set_value(nV.join(" "));
+                qDebug() << "->" << arg.first << arg.second.value();
+            }
+        }
+
+        for(auto &config : component->configs){
+            for(auto &arg : config->args){
+                if(arg.second.associated_ui_type() == UiType::Color_pick){
+                    qDebug() << "arg" << arg.first << arg.second.value();
+                    auto split = arg.second.value().split(" ");
+                    QStringList nV;
+                    nV << split[1];
+                    nV << split[2];
+                    nV << split[3];
+                    nV << split[0];
+                    arg.second.set_value(nV.join(" "));
+                    qDebug() << "->" << arg.first << arg.second.value();
+                }
+            }
+        }
+    }
 }
 
 void ComponentsManager::add_component_to_map(Component *component){

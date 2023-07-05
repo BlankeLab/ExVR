@@ -40,7 +40,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 
@@ -55,7 +55,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 
@@ -70,7 +70,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 
@@ -85,7 +85,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 
@@ -100,7 +100,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 
@@ -115,7 +115,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class LinesInitConfigParametersW : public ConfigParametersW{
@@ -128,7 +128,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 
@@ -143,7 +143,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 
@@ -157,7 +157,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class LandmarkConfigParametersW : public ConfigParametersW{
@@ -171,7 +171,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 

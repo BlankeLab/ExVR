@@ -24,14 +24,20 @@
 
 #include "connections_widget.hpp"
 
+// qt-utility
+#include "qt_logger.hpp"
+
 // local
 #include "data_models/all_node_data_models.hpp"
 #include "data_models/data/nodes_data_converters.hpp"
 #include "utility/benchmark.hpp"
 #include "experiment/global_signals.hpp"
 
+
+
 using namespace tool;
 using namespace tool::ex;
+
 
 ConnectionsW::ConnectionsW(ElementKey routineKey, ConditionKey conditionKey) : m_routineKey(routineKey), m_conditionKey(conditionKey), m_contextMenu(routineKey, conditionKey){
 
@@ -45,48 +51,60 @@ ConnectionsW::ConnectionsW(ElementKey routineKey, ConditionKey conditionKey) : m
 
     m_scene->setRegistry(DataNodeModels::registry);
 
-
     // init view
     m_view  = new ExFlowView(m_scene.get());
     layout()->addWidget(m_view);
-    m_view->deleteSelectionAction()->blockSignals(true);
+//    m_view->deleteSelectionAction()->blockSignals(true);
 
     // connections
     // # scene
-    connect(m_scene.get(), &ExFlowScene::connectionCreated, this, &ConnectionsW::create_new_connection);
-    connect(m_scene.get(), &ExFlowScene::connectionDeleted, this, &ConnectionsW::delete_connection);
-    connect(m_scene.get(), &ExFlowScene::nodeMoved,         this, &ConnectionsW::node_moved);
+    connect(m_scene.get(), &ExFlowScene::connectionCreated,     this, &ConnectionsW::create_new_connection);
+    connect(m_scene.get(), &ExFlowScene::connectionDeleted,     this, &ConnectionsW::connection_deleted);
+    connect(m_scene.get(), &ExFlowScene::nodeDeleted,           this, &ConnectionsW::node_deleted);
+    connect(m_scene.get(), &ExFlowScene::nodeMoved,             this, &ConnectionsW::node_moved);
+    connect(m_scene.get(), &ExFlowScene::nodeHovered,           this, &ConnectionsW::node_hovered);
+    connect(m_scene.get(), &ExFlowScene::nodeHoverLeft,         this, &ConnectionsW::node_hover_left);
+    connect(m_scene.get(), &ExFlowScene::connectionHovered,     this, &ConnectionsW::connection_hovered);
+    connect(m_scene.get(), &ExFlowScene::connectionHoverLeft,   this, &ConnectionsW::connection_hover_left);
 
-    // # view
+    // # view   
+    connect(m_view, &ExFlowView::mouse_wheel_event_signal, this, [&](QWheelEvent *event){
+        if(m_hoveredNode){
+            dynamic_cast<BaseNodeDataModel*>(m_hoveredNode->nodeDataModel())->wheel_event(event);
+        }
+    });
     connect(m_view, &ExFlowView::mouse_pressed_event_signal, this, [&](){
-        std_v1<ComponentKey> componentsKey;
-        std_v1<ConnectorKey> connectorsKey;
-        std_v1<ConnectionKey> connectionsKey;
+        std::vector<ComponentKey> componentsKey;
+        std::vector<ConnectorKey> connectorsKey;
+        std::vector<ConnectionKey> connectionsKey;
         get_current_selection(componentsKey, connectorsKey, connectionsKey);
         emit GSignals::get()->select_nodes_and_connections_signal(routine_key(), condition_key(), std::move(connectorsKey), std::move(componentsKey),  std::move(connectionsKey), false);
     });
     connect(m_view, &ExFlowView::mouse_release_event_signal, this, [&](){
-        std_v1<ComponentKey> componentsKey;
-        std_v1<ConnectorKey> connectorsKey;
-        std_v1<ConnectionKey> connectionsKey;
+        std::vector<ComponentKey> componentsKey;
+        std::vector<ConnectorKey> connectorsKey;
+        std::vector<ConnectionKey> connectionsKey;
         get_current_selection(componentsKey, connectorsKey, connectionsKey);
         emit GSignals::get()->select_nodes_and_connections_signal(routine_key(), condition_key(), std::move(connectorsKey), std::move(componentsKey),  std::move(connectionsKey), false);
     });
-    connect(m_view, &ExFlowView::open_context_menu_signal, this, [&](QPoint pos, QPointF mappedPos,
-        BaseNodeDataModel *nodeModelUnderMouse, QtNodes::Connection *connectionUnderMouse){
+    connect(m_view, &ExFlowView::open_context_menu_signal, this, [&](QPoint globalPosition, QPointF mappedPos){
 
-        m_mousePosition      = pos;
+        m_mousePosition      = globalPosition;
         m_viewMappedPosition = mappedPos;
 
-        std_v1<ComponentKey> componentsKey;
-        std_v1<ConnectorKey> connectorsKey;
-        std_v1<ConnectionKey> connectionsKey;
+        std::vector<ComponentKey> componentsKey;
+        std::vector<ConnectorKey> connectorsKey;
+        std::vector<ConnectionKey> connectionsKey;
         get_current_selection(componentsKey, connectorsKey, connectionsKey);
 
-        m_contextMenu.exec(pos, nodeModelUnderMouse, connectionUnderMouse, componentsKey, connectorsKey, connectionsKey);
+        auto currentSelection = m_scene->selectedNodes();
+        m_contextMenu.execute(globalPosition, mappedPos, m_hoveredNode, m_hoveredConnection, componentsKey, connectorsKey, connectionsKey);
+        for(auto &node : currentSelection){
+            node->nodeGraphicsObject().setSelected(true);
+        }
     });    
 
-    connect(m_view, &ExFlowView::delete_selection_signal, this, &ConnectionsW::delete_selection);
+    connect(m_view, &ExFlowView::delete_signal, this, &ConnectionsW::delete_selection);
 
     // generate context menu view nodes actions
     for(const auto &info : DataNodeModels::get_connectors<Connector::Category::Generator>()){
@@ -124,6 +142,9 @@ ConnectionsW::ConnectionsW(ElementKey routineKey, ConditionKey conditionKey) : m
     }
 
     // context menu node
+    connect(&m_contextMenu, &ConnectionsContextMenu::open_menu_signal, this, &ConnectionsW::lock_graphics_elements);
+    connect(&m_contextMenu, &ConnectionsContextMenu::close_menu_signal, this, &ConnectionsW::unlock_graphics_elements);
+
     connect(&m_contextMenu, &ConnectionsContextMenu::delete_node_signal, this, [&](int nodeKey, bool isComponentNode){
 
         if(isComponentNode){
@@ -154,13 +175,33 @@ ConnectionsW::~ConnectionsW(){
     m_scene.release();
 }
 
-void ConnectionsW::close_all_connectors_windows(){
+auto ConnectionsW::close_all_connectors_windows() -> void{
     for(auto &connector : m_connectorsNodes){
         qobject_cast<BaseNodeContainerW*>(connector.second.second->embeddedWidget())->close();
     }
 }
 
-void ConnectionsW::get_current_selection(std_v1<ComponentKey> &componentsKey, std_v1<ConnectorKey> &connectorsKey, std_v1<ConnectionKey> &connectionsKey){
+auto ConnectionsW::lock_graphics_elements() -> void{
+
+    for(auto &node : m_scene->nodes()){
+        node.second->nodeGraphicsObject().lock(true);
+    }
+    for(auto &connection : m_scene->connections()){
+        connection.second->getConnectionGraphicsObject().lock(true);
+    }
+}
+
+auto ConnectionsW::unlock_graphics_elements() -> void{
+
+    for(auto &node : m_scene->nodes()){
+        node.second->nodeGraphicsObject().lock(false);
+    }
+    for(auto &connection : m_scene->connections()){
+        connection.second->getConnectionGraphicsObject().lock(false);
+    }
+}
+
+auto ConnectionsW::get_current_selection(std::vector<ComponentKey> &componentsKey, std::vector<ConnectorKey> &connectorsKey, std::vector<ConnectionKey> &connectionsKey) -> void{
 
     componentsKey.clear();
     connectorsKey.clear();
@@ -203,11 +244,21 @@ void ConnectionsW::get_current_selection(std_v1<ComponentKey> &componentsKey, st
     }
 }
 
-void ConnectionsW::delete_selection(){
 
-    std_v1<ComponentKey> componentsKey;
-    std_v1<ConnectorKey> connectorsKey;
-    std_v1<ConnectionKey> connectionsKey;
+auto ConnectionsW::node_deleted(QtNodes::Node &n) -> void{
+
+    if(m_hoveredNode){
+        if(n.id() == m_hoveredNode->id()){
+            m_hoveredNode = nullptr;
+        }
+    }
+}
+
+auto ConnectionsW::delete_selection() -> void{
+
+    std::vector<ComponentKey> componentsKey;
+    std::vector<ConnectorKey> connectorsKey;
+    std::vector<ConnectionKey> connectionsKey;
     get_current_selection(componentsKey, connectorsKey, connectionsKey);
 
     if(componentsKey.size() > 0 || connectorsKey.size() > 0 || connectionsKey.size() > 0){
@@ -215,7 +266,7 @@ void ConnectionsW::delete_selection(){
     }
 }
 
-void ConnectionsW::node_moved(QtNodes::Node &n, const QPointF &newLocation){
+auto ConnectionsW::node_moved(QtNodes::Node &n, const QPointF &newLocation) -> void{
 
     auto dataModel = dynamic_cast<BaseNodeDataModel*>(n.nodeDataModel());
     if(dataModel->type == BaseNodeDataModel::Type::Component){
@@ -225,18 +276,34 @@ void ConnectionsW::node_moved(QtNodes::Node &n, const QPointF &newLocation){
     }
 }
 
+auto ConnectionsW::node_hovered(QtNodes::Node &n, QPoint) -> void{
+    m_hoveredNode = &n;
+}
+
+auto ConnectionsW::node_hover_left(QtNodes::Node &n) -> void {
+    m_hoveredNode = nullptr;
+}
+
+auto ConnectionsW::connection_hovered(QtNodes::Connection &c) -> void {
+    m_hoveredConnection = &c;
+}
+
+auto ConnectionsW::connection_hover_left(QtNodes::Connection &) -> void {
+    m_hoveredConnection = nullptr;
+}
+
 void ConnectionsW::add_connection(Connection *connection){
 
     QtNodes::Node *startNode = nullptr;
     if(connection->startType == Connection::Type::Connector){
         if(!m_connectorsNodes.count(connection->startKey)){
-            qCritical() << "Cannot create connection " << connection->key() << ", there is no connector with key " << connection->startKey;
+            QtLogger::error(QString("Cannot create connection %1 , there is no connector node with key %2").arg(connection->key(),connection->startKey));
             return;
         }
         startNode = m_connectorsNodes[connection->startKey].first;
     }else{
         if(!m_componentsNodes.count(connection->startKey)){
-            qCritical() << "Cannot create connection " << connection->key() << ", there is no component with key " << connection->startKey;
+            QtLogger::error(QString("Cannot create connection %1 , there is no component node with key %2").arg(connection->key(),connection->startKey));
             return;
         }
         startNode = m_componentsNodes[connection->startKey].first;
@@ -245,13 +312,13 @@ void ConnectionsW::add_connection(Connection *connection){
     QtNodes::Node *endNode = nullptr;
     if(connection->endType == Connection::Type::Connector){
         if(!m_connectorsNodes.count(connection->endKey)){
-            qCritical() << "Cannot create connection " << connection->key() << ", there is no connector with key " << connection->endKey;
+            QtLogger::error(QString("Cannot create connection %1 , there is no connector node with key %2").arg(connection->key(),connection->endKey));
             return;
         }
         endNode = m_connectorsNodes[connection->endKey].first;
     }else{
         if(!m_componentsNodes.count(connection->endKey)){
-            qCritical() << "Cannot create connection " << connection->key() << ", there is no component with key " << connection->endKey;
+            QtLogger::error(QString("Cannot create connection %1 , there is no component node with key %2").arg(connection->key(),connection->endKey));
             return;
         }
         endNode = m_componentsNodes[connection->endKey].first;
@@ -264,9 +331,9 @@ void ConnectionsW::add_connection(Connection *connection){
     m_connections[connectionW->id()] = std::make_pair(connectionW.get(), ConnectionKey{connection->key()});
 }
 
-void ConnectionsW::add_nodes_and_connections_to_scene(std_v1<Action *> componentsNodesToAdd, std_v1<Connector *> connectorsNodesToAdd, std_v1<Connection *>){
+void ConnectionsW::add_nodes_and_connections_to_scene(std::vector<Action *> componentsNodesToAdd, std::vector<Connector *> connectorsNodesToAdd, std::vector<Connection *>){
 
-    std_v1<std::tuple<bool, std::unique_ptr<NodeDataModel>,QPointF>> nodesDataModelType;
+    std::vector<std::tuple<bool, std::unique_ptr<NodeDataModel>,QPointF>> nodesDataModelType;
 
     // generate components data model
     for(auto componentNodesToAdd: componentsNodesToAdd){
@@ -289,7 +356,7 @@ void ConnectionsW::add_nodes_and_connections_to_scene(std_v1<Action *> component
             auto connectorDataModelPtr  = connectorDataModel.get();
 
             // create connections
-            connect(connectorDataModelPtr, &ConnectorNodeDataModel::force_node_update_signal, this, [&, connectorKey]{
+            connect(connectorDataModelPtr, &ConnectorNodeDataModel::force_node_update_signal, this, [&, connectorKey, connectorType]{
                 if(connectorType == BaseNodeDataModel::Type::Connector){
                     for(auto &c : m_connectorsNodes){
                         if(c.first == connectorKey.v){
@@ -312,6 +379,15 @@ void ConnectionsW::add_nodes_and_connections_to_scene(std_v1<Action *> component
             connect(connectorDataModelPtr, &ConnectorNodeDataModel::connector_modified_signal, this, [=](ConnectorKey connectorKey, QString name, Arg arg){
                 scenePtr->update();
                 emit GSignals::get()->connector_node_modified_signal(routine_key(), condition_key(), connectorKey, name, arg);
+            });
+            // lock ui when popup is opened
+            connect(connectorDataModelPtr->node_container(), &BaseNodeContainerW::popup_opened_signal, this, [&](){
+                m_view->lock_mouse();
+            });
+            connect(connectorDataModelPtr->node_container(), &BaseNodeContainerW::popup_closed_signal, this, [&](){
+                QTimer::singleShot(200, m_view, &ExFlowView::unlock_mouse);
+//                m_hoveredNode       = nullptr;
+//                m_hoveredConnection = nullptr;
             });
 
             // trigger embedded widget signal for calling compute and updating experiment
@@ -342,7 +418,6 @@ void ConnectionsW::add_nodes_and_connections_to_scene(std_v1<Action *> component
         // position
         node.nodeGraphicsObject().setPos(std::get<2>(nodeDataModelType));
 
-
         if(isComponentNode){ // component node
             auto componentDataModel = dynamic_cast<ComponentNodeDataModel*>(dataModelPtr);
 
@@ -358,7 +433,7 @@ void ConnectionsW::add_nodes_and_connections_to_scene(std_v1<Action *> component
     }
 }
 
-void ConnectionsW::create_new_connection(const QtNodes::Connection &c){
+auto ConnectionsW::create_new_connection(const QtNodes::Connection &c) -> void{
 
     auto connection = new Connection(ConnectionKey{-1});
 
@@ -394,17 +469,19 @@ void ConnectionsW::create_new_connection(const QtNodes::Connection &c){
     emit GSignals::get()->nodes_connection_created_signal(routine_key(), condition_key(), connection);
 }
 
+auto ConnectionsW::connection_deleted(const QtNodes::Connection &c) -> void{
 
-
-void ConnectionsW::delete_connection(const QtNodes::Connection &c){
-
+    if(m_hoveredConnection){
+        if(m_hoveredConnection->id() == c.id()){
+            m_hoveredConnection = nullptr;
+        }
+    }
     // connection will be removed by internal nodes library, so we have to remove the qid from m_connections now and avoid calling the exp update
     m_connections.erase(c.id());
-
     emit GSignals::get()->delete_nodes_and_connections_signal(routine_key(), condition_key(), {}, {}, {m_connections[c.id()].second}, false);
 }
 
-void ConnectionsW::force_graphic_update(){
+auto ConnectionsW::force_graphic_update() -> void{
 
     for(auto &c : m_componentsNodes){
         c.second.first->nodeGraphicsObject().update();
@@ -456,7 +533,7 @@ QAction *ConnectionsW::generate_connector_action(std::pair<QString, QString> inf
     return action;
 }
 
-void ConnectionsW::update_from_condition(Condition *condition){
+auto ConnectionsW::update_from_condition(Condition *condition) -> void{
 
     // remove
     bool display = false;
@@ -480,16 +557,14 @@ void ConnectionsW::update_from_condition(Condition *condition){
     Bench::stop();
 }
 
-ConnectorNodeDataModel *ConnectionsW::connector(ConnectorKey connectorKey){
+auto ConnectionsW::connector(ConnectorKey connectorKey) -> ConnectorNodeDataModel*{
     if(m_connectorsNodes.count(connectorKey.v) != 0){
         return m_connectorsNodes[connectorKey.v].second;
     }
     return nullptr;
 }
 
-
-
-void ConnectionsW::reset(){
+auto ConnectionsW::reset() -> void{
 
     BlockSignalsGuard guard;
 
@@ -522,9 +597,9 @@ void ConnectionsW::reset(){
 
 void ConnectionsW::add_new_elements_from_condition(Condition *condition){
 
-    std_v1<Action*> commonentsNodesToAdd;
-    std_v1<Connector*> connectorsToAdd;
-    std_v1<Connection*> connectionsToAdd;
+    std::vector<Action*> commonentsNodesToAdd;
+    std::vector<Connector*> connectorsToAdd;
+    std::vector<Connection*> connectionsToAdd;
 
     // components nodes
     for(auto &action : condition->actions_with_nodes()){
@@ -622,7 +697,7 @@ void ConnectionsW::remove_elements_from_condition(Condition *condition){
 
     // connections
     // # find connections to be removed
-    std_v1<QUuid> qidToRemove;
+    std::vector<QUuid> qidToRemove;
     for(const auto& p : m_connections){
 
         bool found = false;
@@ -654,7 +729,7 @@ void ConnectionsW::remove_elements_from_condition(Condition *condition){
 
     // components nodes
     // # find nodes to be removed
-    std_v1<int> toRemove;
+    std::vector<int> toRemove;
     for(const auto& p : m_componentsNodes){
 
         bool found = false;
@@ -770,10 +845,17 @@ ConnectionsContextMenu::ConnectionsContextMenu(ElementKey routineKey, ConditionK
     // generate context menu node action
     removeNodeA = new QAction("Remove node");
     connect(removeNodeA, &QAction::triggered, this, [=](){
-        emit delete_node_signal(currentHoveredConnectorModel->key, currentHoveredConnectorModel->type == BaseNodeDataModel::Type::Component);
+        if(auto model = (currentHoveredConnectorNode != nullptr) ? dynamic_cast<BaseNodeDataModel*>(currentHoveredConnectorNode->nodeDataModel()) : nullptr){
+            emit delete_node_signal(model->key, model->type == BaseNodeDataModel::Type::Component);
+        }
     });
 
-    removeAllSelectedNodesA = new QAction("Remove all selection");
+    duplicateAllSelectedNodesA = new QAction("Duplicate selection");
+    connect(duplicateAllSelectedNodesA, &QAction::triggered, this, [=](){
+        emit GSignals::get()->duplicate_selected_nodes_signal(m_routineKey, m_conditionKey);
+    });
+
+    removeAllSelectedNodesA = new QAction("Remove selection");
     connect(removeAllSelectedNodesA, &QAction::triggered, this, [=](){
         emit GSignals::get()->delete_selected_nodes_signal(m_routineKey, m_conditionKey);
     });
@@ -783,18 +865,39 @@ ConnectionsContextMenu::ConnectionsContextMenu(ElementKey routineKey, ConditionK
         emit delete_connection_signal(currentHoveredConnection->id());
     });
 
+    copySelectionA = new QAction("Copy selection");
+    connect(copySelectionA, &QAction::triggered, this, [=](){
+        NodesClipBoard::fromRoutine  = m_routineKey;
+        NodesClipBoard::fromCondition= m_conditionKey;
+        NodesClipBoard::components   = currentComponentsNodesSelected;
+        NodesClipBoard::connectors   = currentConnectorsNodesSelected;
+        NodesClipBoard::connections  = currentConnectionSelected;
+        NodesClipBoard::enabled      = currentComponentsNodesSelected.size() > 0 || currentConnectorsNodesSelected.size() > 0;
+    });
+
+    pasteA = new QAction("Paste");
+    connect(pasteA, &QAction::triggered, this, [=](){
+        emit GSignals::get()->paste_nodes_clip_board_signal(m_currentMousePosition, m_routineKey, m_conditionKey);
+    });
+
     displayNodeInfoA = new QAction("Show info");
     connect(displayNodeInfoA, &QAction::triggered, this, [=](){
-        if(currentHoveredConnectorModel->type == BaseNodeDataModel::Type::Component){
-            emit GSignals::get()->show_component_node_documentation_signal(ComponentKey{currentHoveredConnectorModel->key});
-        }else{
-            emit GSignals::get()->show_connector_node_documentation_signal(m_routineKey, m_conditionKey, ConnectorKey{currentHoveredConnectorModel->key});
+        if(auto model = currentHoveredConnectorNode != nullptr ? dynamic_cast<BaseNodeDataModel*>(currentHoveredConnectorNode->nodeDataModel()) : nullptr){
+            if(model->type == BaseNodeDataModel::Type::Component){
+                emit GSignals::get()->show_component_node_documentation_signal(ComponentKey{model->key});
+            }else{
+                emit GSignals::get()->show_connector_node_documentation_signal(m_routineKey, m_conditionKey, ConnectorKey{model->key});
+            }
         }
     });
 
     duplicateConnectorNodeA = new QAction("Duplicate node");
     connect(duplicateConnectorNodeA, &QAction::triggered, this, [=](){
-        emit duplicate_connector_node_signal(ConnectorKey{currentHoveredConnectorModel->key});
+        if(auto model = currentHoveredConnectorNode != nullptr ? dynamic_cast<BaseNodeDataModel*>(currentHoveredConnectorNode->nodeDataModel()) : nullptr){
+            if(model->type != BaseNodeDataModel::Type::Component){
+                emit duplicate_connector_node_signal(ConnectorKey{model->key});
+            }
+        }
     });
 
     unselectSelectionA = new QAction("Unselect");
@@ -803,43 +906,55 @@ ConnectionsContextMenu::ConnectionsContextMenu(ElementKey routineKey, ConditionK
     });
 }
 
-void ConnectionsContextMenu::exec(
-    QPoint pos,
-    BaseNodeDataModel *nodeModelUnderMouse,
+auto ConnectionsContextMenu::execute(
+    QPointF globalPos,
+    QPointF mappedPos,
+    QtNodes::Node *nodeUnderMouse,
     QtNodes::Connection *connectionUnderMouse,
-    const std_v1<ComponentKey> &componentsKey,
-    const std_v1<ConnectorKey> &connectorsKey,
-    const std_v1<ConnectionKey> &connectionsKey){
+    const std::vector<ComponentKey> &componentsKey,
+    const std::vector<ConnectorKey> &connectorsKey,
+    const std::vector<ConnectionKey> &connectionsKey) -> void{
 
-    const bool selectionEmpty = componentsKey.size() == 0 && connectorsKey.size() == 0 && connectionsKey.size() == 0;
+    m_currentMousePosition = globalPos;
+
+    // copy current selection
+    currentComponentsNodesSelected = componentsKey;
+    currentConnectorsNodesSelected = connectorsKey;
+    currentConnectionSelected      = connectionsKey;
+
+    const bool selectionEmpty            = componentsKey.size() == 0 && connectorsKey.size() == 0 && connectionsKey.size() == 0;
     const bool noOnlyConnectionsSelected = componentsKey.size() > 0 || connectorsKey.size() > 0;
 
-    currentHoveredConnectorModel = nullptr;
-    if(nodeModelUnderMouse != nullptr){
-        currentHoveredConnectorModel = nodeModelUnderMouse;
-    }
-    currentHoveredConnection = connectionUnderMouse;
+    // store hovered elements
+    currentHoveredConnectorNode = nodeUnderMouse;
+    currentHoveredConnection    = connectionUnderMouse;
 
+    // hover actions
     bool canDuplicateHoveredNode    = false;
     bool canRemoveHoveredNode       = false;
     bool canRemoveHoveredConnection = false;
     bool canDisplayInfoAboutHoveredNode = false;
-
+    // selection actions
     bool canCopySelection           = false;
-    bool canPastCopySelection       = false;
     bool canRemoveSelection         = false;
     bool canUnselectSelection       = false;
-
+    // add actions
     bool canAddNewNodes             = false;
+    // others actions
+    bool canPastCopySelection       = NodesClipBoard::enabled;
+//    bool canMoveCameraToClosestNode = false;
+
+    auto hoveredModel = currentHoveredConnectorNode ? dynamic_cast<BaseNodeDataModel*>(currentHoveredConnectorNode->nodeDataModel()) : nullptr;
 
     if(selectionEmpty){
         // no selection
-        if(!nodeModelUnderMouse && !connectionUnderMouse){
+        if(!nodeUnderMouse && !connectionUnderMouse){
             // no hovering on anything
             canAddNewNodes =true;
-        }else if(nodeModelUnderMouse){
+        }else if(hoveredModel){
             // hovering on node
-            canDuplicateHoveredNode = true;
+            canPastCopySelection = false;            
+            canDuplicateHoveredNode = hoveredModel->type != BaseNodeDataModel::Type::Component;
             canRemoveHoveredNode    = true;
             canDisplayInfoAboutHoveredNode = true;
         }else if(connectionUnderMouse){
@@ -850,14 +965,14 @@ void ConnectionsContextMenu::exec(
         // selection
         canCopySelection = noOnlyConnectionsSelected;
         canRemoveSelection   = true;
-        canUnselectSelection = true;
-        if(!nodeModelUnderMouse && !connectionUnderMouse){
+        canUnselectSelection = true;        
+        if(!nodeUnderMouse && !connectionUnderMouse){
             // no hovering on anything
             canAddNewNodes = true;
-            canPastCopySelection = Condition::currentNodesCopySet;
-        }else if(nodeModelUnderMouse){
+        }else if(hoveredModel){
             // hovering on node
-            canDuplicateHoveredNode = currentHoveredConnectorModel->type != BaseNodeDataModel::Type::Component;
+            canPastCopySelection = false;
+            canDuplicateHoveredNode = hoveredModel->type != BaseNodeDataModel::Type::Component;
             canRemoveHoveredNode    = true;
             canDisplayInfoAboutHoveredNode = true;
         }else if(connectionUnderMouse){
@@ -866,12 +981,18 @@ void ConnectionsContextMenu::exec(
         }
     }
 
+    // disable copy/paste TODO
+    canCopySelection = false;
+    canPastCopySelection = false;
+
     // create menu
     QMenu topMenu;
-    const bool displayHoveredMenu   = canDuplicateHoveredNode || canRemoveHoveredNode || canRemoveHoveredConnection || canDisplayInfoAboutHoveredNode;
-    const bool displaySelectionMenu = canCopySelection || canPastCopySelection || canRemoveSelection || canUnselectSelection;
-    const bool displayAddNodesMenu  = canAddNewNodes;
+    bool displayHoveredMenu   = canDuplicateHoveredNode || canRemoveHoveredNode || canRemoveHoveredConnection || canDisplayInfoAboutHoveredNode;
+    bool displaySelectionMenu = canCopySelection || canRemoveSelection || canUnselectSelection;
+    bool displayAddNodesMenu  = canAddNewNodes;
+    bool displayOtherMenu     = canPastCopySelection;
 
+    // hover menu
     if(displayHoveredMenu){
 
         if(canDisplayInfoAboutHoveredNode){
@@ -891,35 +1012,28 @@ void ConnectionsContextMenu::exec(
         }        
     }
 
+    // selection menu
     if(displaySelectionMenu){
 
         if(displayHoveredMenu){
             topMenu.addSeparator();
         }
-
         if(canUnselectSelection){
             topMenu.addAction(unselectSelectionA);
         }
-
-        topMenu.addAction(removeAllSelectedNodesA);
+        if(canRemoveSelection){
+            topMenu.addAction(removeAllSelectedNodesA);
+        }
 
         if(canCopySelection){
-
-        }
-
-        if(canPastCopySelection){
-
-        }
-
-        if(canRemoveSelection){
-
+            topMenu.addAction(copySelectionA);
         }
     }
 
+    // add menu
     if(displayAddNodesMenu){
-        if(displayHoveredMenu && !displaySelectionMenu){
-            topMenu.addSeparator();
-        }else if(displaySelectionMenu){
+
+        if(displayHoveredMenu || displaySelectionMenu){
             topMenu.addSeparator();
         }
 
@@ -928,30 +1042,37 @@ void ConnectionsContextMenu::exec(
         }
     }
 
-    topMenu.exec(pos);
+    // always other menu
+    if(displayOtherMenu){
+
+        if(displayHoveredMenu || displaySelectionMenu || displayAddNodesMenu){
+            topMenu.addSeparator();
+        }
+
+        if(canPastCopySelection){
+            topMenu.addAction(pasteA);
+        }
+    }
+
+    emit open_menu_signal();
+    topMenu.exec(globalPos.toPoint());
+    emit close_menu_signal();
 }
 
-
-
 void ExFlowScene::drawBackground(QPainter *painter, const QRectF &rect){
-
     Bench::start("ExFlowScene drawBackground"sv);
-    QtNodes::FlowScene::drawBackground(painter, rect);
+        QtNodes::FlowScene::drawBackground(painter, rect);
     Bench::stop();
-
 }
 
 void ExFlowScene::drawForeground(QPainter *painter, const QRectF &rect){
-
     Bench::start("ExFlowScene drawForeground"sv);
-    QtNodes::FlowScene::drawForeground(painter, rect);
+        QtNodes::FlowScene::drawForeground(painter, rect);
     Bench::stop();
-
 }
 
 void ExFlowScene::drawItems(QPainter *painter, int numItems, QGraphicsItem *items[], const QStyleOptionGraphicsItem options[], QWidget *widget){
-
     Bench::start("ExFlowScene drawItems"sv);
-    QtNodes::FlowScene::drawItems(painter, numItems, items, options, widget);
+        QtNodes::FlowScene::drawItems(painter, numItems, items, options, widget);
     Bench::stop();
 }

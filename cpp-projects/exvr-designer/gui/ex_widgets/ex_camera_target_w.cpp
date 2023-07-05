@@ -66,7 +66,7 @@ ExCameraTargetW *ExCameraTargetW::init_widget(bool enabled){
     return this;
 }
 
-ExBaseW *ExCameraTargetW::init_widget_from_any_array(std_v1<std::any> &parameters){
+ExBaseW *ExCameraTargetW::init_widget_from_any_array(std::vector<std::any> &parameters){
     init_widget(std::any_cast<bool>(parameters[0]));
     return this;
 }

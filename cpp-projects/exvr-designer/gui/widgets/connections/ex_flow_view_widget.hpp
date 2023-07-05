@@ -1,4 +1,4 @@
-
+﻿
 /***********************************************************************************
 ** exvr-designer                                                                  **
 ** MIT License                                                                    **
@@ -25,65 +25,78 @@
 #pragma once
 
 // Qt
-#include <QWheelEvent>
-#include <QMenu>
+#include <QGraphicsView>
 
 // nodes
-#include "nodes/FlowView.hpp"
 #include "nodes/FlowScene.hpp"
-#include "nodes/Node.hpp"
-
-
-// local
-#include "data_models/base_node_data_model.hpp"
 
 namespace tool::ex {
 
-class ExFlowView : public QtNodes::FlowView{
+class ExFlowView : public QGraphicsView{
 
 Q_OBJECT
 
 public :
 
-    ExFlowView(QtNodes::FlowScene *scene) : QtNodes::FlowView(scene){
-    }
+    ExFlowView(QtNodes::FlowScene *scene);
+    ExFlowView(const ExFlowView&) = delete;
+    ExFlowView operator=(const ExFlowView&) = delete;
 
+    auto wheelEvent(QWheelEvent *event) -> void override;
+    auto mousePressEvent(QMouseEvent *event) -> void override;
+    auto mouseReleaseEvent(QMouseEvent *event) -> void override;
+    auto mouseMoveEvent(QMouseEvent *event) -> void override;
+    auto keyPressEvent(QKeyEvent *event) -> void override;
+    auto keyReleaseEvent(QKeyEvent *event) -> void override;
+    auto contextMenuEvent(QContextMenuEvent *event) -> void override;
+    auto showEvent(QShowEvent *event) -> void override;
 
-    void paintEvent(QPaintEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
-
-    void wheelEvent(QWheelEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
-    void contextMenuEvent(QContextMenuEvent *event) override;
+    auto paintEvent(QPaintEvent *event) -> void override;
+    auto resizeEvent(QResizeEvent *event) -> void override;
+    auto drawForeground(QPainter *painter, const QRectF &rect) -> void override;
+    auto drawItems(QPainter *painter, int numItems, QGraphicsItem *items[], const QStyleOptionGraphicsItem options[]) -> void override;
+    auto drawBackground(QPainter* painter, const QRectF& r) -> void override;
 
 signals:
 
-    void open_context_menu_signal(QPoint pos, QPointF mappedPos, BaseNodeDataModel *nodeModelUnderMouse, QtNodes::Connection *connectionUnderMouse);
-    void delete_selection_signal();
+    // mouse
+    auto open_context_menu_signal(QPoint pos, QPointF mappedPos) -> void;
+    auto mouse_pressed_event_signal(QMouseEvent *event) -> void;
+    auto mouse_release_event_signal(QMouseEvent *event) -> void;
+    auto mouse_wheel_event_signal(QWheelEvent *event) -> void;
+    // keys
+    auto delete_signal() -> void;
+    auto copy_signal() -> void;
+    auto paste_signal() -> void;
 
-    void mouse_pressed_event_signal(QMouseEvent *event);
-    void mouse_release_event_signal(QMouseEvent *event);
+public slots:
+
+    auto lock_mouse()->void;
+    auto unlock_mouse()->void;
+
+private slots:
+
+    auto scale_up() -> void;
+    auto scale_down() -> void;
 
 private:
 
+    // sacle view
+    int m_scaleLvl = 3;
+    static constexpr int m_maxScaleLvl = 8;
 
-    int scaleLvl = 3;
-    const int maxScaleLvl = 8;
+    // mouse
+    bool m_leftMouseButtonPressed = false;
+    bool m_rightMouseButtonPressed = false;
+    bool m_middleMouseButtonPressed = false;
+    QPointF m_lastLeftMousePressedButtonPosition;
+    QPointF m_lastLeftMouseReleasedButtonPosition;
 
-    bool leftClick = false;
+    // key
+    bool m_controlPressed = false;
+    bool m_shiftPressed = false;
 
-    bool controlPressed = false;
-
-    QPointF p;
-    int minX = -1000;
-    int maxX = 1000;
-
-    QtNodes::Node* hoveredNode = nullptr;
-    QtNodes::Connection *hoveredConnection = nullptr;
-
+    QtNodes::FlowScene* m_scene = nullptr;
+    bool m_mouseLocked = false;
 };
 }

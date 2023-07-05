@@ -51,7 +51,10 @@ ExpLauncherCommunication::ExpLauncherCommunication(QObject *parent){
     // initialize reading socket
     readSocket  = std::make_unique<QUdpSocket>();
     connect(readSocket.get(), &QUdpSocket::readyRead, this, &ExpLauncherCommunication::read_pending_datagrams);
-    connect(readSocket.get(), QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),[=](QAbstractSocket::SocketError){
+//    connect(readSocket.get(), QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),[=](QAbstractSocket::SocketError){
+//        emit error_signal(QSL("[IPC] Socket error\n"));
+//    });
+    connect(readSocket.get(), &QAbstractSocket::errorOccurred,[=](QAbstractSocket::SocketError){
         emit error_signal(QSL("[IPC] Socket error\n"));
     });
 

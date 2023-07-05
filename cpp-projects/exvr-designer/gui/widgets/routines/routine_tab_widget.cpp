@@ -99,8 +99,8 @@ void RoutineTabW::update_from_routine(GUI *gui, Routine *routine){
     Bench::start("RoutineTabW update_from_routine 1"sv, display);
 
     // find conditions to remove
-    std_v1<size_t> idCondsToRemove;
-    std_v1<bool> conditionsMask(routine->conditions.size(), true);
+    std::vector<size_t> idCondsToRemove;
+    std::vector<bool> conditionsMask(routine->conditions.size(), true);
     for(int ii = count()-1; ii >= 0; --ii){
 
         auto currentTabConditionKey = qobject_cast<ConditionW*>(widget(ii))->condition_key();
@@ -141,9 +141,9 @@ void RoutineTabW::update_from_routine(GUI *gui, Routine *routine){
     Bench::start("RoutineTabW update_from_routine 3"sv, display);
 
     // reorder
-    for(int ii = 0; ii < to_signed(routine->conditions.size()); ++ii){
+    for(int ii = 0; ii < to_int(routine->conditions.size()); ++ii){
         for(int jj = 0; jj < count(); ++jj){
-            if(qobject_cast<ConditionW*>(widget(jj))->condition_key().v == routine->conditions[to_unsigned(ii)]->key()){
+            if(qobject_cast<ConditionW*>(widget(jj))->condition_key().v == routine->conditions[to_size_t(ii)]->key()){
                 if(ii != jj){
                     tabBar()->moveTab(jj,ii);
                 }
@@ -155,7 +155,7 @@ void RoutineTabW::update_from_routine(GUI *gui, Routine *routine){
     // select current
     for(size_t ii = 0; ii < routine->conditions.size(); ++ii){
         if(routine->conditions[ii]->selected){
-            setCurrentIndex(to_signed(ii));
+            setCurrentIndex(to_int(ii));
             break;
         }
     }
@@ -165,7 +165,7 @@ void RoutineTabW::update_from_routine(GUI *gui, Routine *routine){
 
     // update condition widgets
     for(int ii = 0; ii < count(); ++ii){
-        auto condition = routine->conditions[to_unsigned(ii)].get();
+        auto condition = routine->conditions[to_size_t(ii)].get();
          QString txt = condition->name % QSL(" (") %  QString::number(condition->actions.size()) % QSL("/") % QString::number(condition->connectors.size()) % QSL(")");
         if(tabText(ii) != txt){
             setTabText(ii, std::move(txt));

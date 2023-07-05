@@ -77,12 +77,13 @@ void PreUpdateRoutineNodeDataModel::init_ports_caption(){
 
 void UpdateRoutineNodeDataModel::compute(){
     set_valid_state();
-    propagate_default_runtime({std::make_shared<RealData>(0)});
+    propagate_default_runtime({std::make_shared<RealData>(0),std::make_shared<RealData>(0)});
 }
 
 void UpdateRoutineNodeDataModel::init_ports_caption(){
     const auto io = Connector::get_io(m_type);
     outPortsInfo[0].caption = QSL("routine time ms (") % get_name(io.outTypes[0]) % QSL(")");
+    outPortsInfo[1].caption = QSL("routine time s (") % get_name(io.outTypes[1]) % QSL(")");
 }
 
 void PostUpdateRoutineNodeDataModel::compute(){

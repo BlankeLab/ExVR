@@ -35,7 +35,6 @@
 // local
 #include "experiment/experiment.hpp"
 #include "experiment/instance.hpp"
-#include "utility/path_utility.hpp"
 
 namespace tool::ex{
 
@@ -271,10 +270,10 @@ namespace tool::ex{
         std::unique_ptr<QXmlStreamReader> r = nullptr;
         std::unique_ptr<QXmlStreamWriter> w = nullptr;
 
-        std_v1<std::unique_ptr<Routine>>  readXmlRoutines;
-        std_v1<IsiUP>      readXmlISIs;
-        std_v1<std::unique_ptr<LoopNode>> readXmlStartLoops;
-        std_v1<std::unique_ptr<LoopNode>> readXmlEndLoops;
+        std::vector<std::unique_ptr<Routine>>  readXmlRoutines;
+        std::vector<IsiUP>      readXmlISIs;
+        std::vector<std::unique_ptr<LoopNode>> readXmlStartLoops;
+        std::vector<std::unique_ptr<LoopNode>> readXmlEndLoops;
 
         QString expFileToLoad;
         QString expFileToSave;

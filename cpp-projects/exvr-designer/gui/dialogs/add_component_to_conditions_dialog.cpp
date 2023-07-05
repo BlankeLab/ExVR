@@ -169,7 +169,7 @@ AddComponentToConditionsDialog::AddComponentToConditionsDialog(ComponentKey comp
             return;
         }
 
-        auto id = to_unsigned(condSelUi.twRoutines->currentIndex());
+        auto id = to_size_t(condSelUi.twRoutines->currentIndex());
         auto lwConditions = conditionsPerRoutinesW[id-1].second.get();
         for(int ii = 0; ii < lwConditions->count(); ++ii){
             auto condSelectionCb = qobject_cast<QCheckBox*>(lwConditions->widget_at(ii)->layout()->itemAt(0)->widget());
@@ -185,7 +185,7 @@ AddComponentToConditionsDialog::AddComponentToConditionsDialog(ComponentKey comp
             return;
         }
 
-        auto id = to_unsigned(condSelUi.twRoutines->currentIndex());
+        auto id = to_size_t(condSelUi.twRoutines->currentIndex());
         auto lwConditions = conditionsPerRoutinesW[id-1].second.get();
         for(int ii = 0; ii < lwConditions->count(); ++ii){
             auto condSelectionCb = qobject_cast<QCheckBox*>(lwConditions->widget_at(ii)->layout()->itemAt(0)->widget());
@@ -255,7 +255,7 @@ AddComponentToConditionsDialog::AddComponentToConditionsDialog(ComponentKey comp
 
                     addComponentToConditions.emplace_back(std::make_tuple(
                         routineKey,
-                        ConditionKey{routine->conditions[to_unsigned(jj)]->key()},
+                        ConditionKey{routine->conditions[to_size_t(jj)]->key()},
                         ConfigKey{component->configs[configSelCb->currentIndex()]->key()},
                         fillUCb->isChecked(),
                         fillVCb->isChecked()

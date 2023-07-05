@@ -126,7 +126,7 @@ void StringOperationNodeDataModel::compute(){
         txt = str::Convertor::to_str(std::get<bool>(output));
     }else if (index == 8){ // splits with
         output = v1.split(v2);
-        txt = QSL("Size: ") % str::Convertor::to_str(std::get<QStringList>(output).size());
+        txt = QSL("Size: ") % str::Convertor::to_str(static_cast<int>(std::get<QStringList>(output).size()));
     }
 
     if(auto pval = std::get_if<QString>(&output)){

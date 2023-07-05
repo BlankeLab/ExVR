@@ -101,18 +101,18 @@ void DecimalOperationNodeDataModel::compute(){
     std::variant<Decimal, bool> out;
 
     if(index == 0){ // Add
-        out = Decimal::add(v1,v2);
+        out = add(v1,v2);
     }else if(index == 1){ // Sub
-        out = Decimal::sub(v1,v2);
+        out = sub(v1,v2);
     }else if(index == 2){ // Mult
-        out = Decimal::mul(v1,v2);
+        out = mul(v1,v2);
     }else if(index == 3){ // Div
          if(almost_equal<double>(v2.to_double(), 0.)){
              invalidate_data();
             set_invalid_state(QSL("B is null"));
             return;
          }else{
-            out = Decimal::div(v1,v2);
+            out = div(v1,v2);
          }
     }else if(index == 4){ // mod
         if(almost_equal<double>(v2.to_double(), 0.)){
@@ -120,20 +120,20 @@ void DecimalOperationNodeDataModel::compute(){
             set_invalid_state(QSL("B is null"));
             return;
         }else{
-            out = Decimal::mod(v1,v2);
+            out = mod(v1,v2);
         }
     }else if(index == 5){ // <
-        out = Decimal::inferior(v1,v2);
+        out = inferior(v1,v2);
     }else if(index == 6){ // <=
-        out = Decimal::inferior_or_equal(v1,v2);
+        out = inferior_or_equal(v1,v2);
     }else if(index == 7){ // >
-        out = Decimal::superior(v1,v2);
+        out = superior(v1,v2);
     }else if(index == 8){ // >=
-        out = Decimal::superior_or_equal(v1,v2);
+        out = superior_or_equal(v1,v2);
     }else if(index == 9){ // =
-        out = Decimal::equal(v1,v2);
+        out = equal(v1,v2);
     }else{ // !=
-        out = Decimal::no_equal(v1,v2);
+        out = no_equal(v1,v2);
     }
 
     if(auto pval = std::get_if<bool>(&out)){

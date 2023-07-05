@@ -68,9 +68,9 @@ public:
 public:
 
     // inputData
-    std_v1<std::pair<Component::Info, std::weak_ptr<NodeData>>> slotsF;
+    std::vector<std::pair<Component::Info, std::weak_ptr<NodeData>>> slotsF;
     // outputData
-    std_v1<std::pair<Component::Info, std::shared_ptr<ComponentOutData>>> signalsF;
+    std::vector<std::pair<Component::Info, std::shared_ptr<ComponentOutData>>> signalsF;
 
 };
 }

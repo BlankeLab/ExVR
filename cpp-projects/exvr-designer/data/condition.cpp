@@ -25,6 +25,9 @@
 
 #include "condition.hpp"
 
+// base
+#include "utility/unordered_map.hpp"
+
 // qt-utility
 #include "qt_logger.hpp"
 
@@ -58,8 +61,8 @@ void Condition::apply_condition(const Condition *conditionToCopy, bool copyActio
     if(copyConnections){
 
         // copy all connectors nodes
-        connectors.clear();
-        std::unordered_map<int,int> keysMapping;
+        connectors.clear();        
+        umap<int,int> keysMapping;
         for(auto &connectorToCopy : conditionToCopy->connectors){
             connectors.emplace_back(Connector::copy_with_new_element_id(*connectorToCopy));
             keysMapping[connectorToCopy->key()] = connectors[connectors.size()-1]->key();
@@ -188,8 +191,8 @@ Component *Condition::get_component_from_key(ComponentKey componentKey, bool dis
 
 Action *Condition::get_action_from_id(RowId  idTab, bool displayError) const{
 
-    if(idTab.v < to_signed(actions.size())){
-        return actions[to_unsigned(idTab.v)].get();
+    if(idTab.v < to_int(actions.size())){
+        return actions[to_size_t(idTab.v)].get();
     }
 
     if(displayError){
@@ -201,8 +204,8 @@ Action *Condition::get_action_from_id(RowId  idTab, bool displayError) const{
 
 Connection *Condition::get_connection_from_id(RowId  idTab, bool displayError) const{
 
-    if(idTab.v < to_signed(connections.size())){
-        return connections[to_unsigned(idTab.v)].get();
+    if(idTab.v < to_int(connections.size())){
+        return connections[to_size_t(idTab.v)].get();
     }
 
     if(displayError){
@@ -214,8 +217,8 @@ Connection *Condition::get_connection_from_id(RowId  idTab, bool displayError) c
 
 Connector *Condition::get_connector_from_id(RowId  idTab, bool displayError) const{
 
-    if(idTab.v < to_signed(connectors.size())){
-        return connectors[to_unsigned(idTab.v)].get();
+    if(idTab.v < to_int(connectors.size())){
+        return connectors[to_size_t(idTab.v)].get();
     }
 
     if(displayError){
@@ -338,8 +341,14 @@ void Condition::duplicate_connector(ConnectorKey connectorKey){
     if(auto connector = get_connector_from_key(connectorKey); connector != nullptr){
         auto duplicatedConnector = Connector::copy_with_new_element_id(*connector);
         duplicatedConnector->pos += QPointF(50,50);
-        connectors.emplace_back(std::move(duplicatedConnector));
+        connectors.push_back(std::move(duplicatedConnector));
     }
+}
+
+auto Condition::duplicate_connector(QPointF position, Connector *connector) -> void{
+    auto duplicatedConnector = Connector::copy_with_new_element_id(*connector);
+    duplicatedConnector->pos += position;
+    connectors.push_back(std::move(duplicatedConnector));
 }
 
 void Condition::modify_connector(ConnectorKey connectorKey, QString name, Arg arg){
@@ -410,6 +419,15 @@ void Condition::remove_all_actions(){
         break;
     }
     actions.clear();
+}
+
+auto Condition::paste_clipboard() -> void{
+//    struct NodesClipBoard{
+//        static inline bool enabled = false;
+//        static inline std::vector<ComponentKey> components = {};
+//        static inline std::vector<ConnectorKey> connectors = {};
+//        static inline std::vector<ConnectionKey> connections = {};
+//    };
 }
 
 void Condition::remove_connection(ConnectionKey connectionKey){
@@ -485,19 +503,19 @@ void Condition::remove_component_node(ComponentKey componentKey){
 
 void Condition::move_action_up(ActionKey actionKey){
     if(int idAction = get_action_id_from_key(actionKey); idAction > 0){
-        std::swap(actions[to_unsigned(idAction)], actions[to_unsigned(idAction-1)]);
+        std::swap(actions[to_size_t(idAction)], actions[to_size_t(idAction-1)]);
     }
 }
 
 void Condition::move_action_down(ActionKey actionKey){
 
-    if(int idAction = get_action_id_from_key(actionKey); idAction > -1 && idAction < to_signed(actions.size()-1)){
-        std::swap(actions[to_unsigned(idAction)], actions[to_unsigned(idAction+1)]);
+    if(int idAction = get_action_id_from_key(actionKey); idAction > -1 && idAction < to_int(actions.size()-1)){
+        std::swap(actions[to_size_t(idAction)], actions[to_size_t(idAction+1)]);
     }
 }
 
 
-std_v1<Action *> Condition::actions_with_nodes() const{
+std::vector<Action *> Condition::actions_with_nodes() const{
 
     auto count = std::count_if(
                 actions.begin(),
@@ -505,7 +523,7 @@ std_v1<Action *> Condition::actions_with_nodes() const{
         return action->nodeUsed;
     });
 
-    std_v1<Action*> actionsWithNodes;
+    std::vector<Action*> actionsWithNodes;
     actionsWithNodes.reserve(static_cast<size_t>(count));
     for(const auto &action : actions){
         if(action->nodeUsed){

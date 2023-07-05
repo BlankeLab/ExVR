@@ -37,44 +37,45 @@
 
 using namespace tool::ex;
 
+auto generate_doc_in_console() -> void{
 
-int main(int argc, char *argv[]){
+    Connector::Category cc = Connector::Category::Resource;
+    for(auto t : Connector::all_types()){
 
-    // doc generation
-//    Connector::Category cc = Connector::Category::Resource;
-//    for(auto t : Connector::all_types()){
+        auto n = Connector::get_caption(t);
 
-//        auto n = Connector::get_caption(t);
+        std::string_view ccn = "-";
+        if(Connector::get_category(t) != cc){
+            cc  = Connector::get_category(t);
+            ccn = Connector::get_name(cc);
+        }
+        std::cout << std::format("|{}|{}|[link](connectors/{}_info.md)|[link](connectors/{}_connections.md)|\n",
+            ccn, n, ccn, ccn
+        );
+    }
+    Component::Category c = Component::Category::Viewer;
+    for(auto t : Component::all_components_types()){
+        auto fn = Component::get_full_name(t);
+        auto un = Component::get_unity_name(t);
 
-//        std::string_view ccn = "-";
-//        if(Connector::get_category(t) != cc){
-//            cc  = Connector::get_category(t);
-//            ccn = Connector::get_name(cc);
-//        }
+        std::string_view cn = "-";
+        if(Component::get_category(t) != c){
+            c = Component::get_category(t);
+            cn = Component::get_display_name(c);
+        }
+        std::cout << std::format("|{}|{}|[link](components/{}_info.md)|[link](components/{}_csharp.md)|[link](components/{}_connections.md)|\n",
+            cn, fn, un, un, un
+        );
+    }
+}
 
-//        std::string_view cn = "-";
-//        std::cout << std::format("|{}|{}|[link](connectors/{}_info.md)|[link](connectors/{}_connections.md)|\n",
-//            ccn, n, ccn, ccn
-//        );
-//    }
-//    Component::Category c = Component::Category::Viewer;
-//    for(auto t : Component::all_components_types()){
-//        auto fn = Component::get_full_name(t);
-//        auto un = Component::get_unity_name(t);
 
-//        std::string_view cn = "-";
-//        if(Component::get_category(t) != c){
-//            c = Component::get_category(t);
-//            cn = Component::get_display_name(c);
-//        }
-//        std::cout << std::format("|{}|{}|[link](components/{}_info.md)|[link](components/{}_csharp.md)|[link](components/{}_connections.md)|\n",
-//            cn, fn, un, un, un
-//        );
-//    }
+auto main(int argc, char *argv[]) -> int{
+
+    // generate_doc_in_console();
 
     // build parameters
-    const QString numVersion = "1.0b";
-    bool lncoComponents = false;
+    const QString numVersion = "1.0b4";
 
     // compiler check
     std::cout << tool::fmt("Start ExVR-designer v{}\n", numVersion.toStdString()); // c++20 check
@@ -87,10 +88,10 @@ int main(int argc, char *argv[]){
     splash.show();
 
     tool::ex::Paths::initialize_paths(QApplication::applicationDirPath());
-    tool::ex::ExVrController controller(numVersion, lncoComponents);
+    tool::ex::ExVrController controller(numVersion);
     QCoreApplication::instance()->installEventFilter(&controller);
 
-    QTimer::singleShot(1000, &splash, &QWidget::close);
+    QTimer::singleShot(1500, &splash, &QWidget::close);
 
     int ret = a.exec();
     std::cout << "Exited with: " << ret << "\n";

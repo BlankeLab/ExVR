@@ -42,13 +42,13 @@ class CopyToConditionDialog : public QDialog{
 public :
 
     CopyToConditionDialog();
-    void update_from_data(ElementKey currentRoutineKey, ConditionKey currentConditionKey, std_v1<Routine*> routines);
+    void update_from_data(ElementKey currentRoutineKey, ConditionKey currentConditionKey, std::vector<Routine*> routines);
 
 signals:
 
     void copy_to_conditions_signal(
         ElementKey routineKey, ConditionKey conditionKey,
-        std_v1<std::pair<ElementKey,ConditionKey>> conditionsToBeEcrased,
+        std::vector<std::pair<ElementKey,ConditionKey>> conditionsToBeEcrased,
         bool copyActions, bool copyConnections
     );
 
@@ -63,6 +63,6 @@ private:
 
     ElementKey m_currentRoutine;
     ConditionKey m_currentCondition;
-    std_v1<std::pair<const Routine*,std::unique_ptr<ui::ListWidget>>> conditionsPerRoutines;    
+    std::vector<std::pair<const Routine*,std::unique_ptr<ui::ListWidget>>> conditionsPerRoutines;    
 };
 }

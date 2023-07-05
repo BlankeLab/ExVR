@@ -84,6 +84,16 @@ void RealNodeDataModel::compute(){
     );
 }
 
+void RealNodeDataModel::wheel_event(QWheelEvent *event){
+
+    RealEmbeddedW *ndm = embedded_w();
+    if(event->angleDelta().y() > 0){
+        ndm->w->decrement();
+    }else{
+        ndm->w->increment();
+    }
+}
+
 void RealNodeDataModel::init_ports_caption(){
     const auto io = Connector::get_io(m_type);
     for(size_t ii = 0; ii < io.inNb; ++ii){

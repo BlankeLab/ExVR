@@ -46,7 +46,7 @@ struct BiopacInitConfigParametersW::Impl{
     QLabel *info = nullptr;
 
     using CB = ExCheckBoxW;
-    std_a1<ExCheckBoxW, 16> channels{
+    std::array<ExCheckBoxW, 16> channels{
         CB{"channel0"}, CB{"channel1"}, CB{"channel2"}, CB{"channel3"},
         CB{"channel4"}, CB{"channel5"}, CB{"channel6"}, CB{"channel7"},
         CB{"channel8"}, CB{"channel9"}, CB{"channel10"},CB{"channel11"},
@@ -54,14 +54,14 @@ struct BiopacInitConfigParametersW::Impl{
     };
 
     using LE = ExLineEditW;
-    std_a1<ExLineEditW, 16> channelsName{
+    std::array<ExLineEditW, 16> channelsName{
         LE{"channel0_name"}, LE{"channel1_name"}, LE{"channel2_name"}, LE{"channel3_name"},
         LE{"channel4_name"}, LE{"channel5_name"}, LE{"channel6_name"}, LE{"channel7_name"},
         LE{"channel8_name"}, LE{"channel9_name"}, LE{"channel10_name"},LE{"channel11_name"},
         LE{"channel12_name"},LE{"channel13_name"},LE{"channel14_name"},LE{"channel15_name"},
     };
 
-    std_a1<ExLineEditW, 16> channelsPresetUid{
+    std::array<ExLineEditW, 16> channelsPresetUid{
         LE{"channel0_preset_uid"}, LE{"channel1_preset_uid"}, LE{"channel2_preset_uid"}, LE{"channel3_preset_uid"},
         LE{"channel4_preset_uid"}, LE{"channel5_preset_uid"}, LE{"channel6_preset_uid"}, LE{"channel7_preset_uid"},
         LE{"channel8_preset_uid"}, LE{"channel9_preset_uid"}, LE{"channel10_preset_uid"},LE{"channel11_preset_uid"},
@@ -72,7 +72,7 @@ struct BiopacInitConfigParametersW::Impl{
         10, 25, 50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000, 20000, 25000
     };
 
-    std_v1<QWidget*> channelsParentWidgets;
+    std::vector<QWidget*> channelsParentWidgets;
     ExLineEditW serialNumber{"serial"};
     ExComboBoxIndexW samplingRate{"sampling_rate_id"};
     ExSpinBoxW samplesPerCall{"nb_samples_per_call"};

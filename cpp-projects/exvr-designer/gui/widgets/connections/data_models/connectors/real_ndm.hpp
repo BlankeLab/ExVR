@@ -46,6 +46,7 @@ class RealNodeDataModel : public TypedConnectorDataModel<Connector::Type::Real, 
 Q_OBJECT
 public slots:
     void compute() override;
+    void wheel_event(QWheelEvent *event)override;
 public:
     void init_ports_caption() override;
 };

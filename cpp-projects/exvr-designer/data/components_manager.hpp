@@ -97,6 +97,9 @@ public:
     name_const_iterator name_begin() const { return m_componentsPerName.cbegin(); }
     name_const_iterator name_end() const { return m_componentsPerName.cend(); }
 
+// debug
+    void fix_colors();
+
 private:
 
     void add_component_to_map(Component *component);

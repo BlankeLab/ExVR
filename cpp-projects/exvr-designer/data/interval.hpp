@@ -26,6 +26,7 @@
 
 // base
 #include "utility/types.hpp"
+#include "utility/math.hpp"
 
 // qt-utility
 #include "qt_str.hpp"

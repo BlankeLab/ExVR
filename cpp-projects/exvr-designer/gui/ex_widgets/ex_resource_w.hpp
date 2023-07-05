@@ -58,7 +58,7 @@ private:
     QPushButton *m_resources = nullptr;
 
     int m_currentKey = -1;
-    std_v1<int> resourcesId;
+    std::vector<int> resourcesId;
 };
 
 }

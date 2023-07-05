@@ -84,8 +84,8 @@ K4DirectMultiCloudsConfigParametersW::K4DirectMultiCloudsConfigParametersW():  C
 }
 
 void K4DirectMultiCloudsConfigParametersW::insert_widgets(){
-    add_sub_part_widget(m_p->tr);
 
+    add_sub_part_widget(m_p->tr);
     add_widget(m_p->tw = new QTabWidget());
     m_p->tw->addTab(
         F::gen(L::VB(),{

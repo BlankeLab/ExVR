@@ -49,7 +49,7 @@ void Isi::modify_interval(double value, RowId id){
 void Isi::remove_interval(RowId id){
     intervals.erase(intervals.begin()+id.v);
     if(id.v > 0){
-        currentIntervalId = to_unsigned(id.v-1);
+        currentIntervalId = to_size_t(id.v-1);
     }
 }
 

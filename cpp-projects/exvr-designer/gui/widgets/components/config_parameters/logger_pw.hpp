@@ -42,7 +42,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class LoggerConfigParametersW : public ConfigParametersW{};
@@ -60,7 +60,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 
@@ -79,7 +79,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 
@@ -99,7 +99,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 };
 
 class LoggerExperimentConfigParametersW : public ConfigParametersW{};
@@ -116,7 +116,7 @@ public :
 
 private:
     struct Impl;
-    std::unique_ptr<Impl> m_p = nullptr;
+    std::unique_ptr<Impl> m_p;
 
 };
 class GlobalLoggerConfigParametersW : public ConfigParametersW{};

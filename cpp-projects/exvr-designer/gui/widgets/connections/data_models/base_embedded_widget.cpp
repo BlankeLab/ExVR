@@ -150,7 +150,15 @@ void BaseNodeContainerW::initialize_container(const QString &caption, bool popup
     m_openDialogButton.setObjectName("settingButton");
     m_openDialogButton.setStyleSheet(buttonStyle1);
     connect(&m_openDialogButton, &QPushButton::clicked, this, [&]{
+
+        if(m_dataDisplayD->is_popup()){
+            emit popup_opened_signal();
+        }
         m_dataDisplayD->node_settings_execute(QCursor::pos()+ QPoint(0,10));
+
+        if(m_dataDisplayD->is_popup()){
+            emit popup_closed_signal();
+        }
     });
 }
 

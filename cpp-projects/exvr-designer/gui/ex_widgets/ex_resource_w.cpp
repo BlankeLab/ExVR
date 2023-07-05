@@ -63,7 +63,7 @@ ExResourceW::ExResourceW(QString name) : ExItemW<QFrame>(UiType::Resource, name)
         m_currentKey = -1;
         if(m_resourcesAlias->currentIndex() > 0){
 
-            const size_t id = to_unsigned(m_resourcesAlias->currentIndex()-1);
+            const size_t id = to_size_t(m_resourcesAlias->currentIndex()-1);
             if(auto resources = ExperimentManager::get()->current()->resM.get_resources(m_resourceType); id < resources.size()){
                 m_currentKey =  resources[id]->key();
             }
@@ -178,7 +178,7 @@ void ExResourceW::update_from_resources(){
         resources.reserve(resources.size());
 
         QStringList names;
-        names.reserve(to_signed(resources.size()+1));
+        names.reserve(to_int(resources.size()+1));
         names << "";
         for(const auto &resource : resources){
             names << resource->display_name();

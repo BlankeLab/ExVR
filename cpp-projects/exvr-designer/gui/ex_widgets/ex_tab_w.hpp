@@ -88,7 +88,7 @@ public:
     }
 
 
-    ExTabW *init_widget(QString tabTitle, std_v1<std::any> initParameters, int maxTabNumber, QTabWidget::TabPosition tabPosition = QTabWidget::TabPosition::North, bool enabled = true){
+    ExTabW *init_widget(QString tabTitle, std::vector<std::any> initParameters, int maxTabNumber, QTabWidget::TabPosition tabPosition = QTabWidget::TabPosition::North, bool enabled = true){
 
         w->set_title(tabTitle);
         w->set_max_tab_number(maxTabNumber);
@@ -169,10 +169,10 @@ private:
     }
 
 public:
-    std_v1<std::unique_ptr<T>> widgets;
+    std::vector<std::unique_ptr<T>> widgets;
 
 private :
-    std_v1<std::any> m_initParameters;
+    std::vector<std::any> m_initParameters;
 };
 
 }
