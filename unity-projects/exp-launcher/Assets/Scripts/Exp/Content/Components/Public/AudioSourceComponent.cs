@@ -134,15 +134,16 @@ namespace Ex{
             }
 
             // send sound characteristices
-            List<string> infos = new List<string>();
-            infos.Add(m_audioClip.name);
-            infos.Add(Converter.to_string(m_audioClip.channels));
-            infos.Add(Converter.to_string(m_audioClip.frequency));
-            infos.Add(Converter.to_string(m_audioClip.length));
-            infos.Add(Converter.to_string(m_audioClip.samples));
-            infos.Add(Converter.to_string(m_audioClip.ambisonic));           
+            List<string> infos = new List<string>(new string[]{
+                m_audioClip.name,
+                Converter.to_string(m_audioClip.channels),
+                Converter.to_string(m_audioClip.frequency),
+                Converter.to_string(m_audioClip.length),
+                Converter.to_string(m_audioClip.samples),
+                Converter.to_string(m_audioClip.ambisonic)
+            });       
 
-            send_infos_to_gui_init_config("input_sound_info", String.Join("?", infos.ToArray()));
+            send_infos_to_gui_init_config("input_sound_info", string.Join("?", infos.ToArray()));
 
             if (initC.get<bool>("generate_new_sound")) {
                 if (!generate_new_sound_from_input()) {
@@ -150,7 +151,11 @@ namespace Ex{
                 }
             }
 
+            
+
+
             audioSource.clip = m_audioClip;
+
             m_audioData = new AudioData(audioSource.clip);
 
             return true;
@@ -214,7 +219,6 @@ namespace Ex{
             update_from_current_config();
         }
 
-
         protected override void set_visibility(bool visibility) {
             audioSourceGO.GetComponent<MeshFilter>().mesh = (visibility && currentC.get<bool>("display")) ? m_audioMesh : null;
         }
@@ -245,6 +249,16 @@ namespace Ex{
         }
 
         protected override void update() {
+
+            if (audioSource.isPlaying) {
+                if (audioSource.time > currentC.get<float>("end_time")) {
+                    if (audioSource.loop) {
+                        audioSource.time = currentC.get<float>("start_time");
+                    } else {
+                        stop_sound();
+                    }                    
+                }
+            }
 
             for (int ii = 0; ii < audioSource.clip.channels; ++ii) {                      
                 invoke_signal(sampleValueChannelStr, new IdAny(ii + 1, m_audioData.channel_value(audioSource.timeSamples, ii)));
@@ -297,6 +311,7 @@ namespace Ex{
             newClip.SetData(newSamples, 0);
             m_audioClip = newClip;
 
+
             return true;
         }
 
@@ -305,6 +320,7 @@ namespace Ex{
         #region public_functions
 
         public void start_sound() {
+            audioSource.time = currentC.get<float>("start_time");
             audioSource.Play();
             audioSourceGO.GetComponent<MeshRenderer>().material.color = audioSource.mute ? Color.red : Color.green;
         }
@@ -316,10 +332,6 @@ namespace Ex{
         public void mute(bool state) {
             audioSource.mute = state;
             audioSourceGO.GetComponent<MeshRenderer>().material.color = audioSource.mute ? Color.red : Color.green;
-            //if (state) {
-            //    audioSourceGO.GetComponent<MeshRenderer>().material.color = Color.yellow;
-            //}
-
         }
 
         public override void play() {

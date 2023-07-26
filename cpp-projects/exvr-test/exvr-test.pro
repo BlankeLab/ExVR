@@ -60,13 +60,11 @@ QT  += core gui network concurrent widgets opengl
 
 ######################################## INCLUDES
 INCLUDEPATH += \
-    # base
+    # tool
     $$BASE_INCLUDES \
-    # qt-utility
     $$QT_UTILITY_INCLUDES \
-    # exvr-designer
     $$EXVR_DESIGNER_INCLUDES \
-    # catch
+    # thirdparty
     $$CATCH_INCLUDES \
     $$QWT_INCLUDES \
     $$NODES_INCLUDES \
@@ -74,15 +72,17 @@ INCLUDEPATH += \
 
 ######################################## LIBRAIRIES
 
+PRE_TARGETDEPS += \
+    # tool
+    $$BASE_LIB_DEP \
+    $$QT_UTILITY_LIB_DEP \
+
 LIBS +=  \
-    # base
+    # tool
     $$BASE_LIB \
-    # qt-utility
     $$QT_UTILITY_LIB \
-    # exvr-designer
     $$EXVR_DESIGNER_OBJ"/ExVR-designer_pch.obj" \
     $$EXVR_DESIGNER_OBJ"/xml_io_manager.obj" \
-#    $$EXVR_DESIGNER_OBJ"/moc_xml_io_manager.obj" \
     $$EXVR_DESIGNER_OBJ"/experiment.obj" \
     $$EXVR_DESIGNER_OBJ"/randomizer.obj" \
     $$EXVR_DESIGNER_OBJ"/component.obj" \
@@ -105,7 +105,7 @@ LIBS +=  \
 
 ######################################## PROJECT FILES
 
-#HEADERS += \
+HEADERS += \
 
 SOURCES += \
     exvr-test-main.cpp \

@@ -1,3 +1,6 @@
 [submodule "toolbox"]
 	path = toolbox
 	url = https://github.com/FlorianLance/toolbox
+[submodule "toolset"]
+	path = toolset
+	url = https://github.com/FlorianLance/toolset.git

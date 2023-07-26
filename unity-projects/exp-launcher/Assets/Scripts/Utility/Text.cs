@@ -24,6 +24,8 @@
 
 // system
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ex {
 
@@ -32,7 +34,15 @@ namespace Ex {
         public static readonly string[] linesSep = { "\r\n", "\r", "\n" };
         public static readonly char[] tabSep = { '\t' };
 
-        public static string join_with_new_line(string[] text) {
+        public static string join(IEnumerable<string> text) {
+            return string.Join("", text);
+        }
+
+        public static string join_with_space(IEnumerable<string> text) {
+            return string.Join(" ", text);
+        }
+
+        public static string join_with_new_line(IEnumerable<string> text) {
             return string.Join("\n", text);
         }
 

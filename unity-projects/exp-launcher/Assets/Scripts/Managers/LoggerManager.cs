@@ -23,6 +23,7 @@
 ************************************************************************************/
 
 // system
+using Leap.Unity;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -82,6 +83,9 @@ namespace Ex {
 
         public void initialize() {
             log = new Log();
+            if(exp != null) {
+                exp.clean();
+            }
             exp = new ExperimentLogger();
         }
     }
@@ -218,9 +222,8 @@ namespace Ex {
         [SerializeField]
         private string filePath = "";
         private string prevFilePath = "";
-        
-        private System.Collections.Concurrent.ConcurrentQueue<string> flow = null;
-        // stack of the components functions call
+
+        private FileLogger m_logger = null;
         private System.Collections.Concurrent.ConcurrentStack<Trace> stackTrace = new System.Collections.Concurrent.ConcurrentStack<Trace>();
 
         private static readonly string BuilderStr = "[BUILDER] {0}";
@@ -260,9 +263,8 @@ namespace Ex {
         private Dictionary<ExComponent.Function, string> componentsFunctionsStr = new Dictionary<ExComponent.Function, string>();
         private Dictionary<ExConnector.Function, string> connectorsFunctionsStr = new Dictionary<ExConnector.Function, string>();
 
-        
         private Trace[] swapTrace = null;
-        public ExperimentLogger() {
+        public ExperimentLogger() {            
 
             foreach (ExComponent.Function f in Enum.GetValues(typeof(ExComponent.Function))) {
                 componentsFunctionsStr[f] = f.ToString();
@@ -284,25 +286,28 @@ namespace Ex {
                 }
             }
 
-            flow = new System.Collections.Concurrent.ConcurrentQueue<string>();
-            try {
-                File.WriteAllText(filePath, string.Concat("[EXVR-EXP] Started at ", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), "\n"));
-                var p = ExVR.Paths();
-                File.AppendAllText(filePath, string.Format("[Paths]\n\t[Exp-launcher]\n\t\tExe file: {0}\n", p.expLauncherExeFile));
-                File.AppendAllText(filePath, string.Format("\t\tMain dir: {0}\n", p.expLauncherMainDir));
-                File.AppendAllText(filePath, string.Format("\t\tData dir: {0}\n", p.expLauncherDataDir));
-                File.AppendAllText(filePath, string.Format("\t\tMono dir: {0}\n", p.expLauncherMonoDir));
-                File.AppendAllText(filePath, string.Format("\t\tTemp generated dir: {0}\n", p.expLauncherTempGeneratedDir));
-                File.AppendAllText(filePath, string.Format("\t[Designer]\n\t\tMain dir: {0}\n", p.designerMainDir));
-                File.AppendAllText(filePath, string.Format("\t\tData temp dir: {0}\n", p.designerDataTempDir));
-                File.AppendAllText(filePath, string.Format("\t\tTemp exp file: {0}\n", p.designerTempExpFile));
-                File.AppendAllText(filePath, string.Format("\t\tDefault instance file: {0}\n", p.designerDefaultInstanceFile));
-                File.AppendAllText(filePath, string.Format("\t\tLog dir: {0}\n", p.designerLogDir));
+            // init file logger
+            m_logger = new FileLogger();
+            m_logger.start_logging("ExperimentLogger");
 
-            } catch (Exception exception) {
-                ExVR.Log().no_logger_error(string.Format("Cannot create logger file {0}, get error {1}", filePath, exception.Message));
+            if (!m_logger.set_file_path(filePath)) {
+                ExVR.Log().no_logger_error(string.Format("Cannot set experiment logger file path [{0}].", filePath));
+            } else {
+                ExVR.Log().no_logger_message(string.Format("Log file {0} generated.", filePath));
             }
-            ExVR.Log().no_logger_message(string.Format("Log file {0} generated.", filePath));
+
+            var p = ExVR.Paths();
+            m_logger.write(string.Concat("[EXVR-EXP] Started at ", DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"), "\n"), false);            
+            m_logger.write(string.Format("[Paths]\n\t[Exp-launcher]\n\t\tExe file: {0}\n", p.expLauncherExeFile), false);
+            m_logger.write(string.Format("\t\tMain dir: {0}\n", p.expLauncherMainDir), false);
+            m_logger.write(string.Format("\t\tData dir: {0}\n", p.expLauncherDataDir), false);
+            m_logger.write(string.Format("\t\tMono dir: {0}\n", p.expLauncherMonoDir), false);
+            m_logger.write(string.Format("\t\tTemp generated dir: {0}\n", p.expLauncherTempGeneratedDir), false);
+            m_logger.write(string.Format("\t[Designer]\n\t\tMain dir: {0}\n", p.designerMainDir), false);
+            m_logger.write(string.Format("\t\tData temp dir: {0}\n", p.designerDataTempDir), false);
+            m_logger.write(string.Format("\t\tTemp exp file: {0}\n", p.designerTempExpFile), false);
+            m_logger.write(string.Format("\t\tDefault instance file: {0}\n", p.designerDefaultInstanceFile), false);
+            m_logger.write(string.Format("\t\tLog dir: {0}\n", p.designerLogDir), false);
 
             ExVR.Events().log.LoggerMessage.AddListener((message, append) => {
                 add(message, false, false, false);
@@ -320,9 +325,15 @@ namespace Ex {
             swapTrace = new Trace[100];
         }
 
+        ~ExperimentLogger() {
+            clean();
+        }
 
-
-
+        public void clean() {
+            if (m_logger != null) {
+                m_logger.stop_logging();
+            }
+        }
 
         public void routines_message(string message) {
             add(string.Format(RoutinesMessageStr, message), false, true, false);
@@ -485,71 +496,60 @@ namespace Ex {
         }
 
         private void add(string state, bool time, bool timeExp, bool timeCurrentElement) {
-            
+
+            if(m_logger == null) {
+                return;
+            }
+
             if (time) {
 
                 if (timeExp && timeCurrentElement) {
-                    flow.Enqueue(string.Format(AddT0T1T2,
+                    m_logger.write(string.Format(AddT0T1T2,
                         state,
                         DateTime.Now.ToString(DateNowF),
                         ExVR.Time().ellapsed_exp_s().ToString(),
                         ExVR.Time().ellapsed_element_s().ToString()
-                    ));
+                    ), true);
                 } else if (timeExp) {
-                    flow.Enqueue(string.Format(AddT0T1,
+                    m_logger.write(string.Format(AddT0T1,
                         state,
                         DateTime.Now.ToString(DateNowF),
                         ExVR.Time().ellapsed_exp_s().ToString()
-                    ));
+                    ), true);
                 } else if (timeCurrentElement) {
-                    flow.Enqueue(string.Format(AddT0T2,
+                    m_logger.write(string.Format(AddT0T2,
                         state,
                         DateTime.Now.ToString(DateNowF),
                         ExVR.Time().ellapsed_element_s().ToString()
-                    ));
+                    ), true);
                 } else {
-                    flow.Enqueue(string.Format(AddT0,
+                    m_logger.write(string.Format(AddT0,
                         state,
                         DateTime.Now.ToString(DateNowF)
-                    ));
+                    ), true);
                 }
 
             } else {
                 if (timeExp && timeCurrentElement) {
-                    flow.Enqueue(string.Format(AddT1T2,
+                    m_logger.write(string.Format(AddT1T2,
                         state,
                         ExVR.Time().ellapsed_exp_s().ToString(),
                         ExVR.Time().ellapsed_element_s().ToString()
-                    ));
+                    ), true);
                 } else if (timeExp) {
-                    flow.Enqueue(string.Format(AddT1,
+                    m_logger.write(string.Format(AddT1,
                         state,
                         ExVR.Time().ellapsed_exp_s().ToString()
-                    ));
+                    ), true);
                 } else if (timeCurrentElement) {
-                    flow.Enqueue(string.Format(AddT2,
+                    m_logger.write(string.Format(AddT2,
                         state,
                         ExVR.Time().ellapsed_element_s().ToString()
-                    ));
+                    ), true);
                 } else {
-                    flow.Enqueue(state);
+                    m_logger.write(state, true);
                 }
             }
-        }
-
-        public void write() {
-
-            try {
-                File.AppendAllLines(filePath, flow);
-            } catch (Exception exception) {
-                ExVR.Log().no_logger_error(string.Format("Cannot write on logger file {0}, get error {1}", filePath, exception.Message));
-            }
-            flow = new System.Collections.Concurrent.ConcurrentQueue<string>();
-        }
-
-
-        public int size_flow() {
-            return flow.Count;
         }
     }
 }

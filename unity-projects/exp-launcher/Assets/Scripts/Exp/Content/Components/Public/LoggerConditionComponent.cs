@@ -87,7 +87,7 @@ namespace Ex {
         }
 
         protected override void pre_start_routine() {
-            m_fileLogger.open_file(get_file_path(currentRoutine.name, currentCondition.name));
+            m_fileLogger.set_file_path(get_file_path(currentRoutine.name, currentCondition.name));
         }
 
         #endregion

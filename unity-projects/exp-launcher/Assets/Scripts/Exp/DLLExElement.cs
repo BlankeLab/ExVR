@@ -257,7 +257,5 @@ namespace Ex {
         [DllImport("exvr-export", EntryPoint = "set_parameter_array_double_ex_element", CallingConvention = CallingConvention.Cdecl)]
         static public extern void set_parameter_array_double_ex_element(HandleRef exElement, int containerId, string name, double[] values, int size);
 
-
-
     }
 }

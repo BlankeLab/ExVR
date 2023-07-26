@@ -13,12 +13,16 @@ Shader "Custom/Cloud/QuadGeoWorldSizeShader"
 		_PointSize("Point Size", Float) = 0.0025
 		[Toggle] _Circles("Circles", Int) = 1
 		[Toggle] _OBBFiltering("OBBFiltering", Int) = 0
-		_Tint("Tint", Color) = (0.5, 0.5, 0.5, 1)
+		_Tint("Tint", Color) = (0.5, 0.5, 0.5, 1.0)
 	}
 
 	SubShader
 	{
-		Tags{ "RenderType" = "Opaque" }
+		//Tags{ "RenderType" = "Opaque" }
+		Tags {"Queue" = "Transparent"  "RenderType" = "Transparent"}
+		Blend SrcAlpha OneMinusSrcAlpha
+		ZWrite On
+
 		LOD 200
 		Cull off
 
@@ -106,7 +110,7 @@ Shader "Custom/Cloud/QuadGeoWorldSizeShader"
 				float4 col = v.color;
 				float3 cc = LinearToGammaSpace(_Tint.rgb) * float3(col.r, col.g, col.b);
 				cc = GammaToLinearSpace(cc);
-				o.color = float4(cc, 1);
+				o.color = float4(cc, _Tint.a );
 
 				float3 view = normalize(UNITY_MATRIX_IT_MV[2].xyz);
 				float3 upvec = normalize(UNITY_MATRIX_IT_MV[1].xyz);

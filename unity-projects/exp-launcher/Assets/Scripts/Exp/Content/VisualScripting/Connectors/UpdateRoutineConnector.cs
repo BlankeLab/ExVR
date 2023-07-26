@@ -27,12 +27,13 @@ namespace Ex {
     public class UpdateRoutineConnector : ExConnector {
 
         protected override bool initialize() {
-            add_signals(1);
+            add_signals(2);
             return true;
         }
 
         protected override void update() {            
             invoke_signal(0, ExVR.Time().ellapsed_element_ms());
+            invoke_signal(1, ExVR.Time().ellapsed_element_s());
         }
     }
 }

@@ -62,7 +62,7 @@ The project has been developped at [EPFL LNCO laboratory](https://www.epfl.ch/la
 
 ## How to install
 
-Go [here](https://github.com/BlankeLab/ExVR/releases/tag/1.0b) to download the last public release.
+Go [here](https://github.com/FlorianLance/exvr/releases) to download the last public release.
 
 ## How to compile from code
 
@@ -96,7 +96,6 @@ https://visualstudio.microsoft.com/vs/community/).
 
 * [ExVR Doc](cpp-projects/_build/bin/exvr-designer/data/documentation/doc_general.md)
 
-
 ## Videos
 
 LNCO ExVR Workshop 2022:
@@ -105,7 +104,7 @@ LNCO ExVR Workshop 2022:
 
 ## Tutorials
 
-...
+(TODO)
 
 
 ## Authors

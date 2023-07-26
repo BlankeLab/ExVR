@@ -85,15 +85,14 @@ namespace Ex {
             }
 
             // check number of frames
+            int minNbOfFrames = nbFramesPerCamera[0];
             for (int ii = 1; ii < nbFramesPerCamera.Count; ++ii) {
-                if (nbFramesPerCamera[0] != nbFramesPerCamera[ii]) {
-                    log_error(string.Format("Invalid number of frames from camera {1}, {2} instead of {3}",
-                        ii, nbFramesPerCamera[ii], nbFramesPerCamera[0]));
-                    return false;
+                if(nbFramesPerCamera[ii] < minNbOfFrames) {
+                    minNbOfFrames = nbFramesPerCamera[ii];
                 }
             }
 
-            var nbFrames = nbFramesPerCamera[0];
+            var nbFrames = minNbOfFrames;
             cameraDataInfo = new List<VolumetricVideoCameraDataInfo>(nbCameras);
             
             for (int ii = 0; ii < nbCameras; ++ii) {

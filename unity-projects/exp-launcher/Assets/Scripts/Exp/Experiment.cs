@@ -196,9 +196,9 @@ namespace Ex{
             send_current_experiment_state_to_gui();
 
             // write exp log
-            if (ExVR.ExpLog().size_flow() > 100) {
-                ExVR.ExpLog().write();
-            }
+            //if (ExVR.ExpLog().size_flow() > 100) {
+                //ExVR.ExpLog().write();
+            //}
 
             m_layoutEventsNbCallsForCurrentFrame = 0;
             yield return null;
@@ -553,7 +553,7 @@ namespace Ex{
 
             // flow log
             ExVR.ExpLog().exp("Experiment stopped", false, false, false);            
-            ExVR.ExpLog().write();
+            //ExVR.ExpLog().write();
         }
 
         public void execute_command(string strCommand) {
@@ -600,8 +600,10 @@ namespace Ex{
                         log_error(string.Format("Update designer dir path error: bad number of parameters ({0}) with cmd : {1}", cmd.Item2.Count, strCommand));
                         return;
                     }
+
                     // update path
                     ExVR.Paths().update_designer_path(cmd.Item2[0]);
+
                     // reset logs
                     ExVR.Logger().initialize();
                     return;
@@ -645,6 +647,7 @@ namespace Ex{
                     schedule_update_connector_parameter(ScheduledAction.Source.Gui, routineKey, conditionKey, connectorKey, arg);
                     return;
                 }case NetworkManager.Command.Quit: {
+                    schedule_stop_experiment(ScheduledAction.Source.Gui);
                     schedule_quit(ScheduledAction.Source.Gui);
                     return;
                 }case NetworkManager.Command.Action: {

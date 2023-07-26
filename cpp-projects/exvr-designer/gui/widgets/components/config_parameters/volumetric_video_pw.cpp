@@ -170,7 +170,7 @@ void VolumetricVideoConfigParametersW::init_and_register_widgets(){
     add_input_ui(m_p->sizePoints.init_widget(MinV<qreal>{0.0001}, V<qreal>{0.0030}, MaxV<qreal>{0.05}, StepV<qreal>{0.0001},4));
     add_input_ui(m_p->rendering.init_widget({"Quad", "ParabloidFrag", "ParabloidGeo"}, 2));
     add_input_ui(m_p->parabloidGeoDetails.init_widget({"None", "Low", "Middle", "Hight"}, 3));
-    add_input_ui(m_p->tint.init_widget("Points tint", QColor(255,255,255,0)));
+    add_input_ui(m_p->tint.init_widget("Points tint", QColor(255,255,255,255)));
     add_input_ui(m_p->renderCircles.init_widget("Use circles", true));
     add_input_ui(m_p->parabloidFragCones.init_widget("Parabloid frag cones", true));
     // filtering obb

@@ -32,15 +32,20 @@ namespace Ex{
 
         public volatile bool isDone = false;
         private Thread m_Thread = null;
+        private string m_name = "";
 
-        public void start(ThreadPriority priority = ThreadPriority.Normal) {
+        public void start(ThreadPriority priority = ThreadPriority.Normal, string name = "") {
             isDone   = false;
+            m_name = name;
             m_Thread = new System.Threading.Thread(run);
             m_Thread.Priority = priority;
             m_Thread.Start();
         }
 
         private void run() {
+            if (m_name.Length > 0) {
+                Thread.CurrentThread.Name = m_name;
+            }
             thread_function();
             on_finished();
             isDone = true;

@@ -77,9 +77,7 @@ namespace Ex {
 #if CLOSED_COMPONENTS
             Debug.Log("Closed components included.");
 #endif
-#if LNCO_COMPONENTS
-            Debug.Log("LNCO components included.");
-#endif
+
             autoRef = this; // for static access
             go      = GetComponent<GoExplorer>();
 
@@ -221,7 +219,7 @@ namespace Ex {
 
             ExVR.ExpLog().builder("Clean network communication");
             networkManager.clean();
-            ExVR.ExpLog().write();
+            ExVR.ExpLog().clean();
         }
     }
 }

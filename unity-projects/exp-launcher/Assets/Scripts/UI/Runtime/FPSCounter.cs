@@ -69,7 +69,7 @@ namespace Ex {
             framerate /= lastValues.Count;
 
             int currenRate = Screen.currentResolution.refreshRate;
-            text.SetText(Converter.to_string(framerate, framerate < 100 ? "00.0" : "000."));
+            text.SetText(string.Format("{0}/{1}", Converter.to_string(framerate, framerate < 100 ? "00.0" : "000."), currenRate));
             if (framerate > currenRate * 0.95f) {
                 text.faceColor = ok;
                 text.outlineColor = ok;

@@ -79,6 +79,11 @@ INCLUDEPATH += \
 
 ####################################### LIBRAIRIES
 
+PRE_TARGETDEPS += \
+    # tool
+    $$BASE_LIB_DEP \
+    $$QT_UTILITY_LIB_DEP \
+
 LIBS +=  \
     # tool
     $$BASE_LIB \

@@ -75,7 +75,7 @@ auto main(int argc, char *argv[]) -> int{
     // generate_doc_in_console();
 
     // build parameters
-    const QString numVersion = "1.0b4";
+    const QString numVersion = "1.0b6";
 
     // compiler check
     std::cout << tool::fmt("Start ExVR-designer v{}\n", numVersion.toStdString()); // c++20 check

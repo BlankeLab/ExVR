@@ -1,35 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
- namespace Ex.CSharpFunctions { public class Choose__image_NEW_onlytwo_ { 
-static int countErrors = 0;static string readrandim = ExVR.Resources().get_text_file_data("order_images").content;
-static string[] imagesorder = Ex.Text.split_lines(readrandim);
-static string order = ExVR.Resources().get_text_file_data("order_bloc_1").content;
-static string[] indxcue = Ex.Text.split_lines(order);
-
-
-
-public class standard{
+ namespace Ex.CSharpFunctions { public class Downsize__plane { 
+static int countErrors = 0;public class standard{
 
  public static object function(object input) {
 object output = null;
-try{int trial = Converter.to_int(input);
-int imageId = Converter.to_int( indxcue[trial])+1;
-var orderim = imagesorder[trial];
+try{var time = Converter.to<float>((double)input);
+time *= 0.01f;
 
-	ExVR.Log().message("trial " + trial + " " +  "imageid" + imageId + " "+ "order" + orderim);
-
-
-var line1 = string.Format("#{0}-{1}_#{0}-{2}", imageId, orderim[0], orderim[1]);
-//var line2 = string.Format("#{0}-{1}_#{0}-{2}", imageId, orderim[2], orderim[3]);
-var buttonText = line1;
+if(time < 10.0f){	
+	output = new Vector3(10.0f- time,10.0f- time,1);
+}else{
+		output = new Vector3(0f,0f,1);
+}
 
 
-var buttonC = ExVR.Components().get_first<ButtonsUIComponent>();
-buttonC.set_text(buttonText);
-
-// TODO improve output for log
-output = orderim;
 }catch(System.Exception ex){
 CSharpFunctionComponent.display_static_exception(countErrors++,ex);}
 return output;

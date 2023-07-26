@@ -92,36 +92,30 @@ INCLUDEPATH += \
 
 ######################################## LIBRAIRIES
 
+PRE_TARGETDEPS += \
+    # tool
+    $$BASE_LIB_DEP \
+    $$SCANER_COMPONENT_DEP \
+
 LIBS +=  \
-    # base
+    # tool
     $$BASE_LIB \
-    # scaner-component
     $$SCANER_COMPONENT_LIB\
-    # exvr-export
     $$EXVR_EXPORT_OBJ"\py*.obj"\
     $$EXVR_EXPORT_OBJ"\vi*.obj"\
     $$EXVR_EXPORT_OBJ"\ex_*.obj"\
     $$EXVR_EXPORT_OBJ"\k2_*.obj"\
     $$EXVR_EXPORT_OBJ"\k4_*.obj"\
-    # opencv
+    # thirdparty
     $$OPENCV_LIBS \
-    # windows
     $$WINDOWS_LIBS \
-    # boost
     $$BOOST_LIBS \
-    # turbojpg
     $$TURBOJPG_LIBS\
-    # fastfor
     $$FASTPFOR_LIBS\
-    # eigen
     $$EIGEN_LIBS\
-    # open3D
     $$OPEN3D_LIBS \
-    # kinect4
     $$KINECT4_LIBS \
-    # turbopfor
     $$TURBOPFOR_LIBS \
-    # python
     $$PYTHON_LIBS \
 
 ######################################## PROJECT FILES

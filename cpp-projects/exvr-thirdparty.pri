@@ -24,7 +24,7 @@
 # **                                                                            **
 # ********************************************************************************/
 
-include(../toolbox/cpp-projects/tb-thirdparty.pri)
+include(../toolset/cpp-projects/ts-thirdparty.pri)
 
 ########################################################### DIRECTORIES
 ############################# third-party headers only libraries

@@ -29,6 +29,7 @@ using System.Collections.Generic;
 
 // unity
 using UnityEngine;
+using Microsoft.Scripting.Utils;
 
 namespace Ex{
 
@@ -395,7 +396,15 @@ namespace Ex{
             },
             [lFloatT] = input => { return to_string((List<float>)input, g7, ","); },
             [lDoubleT] = input => { return to_string((List<double>)input, g7, ","); },
-            [lStringT] = input => { return to_string((List<string>)input, " "); }
+            [lStringT] = input => { return to_string((List<string>)input, " "); },
+            [lObjT] = input => {
+                var lo = (List<object>)input;
+                var ls = new List<string>(lo.Count);
+                foreach(var o in lo) {
+                    ls.Add(to_string(o));
+                }
+                return Text.join_with_space(ls.ToArray()); 
+            }
         };
 
         // to - from

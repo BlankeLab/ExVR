@@ -19,11 +19,11 @@ SET "DEST_BUILD_DIR=%DEST_PARENT_BUILD_DIR%\_build"
 SET "DEST_RESOURCES_DIR=%DEST_PARENT_RESOURCES_DIR%\_resources"
 SET "DEST_THIRDPARTY_DIR=%DEST_PARENT_THIRDPARTY_DIR%\_thirdparty"
 
-SET "TOOLBOX_DIR=%~dp0toolbox"
-SET "TOOLBOX_SCRIPT=%TOOLBOX_DIR%\install_dependencies.cmd"
+SET "TOOLSET_DIR=%~dp0toolset"
+SET "TOOLSET_SCRIPT=%TOOLSET_DIR%\install_dependencies.cmd"
 
 Rem Tools
-SET "UNZIP_EXE=%TOOLBOX_DIR%\tools\unzip.exe"
+SET "UNZIP_EXE=%TOOLSET_DIR%\tools\unzip.exe"
 
 
 
@@ -145,6 +145,6 @@ IF EXIST %THIRDPARTY_DIR% (
 
 echo "ExVR dependencies installation finished."
 
-Rem Toolbox dependencies installation
-cd %TOOLBOX_DIR%
-%TOOLBOX_SCRIPT%
+Rem Toolset dependencies installation
+cd %TOOLSET_DIR%
+%TOOLSET_SCRIPT%

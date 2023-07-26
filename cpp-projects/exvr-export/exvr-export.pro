@@ -57,60 +57,43 @@ CONFIG -= qt
 
 ######################################## INCLUDES
 INCLUDEPATH += \
-    # base
+    # tool
     $$BASE_INCLUDES \
-    # scaner-component
     $$SCANER_COMPONENT_INCLUDES \
-    # opencv
+    # thirdparty
     $$OPENCV_INCLUDES \
-    # boost
     $$BOOST_INCLUDES \
-    # kinect2
     $$KINECT2_INCLUDES \
-    # turbojpg
     $$TURBOJPG_INCLUDES \
-    # fastfor
     $$FASTPFOR_INCLUDES \
-    # GSL
     $$GSL_INCLUDES \
-    # open3D
     $$OPEN3D_INCLUDES \
-    # eigen
     $$EIGEN_INCLUDES\
-    # kinect4
     $$KINECT4_INCLUDES\
-    # turbopfor
     $$TURBOPFOR_INCLUDES \
-    # python
     $$PYTHON_INCLUDES \
 
 ######################################## LIBRAIRIES
 
+PRE_TARGETDEPS += \
+    # tool
+    $$BASE_LIB_DEP \
+    $$SCANER_COMPONENT_DEP \
 
 LIBS +=  \
-    # base
+    # tool
     $$BASE_LIB \
-    # scaner-component
     $$SCANER_COMPONENT_LIB\
-    # opencv
+    # thirpdarty
     $$OPENCV_LIBS \
-    # windows
     $$WINDOWS_LIBS \
-    # boost
     $$BOOST_LIBS \
-    # turbojpg
     $$TURBOJPG_LIBS\
-    # fastfor
     $$FASTPFOR_LIBS\
-    # eigen
     $$EIGEN_LIBS\
-    # open3D
     $$OPEN3D_LIBS \
-    # kinect4
     $$KINECT4_LIBS \
-    # turbopfor
     $$TURBOPFOR_LIBS \
-    # python
     $$PYTHON_LIBS \
 
 ######################################## PROJECT FILES

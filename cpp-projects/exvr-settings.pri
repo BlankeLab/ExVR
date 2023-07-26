@@ -55,6 +55,10 @@ unix:!macx{
     EXT_O = ".o"
 }
 
+equals(QT_MAJOR_VERSION, 6){
+    CONFIG+=c++20
+}
+
 # ARCH
 equals(COMPILER, "gcc"){ # GCC (TODO)
     # FLAGS
@@ -64,7 +68,10 @@ equals(COMPILER, "gcc"){ # GCC (TODO)
 equals(COMPILER, "vs"){ # Visual studio
 
     # set cl flags
-    QMAKE_CXXFLAGS *= /std:c++latest    # The latest draft C++ standard preview features.
+    equals(QT_MAJOR_VERSION, 5){
+        QMAKE_CXXFLAGS *= -std:c++20    # The latest draft C++ standard preview features.
+    }
+
     QMAKE_CXXFLAGS *= -MP               # Build with Multiple Processes
     # warnings levels
     QMAKE_CXXFLAGS -= -W0

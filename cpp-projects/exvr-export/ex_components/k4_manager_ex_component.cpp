@@ -27,8 +27,10 @@
 #include <chrono>
 #include <format>
 #include <filesystem>
+#include <execution>
 
 // base
+#include "utility/time.hpp"
 // # network
 #include "network/kinect4/k4_server_network.hpp"
 #include "network/kinect4/k4_server_network_settings.hpp"
@@ -67,6 +69,8 @@ struct K4ManagerExComponent::Impl{
 
     std::atomic_int framesReceived = 0;
 
+    std::vector<size_t> indices1D;
+
     auto set_connections() -> void{
 
         K4ServerConnection::feedback_signal.connect([&](size_t id, K4Feedback feedback){
@@ -79,7 +83,6 @@ struct K4ManagerExComponent::Impl{
             framesReceived++;
             serverData.new_compressed_frame(idCamera, cloudFrame);
         });
-//        K4ServerConnection::compressed_frame_signal.connect(&K4ServerData::new_compressed_frame, &serverData);
     }
 
     auto delete_connections(){
@@ -238,6 +241,7 @@ auto K4ManagerExComponent::initialize() -> bool{
 
     // transmit calibration matrices
     for(size_t ii = 0; ii < i->grabbersS.size(); ++ii){
+
         std::vector<float> m(16, 0.f);
         for(size_t jj = 0; jj < 16; ++jj){
             m[jj] = static_cast<float>(i->grabbersS[ii].model.transformation.array[jj]);
@@ -282,7 +286,7 @@ auto K4ManagerExComponent::start_experiment() -> void{
     i->connect_grabbers();
 
 
-    startExperimentTime = nanoseconds(high_resolution_clock::now().time_since_epoch());
+    startExperimentTime =  Time::nanoseconds_since_epoch();
 
 }
 
@@ -365,15 +369,34 @@ auto K4ManagerExComponent::get_cloud_frame_data(size_t idCamera, size_t currentF
             return {false, frame->idCapture, frame->cloud.size()};
         }
 
-        for(size_t ii = 0; ii < frame->cloud.size(); ++ii){
-            vertices[ii].pos = frame->cloud.vertices[ii];
-            vertices[ii].col = geo::Pt4<std::uint8_t>{
-                static_cast<std::uint8_t>(frame->cloud.colors[ii].x()*255.f),
-                static_cast<std::uint8_t>(frame->cloud.colors[ii].y()*255.f),
-                static_cast<std::uint8_t>(frame->cloud.colors[ii].z()*255.f),
+//        if(i->indices1D.size() < frame->cloud.size()){
+//            i->indices1D.resize(frame->cloud.size());
+//            std::iota(std::begin(i->indices1D), std::end(i->indices1D), 0);
+//        }
+
+//        for_each(std::execution::par_unseq, std::begin(i->indices1D), std::end(i->indices1D), [&](size_t id){
+//            vertices[id].pos = frame->cloud.vertices[id];
+//            vertices[id].pos.x() *= -1.f;
+//            vertices[id].col = geo::Pt4<std::uint8_t>{
+//                static_cast<std::uint8_t>(frame->cloud.colors[id].x()*255.f),
+//                static_cast<std::uint8_t>(frame->cloud.colors[id].y()*255.f),
+//                static_cast<std::uint8_t>(frame->cloud.colors[id].z()*255.f),
+//                255
+//            };
+//        });
+
+        for(size_t id = 0; id < frame->cloud.size(); ++id){
+            vertices[id].pos = frame->cloud.vertices[id];
+//            vertices[id].pos.x() *= -1.f;
+            vertices[id].col = geo::Pt4<std::uint8_t>{
+                static_cast<std::uint8_t>(frame->cloud.colors[id].x()*255.f),
+                static_cast<std::uint8_t>(frame->cloud.colors[id].y()*255.f),
+                static_cast<std::uint8_t>(frame->cloud.colors[id].z()*255.f),
                 255
             };
         }
+
+
         return {true, frame->idCapture, frame->cloud.size()};
     }
     return {false, 0, 0};

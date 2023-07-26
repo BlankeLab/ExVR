@@ -19,7 +19,10 @@ Shader "Custom/Cloud/ParaboloidGeoWorldSizeShader"
 
 	SubShader
 	{
-		Tags{ "RenderType" = "Opaque" }
+		Tags {"Queue" = "Transparent"  "RenderType" = "Transparent"}
+		Blend SrcAlpha OneMinusSrcAlpha
+
+		//Tags{ "RenderType" = "Opaque" }
 		ZWrite On
 		LOD 200
 		Cull off
@@ -112,7 +115,7 @@ Shader "Custom/Cloud/ParaboloidGeoWorldSizeShader"
 				float4 col = v.color;
 				float3 cc = LinearToGammaSpace(_Tint.rgb) * float3(col.r, col.g, col.b);
 				cc = GammaToLinearSpace(cc);
-				o.color = float4(cc, 1);
+				o.color = float4(cc, _Tint.a);
 
 				float3 view = normalize(UNITY_MATRIX_IT_MV[2].xyz);
 				float3 upvec = normalize(UNITY_MATRIX_IT_MV[1].xyz);

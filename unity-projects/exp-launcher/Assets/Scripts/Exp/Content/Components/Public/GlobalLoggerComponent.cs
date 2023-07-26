@@ -98,7 +98,7 @@ namespace Ex {
             }
             expFrameFileLogger = new FileLogger();
             expFrameFileLogger.start_logging();
-            if (!expFrameFileLogger.open_file(expFrameLoggerFilePath)) {
+            if (!expFrameFileLogger.set_file_path(expFrameLoggerFilePath)) {
                 return;
             } else {
                 List<string> values = new List<string>();                
@@ -168,7 +168,7 @@ namespace Ex {
             }
             expTriggersFileLogger = new FileLogger();
             expTriggersFileLogger.start_logging();
-            if (!expTriggersFileLogger.open_file(expTriggersLoggerFilePath)) {
+            if (!expTriggersFileLogger.set_file_path(expTriggersLoggerFilePath)) {
                 return;
             }
 
@@ -205,7 +205,7 @@ namespace Ex {
 
                         logging.Value.frameFileLogger = new FileLogger();
                         logging.Value.frameFileLogger.start_logging();
-                        if (!logging.Value.frameFileLogger.open_file(frameLoggerFilePath)) {
+                        if (!logging.Value.frameFileLogger.set_file_path(frameLoggerFilePath)) {
                             return;
                         }
 
@@ -235,7 +235,7 @@ namespace Ex {
 
                         logging.Value.triggersFileLogger = new FileLogger();
                         logging.Value.triggersFileLogger.start_logging();
-                        if (!logging.Value.triggersFileLogger.open_file(triggerLoggerFilePath)) {
+                        if (!logging.Value.triggersFileLogger.set_file_path(triggerLoggerFilePath)) {
                             return;
                         }
                         logging.Value.triggersFileLogger.write(
@@ -364,9 +364,9 @@ namespace Ex {
                         // sort by exp time
                         allTriggersLines.Sort(delegate (Tuple<double, double, string> t1, Tuple<double, double, string> t2) {
                             if (t1.Item1 < t2.Item1) {
-                                return 1;
-                            } else if (t1.Item1 > t2.Item1) {
                                 return -1;
+                            } else if (t1.Item1 > t2.Item1) {
+                                return 1;
                             }
                             return 0;
                         });

@@ -94,7 +94,7 @@ namespace Ex {
         };
 
         public enum Priority { Low, Medium, Hight};
-        public enum Reserved {Public, Closed, LNCO};
+        public enum Reserved {Public, Closed};
 
         public int key = -1; // id component
         public string keyStr;
@@ -356,11 +356,8 @@ namespace Ex {
 #if CLOSED_COMPONENTS
                 valid = true;
 #endif
-            } else if (m_reserved == Reserved.LNCO) {
-#if LNCO_COMPONENTS
-                valid = true;
-#endif
-            }
+            } 
+
             if (!valid) {
                 log_error("Component is restricted and not available for this ExVR build.");
                 return false;

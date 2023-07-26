@@ -1,35 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
- namespace Ex.CSharpFunctions { public class Choose__image_NEW { 
-static int countErrors = 0;static string readrandim = ExVR.Resources().get_text_file_data("order_images").content;
-static string[] imagesorder = Ex.Text.split_lines(readrandim);
-static string order = ExVR.Resources().get_text_file_data("order_bloc_1").content;
-static string[] indxcue = Ex.Text.split_lines(order);
-
-
-
-public class standard{
+ namespace Ex.CSharpFunctions { public class Move_slide { 
+static int countErrors = 0;static ImageViewerComponent imageLeft = ExVR.Components().get_from_name<ImageViewerComponent>("HalfSlide1");
+static ImageViewerComponent imageRight = ExVR.Components().get_from_name<ImageViewerComponent>("HalfSlide2");
+static TextViewerComponent textV = ExVR.Components().get_from_name<TextViewerComponent>("Text viewer");public class standard{
 
  public static object function(object input) {
 object output = null;
-try{int trial = Converter.to_int(input);
-int imageId = Converter.to_int( indxcue[trial])+1;
-var orderim = imagesorder[trial];
+try{double expTime = (double)input;
+float t = Converter.to_float(expTime * 0.0005);
+imageLeft.set_pivot(new Vector2(1.0f +t, 0.5f));
+imageRight.set_pivot(new Vector2(0.0f -t, 0.5f));
 
-	ExVR.Log().message("trial " + trial + " " +  "imageid" + imageId + " "+ "order" + orderim);
+if(expTime > 10000.0){
+	double size = 1.0 - (expTime-10000.0)/2000.0;
+	if(size < 0){
+		size = 0;
+	}
+	textV.set_scale_factor(Converter.to_float(size));
+}else if(expTime > 5000.0){
 
+	double size = (expTime-5000.0)/2000.0;
+	if(size > 1.3){
+		size = 1.3;
+	}
+	textV.set_scale_factor(Converter.to_float(size));
 
-var line1 = string.Format("#{0}-{1}_#{0}-{2}", imageId, orderim[0], orderim[1]);
-var line2 = string.Format("#{0}-{1}_#{0}-{2}", imageId, orderim[2], orderim[3]);
-var buttonText = Ex.Text.join_with_new_line(new string[]{line1,line2});
-
-
-var buttonC = ExVR.Components().get_first<ButtonsUIComponent>();
-buttonC.set_text(buttonText);
-
-// TODO improve output for log
-output = orderim;
+}else{
+	textV.set_scale_factor(0.0f);
+}
 }catch(System.Exception ex){
 CSharpFunctionComponent.display_static_exception(countErrors++,ex);}
 return output;

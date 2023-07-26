@@ -80,28 +80,28 @@ namespace Ex {
         #endregion memory_management  
         #region DllImport
 
-        [DllImport("lnco-exvr-export", EntryPoint = "create_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("exvr-export", EntryPoint = "create_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
         static private extern IntPtr create_k4_volumetric_video_ex_resource();
 
-        [DllImport("lnco-exvr-export", EntryPoint = "get_cameras_nb_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("exvr-export", EntryPoint = "get_cameras_nb_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
         static private extern int get_cameras_nb_k4_volumetric_video_ex_resource(HandleRef volumetricVideoResource);
 
-        [DllImport("lnco-exvr-export", EntryPoint = "get_nb_frames_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("exvr-export", EntryPoint = "get_nb_frames_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
         static private extern int get_nb_frames_k4_volumetric_video_ex_resource(HandleRef volumetricVideoResource, int idCamera);
 
-        [DllImport("lnco-exvr-export", EntryPoint = "get_duration_ms_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("exvr-export", EntryPoint = "get_duration_ms_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
         static private extern float get_duration_ms_k4_volumetric_video_ex_resource(HandleRef volumetricVideoResource, int idCamera);
 
-        [DllImport("lnco-exvr-export", EntryPoint = "get_camera_transform_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("exvr-export", EntryPoint = "get_camera_transform_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
         static private extern void get_camera_transform_k4_volumetric_video_ex_resource(HandleRef volumetricVideoResource, int idCamera, float[] model);
 
-        [DllImport("lnco-exvr-export", EntryPoint = "get_id_frame_from_time_ms_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("exvr-export", EntryPoint = "get_id_frame_from_time_ms_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
         static private extern int get_id_frame_from_time_ms_k4_volumetric_video_ex_resource(HandleRef volumetricVideoResource, int idCamera, float timeMs);
 
-        [DllImport("lnco-exvr-export", EntryPoint = "get_valid_vertices_count_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("exvr-export", EntryPoint = "get_valid_vertices_count_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
         static private extern int get_valid_vertices_count_k4_volumetric_video_ex_resource(HandleRef volumetricVideoResource, int idCamera, int idFrame);
 
-        [DllImport("lnco-exvr-export", EntryPoint = "get_audio_data_total_size_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
+        [DllImport("exvr-export", EntryPoint = "get_audio_data_total_size_k4_volumetric_video_ex_resource", CallingConvention = CallingConvention.Cdecl)]
         static private extern int get_audio_data_total_size_k4_volumetric_video_ex_resource(HandleRef volumetricVideoResource, int idCamera);
 
         #endregion DllImport  

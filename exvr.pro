@@ -29,7 +29,7 @@ PROJECT_NAME = exvr
 
 TEMPLATE = subdirs
 
-SUBDIRS = exvr-designer exvr-components exvr-export exvr-test
+SUBDIRS = exvr-designer exvr-export exvr-test
 
 # where to find the sub projects
 exvr-designer.subdir    = cpp-projects/exvr-designer

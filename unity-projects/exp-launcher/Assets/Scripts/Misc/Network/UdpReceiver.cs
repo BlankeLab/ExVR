@@ -119,6 +119,7 @@ namespace Ex {
 
         public List<Tuple<double, double, string>> read_all_messages() {
 
+            Profiler.BeginSample("[ExVR][UdpReceiver][read_all_messages]");
             List<Tuple<double, double, string>> messages = null;
             Tuple<double, double, string> message;
             int size = m_messages.Count;
@@ -128,6 +129,7 @@ namespace Ex {
                 }
                 messages.Add(message);
             }
+            Profiler.EndSample();
             return messages;
         }
 
@@ -172,7 +174,7 @@ namespace Ex {
             }
 
             int id = m_counter++;
-            Thread.CurrentThread.Name = string.Concat("UdpReceiver ", id);
+            Thread.CurrentThread.Name = string.Concat("receiver ", id);
             Profiler.BeginThreadProfiling("UdpReceiver", Thread.CurrentThread.Name);
 
             byte[] endByte = Encoding.ASCII.GetBytes(new char[] { '\0' });
