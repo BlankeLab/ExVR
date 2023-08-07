@@ -9,7 +9,6 @@
 * [How to compile from code](#how-to-compile-from-code)
 * [Documentation](#documentation)
 * [Tutorials](#tutorials)
-* [Captures](#captures)
 * [Authors](#authors)
 
 ## Description
@@ -66,31 +65,30 @@ Go [here](https://github.com/BlankeLab/ExVR/releases) to download the last publi
 
 ## How to compile from code
 
- * Visual Studio 2019 Version 16.10 (or newer) is requested for compiling, you can get it [here](
+ * Visual Studio 2022 Version 17.4 (or newer) is requested for compiling, you can get it [here](
 https://visualstudio.microsoft.com/vs/community/). 
 
- * The project is using QtCreator qmake files and the Qt library (Qt 5.15), you can get the opensource version [here](https://www.qt.io/download-thank-you).
+ * The project is using QtCreator qmake files and the Qt library (Qt 6.5), you can get the opensource version [here](https://www.qt.io/download-thank-you).
 
  * Clone the project.
  * Open a command prompt, go to exvr directory and execute install_dependencies.cmd script, this will download and install the various dependencies for this project and toolbox subproject
  * Open QtCreator
- * Setup a kit to use MSVC2019 (amd64) with the Qt 5.15 msvc2019_64 qmake exe file.
+ * Setup a kit to use MSVC2019 compiler (amd64) with the Qt 6.5 msvc2019_64 qmake exe file (Qt/6.5.0/msvc2019_64/bin/qmake.exe)
  * Open exvr-all-exvr.pro project file
     * Setup a release config with ./exvr as working directory
     * Wait for indexing process (only first time)
     * Execute qmake on all-exvr project in the projects window
     * Launch compilation on all-exvr project in the projects window
     * Every subject project should have been compiled, so you can start them from QtCreator or by directly launching the relevant exe files
-       * exvr\toolbox\cpp-projects\_build/bin
-          * tool-tests (unit testing for the toolbox sub-project)
-          * demos/demos.exe (samples program for the toolbox sub-project)
-       * exvr\cpp-projects\_build\bin
-          * exvr-tests\exvr-test.exe (unit testing for exvr project)
-          * exvr-designer\exvr-designer.exe (exvr gui designer program)
-    * DLL projects
-       * exvr\cpp-projects\_build\bin
-          * exvr-export\exvr-export.dll (necessary for some ExVR components, copy it to exvr\unity-projects\exp-launcher for access from the unity editor of the ExVR exp launcher program and to exvr\cpp-projects\_build\bin\exvr-designer\exp-launcher for its built version)
-              
+       * exvr/cpp-projects/_build/bin
+          * exvr-designer/exvr-designer.exe (exvr gui designer program)
+          * exvr-tests/exvr-test.exe (unit testing for exvr project)
+          * exvr-export/exvr-export.dll (necessary for some ExVR components, copy it to exvr\unity-projects\exp-launcher for access from the unity editor of the ExVR exp launcher program and to exvr\cpp-projects\_build\bin\exvr-designer\exp-launcher for its built version)
+       * exvr/toolset/cpp-projects/_build/bin
+          * base-tests (unit testing for the toolset sub-project)
+          * k4-scaner-grabber (program for reading frames from a kinect azure device)
+          * k4-scaner-manager (program for reading frames from a network of kinect azure devices)
+          * demos/demos.exe (samples program for the toolset sub-project)              
 
 ## Documentation
 
