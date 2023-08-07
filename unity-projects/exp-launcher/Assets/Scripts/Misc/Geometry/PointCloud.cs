@@ -245,6 +245,7 @@ namespace Ex{
                 positions[ii] = infos[ii].transform.position;
                 rotations[ii] = Matrix4x4.Rotate(infos[ii].transform.rotation).inverse;
                 sizes[ii]     = infos[ii].transform.scale * 0.5f;
+                //sizes[ii].x *= -1f;
                 sizes[ii].w   = infos[ii].enabled ? 1f : 0f;
             }
 

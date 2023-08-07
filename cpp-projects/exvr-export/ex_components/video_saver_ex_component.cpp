@@ -73,7 +73,7 @@ void VideoSaverExComponent::start_experiment(){
     m_videoSize = cv::Size(get<int>(ParametersContainer::InitConfig, "width"), get<int>(ParametersContainer::InitConfig, "height"));
 
     m_video = std::make_unique<cv::VideoWriter>();
-    if(!m_video->open(m_videoPath,CV_FOURCC('M', 'J', 'P', 'G'), 1.0*get<int>(ParametersContainer::InitConfig, "fps"), m_videoSize, true)){
+    if(!m_video->open(m_videoPath,cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 1.0*get<int>(ParametersContainer::InitConfig, "fps"), m_videoSize, true)){
         log_error("Cannot write video to: " + m_videoPath);
         m_video = nullptr;
     }

@@ -51,8 +51,8 @@ void get_camera_transform_k4_volumetric_video_ex_resource(K4VolumetricVideoExRes
 }
 
 int get_id_frame_from_time_ms_k4_volumetric_video_ex_resource(K4VolumetricVideoExResource *vvR, int idC, float timeMs){
-    if(auto idF = vvR->video.closest_frame_id_from_time(idC, timeMs); idF.has_value()){
-        return static_cast<int>(idF.value());
+    if(auto idF = vvR->video.closest_frame_id_from_time(idC, timeMs); idF != -1){//.has_value()){
+        return static_cast<int>(idF/**.value()*/);
     }
     return -1;
 }

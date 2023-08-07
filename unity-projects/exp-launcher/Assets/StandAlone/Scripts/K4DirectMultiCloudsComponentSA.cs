@@ -253,6 +253,15 @@ namespace SA {
 
             for (int ii = 0; ii < m_OBBsGO.Count; ++ii) {
                 ApplySA.to_transform(m_OBBsInfo[ii].transform, m_OBBsGO[ii].transform, false);
+
+                m_OBBsGO[ii].transform.localScale *= -1f;
+                var p = m_OBBsGO[ii].transform.position;
+                var r = m_OBBsGO[ii].transform.rotation;
+                m_OBBsGO[ii].transform.localScale *= -1f;
+
+                m_OBBsInfo[ii].transform.position = p;
+                m_OBBsInfo[ii].transform.rotation = r;
+
                 m_OBBsGO[ii].GetComponent<MeshRenderer>().material.SetColor("_Color", m_OBBsInfo[ii].color);
             }
 

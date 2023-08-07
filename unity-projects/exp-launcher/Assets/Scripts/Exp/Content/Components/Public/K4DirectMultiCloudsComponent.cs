@@ -132,7 +132,7 @@ namespace Ex {
                         m_OBBsInfo[ii].enabled = Converter.to<bool>(args[0]);
                         m_OBBsInfo[ii].display = Converter.to<bool>(args[1]);
                         m_OBBsInfo[ii].color = Converter.to<Color>(args[2]);
-                        m_OBBsInfo[ii].transform = Converter.to_transform_value(args[3]);
+                        m_OBBsInfo[ii].transform = Converter.to_transform_value(args[3]);                        
                     } else {
                         log_error("Invalid filtering obb arg.");
                     }
@@ -144,6 +144,16 @@ namespace Ex {
                 }
 
                 Apply.to_transform(m_OBBsInfo[ii].transform, m_OBBsGO[ii].transform, true);
+
+                m_OBBsGO[ii].transform.localScale *= -1f;
+                var p = m_OBBsGO[ii].transform.position;
+                var r = m_OBBsGO[ii].transform.rotation;
+                m_OBBsGO[ii].transform.localScale *= -1f;
+
+                m_OBBsInfo[ii].transform.position = p;
+                m_OBBsInfo[ii].transform.rotation = r;
+
+
                 m_OBBsGO[ii].GetComponent<MeshRenderer>().material.SetColor("_Color", m_OBBsInfo[ii].color);
             }
 

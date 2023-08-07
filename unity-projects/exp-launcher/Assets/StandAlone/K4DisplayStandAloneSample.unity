@@ -265,6 +265,7 @@ MonoBehaviour:
   m_cloudsCustomTrGO: []
   m_cloudsConfigTrGO: []
   m_cloudsCalibTrGO: []
+  m_OBBsParent: {fileID: 0}
   m_OBBsGO: []
   m_cloudUpdated: 
 --- !u!1 &1303330479
@@ -403,11 +404,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   camerasToUse: 0;1;2;3
-  networkFilePath: D:/DEV/EPFL/lnco-exvr/exvr/toolbox/cpp-projects/_build/bin/k4-scaner-manager/config/network/network_FLORIAN-PC.config
+  networkFilePath: D:/DEV/EPFL/lnco-exvr/exvr/toolset/cpp-projects/_build/bin/k4-scaner-manager/config/network/network_FLORIAN-PC.config
   deviceFilePath: 
   filtersFilePath: 
   colorsFilePath: 
-  modelsFilePath: D:/DEV/EPFL/lnco-exvr/exvr/toolbox/cpp-projects/_build/bin/k4-scaner-manager/config/calibration/model_FLORIAN-PC_all.config
+  modelsFilePath: D:/DEV/EPFL/lnco-exvr/exvr/toolset/cpp-projects/_build/bin/k4-scaner-manager/config/calibration/model_FLORIAN-PC_all.config
   delayMs: 0
   m_initialized: 0
   m_nbConnections: 0
