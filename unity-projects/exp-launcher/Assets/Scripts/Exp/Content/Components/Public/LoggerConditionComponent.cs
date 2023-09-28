@@ -83,6 +83,7 @@ namespace Ex {
                     return;
                 }
             }
+            m_fileLogger = new FileLogger();
             m_fileLogger.start_logging();
         }
 

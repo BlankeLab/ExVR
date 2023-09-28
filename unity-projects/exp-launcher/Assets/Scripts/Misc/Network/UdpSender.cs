@@ -136,19 +136,20 @@ namespace Ex {
 
                 byte[] bytesToSend;
                 while(m_messages.TryDequeue(out bytesToSend)) {
-                    try {                        
-                        m_sender.Send(bytesToSend, bytesToSend.Length, m_endPoint);
-                        var expTime     = ExVR.Time().ellapsed_exp_ms();
-                        var routineTime = ExVR.Time().ellapsed_element_ms();
-                        if (triggersSent.Count < 1000) {
-                            triggersSent.Enqueue(new TimeAny(expTime, routineTime, ""));
-                        }
+
+                    var expTime     = ExVR.Time().ellapsed_exp_ms();
+                    var routineTime = ExVR.Time().ellapsed_element_ms();
+                    int nbBytesSent = 0;
+                    try {
+                        nbBytesSent = m_sender.Send(bytesToSend, bytesToSend.Length, m_endPoint);
                     } catch (SocketException e) {
                         UnityEngine.Debug.LogError(string.Format("Send socket error: [{0}] for message of size [{1}]", e.Message, bytesToSend.Length));
                     } catch(Exception e) {
                         UnityEngine.Debug.LogError(string.Format("Send error: [{0}] for message of size [{1}]", e.Message, bytesToSend.Length));
                     }
-                    
+                    if (triggersSent.Count < 1000) {
+                        triggersSent.Enqueue(new TimeAny(expTime, routineTime, nbBytesSent));
+                    }
                 }
                 Thread.Sleep(1);
             }

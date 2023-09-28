@@ -60,6 +60,8 @@ namespace Ex {
 
             m_fileLogger.start_logging();
             m_fileLogger.set_file_path(fullPath);
+
+            UnityEngine.Debug.Log("m_fileLogger " + m_fileLogger.ToString());
         }
 
         protected override void stop_experiment() {

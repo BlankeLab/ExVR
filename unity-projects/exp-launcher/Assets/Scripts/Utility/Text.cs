@@ -34,6 +34,10 @@ namespace Ex {
         public static readonly string[] linesSep = { "\r\n", "\r", "\n" };
         public static readonly char[] tabSep = { '\t' };
 
+        public static string new_line() {
+            return linesSep[2];
+        }
+
         public static string join(IEnumerable<string> text) {
             return string.Join("", text);
         }

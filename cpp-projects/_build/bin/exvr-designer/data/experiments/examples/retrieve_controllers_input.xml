@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Experiment name="retrieve_controllers_input" version="1.0b7" mode="designer" designer-used="D:/DEV/EPFL/lnco-exvr/exvr/cpp-projects/_build/bin/exvr-designer/ExVR.exe">
+    <Settings debug="1" csharp_debug_info="0" catch_components_exceptions="0" positional_tracking="1" catch_external_keyboard_events="0">
+        <Display mode="0" stereo_fov="60" fullscreen="0" monitor_id="1" resolution_id="2" custom_width="1920" custom_height="1080"/>
+        <Camera neutral_x="0" neutral_y="1" neutral_z="0"/>
+    </Settings>
+    <Resources reload="200"/>
+    <Components>
+        <Component key="0" name="Mouse" category="InputDevice" type="Mouse" global="1" always_updating="1" exceptions="0" frame_logging="1" trigger_logging="1" restricted="0" priority="2">
+            <InitConfig key="0" name="standard"/>
+            <Configs>
+                <Config key="1" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="1" name="Keyboard" category="InputDevice" type="Keyboard" global="1" always_updating="1" exceptions="0" frame_logging="1" trigger_logging="1" restricted="0" priority="2">
+            <InitConfig key="2" name="standard">
+                <Arg name="filter" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg name="keys_to_filter" ui="Block text editor" value="" type="System.String" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="3" name="standard"/>
+            </Configs>
+        </Component>
+        <Component key="2" name="Joypad" category="InputDevice" type="Joypad" global="1" always_updating="1" exceptions="0" frame_logging="1" trigger_logging="1" restricted="0" priority="2">
+            <InitConfig key="4" name="standard">
+                <Arg name="dead_zone_100" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_101" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_102" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_103" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_104" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_105" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_106" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_107" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_108" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_109" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_110" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_111" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_112" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_113" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_114" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+                <Arg name="dead_zone_115" ui="Double spin box" value="0.1" type="System.Double" dim="0"/>
+            </InitConfig>
+            <Configs>
+                <Config key="5" name="standard"/>
+            </Configs>
+        </Component>
+    </Components>
+    <FlowElements>
+        <Routines>
+            <Routine key="1" name="Routine 1" randomizer="0" informations="">
+                <Condition key="0" name="default" duration="100" ui_scale="10" ui_size="1" sets_keys="0">
+                    <Action key="0" key_component="0" key_config="1" node_used="1" node_position="-633.379 149.623">
+                        <!--Component Mouse with config standard -->
+                        <Timeline type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="1" key_component="1" key_config="3" node_used="1" node_position="-273.292 518.435">
+                        <!--Component Keyboard with config standard -->
+                        <Timeline type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Action key="2" key_component="2" key_config="5" node_used="1" node_position="1017.38 200.328">
+                        <!--Component Joypad with config standard -->
+                        <Timeline type="Update">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval t1="0" t2="100"/>
+                        </Timeline>
+                        <Timeline type="Visibiliy">
+                            <!--Starts at 0(s) and ends at 100s(), duration: 100(s) -->
+                            <Interval t1="0" t2="100"/>
+                        </Timeline>
+                    </Action>
+                    <Connector key="0" name="CheckJoypadAxis" node_position="1270.92 188.445">
+                        <Arg name="value" ui="Combo box text" value="LeftJoystickX_P1" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="1" name="CheckJoypadButton" node_position="1269.36 29.792">
+                        <Arg name="value" ui="Combo box text" value="A_P1" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="2" name="CheckKeyboardButton" node_position="-8.36267 487.756">
+                        <Arg name="value" ui="KeyboardButtonTrigger" value="Space%Time since exp" type="System.String" dim="1" sep="%" sizes="2"/>
+                    </Connector>
+                    <Connector key="3" name="CheckMouseButton" node_position="-383.416 66.104">
+                        <Arg name="value" ui="Combo box text" value="Mouse0" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="15" name="CheckJoypadAxis" node_position="1276.02 310.888">
+                        <Arg name="value" ui="Combo box text" value="RightJoystickX_P1" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="21" name="Logger" node_position="746.6 21.8">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="22" name="PassValueTrigger" node_position="151.8 -27.56">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="23" name="String" node_position="-398.24 -205.32">
+                        <Arg name="value" ui="Line text editor" value="Mouse 0 button is up" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="25" name="CheckMouseButton" node_position="-383.776 227.824">
+                        <Arg name="value" ui="Combo box text" value="Mouse1" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="27" name="String" node_position="-398.16 -288.52">
+                        <Arg name="value" ui="Line text editor" value="Mouse 0 button is down" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="28" name="PassValueTrigger" node_position="150.2 -159.96">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="29" name="String" node_position="-402.64 -42.68">
+                        <Arg name="value" ui="Line text editor" value="Mouse 1 button is up" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="30" name="String" node_position="-400.16 -125.64">
+                        <Arg name="value" ui="Line text editor" value="Mouse 1 button is down" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="31" name="PassValueTrigger" node_position="155 101.64">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="32" name="PassValueTrigger" node_position="158.44 227.48">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="33" name="PassValues" node_position="484.8 -1.2">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="35" name="PassValueTrigger" node_position="407.64 414.28">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="36" name="PassValueTrigger" node_position="414.44 571.08">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="37" name="String" node_position="70.8 374.4">
+                        <Arg name="value" ui="Line text editor" value="Space key is down" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="38" name="String" node_position="48.8 666.8">
+                        <Arg name="value" ui="Line text editor" value="Space key is up" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="39" name="PassValues" node_position="712.8 487.2">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="40" name="Logger" node_position="985.2 504">
+                        <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
+                    </Connector>
+                    <Connector key="41" name="Real" node_position="1716 205">
+                        <Arg name="value" ui="Double spin box" value="1" type="System.Double" dim="0"/>
+                    </Connector>
+                    <!--Connection between Key2:Component:Joypad:Port0 and Key1:Connector:CheckJoypadButton:Port0 -->
+                    <Connection key="1" out_type="component" out_key="2" signal_id="0" out_data_type="joypad_button" signal="button" in_type="connector" in_key="1" slot_id="0" in_data_type="joypad_button" slot="input value 0"/>
+                    <!--Connection between Key2:Component:Joypad:Port1 and Key0:Connector:CheckJoypadAxis:Port0 -->
+                    <Connection key="2" out_type="component" out_key="2" signal_id="1" out_data_type="joypad_axis" signal="axis" in_type="connector" in_key="0" slot_id="0" in_data_type="joypad_axis" slot="input value 0"/>
+                    <!--Connection between Key0:Component:Mouse:Port0 and Key3:Connector:CheckMouseButton:Port0 -->
+                    <Connection key="6" out_type="component" out_key="0" signal_id="0" out_data_type="mouse_button" signal="button" in_type="connector" in_key="3" slot_id="0" in_data_type="mouse_button" slot="input value 0"/>
+                    <!--Connection between Key2:Component:Joypad:Port1 and Key15:Connector:CheckJoypadAxis:Port0 -->
+                    <Connection key="18" out_type="component" out_key="2" signal_id="1" out_data_type="joypad_axis" signal="axis" in_type="connector" in_key="15" slot_id="0" in_data_type="joypad_axis" slot="input value 0"/>
+                    <!--Connection between Key3:Connector:CheckMouseButton:Port1 and Key22:Connector:PassValueTrigger:Port1 -->
+                    <Connection key="51" out_type="connector" out_key="3" signal_id="1" out_data_type="real" signal="output value 1" in_type="connector" in_key="22" slot_id="1" in_data_type="trigger" slot="input value 1"/>
+                    <!--Connection between Key23:Connector:String:Port0 and Key22:Connector:PassValueTrigger:Port0 -->
+                    <Connection key="52" out_type="connector" out_key="23" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="22" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key0:Component:Mouse:Port0 and Key25:Connector:CheckMouseButton:Port0 -->
+                    <Connection key="56" out_type="component" out_key="0" signal_id="0" out_data_type="mouse_button" signal="button" in_type="connector" in_key="25" slot_id="0" in_data_type="mouse_button" slot="input value 0"/>
+                    <!--Connection between Key3:Connector:CheckMouseButton:Port0 and Key28:Connector:PassValueTrigger:Port1 -->
+                    <Connection key="57" out_type="connector" out_key="3" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="28" slot_id="1" in_data_type="trigger" slot="input value 1"/>
+                    <!--Connection between Key27:Connector:String:Port0 and Key28:Connector:PassValueTrigger:Port0 -->
+                    <Connection key="58" out_type="connector" out_key="27" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="28" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key28:Connector:PassValueTrigger:Port0 and Key33:Connector:PassValues:Port0 -->
+                    <Connection key="65" out_type="connector" out_key="28" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="33" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key22:Connector:PassValueTrigger:Port0 and Key33:Connector:PassValues:Port1 -->
+                    <Connection key="66" out_type="connector" out_key="22" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="33" slot_id="1" in_data_type="any" slot="input value 1"/>
+                    <!--Connection between Key31:Connector:PassValueTrigger:Port0 and Key33:Connector:PassValues:Port2 -->
+                    <Connection key="67" out_type="connector" out_key="31" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="33" slot_id="2" in_data_type="any" slot="input value 2"/>
+                    <!--Connection between Key32:Connector:PassValueTrigger:Port0 and Key33:Connector:PassValues:Port3 -->
+                    <Connection key="68" out_type="connector" out_key="32" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="33" slot_id="3" in_data_type="any" slot="input value 3"/>
+                    <!--Connection between Key33:Connector:PassValues:Port0 and Key21:Connector:Logger:Port0 -->
+                    <Connection key="69" out_type="connector" out_key="33" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="21" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key25:Connector:CheckMouseButton:Port1 and Key32:Connector:PassValueTrigger:Port1 -->
+                    <Connection key="70" out_type="connector" out_key="25" signal_id="1" out_data_type="real" signal="output value 1" in_type="connector" in_key="32" slot_id="1" in_data_type="trigger" slot="input value 1"/>
+                    <!--Connection between Key25:Connector:CheckMouseButton:Port0 and Key31:Connector:PassValueTrigger:Port1 -->
+                    <Connection key="71" out_type="connector" out_key="25" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="31" slot_id="1" in_data_type="trigger" slot="input value 1"/>
+                    <!--Connection between Key30:Connector:String:Port0 and Key31:Connector:PassValueTrigger:Port0 -->
+                    <Connection key="72" out_type="connector" out_key="30" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="31" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key29:Connector:String:Port0 and Key32:Connector:PassValueTrigger:Port0 -->
+                    <Connection key="73" out_type="connector" out_key="29" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="32" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key1:Component:Keyboard:Port0 and Key2:Connector:CheckKeyboardButton:Port0 -->
+                    <Connection key="75" out_type="component" out_key="1" signal_id="0" out_data_type="keyboard_button" signal="button" in_type="connector" in_key="2" slot_id="0" in_data_type="keyboard_button" slot="input value 0"/>
+                    <!--Connection between Key2:Connector:CheckKeyboardButton:Port1 and Key36:Connector:PassValueTrigger:Port1 -->
+                    <Connection key="76" out_type="connector" out_key="2" signal_id="1" out_data_type="real" signal="output value 1" in_type="connector" in_key="36" slot_id="1" in_data_type="trigger" slot="input value 1"/>
+                    <!--Connection between Key2:Connector:CheckKeyboardButton:Port0 and Key35:Connector:PassValueTrigger:Port1 -->
+                    <Connection key="77" out_type="connector" out_key="2" signal_id="0" out_data_type="real" signal="output value 0" in_type="connector" in_key="35" slot_id="1" in_data_type="trigger" slot="input value 1"/>
+                    <!--Connection between Key38:Connector:String:Port0 and Key36:Connector:PassValueTrigger:Port0 -->
+                    <Connection key="78" out_type="connector" out_key="38" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="36" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key37:Connector:String:Port0 and Key35:Connector:PassValueTrigger:Port0 -->
+                    <Connection key="79" out_type="connector" out_key="37" signal_id="0" out_data_type="string" signal="output value 0" in_type="connector" in_key="35" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key36:Connector:PassValueTrigger:Port0 and Key39:Connector:PassValues:Port1 -->
+                    <Connection key="80" out_type="connector" out_key="36" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="39" slot_id="1" in_data_type="any" slot="input value 1"/>
+                    <!--Connection between Key35:Connector:PassValueTrigger:Port0 and Key39:Connector:PassValues:Port0 -->
+                    <Connection key="81" out_type="connector" out_key="35" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="39" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key39:Connector:PassValues:Port0 and Key40:Connector:Logger:Port0 -->
+                    <Connection key="82" out_type="connector" out_key="39" signal_id="0" out_data_type="any" signal="output value 0" in_type="connector" in_key="40" slot_id="0" in_data_type="any" slot="input value 0"/>
+                    <!--Connection between Key0:Connector:CheckJoypadAxis:Port0 and Key41:Connector:Real:Port0 -->
+                    <Connection key="109" out_type="connector" out_key="0" signal_id="0" out_data_type="float" signal="output value 0" in_type="connector" in_key="41" slot_id="0" in_data_type="real" slot="input value 0"/>
+                </Condition>
+            </Routine>
+        </Routines>
+        <ISIs/>
+        <Loops/>
+    </FlowElements>
+    <FlowSequence>
+        <Element key="1" type="Routine"/>
+    </FlowSequence>
+</Experiment>

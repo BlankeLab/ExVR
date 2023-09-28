@@ -55,7 +55,7 @@ auto test_k4_manager() -> void{
     manager->set_exp(&exp);
     manager->set(ParametersContainer::InitConfig, "debug_bypass", 0);
 
-    std::string pathN = "D:/DEV/EPFL/lnco-exvr/exvr/toolbox/cpp-projects/_build/bin/k4-scaner-manager/config/network/network_FLORIAN-PC.config";
+    std::string pathN = "D:/DEV/EPFL/lnco-exvr/exvr/toolset/cpp-projects/_build/bin/k4-scaner-manager/config/network/network_FLORIAN-PC.config";
     manager->set(ParametersContainer::Dynamic, "path_network_settings_file", pathN);
 
     Logger::message("initialize\n");

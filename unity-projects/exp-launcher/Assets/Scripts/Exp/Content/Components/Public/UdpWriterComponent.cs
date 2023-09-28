@@ -24,6 +24,7 @@
 
 // system
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Ex{
 
@@ -36,6 +37,7 @@ namespace Ex{
 
             // signals
             add_slot("send message", (message) => {
+                UnityEngine.Debug.Log("send " + (string)message);
                 m_udpSender.send_message((string)message);
             });
             add_signal(m_messageSentSignalStr);
@@ -69,7 +71,9 @@ namespace Ex{
 
             if (is_updating()) {
                 if (triggers != null) {
+                    UnityEngine.Debug.Log("trigg");
                     foreach (var trigger2 in triggers) {
+                        
                         invoke_signal(m_messageSentSignalStr, trigger2);
                     }
                 }
@@ -77,7 +81,7 @@ namespace Ex{
         }
 
         public void send_message(string message) {
-            if (is_updating()) {
+            if (is_updating()) {                
                 m_udpSender.send_message(message);
             }
         }

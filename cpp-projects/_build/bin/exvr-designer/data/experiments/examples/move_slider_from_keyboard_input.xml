@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Experiment name="keyboard_with_slider" version="1.0a48" mode="designer" designer-used="C:/all/lnco-exvr/exvr/cpp-projects/_build/bin/exvr-designer/ExVR.exe">
+<Experiment name="move_slider_from_keyboard_input" version="1.0b7" mode="designer" designer-used="D:/DEV/EPFL/lnco-exvr/exvr/cpp-projects/_build/bin/exvr-designer/ExVR.exe">
     <Settings debug="1" csharp_debug_info="0" catch_components_exceptions="0" positional_tracking="1" catch_external_keyboard_events="0">
         <Display mode="0" stereo_fov="60" fullscreen="0" monitor_id="1" resolution_id="2" custom_width="1920" custom_height="1080"/>
         <Camera neutral_x="0" neutral_y="1" neutral_z="0"/>
     </Settings>
     <Resources reload="200"/>
     <Components>
-        <Component key="1" name="Keyboard" type="Keyboard">
-            <InitConfig key="2" name="standard"/>
+        <Component key="1" name="Keyboard" category="InputDevice" type="Keyboard" global="1" always_updating="1" exceptions="0" frame_logging="1" trigger_logging="1" restricted="0" priority="2">
+            <InitConfig key="2" name="standard">
+                <Arg name="filter" ui="Check box" value="false" type="System.Boolean" dim="0"/>
+                <Arg name="keys_to_filter" ui="Block text editor" value="" type="System.String" dim="0"/>
+            </InitConfig>
             <Configs>
                 <Config key="3" name="standard"/>
             </Configs>
         </Component>
-        <Component key="2" name="Slider ui " type="SliderUI">
+        <Component key="2" name="Slider ui " category="UserInterface" type="SliderUI" global="0" always_updating="0" exceptions="1" frame_logging="0" trigger_logging="0" restricted="0" priority="1">
             <InitConfig key="4" name="standard">
                 <Arg name="horizontal_slider" ui="Check box" value="true" type="System.Boolean" dim="0"/>
             </InitConfig>
@@ -26,8 +29,9 @@
                     <Arg name="display_steps" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="distance" ui="Float spin box" value="1.4" type="System.Single" dim="0"/>
                     <Arg name="do_nothing" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
-                    <Arg name="fill_area_color" ui="Color pick" value="1 1 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
-                    <Arg name="handle_color" ui="Color pick" value="1 0.8 0.8 0.811765" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="eye_to_render" ui="Combo box text" value="Both eyes" type="System.String" dim="0"/>
+                    <Arg name="fill_area_color" ui="Color pick" value="0 1 0 1" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="handle_color" ui="Color pick" value="0.811765 0.8 0.8 1" type="System.Single" dim="1" sep=" " sizes="4"/>
                     <Arg name="height" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
                     <Arg name="max" ui="Float spin box" value="1" type="System.Single" dim="0"/>
                     <Arg name="min" ui="Float spin box" value="0" type="System.Single" dim="0"/>
@@ -37,7 +41,7 @@
                     <Arg name="pivot" ui="Vector 2D" value="0.5 0.5" type="System.Single" dim="1" sep=" " sizes="2"/>
                     <Arg name="position" ui="Vector 3D" value="0 0 10" type="System.Single" dim="1" sep=" " sizes="3"/>
                     <Arg name="random_start" ui="Check box" value="false" type="System.Boolean" dim="0"/>
-                    <Arg name="rest_area_color" ui="Color pick" value="1 0 0.470588 0.0941176" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="rest_area_color" ui="Color pick" value="0.0941176 0 0.470588 1" type="System.Single" dim="1" sep=" " sizes="4"/>
                     <Arg name="rotation" ui="Vector 3D" value="0 0 0" type="System.Single" dim="1" sep=" " sizes="3"/>
                     <Arg name="scale_factor" ui="Float spin box" value="0.25" type="System.Single" dim="0"/>
                     <Arg name="slider_text1" ui="Line text editor" value="Slider txt1" type="System.String" dim="0"/>
@@ -47,21 +51,25 @@
                     <Arg name="t1_auto_size" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="t1_bold" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="t1_character_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
-                    <Arg name="t1_face_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="t1_face_color" ui="Color pick" value="0 0 0 1" type="System.Single" dim="1" sep=" " sizes="4"/>
                     <Arg name="t1_font_size" ui="Float spin box" value="25" type="System.Single" dim="0"/>
                     <Arg name="t1_highlight" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="t1_italic" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="t1_line_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="t1_lower_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="t1_normal" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
-                    <Arg name="t1_outline_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="t1_outline_color" ui="Color pick" value="0 0 0 1" type="System.Single" dim="1" sep=" " sizes="4"/>
                     <Arg name="t1_outline_width" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="t1_paragraph_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="t1_rich_text" ui="Check box" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="t1_text" ui="Block text editor" value="Press left/right keys to move slider" type="System.String" dim="0"/>
+                    <Arg name="t1_text_component" ui="Component" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
                     <Arg name="t1_text_resource" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
                     <Arg name="t1_under_line" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="t1_upper_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="t1_use_component" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="t1_use_resource" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="t1_use_text" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="t1_word_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="t1_wrap" ui="Check box" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="t2_alignment" ui="Combo box text" value="Middle centered" type="System.String" dim="0"/>
@@ -75,71 +83,85 @@
                     <Arg name="t2_line_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="t2_lower_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="t2_normal" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
-                    <Arg name="t2_outline_color" ui="Color pick" value="1 0.352941 0.854902 0.411765" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="t2_outline_color" ui="Color pick" value="0.411765 0.352941 0.854902 1" type="System.Single" dim="1" sep=" " sizes="4"/>
                     <Arg name="t2_outline_width" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="t2_paragraph_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="t2_rich_text" ui="Check box" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="t2_text" ui="Block text editor" value="You can &lt;b&gt;customize&lt;/b&gt; every text field." type="System.String" dim="0"/>
+                    <Arg name="t2_text_component" ui="Component" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
                     <Arg name="t2_text_resource" ui="Resource" value="%%%-1" type="System.String" dim="1" sep="%%%" sizes="2"/>
                     <Arg name="t2_under_line" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="t2_upper_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="t2_use_component" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="t2_use_resource" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="t2_use_text" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="t2_word_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="t2_wrap" ui="Check box" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="tmax_alignment" ui="Combo box text" value="Middle centered" type="System.String" dim="0"/>
                     <Arg name="tmax_auto_size" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmax_bold" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmax_character_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
-                    <Arg name="tmax_face_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="tmax_face_color" ui="Color pick" value="1 0 0 1" type="System.Single" dim="1" sep=" " sizes="4"/>
                     <Arg name="tmax_font_size" ui="Float spin box" value="25" type="System.Single" dim="0"/>
                     <Arg name="tmax_highlight" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmax_italic" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmax_line_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tmax_lower_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmax_normal" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
-                    <Arg name="tmax_outline_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="tmax_outline_color" ui="Color pick" value="1 0 0 1" type="System.Single" dim="1" sep=" " sizes="4"/>
                     <Arg name="tmax_outline_width" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tmax_paragraph_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tmax_under_line" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmax_upper_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="tmax_use_component" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="tmax_use_resource" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="tmax_use_text" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="tmax_word_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tmax_wrap" ui="Check box" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="tmin_alignment" ui="Combo box text" value="Middle centered" type="System.String" dim="0"/>
                     <Arg name="tmin_auto_size" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmin_bold" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmin_character_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
-                    <Arg name="tmin_face_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="tmin_face_color" ui="Color pick" value="1 0 0 1" type="System.Single" dim="1" sep=" " sizes="4"/>
                     <Arg name="tmin_font_size" ui="Float spin box" value="25" type="System.Single" dim="0"/>
                     <Arg name="tmin_highlight" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmin_italic" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmin_line_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tmin_lower_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmin_normal" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
-                    <Arg name="tmin_outline_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="tmin_outline_color" ui="Color pick" value="1 0 0 1" type="System.Single" dim="1" sep=" " sizes="4"/>
                     <Arg name="tmin_outline_width" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tmin_paragraph_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tmin_under_line" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tmin_upper_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="tmin_use_component" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="tmin_use_resource" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="tmin_use_text" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="tmin_word_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tmin_wrap" ui="Check box" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="tvalue_alignment" ui="Combo box text" value="Middle centered" type="System.String" dim="0"/>
                     <Arg name="tvalue_auto_size" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tvalue_bold" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tvalue_character_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
-                    <Arg name="tvalue_face_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="tvalue_face_color" ui="Color pick" value="0 0 0 1" type="System.Single" dim="1" sep=" " sizes="4"/>
                     <Arg name="tvalue_font_size" ui="Float spin box" value="25" type="System.Single" dim="0"/>
                     <Arg name="tvalue_highlight" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tvalue_italic" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tvalue_line_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tvalue_lower_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tvalue_normal" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
-                    <Arg name="tvalue_outline_color" ui="Color pick" value="1 0 0 0" type="System.Single" dim="1" sep=" " sizes="4"/>
+                    <Arg name="tvalue_outline_color" ui="Color pick" value="0 0 0 1" type="System.Single" dim="1" sep=" " sizes="4"/>
                     <Arg name="tvalue_outline_width" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tvalue_paragraph_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tvalue_under_line" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="tvalue_upper_case" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="tvalue_use_component" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="tvalue_use_resource" ui="Radio buttons" value="false" type="System.Boolean" dim="0"/>
+                    <Arg name="tvalue_use_text" ui="Radio buttons" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="tvalue_word_spacing" ui="Float spin box" value="0" type="System.Single" dim="0"/>
                     <Arg name="tvalue_wrap" ui="Check box" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="use_eye_camera" ui="Check box" value="true" type="System.Boolean" dim="0"/>
+                    <Arg name="use_original_size" ui="Check box" value="true" type="System.Boolean" dim="0"/>
                     <Arg name="value" ui="Float spin box" value="0.25" type="System.Single" dim="0"/>
                     <Arg name="whole" ui="Check box" value="false" type="System.Boolean" dim="0"/>
                     <Arg name="width" ui="Integer spin box" value="400" type="System.Int32" dim="0"/>
@@ -177,10 +199,10 @@
                         <Arg name="value" ui="Double spin box" value="0.001" type="System.Double" dim="0"/>
                     </Connector>
                     <Connector key="6" name="CheckKeyboardButton" node_position="92 167">
-                        <Arg name="value" ui="Combo box text" value="Keypad4" type="System.String" dim="0"/>
+                        <Arg name="value" ui="KeyboardButtonTrigger" value="LeftArrow%Time since exp" type="System.String" dim="1" sep="%" sizes="2"/>
                     </Connector>
                     <Connector key="7" name="CheckKeyboardButton" node_position="95 316">
-                        <Arg name="value" ui="Combo box text" value="Keypad6" type="System.String" dim="0"/>
+                        <Arg name="value" ui="KeyboardButtonTrigger" value="RightArrow%Time since exp" type="System.String" dim="1" sep="%" sizes="2"/>
                     </Connector>
                     <Connector key="8" name="PassValueTrigger" node_position="434 172">
                         <Arg name="value" ui="Label" value="" type="System.String" dim="0"/>
