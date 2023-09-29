@@ -8,7 +8,8 @@
 * [How to install](#how-to-install)
 * [How to compile from code](#how-to-compile-from-code)
 * [Documentation](#documentation)
-* [Tutorials](#tutorials)
+* [Examples](#examples)
+* [Videos](#videos)
 * [Authors](#authors)
 
 ## Description
@@ -90,9 +91,15 @@ https://visualstudio.microsoft.com/vs/community/).
           * k4-scaner-manager (program for reading frames from a network of kinect azure devices)
           * demos/demos.exe (samples program for the toolset sub-project)              
 
+
+## Examples
+
+* [Details](cpp-projects/_build/bin/exvr-designer/data/experiments/examples/doc_examples.md)
+* [Experiment files directory](cpp-projects/_build/bin/exvr-designer/data/experiments/examples)
+
 ## Documentation
 
-* [ExVR Doc](cpp-projects/_build/bin/exvr-designer/data/documentation/doc_general.md)
+* [Index](cpp-projects/_build/bin/exvr-designer/data/documentation/doc_general.md)
 
 ## Videos
 
@@ -100,11 +107,6 @@ LNCO ExVR Workshop 2022:
 
 [![LNCO ExVR Workshop 2022](http://img.youtube.com/vi/0CLKMm5fcws/0.jpg)](https://www.youtube.com/watch?v=0CLKMm5fcws)
 
-## Tutorials
-
-(TODO)
-
-
 ## Authors
 
-Florian Lance
+[Florian Lance](https://www.linkedin.com/in/florian-lance/)
