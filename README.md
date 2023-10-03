@@ -14,7 +14,7 @@
 
 ## Description
 
-ExVR is a solution for creating and executing 3D/2D experiments using VR or not. Its philosophy is roughly similar to [Psychopy](https://www.psychopy.org/) and can easily be extended by users using scripting (C#, Python) or visual scripting (with nodes).
+ExVR is a solution for creating and executing 3D/2D experiments using VR or not. Its philosophy is roughly similar to [Psychopy](https://www.psychopy.org/) and can easily be extended by users using scripting (C#) or visual scripting (with nodes).
 
 It is subdivided in two software: 
   *	the designer GUI for creating the experiment content and its randomization
