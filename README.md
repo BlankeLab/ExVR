@@ -96,6 +96,7 @@ https://visualstudio.microsoft.com/vs/community/).
 
 * [Details](cpp-projects/_build/bin/exvr-designer/data/experiments/examples/doc_examples.md)
 * [Experiment files directory](cpp-projects/_build/bin/exvr-designer/data/experiments/examples)
+* [Resolved issues](https://github.com/BlankeLab/ExVR/issues?q=is%3Aissue+is%3Aclosed)
 
 ## Documentation
 
