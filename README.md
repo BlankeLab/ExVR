@@ -5,7 +5,7 @@
 * [Description](#description)
 * [Origin](#origin)
 * [Content](#content)
-* [How to install](#how-to-install)
+* [How to download](#how-to-download)
 * [How to compile from code](#how-to-compile-from-code)
 * [Documentation](#documentation)
 * [Examples](#examples)
@@ -60,7 +60,7 @@ The project has been developped at [EPFL LNCO laboratory](https://www.epfl.ch/la
     * instance file  -> for the randomization
   
 
-## How to install
+## How to download
 
 Go [here](https://github.com/BlankeLab/ExVR/releases) to download the last public release.
 
