@@ -3,13 +3,11 @@
 ## Summary
 
 * [Description](#description)
-* [Origin](#origin)
 * [Content](#content)
 * [How to download](#how-to-download)
+* [How to use](#how-to-use)
 * [How to compile from code](#how-to-compile-from-code)
-* [Documentation](#documentation)
-* [Examples](#examples)
-* [Videos](#videos)
+* [Medias](#medias)
 * [Authors](#authors)
 
 ## Description
@@ -23,14 +21,11 @@ It is subdivided in two software:
 They both communicate between themselves and makes easy to operate changes and see immediately the results.
 Once the design done, the user can then share the full experiment by exporting it, allowing accurate replications on others computers.
 
+The project has been developped at [EPFL LNCO laboratory](https://www.epfl.ch/labs/lnco/) (Laboratory of Cognitive Neuroscience) and has been funded by the [EPFL Open Science Fund](https://www.epfl.ch/research/open-science/in-practice/open-science-fund/) from the 2019 cohort. It has been used for dozains of experiments and demos inside LNCO or during external collaborations since its creation in 2018.
+
 <p float="center">
   <img src="captures/4-panel.png" width="800" />
 </p>
-
-## Origin
-
-The project has been developped at [EPFL LNCO laboratory](https://www.epfl.ch/labs/lnco/) (Laboratory of Cognitive Neuroscience) and has been funded by the [EPFL Open Science Fund](https://www.epfl.ch/research/open-science/in-practice/open-science-fund/) from the 2019 cohort. It has been used for dozains of experiments and demos inside LNCO or during external collaborations since its creation in 2018.
-
 
 ## Content
 
@@ -42,7 +37,7 @@ The project has been developped at [EPFL LNCO laboratory](https://www.epfl.ch/la
     * a wide range of advanced randomization settings
     * management of resources (scripts, images, sounds, 3D objects..)
     * actions (association of conditions and components using update/visibility timelines)   
-    * scripting using (C#,Python)
+    * scripting using C#
     * visual scripting using nodes for linking components
     * global settings (display options and others)
     * generation of the differents randomizations instances for each subjet
@@ -63,6 +58,15 @@ The project has been developped at [EPFL LNCO laboratory](https://www.epfl.ch/la
 ## How to download
 
 Go [here](https://github.com/BlankeLab/ExVR/releases) to download the last public release.
+
+## How to use
+
+* [Documentation](cpp-projects/_build/bin/exvr-designer/data/documentation/doc_general.md)
+* [Examples](cpp-projects/_build/bin/exvr-designer/data/experiments/examples/doc_examples.md)
+* [FAQ](cpp-projects/_build/bin/exvr-designer/data/documentation/faq.md)
+* [Experiment files directory](cpp-projects/_build/bin/exvr-designer/data/experiments/examples)
+* [Resolved issues](https://github.com/BlankeLab/ExVR/issues?q=is%3Aissue+is%3Aclosed)
+* [Pending issues](https://github.com/BlankeLab/ExVR/issues?q=is%3Aopen+is%3Aissue)
 
 ## How to compile from code
 
@@ -91,18 +95,7 @@ https://visualstudio.microsoft.com/vs/community/).
           * k4-scaner-manager (program for reading frames from a network of kinect azure devices)
           * demos/demos.exe (samples program for the toolset sub-project)              
 
-
-## Examples
-
-* [Details](cpp-projects/_build/bin/exvr-designer/data/experiments/examples/doc_examples.md)
-* [Experiment files directory](cpp-projects/_build/bin/exvr-designer/data/experiments/examples)
-* [Resolved issues](https://github.com/BlankeLab/ExVR/issues?q=is%3Aissue+is%3Aclosed)
-
-## Documentation
-
-* [Index](cpp-projects/_build/bin/exvr-designer/data/documentation/doc_general.md)
-
-## Videos
+## Medias
 
 LNCO ExVR Workshop 2022:
 
