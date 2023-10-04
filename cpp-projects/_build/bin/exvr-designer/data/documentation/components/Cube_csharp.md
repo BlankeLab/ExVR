@@ -68,7 +68,7 @@ initC.get<bool>("tranparent");
 
 // condition config
 var currentC = current_config();
-TransformValue trV = currentC.get_transform("transform");
+TransformValue trV = currentC.get_transform_value("transform");
 currentC.get_color("color");
 currentC.get<float>("metallic");
 currentC.get<float>("smoothness");

@@ -72,7 +72,7 @@ namespace Ex{
     initC.get<bool>("tranparent");
 
     // condition config (current_config() or currentC for getting the config)
-    TransformValue trV = currentC.get_transform("transform");
+    TransformValue trV = currentC.get_transform_value("transform");
     currentC.get_color("color");
     currentC.get<float>("metallic");
     currentC.get<float>("smoothness");
