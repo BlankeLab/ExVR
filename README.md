@@ -57,7 +57,8 @@ The project has been developped at [EPFL LNCO laboratory](https://www.epfl.ch/la
 
 ## How to download
 
-Go [here](https://github.com/BlankeLab/ExVR/releases) to download the last public release.
+* [Click here to download the last public release](https://github.com/BlankeLab/ExVR/releases/download/1.0b6/exvr-designer-1.0b6.zip)
+* [Others releases or assets](https://github.com/BlankeLab/ExVR/releases)
 
 ## How to use
 
