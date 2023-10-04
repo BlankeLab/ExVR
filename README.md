@@ -77,7 +77,7 @@ https://visualstudio.microsoft.com/vs/community/).
  * The project is using QtCreator qmake files and the Qt library (Qt 6.5), you can get the opensource version [here](https://www.qt.io/download-thank-you).
 
  * Clone the project.
- * Open a command prompt, go to exvr directory and execute install_dependencies.cmd script, this will download and install the various dependencies for this project and toolbox subproject
+ * Open a command prompt, go to exvr directory and execute install_dependencies.cmd script, this will download and install the various dependencies for this project and toolset subproject
  * Open QtCreator
  * Setup a kit to use MSVC2019 compiler (amd64) with the Qt 6.5 msvc2019_64 qmake exe file (Qt/6.5.0/msvc2019_64/bin/qmake.exe)
  * Open exvr-all-exvr.pro project file
