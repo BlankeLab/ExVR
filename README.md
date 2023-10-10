@@ -65,9 +65,7 @@ The project has been developped at [EPFL LNCO laboratory](https://www.epfl.ch/la
 * [Documentation](cpp-projects/_build/bin/exvr-designer/data/documentation/doc_general.md)
 * [Examples](cpp-projects/_build/bin/exvr-designer/data/experiments/examples/doc_examples.md)
 * [FAQ](cpp-projects/_build/bin/exvr-designer/data/documentation/faq.md)
-* [Experiment files directory](cpp-projects/_build/bin/exvr-designer/data/experiments/examples)
 * [Resolved issues](https://github.com/BlankeLab/ExVR/issues?q=is%3Aissue+is%3Aclosed)
-* [Pending issues](https://github.com/BlankeLab/ExVR/issues?q=is%3Aopen+is%3Aissue)
 
 ## How to compile from code
 
