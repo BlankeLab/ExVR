@@ -62,9 +62,13 @@ The project has been developped at [EPFL LNCO laboratory](https://www.epfl.ch/la
 
 ## Medias
 
-LNCO ExVR Workshop 2022:
+#### LNCO ExVR Workshop 2022:
 
-[![LNCO ExVR Workshop 2022](http://img.youtube.com/vi/0CLKMm5fcws/0.jpg)](https://www.youtube.com/watch?v=0CLKMm5fcws)  
+[![LNCO ExVR Workshop 2022](http://img.youtube.com/vi/0CLKMm5fcws/0.jpg)](https://www.youtube.com/watch?v=0CLKMm5fcws)
+
+####  VR Kinect body-scanner with Sonceboz hexapod and ExVR
+ 
+[![VR Kinect body-scanner with Sonceboz hexapod and ExVR](http://img.youtube.com/vi/xDFSsHesGck/0.jpg)](https://www.youtube.com/watch?v=xDFSsHesGck)  
 
 ## How to download
 
